@@ -33,7 +33,7 @@ CmdxServer.run((registry) => {
 	registry.registerCommandsIn(commandContainer);
 
 	// You can also provide a registry to any container you want using this method.
-	// All ModuleScripts that return a function found in the container will
+	// All ModuleScripts (that return a function) in the container will
 	// be called with the registry argument.
 	registry.registerContainer(script.Parent.Types);
 });
