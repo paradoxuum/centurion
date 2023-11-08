@@ -89,6 +89,7 @@ A command that uses the group feature:
 	globalGroups: ["info"],
 })
 class InfoCommand {
+	// This command will be executable through "info user view" once registered!
 	@Command({
 		name: "view",
 		arguments: [
@@ -101,5 +102,14 @@ class InfoCommand {
 	})
 	@Group("user") // You can also define groups like this: @Group("info", "user")
 	userView(executor: Player, player: Player) {}
+
+	// This command can have the same name as the above command, because it
+	// is grouped under "server" instead.
+	// This command will be executable through "info server view" once registered!
+	@Command({
+		name: "view",
+	})
+	@Group("server")
+	serverView(executor: Player) {}
 }
 ```
