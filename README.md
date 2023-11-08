@@ -94,7 +94,7 @@ class InfoCommand {
 		arguments: [
 			{
 				name: "player",
-				description: "Player to view information for",
+				description: "Player to display information about",
 				type: BuiltInTypes.Player,
 			},
 		],
