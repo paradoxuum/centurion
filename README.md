@@ -15,7 +15,7 @@ The framework will be designed in a way that allows the default interface to eas
 
 ## Usage
 
-All classes must best decorated with `@Cmdx` in order for their commands to be registered.
+All classes must be decorated with `@Cmdx` in order for their commands to be registered.
 
 The command registry then looks for all methods annotated with `@Command` in this class.
 
@@ -26,14 +26,14 @@ being executed, for example:
 
 ```ts
 CmdxServer.run((registry) => {
-	// Get the Instance containing all of your commands
+	// Get the Instance containing your commands
 	const commandContainer = script.Parent.Commands;
 
 	// Register them!
 	registry.registerCommandsIn(commandContainer);
 
 	// You can also provide a registry to any container you want using this method.
-	// All ModuleScripts found in the container that return a function will
+	// All ModuleScripts that return a function found in the container will
 	// be called with the registry argument.
 	registry.registerContainer(script.Parent.Types);
 });
