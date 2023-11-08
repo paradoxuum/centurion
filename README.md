@@ -91,7 +91,13 @@ A command that uses the group feature:
 class InfoCommand {
 	@Command({
 		name: "view",
-		arguments: [{ name: "player", description: "Player to view information for", type: BuiltInTypes.Player }],
+		arguments: [
+			{
+				name: "player",
+				description: "Player to view information for",
+				type: BuiltInTypes.Player,
+			},
+		],
 	})
 	@Group("user") // You can also define groups like this: @Group("info", "user")
 	userView(executor: Player, player: Player) {}
