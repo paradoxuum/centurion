@@ -1,17 +1,18 @@
 import Roact from "@rbxts/roact";
 
+import { BindingOrValue } from "@rbxts/pretty-react-hooks";
 import { FrameProps } from "./Frame";
 
 export interface ImageProps extends FrameProps<ImageLabel> {
 	image: string;
-	imageColor?: Color3 | Roact.Binding<Color3>;
-	imageTransparency?: number | Roact.Binding<number>;
-	imageRectOffset?: Vector2 | Roact.Binding<Vector2>;
-	imageRectSize?: Vector2 | Roact.Binding<Vector2>;
+	imageColor?: BindingOrValue<Color3>;
+	imageTransparency?: BindingOrValue<number>;
+	imageRectOffset?: BindingOrValue<Vector2>;
+	imageRectSize?: BindingOrValue<Vector2>;
 	scaleType?: Roact.InferEnumNames<Enum.ScaleType>;
-	sliceScale?: number | Roact.Binding<number>;
-	sliceCenter?: Rect | Roact.Binding<Rect>;
-	tileSize?: UDim2 | Roact.Binding<UDim2>;
+	sliceScale?: BindingOrValue<number>;
+	sliceCenter?: BindingOrValue<Rect>;
+	tileSize?: BindingOrValue<UDim2>;
 }
 
 export function Image(props: ImageProps) {

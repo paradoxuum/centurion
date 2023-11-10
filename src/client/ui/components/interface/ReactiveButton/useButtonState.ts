@@ -2,7 +2,7 @@ import { useEventListener, useLatest } from "@rbxts/pretty-react-hooks";
 import { useMemo, useState } from "@rbxts/roact";
 import { UserInputService } from "@rbxts/services";
 import { setTimeout } from "@rbxts/set-timeout";
-import { useInputDevice } from "../../hooks/useInputDevice";
+import { useInputDevice } from "../../../hooks/useInputDevice";
 
 export interface ButtonEvents {
 	onMouseDown: () => void;

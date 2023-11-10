@@ -1,7 +1,7 @@
-import { blend, composeBindings, lerpBinding, useUpdateEffect } from "@rbxts/pretty-react-hooks";
+import { BindingOrValue, blend, composeBindings, lerpBinding, useUpdateEffect } from "@rbxts/pretty-react-hooks";
 import Roact from "@rbxts/roact";
-import { useMotion } from "../../hooks/useMotion";
-import { useRem } from "../../hooks/useRem";
+import { useMotion } from "../../../hooks/useMotion";
+import { useRem } from "../../../hooks/useRem";
 import { Button } from "../Button";
 import { Frame } from "../Frame";
 import { useButtonAnimation } from "./useButtonAnimation";
@@ -16,19 +16,19 @@ interface ReactiveButtonProps extends Roact.PropsWithChildren {
 	onHover?: (hovered: boolean) => void;
 	onPress?: (pressed: boolean) => void;
 	enabled?: boolean;
-	size?: UDim2 | Roact.Binding<UDim2>;
-	position?: UDim2 | Roact.Binding<UDim2>;
-	anchorPoint?: Vector2 | Roact.Binding<Vector2>;
-	backgroundColor?: Color3 | Roact.Binding<Color3>;
-	backgroundTransparency?: number | Roact.Binding<number>;
-	cornerRadius?: UDim | Roact.Binding<UDim>;
-	layoutOrder?: number | Roact.Binding<number>;
+	size?: BindingOrValue<UDim2>;
+	position?: BindingOrValue<UDim2>;
+	anchorPoint?: BindingOrValue<Vector2>;
+	backgroundColor?: BindingOrValue<Color3>;
+	backgroundTransparency?: BindingOrValue<number>;
+	cornerRadius?: BindingOrValue<UDim>;
+	layoutOrder?: BindingOrValue<number>;
 	animatePosition?: boolean;
 	animatePositionStrength?: number;
 	animatePositionDirection?: Vector2;
 	animateSize?: boolean;
 	animateSizeStrength?: number;
-	zIndex?: number | Roact.Binding<number>;
+	zIndex?: BindingOrValue<number>;
 	event?: Roact.JsxInstanceEvents<TextButton>;
 	change?: Roact.JsxInstanceChangeEvents<TextButton>;
 }

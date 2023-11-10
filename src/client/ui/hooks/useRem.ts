@@ -1,6 +1,5 @@
 import { useCallback, useContext } from "@rbxts/roact";
-
-import { DEFAULT_REM, RemContext } from "../providers/rem-provider";
+import { DEFAULT_REM, RemContext } from "../providers/remProvider";
 
 export interface RemOptions {
 	minimum?: number;

@@ -1,20 +1,21 @@
+import { BindingOrValue } from "@rbxts/pretty-react-hooks";
 import Roact, { forwardRef, Ref } from "@rbxts/roact";
 
 export interface FrameProps<T extends Instance = Frame> extends Roact.PropsWithChildren {
 	ref?: Roact.Ref<T>;
 	event?: Roact.JsxInstanceEvents<T>;
 	change?: Roact.JsxInstanceChangeEvents<T>;
-	size?: UDim2 | Roact.Binding<UDim2>;
-	position?: UDim2 | Roact.Binding<UDim2>;
-	anchorPoint?: Vector2 | Roact.Binding<Vector2>;
-	rotation?: number | Roact.Binding<number>;
-	backgroundColor?: Color3 | Roact.Binding<Color3>;
-	backgroundTransparency?: number | Roact.Binding<number>;
-	clipsDescendants?: boolean | Roact.Binding<boolean>;
-	visible?: boolean | Roact.Binding<boolean>;
-	zIndex?: number | Roact.Binding<number>;
-	layoutOrder?: number | Roact.Binding<number>;
-	cornerRadius?: UDim | Roact.Binding<UDim>;
+	size?: BindingOrValue<UDim2>;
+	position?: BindingOrValue<UDim2>;
+	anchorPoint?: BindingOrValue<Vector2>;
+	rotation?: BindingOrValue<number>;
+	backgroundColor?: BindingOrValue<Color3>;
+	backgroundTransparency?: BindingOrValue<number>;
+	clipsDescendants?: BindingOrValue<boolean>;
+	visible?: BindingOrValue<boolean>;
+	zIndex?: BindingOrValue<number>;
+	layoutOrder?: BindingOrValue<number>;
+	cornerRadius?: BindingOrValue<UDim>;
 }
 
 export const Frame = forwardRef((props: FrameProps, ref: Ref<Frame>) => {

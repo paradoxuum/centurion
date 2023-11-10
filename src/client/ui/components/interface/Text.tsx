@@ -1,30 +1,32 @@
-import Roact from "@rbxts/roact";
-import { fonts } from "../constants/fonts";
-import { useRem } from "../hooks/useRem";
+import { BindingOrValue } from "@rbxts/pretty-react-hooks";
+import Roact, { Ref, forwardRef } from "@rbxts/roact";
+import { fonts } from "../../constants/fonts";
+import { useRem } from "../../hooks/useRem";
 import { FrameProps } from "./Frame";
 
 export interface TextProps<T extends Instance = TextLabel> extends FrameProps<T> {
 	font?: Font;
-	text?: string | Roact.Binding<string>;
-	textColor?: Color3 | Roact.Binding<Color3>;
-	textSize?: number | Roact.Binding<number>;
-	textTransparency?: number | Roact.Binding<number>;
-	textWrapped?: boolean | Roact.Binding<boolean>;
+	text?: BindingOrValue<string>;
+	textColor?: BindingOrValue<Color3>;
+	textSize?: BindingOrValue<number>;
+	textTransparency?: BindingOrValue<number>;
+	textWrapped?: BindingOrValue<boolean>;
 	textXAlignment?: Roact.InferEnumNames<Enum.TextXAlignment>;
 	textYAlignment?: Roact.InferEnumNames<Enum.TextYAlignment>;
 	textTruncate?: Roact.InferEnumNames<Enum.TextTruncate>;
-	textScaled?: boolean | Roact.Binding<boolean>;
-	textHeight?: number | Roact.Binding<number>;
+	textScaled?: BindingOrValue<boolean>;
+	textHeight?: BindingOrValue<number>;
 	textAutoResize?: "X" | "Y" | "XY";
-	richText?: boolean | Roact.Binding<boolean>;
-	maxVisibleGraphemes?: number | Roact.Binding<number>;
+	richText?: BindingOrValue<boolean>;
+	maxVisibleGraphemes?: BindingOrValue<number>;
 }
 
-export function Text(props: TextProps) {
+export const Text = forwardRef((props: TextProps, ref: Ref<TextLabel>) => {
 	const rem = useRem();
 
 	return (
 		<textlabel
+			ref={ref}
 			Font={Enum.Font.Unknown}
 			FontFace={props.font || fonts.inter.regular}
 			Text={props.text}
@@ -56,4 +58,4 @@ export function Text(props: TextProps) {
 			{props.children}
 		</textlabel>
 	);
-}
+});
