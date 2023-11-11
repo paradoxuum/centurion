@@ -12,18 +12,27 @@ interface TerminalTextFieldProps {
 	anchorPoint?: BindingOrValue<Vector2>;
 	size?: BindingOrValue<UDim2>;
 	position?: BindingOrValue<UDim2>;
+	onTextChange?: (text: string) => void;
+	onSubmit?: (text: string) => void;
 }
 
-export function TerminalTextField({ anchorPoint, size, position }: TerminalTextFieldProps) {
+export function TerminalTextField({ anchorPoint, size, position, onTextChange, onSubmit }: TerminalTextFieldProps) {
 	const rem = useRem();
 	const ref = useRef<TextBox>();
 
 	useEffect(() => {
 		const textBox = ref.current!;
+
+		let prevText = "";
 		textBox.GetPropertyChangedSignal("Text").Connect(() => {
 			// Remove all tabs from text input - we use these for autocompletion
 			if (textBox.Text.match("\t")[0] !== undefined) {
 				textBox.Text = textBox.Text.gsub("\t", "")[0];
+			}
+
+			if (prevText !== textBox.Text) {
+				onTextChange?.(textBox.Text);
+				prevText = textBox.Text;
 			}
 		});
 	}, [ref]);
@@ -41,6 +50,15 @@ export function TerminalTextField({ anchorPoint, size, position }: TerminalTextF
 				clearTextOnFocus={false}
 				font={fonts.inter.medium}
 				ref={ref}
+				event={{
+					FocusLost: (rbx, enterPressed) => {
+						if (!enterPressed) {
+							return;
+						}
+
+						onSubmit?.(rbx.Text);
+					},
+				}}
 			>
 				<Padding all={new UDim(0, rem(1))} />
 			</TextField>
