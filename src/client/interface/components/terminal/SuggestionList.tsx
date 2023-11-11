@@ -63,7 +63,7 @@ export function SuggestionList({ position }: SuggestionListProps) {
 	});
 	const windowSizeBinding = useMemo(() => {
 		return windowSize.map(({ x, y }) => {
-			return UDim2.fromOffset(math.round(x), math.round(y));
+			return UDim2.fromOffset(math.ceil(x), math.ceil(y));
 		});
 	}, []);
 

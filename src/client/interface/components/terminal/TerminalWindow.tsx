@@ -39,7 +39,7 @@ export function TerminalWindow({ onSubmit }: TerminalWindowProps) {
 
 	const windowHeightBinding = useMemo(() => {
 		return historyHeight.map((y) => {
-			return new UDim2(1, 0, 0, math.round(rem(5) + y));
+			return new UDim2(1, 0, 0, math.ceil(rem(5) + y));
 		});
 	}, [rem]);
 
