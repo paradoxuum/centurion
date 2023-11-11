@@ -7,7 +7,7 @@ import { palette } from "../../constants/palette";
 import { springs } from "../../constants/springs";
 import { useMotion } from "../../hooks/useMotion";
 import { useRem } from "../../hooks/useRem";
-import { SuggestionData } from "../../types/suggestion";
+import { SuggestionData } from "../../types/data";
 import { Frame } from "../interface/Frame";
 import { Group } from "../interface/Group";
 import { Padding } from "../interface/Padding";

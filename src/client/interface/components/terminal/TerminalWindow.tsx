@@ -16,14 +16,16 @@ import { Shadow } from "../interface/Shadow";
 import { HistoryLine } from "./HistoryLine";
 import { TerminalTextField } from "./TerminalTextField";
 
-interface Props {}
+interface TerminalWindowProps {
+	onSubmit?: (text: string) => void;
+}
 
 interface HistoryLineData {
 	height: number;
 	entry: HistoryEntry;
 }
 
-export function TerminalWindow() {
+export function TerminalWindow({ onSubmit }: TerminalWindowProps) {
 	const rem = useRem();
 	const data = useContext(DataContext);
 
@@ -75,7 +77,12 @@ export function TerminalWindow() {
 				size={new UDim2(1, 0, 0, rem(4))}
 				position={UDim2.fromScale(0, 1)}
 			>
-				<TerminalTextField size={new UDim2(1, -rem(4.5), 1, 0)} />
+				<TerminalTextField
+					key="text-field"
+					size={new UDim2(1, -rem(4.5), 1, 0)}
+					onTextChange={(text) => data.setText(text)}
+					onSubmit={onSubmit}
+				/>
 
 				<PrimaryButton
 					key="execute-button"
