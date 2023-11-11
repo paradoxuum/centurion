@@ -49,7 +49,6 @@ export function TerminalWindow({ onSubmit }: TerminalWindowProps) {
 
 		const historyLines: HistoryLineData[] = [];
 		const textMaxBounds = new Vector2(math.huge, math.huge);
-		let index = 0;
 		for (const entry of data.history) {
 			const textSize = TextService.GetTextSize(entry.text, rem(1.5), "GothamMedium", textMaxBounds);
 			totalHeight += textSize.Y;
@@ -57,7 +56,6 @@ export function TerminalWindow({ onSubmit }: TerminalWindowProps) {
 				height: textSize.Y,
 				entry,
 			});
-			index++;
 		}
 
 		const isClamped = totalHeight > rem(16);
