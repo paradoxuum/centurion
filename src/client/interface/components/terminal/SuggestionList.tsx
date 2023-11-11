@@ -71,7 +71,7 @@ export function SuggestionList({ position, suggestions }: SuggestionListProps) {
 			},
 			springs.responsive,
 		);
-	}, [topSuggestion]);
+	}, [topSuggestion, rem]);
 
 	return (
 		<Group
