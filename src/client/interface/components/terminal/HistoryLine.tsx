@@ -12,9 +12,10 @@ interface HistoryLineProps {
 	data: HistoryEntry;
 	size?: BindingOrValue<UDim2>;
 	position?: BindingOrValue<UDim2>;
+	order?: BindingOrValue<number>;
 }
 
-export function HistoryLine({ data, size, position }: HistoryLineProps) {
+export function HistoryLine({ data, size, position, order }: HistoryLineProps) {
 	const rem = useRem();
 	const date = useMemo(() => {
 		const dateTime = DateTime.fromUnixTimestamp(data.sentAt);
@@ -22,7 +23,7 @@ export function HistoryLine({ data, size, position }: HistoryLineProps) {
 	}, [data]);
 
 	return (
-		<Group size={size} position={position}>
+		<Group size={size} position={position} layoutOrder={order}>
 			<Frame
 				backgroundColor={palette.surface1}
 				size={UDim2.fromOffset(rem(7), rem(1.5))}

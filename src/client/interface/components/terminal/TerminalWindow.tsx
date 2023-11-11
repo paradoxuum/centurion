@@ -68,7 +68,7 @@ export function TerminalWindow({ onSubmit }: TerminalWindowProps) {
 				{history.map((data) => (
 					<HistoryLine size={new UDim2(1, 0, 0, data.height)} data={data.entry} />
 				))}
-				<uilistlayout Padding={new UDim(0, rem(0.5))} />
+				<uilistlayout Padding={new UDim(0, rem(0.5))} SortOrder="LayoutOrder" />
 			</ScrollingFrame>
 
 			<Group
