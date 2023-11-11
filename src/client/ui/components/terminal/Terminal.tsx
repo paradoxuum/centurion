@@ -1,5 +1,4 @@
-import Roact from "@rbxts/roact";
-import { fonts } from "../../constants/fonts";
+import Roact, { useRef } from "@rbxts/roact";
 import { images } from "../../constants/images";
 import { palette } from "../../constants/palette";
 import { useRem } from "../../hooks/useRem";
@@ -9,11 +8,12 @@ import { Image } from "../interface/Image";
 import { Padding } from "../interface/Padding";
 import { PrimaryButton } from "../interface/PrimaryButton";
 import { Shadow } from "../interface/Shadow";
-import { TextField } from "../interface/TextField";
 import { SuggestionList } from "./SuggestionList";
+import { TerminalTextField } from "./TerminalTextField";
 
 export default function Terminal() {
 	const rem = useRem();
+	const textBoxRef = useRef<TextBox>();
 
 	return (
 		<Group key="terminal" size={new UDim2(1, 0, 0, rem(32))}>
@@ -25,26 +25,7 @@ export default function Terminal() {
 				>
 					<Padding all={new UDim(0, rem(0.5))} />
 
-					<Group key="text-field" anchorPoint={new Vector2(0, 0)} size={new UDim2(1, -rem(5), 1, 0)}>
-						<TextField
-							key="textbox"
-							size={UDim2.fromScale(1, 1)}
-							placeholderText="Enter command..."
-							textColor={palette.white}
-							textSize={20}
-							textXAlignment="Left"
-							textTruncate="AtEnd"
-							font={fonts.inter.medium}
-						>
-							<Padding all={new UDim(0, rem(1))} />
-						</TextField>
-						<Frame
-							zIndex={0}
-							backgroundColor={palette.mantle}
-							size={UDim2.fromScale(1, 1)}
-							cornerRadius={new UDim(0, rem(0.25))}
-						/>
-					</Group>
+					<TerminalTextField size={new UDim2(1, -rem(4.5), 1, 0)} />
 
 					<PrimaryButton
 						anchorPoint={new Vector2(1, 0.5)}
