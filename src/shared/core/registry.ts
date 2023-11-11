@@ -12,7 +12,7 @@ export abstract class BaseRegistry {
 	protected frozen = false;
 
 	init() {
-		const builtInTypes = script.Parent?.FindFirstChild("builtin")?.FindFirstChild("types");
+		const builtInTypes = script.Parent?.Parent?.FindFirstChild("builtin")?.FindFirstChild("types");
 		assert(builtInTypes !== undefined, "Built-in type container does not exist");
 		this.registerContainer(builtInTypes);
 	}
