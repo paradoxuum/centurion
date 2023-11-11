@@ -7,7 +7,11 @@ export = story({
 	summary: "Terminal UI",
 	story: () => {
 		return (
-			<RootProvider>
+			<RootProvider
+				data={{
+					history: [],
+				}}
+			>
 				<Terminal />
 			</RootProvider>
 		);
