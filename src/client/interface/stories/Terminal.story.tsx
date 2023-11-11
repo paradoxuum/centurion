@@ -20,6 +20,8 @@ export = story({
 							text: "History entry 2\nLine 2\nLine 3",
 						},
 					],
+					getCommandSuggestions: () => [],
+					getArgumentSuggestions: () => [],
 				}}
 			>
 				<Terminal />

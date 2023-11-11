@@ -1,13 +1,15 @@
-import { BindingOrValue, getBindingValue, mapBinding } from "@rbxts/pretty-react-hooks";
-import Roact, { useEffect, useMemo, useState } from "@rbxts/roact";
+import { mapBinding } from "@rbxts/pretty-react-hooks";
+import Roact, { useCallback, useContext, useEffect, useMemo, useState } from "@rbxts/roact";
 import { TextService } from "@rbxts/services";
 import { slice } from "@rbxts/sift/out/Array";
+import { SuggestionData } from "../../../types";
 import { fonts } from "../../constants/fonts";
 import { palette } from "../../constants/palette";
 import { springs } from "../../constants/springs";
 import { useMotion } from "../../hooks/useMotion";
 import { useRem } from "../../hooks/useRem";
-import { SuggestionData } from "../../types/data";
+import { DataContext } from "../../providers/dataProvider";
+import { toHex } from "../../util/color";
 import { Frame } from "../interface/Frame";
 import { Group } from "../interface/Group";
 import { Padding } from "../interface/Padding";
@@ -16,20 +18,31 @@ import { Text } from "../interface/Text";
 
 export interface SuggestionListProps {
 	position?: UDim2;
-	suggestions: BindingOrValue<SuggestionData[]>;
 }
 
-export function SuggestionList({ position, suggestions }: SuggestionListProps) {
+const HIGHLIGHT_PREFIX = `<font color="${toHex(palette.blue)}">`;
+
+export function SuggestionList({ position }: SuggestionListProps) {
 	const rem = useRem();
+	const data = useContext(DataContext);
+
+	const getHighlightedName = useCallback((fieldText: string, text?: string) => {
+		const formattedText = text?.sub(0, fieldText.size());
+		if (formattedText === undefined || fieldText !== formattedText) {
+			return text;
+		}
+
+		return HIGHLIGHT_PREFIX + formattedText + "</font>" + text!.sub(fieldText.size() + 1);
+	}, []);
 
 	// Get top suggestion and other suggestions
-	const suggestionsValue = getBindingValue(suggestions);
+	const [suggestions, setSuggestions] = useState<SuggestionData[]>([]);
 	const topSuggestion = useMemo(() => {
-		return suggestionsValue.size() > 0 ? suggestionsValue[0] : undefined;
+		return suggestions.size() > 0 ? suggestions[0] : undefined;
 	}, [suggestions]);
 	const otherSuggestions = useMemo(() => {
-		const maxIndex = math.min(suggestionsValue.size(), 4);
-		return suggestionsValue.size() > 1 ? slice(suggestionsValue, 2, maxIndex) : undefined;
+		const maxIndex = math.min(suggestions.size(), 4);
+		return suggestions.size() > 1 ? slice(suggestions, 2, maxIndex) : undefined;
 	}, [suggestions]);
 
 	// Top size bindings
@@ -54,6 +67,17 @@ export function SuggestionList({ position, suggestions }: SuggestionListProps) {
 		});
 	}, []);
 
+	// Get suggestions
+	useEffect(() => {
+		if (data.text === "") {
+			setSuggestions([]);
+			return;
+		}
+
+		setSuggestions(data.getCommandSuggestions(data.text));
+	}, [data]);
+
+	// Resize window based on suggestions
 	useEffect(() => {
 		const titleBounds =
 			topSuggestion !== undefined
@@ -88,22 +112,18 @@ export function SuggestionList({ position, suggestions }: SuggestionListProps) {
 	}, [suggestions, rem]);
 
 	return (
-		<Group
-			size={windowSizeBinding}
-			position={position}
-			clipsDescendants={true}
-			visible={suggestionsValue.size() > 0}
-		>
+		<Group size={windowSizeBinding} position={position} clipsDescendants={true} visible={suggestions.size() > 0}>
 			<Frame key="top" size={topSizeBinding} backgroundColor={palette.crust} cornerRadius={new UDim(0, rem(0.5))}>
 				<Padding key="padding" all={new UDim(0, rem(1))} />
 
 				<Text
 					key="title"
 					size={topSizes.title}
-					text={topSuggestion?.title}
+					text={getHighlightedName(data.text, topSuggestion?.title)}
 					textSize={rem(2)}
 					textColor={palette.white}
 					textXAlignment="Left"
+					richText={true}
 					font={fonts.inter.bold}
 				/>
 
@@ -116,6 +136,7 @@ export function SuggestionList({ position, suggestions }: SuggestionListProps) {
 					textColor={palette.white}
 					textXAlignment="Left"
 					textWrapped={true}
+					richText={true}
 				/>
 
 				<Shadow />
@@ -139,11 +160,12 @@ export function SuggestionList({ position, suggestions }: SuggestionListProps) {
 							<Padding all={new UDim(0, rem(0.5))} />
 
 							<Text
-								text={suggestion.title}
+								size={new UDim2(1, 0, 0, rem(1.5))}
+								text={getHighlightedName(data.text, suggestion.title)}
 								textColor={palette.white}
 								textSize={rem(1.6)}
 								textXAlignment="Left"
-								size={new UDim2(1, 0, 0, rem(1.5))}
+								richText={true}
 							/>
 						</Frame>
 					);

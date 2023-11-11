@@ -15,7 +15,7 @@ export default function Terminal() {
 			position={new UDim2(0.5, 0, 0, rem(2))}
 		>
 			<TerminalWindow key="window" />
-			<SuggestionList key="suggestions" position={new UDim2(0, 0, 0, rem(6))} suggestions={[]} />
+			<SuggestionList key="suggestions" position={new UDim2(0, 0, 0, rem(6))} />
 
 			<uilistlayout key="layout" Padding={new UDim(0, rem(1))} SortOrder={"LayoutOrder"} />
 		</Group>

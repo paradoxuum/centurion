@@ -11,6 +11,8 @@ export const DEFAULT_DATA: AppContext = {
 	history: [],
 	text: "",
 	setText: () => {},
+	getCommandSuggestions: () => [],
+	getArgumentSuggestions: () => [],
 };
 
 export const DataContext = createContext(DEFAULT_DATA);
