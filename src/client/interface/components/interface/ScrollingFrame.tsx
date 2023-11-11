@@ -11,6 +11,7 @@ export interface ScrollingFrameProps extends FrameProps<ScrollingFrame> {
 	scrollBarTransparency?: BindingOrValue<number>;
 	scrollingEnabled?: BindingOrValue<boolean>;
 	canvasSize?: BindingOrValue<UDim2>;
+	canvasPosition?: BindingOrValue<Vector2>;
 }
 
 export function ScrollingFrame(props: ScrollingFrameProps) {
@@ -24,6 +25,7 @@ export function ScrollingFrame(props: ScrollingFrameProps) {
 			ScrollBarImageTransparency={props.scrollBarTransparency}
 			ScrollingEnabled={props.scrollingEnabled}
 			CanvasSize={props.canvasSize}
+			CanvasPosition={props.canvasPosition}
 			Size={props.size}
 			Position={props.position}
 			AnchorPoint={props.anchorPoint}

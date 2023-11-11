@@ -31,6 +31,12 @@ export function TerminalWindow({ onSubmit }: TerminalWindowProps) {
 
 	const [history, setHistory] = useState<HistoryLineData[]>([]);
 	const [historyHeight, historyHeightMotion] = useMotion(0);
+	const [historyCanvas, setHistoryCanvas] = useState({
+		scrollingEnabled: false,
+		size: new UDim2(),
+		position: new Vector2(),
+	});
+
 	const windowHeightBinding = useMemo(() => {
 		return historyHeight.map((y) => {
 			return new UDim2(1, 0, 0, math.round(rem(5) + y));
@@ -43,6 +49,7 @@ export function TerminalWindow({ onSubmit }: TerminalWindowProps) {
 
 		const historyLines: HistoryLineData[] = [];
 		const textMaxBounds = new Vector2(math.huge, math.huge);
+		let index = 0;
 		for (const entry of data.history) {
 			const textSize = TextService.GetTextSize(entry.text, rem(1.5), "GothamMedium", textMaxBounds);
 			totalHeight += textSize.Y;
@@ -50,10 +57,18 @@ export function TerminalWindow({ onSubmit }: TerminalWindowProps) {
 				height: textSize.Y,
 				entry,
 			});
+			index++;
 		}
 
-		historyHeightMotion.spring(totalHeight);
+		const isClamped = totalHeight > rem(16);
+		const clampedHeight = isClamped ? rem(16) : totalHeight;
+		historyHeightMotion.spring(clampedHeight);
 		setHistory(historyLines);
+		setHistoryCanvas({
+			scrollingEnabled: isClamped,
+			size: new UDim2(0, 0, 0, totalHeight - rem(1)),
+			position: new Vector2(0, totalHeight),
+		});
 	}, [data.history, rem]);
 
 	return (
@@ -62,8 +77,11 @@ export function TerminalWindow({ onSubmit }: TerminalWindowProps) {
 
 			<ScrollingFrame
 				key="history"
-				size={historyHeight.map((y) => new UDim2(1, 0, 0, y))}
-				canvasSize={new UDim2()}
+				size={new UDim2(1, 0, 1, -rem(4.5))}
+				canvasSize={historyCanvas.size}
+				canvasPosition={historyCanvas.position}
+				scrollBarColor={palette.surface2}
+				scrollBarThickness={historyCanvas.scrollingEnabled ? 10 : 0}
 			>
 				{history.map((data) => (
 					<HistoryLine size={new UDim2(1, 0, 0, data.height)} data={data.entry} />
