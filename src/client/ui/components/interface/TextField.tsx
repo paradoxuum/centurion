@@ -1,4 +1,4 @@
-import Roact, { useEffect, useState } from "@rbxts/roact";
+import Roact, { Ref, forwardRef, useEffect, useState } from "@rbxts/roact";
 
 import { BindingOrValue } from "@rbxts/pretty-react-hooks";
 import { fonts } from "../../constants/fonts";
@@ -20,7 +20,7 @@ interface TextFieldProps extends TextProps<TextBox> {
 	textEditable?: BindingOrValue<boolean>;
 }
 
-export function TextField(props: TextFieldProps) {
+export const TextField = forwardRef((props: TextFieldProps, ref: Ref<TextBox>) => {
 	const [childRef, setChildRef] = useState<Frame | undefined>(undefined);
 
 	useEffect(() => {
@@ -31,6 +31,7 @@ export function TextField(props: TextFieldProps) {
 
 	return (
 		<textbox
+			ref={ref}
 			PlaceholderText={props.placeholderText}
 			PlaceholderColor3={props.placeholderColor}
 			ClearTextOnFocus={props.clearTextOnFocus}
@@ -65,4 +66,4 @@ export function TextField(props: TextFieldProps) {
 			{props.children}
 		</textbox>
 	);
-}
+});
