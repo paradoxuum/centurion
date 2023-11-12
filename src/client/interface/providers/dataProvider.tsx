@@ -11,6 +11,10 @@ export const DEFAULT_DATA: AppContext = {
 	history: [],
 	text: "",
 	setText: () => {},
+	textIndex: 0,
+	setTextIndex: () => {},
+	textParts: [],
+	setTextParts: () => {},
 	getCommandSuggestions: () => [],
 	getArgumentSuggestions: () => [],
 };
@@ -19,6 +23,8 @@ export const DataContext = createContext(DEFAULT_DATA);
 
 export function DataProvider({ data, children }: DataProviderProps) {
 	const [text, setText] = useState("");
+	const [textIndex, setTextIndex] = useState(0);
+	const [textParts, setTextParts] = useState<string[]>([]);
 
 	return (
 		<DataContext.Provider
@@ -26,6 +32,10 @@ export function DataProvider({ data, children }: DataProviderProps) {
 				...getBindingValue(data),
 				text,
 				setText,
+				textIndex,
+				setTextIndex,
+				textParts,
+				setTextParts,
 			}}
 		>
 			{children}

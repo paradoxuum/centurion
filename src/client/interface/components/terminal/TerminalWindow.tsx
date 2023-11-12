@@ -1,5 +1,6 @@
 import Roact, { useContext, useEffect, useMemo, useState } from "@rbxts/roact";
 import { TextService } from "@rbxts/services";
+import { splitStringBySpace } from "../../../../shared/util/string";
 import { HistoryEntry } from "../../../types";
 import { images } from "../../constants/images";
 import { palette } from "../../constants/palette";
@@ -96,7 +97,15 @@ export function TerminalWindow({ onSubmit }: TerminalWindowProps) {
 				<TerminalTextField
 					key="text-field"
 					size={new UDim2(1, -rem(4.5), 1, 0)}
-					onTextChange={(text) => data.setText(text)}
+					onTextChange={(text) => {
+						const parts = splitStringBySpace(text);
+						const endsWithSpace = text === "" || text.match("%s$").size() > 0;
+						const index = endsWithSpace ? parts.size() : parts.size() - 1;
+
+						data.setText(text);
+						data.setTextIndex(index);
+						data.setTextParts(parts);
+					}}
 					onSubmit={onSubmit}
 				/>
 
