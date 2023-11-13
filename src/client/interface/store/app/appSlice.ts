@@ -25,7 +25,11 @@ export const appSlice = createProducer(initialState, {
 	addHistoryEntry: (state, entry: HistoryEntry, limit: number) => {
 		const history = copyDeep(state.history);
 		if (history.size() >= limit) {
-			removeIndices(history);
+			const indices: number[] = [];
+			for (const i of $range(limit, history.size())) {
+				indices.push(i);
+			}
+			removeIndices(history, ...indices);
 		}
 
 		return {
