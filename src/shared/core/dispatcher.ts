@@ -1,4 +1,5 @@
 import { Players } from "@rbxts/services";
+import { splitStringBySpace } from "../util/string";
 import { CommandInteraction } from "./interaction";
 import { CommandPath } from "./path";
 import { BaseRegistry } from "./registry";
@@ -11,7 +12,7 @@ export abstract class BaseDispatcher {
 	protected async executeCommand(path: CommandPath, executor: Player, text: string) {
 		const command = this.registry.getCommand(path);
 		assert(command !== undefined, `Command '${path}' is not registered`);
-		const args = text.split(" ");
+		const args = splitStringBySpace(text);
 
 		return Promise.try(() => {
 			const interaction = new CommandInteraction(Players.LocalPlayer, text);
