@@ -43,6 +43,14 @@ export interface CommandMetadata {
 	func: (...args: unknown[]) => unknown;
 }
 
+export interface CommandInteractionData {
+	executor: Player;
+	text: string;
+	replySuccess?: boolean;
+	replyText?: string;
+	replyTime?: number;
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type DecoratorTarget = Record<string, any>;
 

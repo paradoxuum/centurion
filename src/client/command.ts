@@ -28,8 +28,14 @@ export class ServerCommand extends BaseCommand {
 		return new ServerCommand(registry, path, options);
 	}
 
-	execute(_: CommandInteraction, args: string[]) {
-		remotes.executeCommand.fire(this.path.toString(), args.join(" "));
+	execute(interaction: CommandInteraction, args: string[]) {
+		const [success, data] = remotes.executeCommand.request(this.path.toString(), args.join(" ")).await();
+		if (!success) {
+			interaction.error("An error occurred.");
+			return;
+		}
+
+		interaction.replyFromData(data);
 	}
 
 	toString() {
