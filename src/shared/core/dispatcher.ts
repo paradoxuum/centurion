@@ -24,8 +24,6 @@ export abstract class BaseDispatcher {
 
 			return interaction;
 		}).catch((err) => {
-			warn(`An error occurred while executing ${path}: ${err}`);
-
 			const interaction = new CommandInteraction(Players.LocalPlayer, text);
 			interaction.error("An error occurred.");
 			return interaction;
