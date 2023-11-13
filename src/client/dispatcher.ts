@@ -8,7 +8,7 @@ export class ClientDispatcher extends BaseDispatcher {
 		super(registry);
 	}
 
-	run(path: CommandPath, text: string) {
-		this.executeCommand(path, Players.LocalPlayer, text);
+	async run(path: CommandPath, text: string) {
+		return this.executeCommand(path, Players.LocalPlayer, text);
 	}
 }

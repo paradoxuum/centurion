@@ -10,8 +10,8 @@ export class ClientRegistry extends BaseRegistry {
 		super.init();
 		remotes.sync.start.fire();
 		remotes.sync.dispatch.connect((data) => {
-			this.registerSharedGroups(data.groups);
-			this.registerSharedCommands(data.commands);
+			this.registerServerGroups(data.groups);
+			this.registerServerCommands(data.commands);
 		});
 	}
 
@@ -28,7 +28,7 @@ export class ClientRegistry extends BaseRegistry {
 		}
 	}
 
-	private registerSharedGroups(sharedGroups: GroupOptions[]) {
+	private registerServerGroups(sharedGroups: GroupOptions[]) {
 		const childGroups: GroupOptions[] = [];
 		for (const group of sharedGroups) {
 			if (group.root !== undefined) {
@@ -55,7 +55,7 @@ export class ClientRegistry extends BaseRegistry {
 		}
 	}
 
-	private registerSharedCommands(commands: Map<string, CommandOptions>) {
+	private registerServerCommands(commands: Map<string, CommandOptions>) {
 		for (const [path, command] of commands) {
 			const commandPath = ImmutableCommandPath.fromString(path);
 			let group: CommandGroup | undefined;

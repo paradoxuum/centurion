@@ -1,6 +1,6 @@
 import { Client, Server, createRemotes, namespace, remote } from "@rbxts/remo";
 import { t } from "@rbxts/t";
-import { CommandOptions, GroupOptions } from "./types";
+import { CommandInteractionData, CommandOptions, GroupOptions } from "./types";
 
 export interface SyncData {
 	commands: Map<string, CommandOptions>;
@@ -13,5 +13,5 @@ export const remotes = createRemotes({
 		dispatch: remote<Client, [data: SyncData]>(),
 	}),
 
-	executeCommand: remote<Server, [path: string, text: string]>(t.string, t.string),
+	executeCommand: remote<Server, [path: string, text: string]>(t.string, t.string).returns<CommandInteractionData>(),
 });
