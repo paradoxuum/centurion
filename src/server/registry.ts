@@ -10,7 +10,7 @@ export class ServerRegistry extends BaseRegistry {
 
 	init() {
 		super.init();
-		this.pendingSyncData = this.getSyncData();
+		this.notifySyncUpdate();
 
 		remotes.sync.start.connect((player) => {
 			const data = this.getSyncData();
@@ -37,11 +37,15 @@ export class ServerRegistry extends BaseRegistry {
 
 	protected registerCommand(commandData: CommandData, group?: CommandGroup | undefined): void {
 		super.registerCommand(commandData, group);
-		this.pendingSyncData = this.getSyncData();
+		this.notifySyncUpdate();
 	}
 
 	protected registerCommandGroups(groups: GroupOptions[]) {
 		super.registerCommandGroups(groups);
+		this.notifySyncUpdate();
+	}
+
+	private notifySyncUpdate() {
 		this.pendingSyncData = this.getSyncData();
 	}
 
