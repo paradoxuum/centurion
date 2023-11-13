@@ -1,10 +1,10 @@
-import { Players } from "@rbxts/services";
 import { splitStringBySpace } from "../util/string";
 import { CommandInteraction } from "./interaction";
 import { CommandPath } from "./path";
 import { BaseRegistry } from "./registry";
 
 const DEFAULT_REPLY_TEXT = "Command executed.";
+const ERROR_TEXT = "An error occurred.";
 
 export abstract class BaseDispatcher {
 	constructor(private readonly registry: BaseRegistry) {}
@@ -15,7 +15,7 @@ export abstract class BaseDispatcher {
 		const args = splitStringBySpace(text);
 
 		return Promise.try(() => {
-			const interaction = new CommandInteraction(Players.LocalPlayer, text);
+			const interaction = new CommandInteraction(executor, text);
 			command.execute(interaction, args);
 
 			if (!interaction.isReplyReceived()) {
@@ -23,9 +23,9 @@ export abstract class BaseDispatcher {
 			}
 
 			return interaction;
-		}).catch((err) => {
-			const interaction = new CommandInteraction(Players.LocalPlayer, text);
-			interaction.error("An error occurred.");
+		}).catch(() => {
+			const interaction = new CommandInteraction(executor, text);
+			interaction.error(ERROR_TEXT);
 			return interaction;
 		});
 	}
