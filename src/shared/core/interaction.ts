@@ -2,6 +2,7 @@ export class CommandInteraction {
 	private onReplySignal = new Instance("BindableEvent");
 	private replySuccess?: boolean;
 	private replyText?: string;
+	private replyTime?: number;
 
 	constructor(
 		readonly executor: Player,
@@ -32,10 +33,15 @@ export class CommandInteraction {
 		return this.replyText !== undefined;
 	}
 
+	getReplyTime() {
+		return this.replyTime;
+	}
+
 	private setReply(text: string, success: boolean) {
 		assert(this.replyText === undefined, "This CommandInteraction has already received a reply");
 		this.replyText = text;
 		this.replySuccess = success;
+		this.replyTime = os.time();
 		this.onReplySignal.Fire(text, success);
 	}
 }
