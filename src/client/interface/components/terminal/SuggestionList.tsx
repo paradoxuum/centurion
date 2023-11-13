@@ -135,7 +135,13 @@ export function SuggestionList({ position }: SuggestionListProps) {
 			clipsDescendants={true}
 			visible={suggestions.size() > 0}
 		>
-			<Frame key="top" size={suggestionSize} backgroundColor={palette.crust} cornerRadius={new UDim(0, rem(0.5))}>
+			<Frame
+				key="top"
+				size={suggestionSize}
+				backgroundColor={palette.crust}
+				cornerRadius={new UDim(0, rem(0.5))}
+				clipsDescendants={true}
+			>
 				<Padding key="padding" all={new UDim(0, rem(1))} />
 
 				{suggestions.size() > 0 && suggestions[0].type === "argument" && (
