@@ -97,11 +97,26 @@ export class ExecutableCommand extends BaseCommand {
 	}
 
 	transformArgs(args: string[]): Result<unknown[], string> {
+		const argOptions = this.options.arguments;
+		if (argOptions === undefined) {
+			return Result.ok([]);
+		}
+
+		const lastArgIndex = args.size() - 1;
 		const transformedArgs: unknown[] = [];
-		for (const i of $range(0, args.size() - 1)) {
+		for (const i of $range(0, this.argTypes.size() - 1)) {
 			const argType = this.argTypes[i];
 			if (argType === undefined) {
 				continue;
+			}
+
+			const argData = argOptions[i];
+			if (i > lastArgIndex) {
+				if (argData.optional) {
+					break;
+				}
+
+				return Result.err(`Missing required argument: ${argData.name}`);
 			}
 
 			const transformedArg = argType.transform(args[i]);
