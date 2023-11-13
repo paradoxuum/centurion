@@ -1,4 +1,4 @@
-import Roact, { Ref, forwardRef, useEffect, useState } from "@rbxts/roact";
+import Roact, { Ref, forwardRef, useEffect, useRef } from "@rbxts/roact";
 
 import { BindingOrValue } from "@rbxts/pretty-react-hooks";
 import { fonts } from "../../constants/fonts";
@@ -21,11 +21,10 @@ interface TextFieldProps extends TextProps<TextBox> {
 }
 
 export const TextField = forwardRef((props: TextFieldProps, ref: Ref<TextBox>) => {
-	const [childRef, setChildRef] = useState<Frame | undefined>(undefined);
-
+	const childRef = useRef<Frame>();
 	useEffect(() => {
-		if (childRef && childRef.Parent?.IsA("TextBox")) {
-			childRef.Parent.Text = props.text ?? "";
+		if (childRef.current !== undefined && childRef.current.Parent?.IsA("TextBox")) {
+			childRef.current.Parent.Text = props.text ?? "";
 		}
 	}, [childRef, props.text]);
 
@@ -61,7 +60,7 @@ export const TextField = forwardRef((props: TextFieldProps, ref: Ref<TextBox>) =
 			Event={props.event || {}}
 			Change={props.change || {}}
 		>
-			<Group key="ref" ref={setChildRef} />
+			<Group key="ref" ref={childRef} />
 			{props.cornerRadius && <uicorner key="corner" CornerRadius={props.cornerRadius} />}
 			{props.children}
 		</textbox>

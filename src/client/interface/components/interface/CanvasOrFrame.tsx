@@ -1,5 +1,5 @@
 import { useBindingListener, useUnmountEffect } from "@rbxts/pretty-react-hooks";
-import Roact, { Portal, useMemo, useState } from "@rbxts/roact";
+import Roact, { Portal, useMemo, useRef, useState } from "@rbxts/roact";
 import { CanvasGroup, CanvasGroupProps } from "./CanvasGroup";
 import { Frame } from "./Frame";
 import { Group } from "./Group";
@@ -19,8 +19,8 @@ export function CanvasOrFrame(props: CanvasOrFrameProps) {
 	};
 
 	const [visible, setVisible] = useState(true);
-	const [frame, frameRef] = useState<Frame>();
-	const [canvas, canvasRef] = useState<CanvasGroup>();
+	const frameRef = useRef<Frame>();
+	const canvasRef = useRef<CanvasGroup>();
 
 	const container = useMemo(() => {
 		const container = new Instance("Frame");
@@ -30,10 +30,10 @@ export function CanvasOrFrame(props: CanvasOrFrameProps) {
 	}, []);
 
 	const update = (renderMode: "canvas" | "frame") => {
-		container.Parent = renderMode === "canvas" ? canvas : frame;
+		container.Parent = renderMode === "canvas" ? canvasRef.current : frameRef.current;
 
-		if (canvas) {
-			canvas.Visible = renderMode === "canvas";
+		if (canvasRef.current) {
+			canvasRef.current.Visible = renderMode === "canvas";
 		}
 	};
 
