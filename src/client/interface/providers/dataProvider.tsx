@@ -1,44 +1,31 @@
-import { BindingOrValue, getBindingValue } from "@rbxts/pretty-react-hooks";
-import Roact, { createContext, useState } from "@rbxts/roact";
+import Roact, { createContext, useEffect } from "@rbxts/roact";
+import { DEFAULT_HISTORY_LENGTH, DEFAULT_OPTIONS } from "../../options";
 import { AppData } from "../../types";
+import { useStore } from "../hooks/useStore";
 import { AppContext } from "../types/data";
 
 export interface DataProviderProps extends Roact.PropsWithChildren {
-	data: BindingOrValue<AppData>;
+	data: AppData;
 }
 
 export const DEFAULT_DATA: AppContext = {
-	history: [],
-	text: "",
-	setText: () => {},
-	textIndex: 0,
-	setTextIndex: () => {},
-	textParts: [],
-	setTextParts: () => {},
-	getCommandSuggestions: () => [],
+	options: DEFAULT_OPTIONS,
+	commands: new Map(),
+	groups: new Map(),
 	getArgumentSuggestions: () => [],
+	getCommandSuggestions: () => [],
 };
 
 export const DataContext = createContext(DEFAULT_DATA);
 
 export function DataProvider({ data, children }: DataProviderProps) {
-	const [text, setText] = useState("");
-	const [textIndex, setTextIndex] = useState(0);
-	const [textParts, setTextParts] = useState<string[]>([]);
+	const store = useStore();
 
-	return (
-		<DataContext.Provider
-			value={{
-				...getBindingValue(data),
-				text,
-				setText,
-				textIndex,
-				setTextIndex,
-				textParts,
-				setTextParts,
-			}}
-		>
-			{children}
-		</DataContext.Provider>
+	useEffect(() => store.setHistory(data.history), [data.history]);
+
+	data.onHistoryChanged.Connect((entry) =>
+		store.addHistoryEntry(entry, data.options.historyLength ?? DEFAULT_HISTORY_LENGTH),
 	);
+
+	return <DataContext.Provider value={data}>{children}</DataContext.Provider>;
 }

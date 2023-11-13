@@ -1,12 +1,12 @@
-import Roact, { useContext, useEffect, useMemo, useState } from "@rbxts/roact";
+import { useSelector } from "@rbxts/react-reflex";
+import Roact, { useEffect, useMemo, useState } from "@rbxts/roact";
 import { TextService } from "@rbxts/services";
-import { splitStringBySpace } from "../../../../shared/util/string";
-import { HistoryEntry } from "../../../types";
 import { images } from "../../constants/images";
 import { palette } from "../../constants/palette";
 import { useMotion } from "../../hooks/useMotion";
 import { useRem } from "../../hooks/useRem";
-import { DataContext } from "../../providers/dataProvider";
+import { useStore } from "../../hooks/useStore";
+import { selectHistory } from "../../store/app";
 import { Frame } from "../interface/Frame";
 import { Group } from "../interface/Group";
 import { Image } from "../interface/Image";
@@ -21,16 +21,12 @@ interface TerminalWindowProps {
 	onSubmit?: (text: string) => void;
 }
 
-interface HistoryLineData {
-	height: number;
-	entry: HistoryEntry;
-}
-
 export function TerminalWindow({ onSubmit }: TerminalWindowProps) {
 	const rem = useRem();
-	const data = useContext(DataContext);
+	const store = useStore();
 
-	const [history, setHistory] = useState<HistoryLineData[]>([]);
+	const history = useSelector(selectHistory);
+	const [historyLines, setHistoryLines] = useState<number[]>([]);
 	const [historyHeight, historyHeightMotion] = useMotion(0);
 	const [historyCanvas, setHistoryCanvas] = useState({
 		scrollingEnabled: false,
@@ -45,30 +41,27 @@ export function TerminalWindow({ onSubmit }: TerminalWindowProps) {
 	}, [rem]);
 
 	useEffect(() => {
-		const historySize = data.history.size();
+		const historySize = history.size();
 		let totalHeight = historySize > 0 ? rem(0.5) + (historySize - 1) * rem(0.5) : 0;
 
-		const historyLines: HistoryLineData[] = [];
+		const historyLines: number[] = [];
 		const textMaxBounds = new Vector2(math.huge, math.huge);
-		for (const entry of data.history) {
+		for (const entry of history) {
 			const textSize = TextService.GetTextSize(entry.text, rem(1.5), "GothamMedium", textMaxBounds);
 			totalHeight += textSize.Y;
-			historyLines.push({
-				height: textSize.Y,
-				entry,
-			});
+			historyLines.push(textSize.Y);
 		}
 
 		const isClamped = totalHeight > rem(16);
 		const clampedHeight = isClamped ? rem(16) : totalHeight;
 		historyHeightMotion.spring(clampedHeight);
-		setHistory(historyLines);
+		setHistoryLines(historyLines);
 		setHistoryCanvas({
 			scrollingEnabled: isClamped,
 			size: new UDim2(0, 0, 0, totalHeight - rem(1)),
 			position: new Vector2(0, totalHeight),
 		});
-	}, [data.history, rem]);
+	}, [history, rem]);
 
 	return (
 		<Frame size={windowHeightBinding} backgroundColor={palette.crust} cornerRadius={new UDim(0, rem(0.5))}>
@@ -82,10 +75,16 @@ export function TerminalWindow({ onSubmit }: TerminalWindowProps) {
 				scrollBarColor={palette.surface2}
 				scrollBarThickness={historyCanvas.scrollingEnabled ? 10 : 0}
 			>
-				{history.map((data) => (
-					<HistoryLine size={new UDim2(1, 0, 0, data.height)} data={data.entry} />
-				))}
-				<uilistlayout Padding={new UDim(0, rem(0.5))} SortOrder="LayoutOrder" />
+				{historyLines.map((height, i) => {
+					const entry = history[i];
+					if (entry === undefined) {
+						return <></>;
+					}
+
+					return <HistoryLine key={`${entry.sentAt}-${i}`} size={new UDim2(1, 0, 0, height)} data={entry} />;
+				})}
+
+				<uilistlayout key="layout" Padding={new UDim(0, rem(0.5))} SortOrder="LayoutOrder" />
 			</ScrollingFrame>
 
 			<Group
@@ -98,13 +97,7 @@ export function TerminalWindow({ onSubmit }: TerminalWindowProps) {
 					key="text-field"
 					size={new UDim2(1, -rem(4.5), 1, 0)}
 					onTextChange={(text) => {
-						const parts = splitStringBySpace(text);
-						const endsWithSpace = text === "" || text.match("%s$").size() > 0;
-						const index = endsWithSpace ? parts.size() : parts.size() - 1;
-
-						data.setText(text);
-						data.setTextIndex(index);
-						data.setTextParts(parts);
+						store.setText(text);
 					}}
 					onSubmit={onSubmit}
 				/>
@@ -119,6 +112,7 @@ export function TerminalWindow({ onSubmit }: TerminalWindowProps) {
 					cornerRadius={new UDim(0, rem(0.5))}
 				>
 					<Image
+						key="icon"
 						anchorPoint={new Vector2(0.5, 0.5)}
 						size={new UDim2(1, -rem(1), 1, -rem(1))}
 						position={UDim2.fromScale(0.5, 0.5)}

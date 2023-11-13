@@ -1,6 +1,8 @@
+import { useSelector } from "@rbxts/react-reflex";
 import Roact, { useContext, useEffect, useMemo, useState } from "@rbxts/roact";
 import { TextService } from "@rbxts/services";
 import { slice } from "@rbxts/sift/out/Array";
+import { CommandPath } from "../../../../shared";
 import { Suggestion } from "../../../types";
 import { fonts } from "../../constants/fonts";
 import { palette } from "../../constants/palette";
@@ -8,6 +10,7 @@ import { springs } from "../../constants/springs";
 import { useMotion } from "../../hooks/useMotion";
 import { useRem } from "../../hooks/useRem";
 import { DataContext } from "../../providers/dataProvider";
+import { selectTerminalText } from "../../store/app";
 import { toHex } from "../../util/color";
 import { Frame } from "../interface/Frame";
 import { Group } from "../interface/Group";
@@ -37,6 +40,11 @@ export function SuggestionList({ position }: SuggestionListProps) {
 	const rem = useRem();
 	const data = useContext(DataContext);
 
+	const terminalText = useSelector(selectTerminalText);
+	const suggestionPath = useMemo(() => {
+		return new CommandPath(terminalText.parts);
+	}, [terminalText]);
+
 	// Suggestions
 	const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
 	const firstSuggestion = useMemo(() => (suggestions.size() > 0 ? suggestions[0] : undefined), [suggestions]);
@@ -58,17 +66,14 @@ export function SuggestionList({ position }: SuggestionListProps) {
 
 	// Update suggestions when typing
 	useEffect(() => {
-		if (data.text === "") {
+		const pathSize = suggestionPath.getSize();
+		if (pathSize === 0) {
 			setSuggestions([]);
 			return;
 		}
 
-		setSuggestions(
-			data.textIndex === 0
-				? data.getCommandSuggestions(data.text)
-				: data.getArgumentSuggestions(data.textParts[0], data.textIndex),
-		);
-	}, [data.textParts]);
+		setSuggestions(data.getCommandSuggestions(suggestionPath));
+	}, [suggestionPath]);
 
 	// Resize window based on suggestions
 	useEffect(() => {
@@ -190,7 +195,7 @@ export function SuggestionList({ position }: SuggestionListProps) {
 				<Text
 					key="title"
 					size={textSizes.title}
-					text={getHighlightedTitle(data.text, firstSuggestion)}
+					text={getHighlightedTitle(terminalText.value, firstSuggestion)}
 					textSize={rem(2)}
 					textColor={palette.white}
 					textXAlignment="Left"
@@ -225,7 +230,7 @@ export function SuggestionList({ position }: SuggestionListProps) {
 
 							<Text
 								size={new UDim2(1, 0, 1, 0)}
-								text={getHighlightedTitle(data.text, suggestion)}
+								text={getHighlightedTitle(terminalText.value, suggestion)}
 								textColor={palette.white}
 								textSize={rem(1.6)}
 								textXAlignment="Left"

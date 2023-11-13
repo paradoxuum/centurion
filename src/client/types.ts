@@ -1,11 +1,23 @@
+import { CommandOptions, CommandPath, GroupOptions } from "../shared";
+
+export interface ClientOptions {
+	historyLength?: number;
+	app?: (data: AppData) => void;
+}
+
 export interface AppData {
+	options: ClientOptions;
+	commands: Map<string, CommandOptions>;
+	groups: Map<string, GroupOptions>;
 	history: HistoryEntry[];
-	getCommandSuggestions: (text: string) => CommandSuggestion[];
-	getArgumentSuggestions: (command: string, index: number) => ArgumentSuggestion[];
+	onHistoryChanged: RBXScriptSignal<(entry: HistoryEntry) => void>;
+	getArgumentSuggestions: (path: CommandPath, index: number) => ArgumentSuggestion[];
+	getCommandSuggestions: (path: CommandPath) => CommandSuggestion[];
 }
 
 export interface HistoryEntry {
 	text: string;
+	success: boolean;
 	sentAt: number;
 }
 
