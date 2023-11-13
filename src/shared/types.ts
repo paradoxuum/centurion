@@ -5,7 +5,7 @@ import { TransformationResult } from "./response";
 export type GuardFunction = (
 	runNext: (interaction: CommandInteraction) => unknown,
 	interaction: CommandInteraction,
-) => void;
+) => boolean;
 
 export interface CmdxOptions {
 	groups?: GroupOptions[];

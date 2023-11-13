@@ -142,7 +142,6 @@ export class ExecutableCommand extends BaseCommand {
 			if (nextIndex === guardCount) {
 				const transformedArgs = this.transformArgs(args);
 				if (transformedArgs.isErr()) {
-					print("Error:", transformedArgs.unwrapErr());
 					interaction.error(transformedArgs.unwrapErr());
 					return;
 				}
@@ -150,7 +149,10 @@ export class ExecutableCommand extends BaseCommand {
 				return this.func(interaction, ...transformedArgs.unwrap());
 			}
 
-			this.guards[nextIndex++](runNext, interaction);
+			const guardResult = this.guards[nextIndex++](runNext, interaction);
+			if (guardResult === false || interaction.isReplyReceived()) {
+				return;
+			}
 		};
 
 		return runNext;
