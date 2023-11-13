@@ -10,11 +10,11 @@ export class CmdxClient {
 	private static readonly registryInstance = new ClientRegistry();
 	private static readonly dispatcherInstance = new ClientDispatcher(CmdxClient.registryInstance);
 
-	static run(callback: RunCallback) {
+	static async run(callback: RunCallback) {
 		assert(IS_CLIENT, "CmdxClient can only be started from the client");
 		assert(!this.started, "Cmdx has already been started");
 
-		this.registryInstance.init();
+		await this.registryInstance.init();
 		callback(this.registryInstance);
 		this.registryInstance.freeze();
 		this.started = true;

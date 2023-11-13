@@ -1,3 +1,4 @@
+import { RunService } from "@rbxts/services";
 import { ReadonlyDeepObject } from "@rbxts/sift/out/Util";
 import { CommandOptions, GroupOptions, ImmutableCommandPath } from "../shared";
 import { BaseCommand, CommandGroup } from "../shared/core/command";
@@ -8,11 +9,29 @@ import { ServerCommand } from "./command";
 export class ClientRegistry extends BaseRegistry {
 	async init() {
 		super.init();
-		remotes.sync.start.fire();
+
+		let firstDispatch = false;
 		remotes.sync.dispatch.connect((data) => {
+			if (!firstDispatch) {
+				firstDispatch = true;
+			}
+
 			this.registerServerGroups(data.groups);
 			this.registerServerCommands(data.commands);
 		});
+		remotes.sync.start.fire();
+
+		return new Promise((resolve) => {
+			// Wait until dispatch has been received
+			while (!firstDispatch) {
+				RunService.Heartbeat.Wait();
+			}
+			resolve(undefined);
+		})
+			.timeout(5)
+			.catch(() => {
+				throw "Server did not respond in time";
+			});
 	}
 
 	getRegistryData() {
