@@ -11,7 +11,17 @@ export abstract class BaseDispatcher {
 		assert(command !== undefined, `Command '${path}' is not registered`);
 		const args = text.split(" ");
 
-		const interaction = new CommandInteraction(Players.LocalPlayer, text);
-		command.execute(interaction, args);
+		let interaction = new CommandInteraction(Players.LocalPlayer, text);
+		try {
+			command.execute(interaction, args);
+		} catch (err) {
+			warn(`An error occurred while executing ${path}: ${err}`);
+
+			// The interaction may have already been replied to, so overwrite it and
+			// indicate that an error occurred
+			interaction = new CommandInteraction(Players.LocalPlayer, text);
+			interaction.error("An error occurred.");
+		}
+		return interaction;
 	}
 }
