@@ -7,12 +7,15 @@ export class CommandPath {
 	private pathString: string;
 
 	constructor(protected readonly parts: string[]) {
-		assert(parts.size() > 0, `CommandPath must contain at least one part`);
 		this.pathString = parts.join("/");
 	}
 
 	static fromString(path: string) {
 		return new CommandPath(path.split("/"));
+	}
+
+	static empty() {
+		return new CommandPath([]);
 	}
 
 	/**
@@ -212,6 +215,10 @@ export class ImmutableCommandPath extends CommandPath {
 
 	static fromString(path: string) {
 		return new ImmutableCommandPath(path.split("/"));
+	}
+
+	static empty() {
+		return new ImmutableCommandPath([]);
 	}
 
 	slice(from: number, to?: number) {
