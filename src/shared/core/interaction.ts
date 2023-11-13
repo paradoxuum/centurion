@@ -65,6 +65,10 @@ export class CommandInteraction {
 		return this.replyText !== undefined;
 	}
 
+	getReplyText() {
+		return this.replyText;
+	}
+
 	getReplyTime() {
 		return this.replyTime;
 	}
