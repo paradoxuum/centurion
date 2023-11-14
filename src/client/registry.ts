@@ -98,6 +98,7 @@ export class ClientRegistry extends BaseRegistry {
 				continue;
 			} else {
 				commandObject = ServerCommand.create(this, commandPath, command);
+				this.cacheCommandName(commandPath);
 			}
 
 			this.commands.set(path, commandObject);
