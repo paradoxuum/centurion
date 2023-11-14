@@ -161,7 +161,7 @@ export class ExecutableCommand extends BaseCommand {
 					return;
 				}
 
-				return this.func(interaction, ...transformedArgs.unwrap());
+				return this.func(undefined, interaction, ...transformedArgs.unwrap());
 			}
 
 			const guardResult = this.guards[nextIndex++](runNext, interaction);
