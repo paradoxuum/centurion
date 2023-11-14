@@ -1,7 +1,6 @@
 import { t } from "@rbxts/t";
 import { BaseRegistry } from "../../core/registry";
-import { transformErr, transformOk } from "../../response";
-import { TypeBuilder } from "../../util/type";
+import { TypeBuilder, transformErr, transformOk } from "../../util/type";
 
 const brickColorNames = new Set([
 	"White",

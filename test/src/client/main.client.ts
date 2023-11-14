@@ -1,5 +1,5 @@
 import { CmdxClient } from ".";
-import { defaultApp } from "./interface/app/app";
+import { defaultApp } from "./interface";
 
 CmdxClient.run(
 	(registry) => {
@@ -9,4 +9,6 @@ CmdxClient.run(
 	{
 		app: defaultApp,
 	},
-);
+).catch((err) => {
+	warn(`An error occurred and Cmdx could not be started: ${err}`);
+});

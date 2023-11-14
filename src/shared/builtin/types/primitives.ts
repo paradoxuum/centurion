@@ -1,8 +1,7 @@
 import { t } from "@rbxts/t";
 import { BuiltInTypes } from ".";
 import { BaseRegistry } from "../../core/registry";
-import { transformErr, transformOk } from "../../response";
-import { TypeBuilder } from "../../util/type";
+import { TypeBuilder, transformErr, transformOk } from "../../util/type";
 
 const toNumberTransformation = (text: string) => {
 	const num = tonumber(text);

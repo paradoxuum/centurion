@@ -1,3 +1,4 @@
+import { RunService } from "@rbxts/services";
 import { copyDeep } from "@rbxts/sift/out/Dictionary";
 import { CommandOptions, GroupOptions, ImmutableCommandPath } from "../shared";
 import { BaseCommand, CommandGroup } from "../shared/core/command";
@@ -6,13 +7,29 @@ import { remotes } from "../shared/network";
 import { ServerCommand } from "./command";
 
 export class ClientRegistry extends BaseRegistry {
-	async init() {
-		super.init();
-		remotes.sync.start.fire();
+	async sync() {
+		let firstDispatch = false;
 		remotes.sync.dispatch.connect((data) => {
+			if (!firstDispatch) {
+				firstDispatch = true;
+			}
+
 			this.registerServerGroups(data.groups);
 			this.registerServerCommands(data.commands);
 		});
+		remotes.sync.start.fire();
+
+		return new Promise((resolve) => {
+			// Wait until dispatch has been received
+			while (!firstDispatch) {
+				RunService.Heartbeat.Wait();
+			}
+			resolve(undefined);
+		})
+			.timeout(5)
+			.catch(() => {
+				throw "Server did not respond in time";
+			});
 	}
 
 	getCommandOptions() {
@@ -40,9 +57,11 @@ export class ClientRegistry extends BaseRegistry {
 			}
 
 			if (this.groups.has(group.name)) {
+				warn("Skipping duplicate server group:", group.name);
 				continue;
 			}
 
+			this.validatePath(group.name, false);
 			this.groups.set(group.name, this.createGroup(group));
 		}
 
@@ -51,6 +70,7 @@ export class ClientRegistry extends BaseRegistry {
 			assert(rootGroup !== undefined, `Parent group '${group.root!}' does not exist for group '${group.name}'`);
 
 			if (rootGroup.hasGroup(group.name)) {
+				warn(`Skipping duplicate server group in ${group.root!}: ${group.name}`);
 				continue;
 			}
 
@@ -81,7 +101,9 @@ export class ClientRegistry extends BaseRegistry {
 				warn(`Skipping shared command ${commandPath}`);
 				continue;
 			} else {
+				this.validatePath(path, true);
 				commandObject = ServerCommand.create(this, commandPath, command);
+				this.cacheCommandName(commandPath);
 			}
 
 			this.commands.set(path, commandObject);

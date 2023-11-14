@@ -18,8 +18,12 @@ export class ClientDispatcher extends BaseDispatcher {
 		this.maxHistoryLength = options.historyLength ?? DEFAULT_OPTIONS.historyLength!;
 	}
 
-	async run(path: CommandPath, text: string) {
-		const interaction = await this.executeCommand(path, Players.LocalPlayer, text);
+	async run(path: CommandPath, text: string = "") {
+		const interaction = await this.executeCommand(path, Players.LocalPlayer, text).catch((err) => {
+			warn(`An error occurred while running '${path}': ${err}`);
+			throw err;
+		});
+
 		if (!interaction.isReplyReceived()) {
 			return;
 		}

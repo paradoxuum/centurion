@@ -4,11 +4,14 @@ import { BaseCommand, CommandData, CommandGroup, ExecutableCommand } from "./com
 import { MetadataKey } from "./decorators";
 import { CommandPath, ImmutableCommandPath } from "./path";
 
+const ROOT_NAME_KEY = "__root__";
+
 export abstract class BaseRegistry {
 	protected readonly commands = new Map<string, BaseCommand>();
 	protected readonly groups = new Map<string, CommandGroup>();
 	protected readonly types = new Map<string, TypeOptions<defined>>();
 	protected readonly registeredObjects = new Set<object>();
+	protected cachedNames = new Map<string, string[]>();
 	protected frozen = false;
 
 	init() {
@@ -77,6 +80,31 @@ export abstract class BaseRegistry {
 		return this.commands.get(path.toString());
 	}
 
+	getCommandNames(path?: CommandPath) {
+		return this.cachedNames.get(path?.toString() ?? ROOT_NAME_KEY) ?? [];
+	}
+
+	protected cacheCommandName(path: CommandPath) {
+		if (path.getSize() === 3) {
+			if (!this.cachedNames.has(path.getRoot())) {
+				this.cacheName(ROOT_NAME_KEY, path.getRoot());
+			}
+
+			this.cacheName(path.getRoot(), path.getPart(1));
+		}
+
+		const cacheKey = path.getSize() > 1 ? path.getPart(1) : ROOT_NAME_KEY;
+		this.cacheName(cacheKey, path.getTail());
+	}
+
+	private cacheName(key: string, value: string) {
+		const cache = this.cachedNames.get(key) ?? [];
+		cache.push(value);
+		cache.sort();
+		this.cachedNames.set(key, cache);
+		return cache;
+	}
+
 	getGroup(path: CommandPath) {
 		assert(path.getSize() < 3, `Invalid group path '${path}', a group path has a maximum of 2 parts`);
 
@@ -93,8 +121,7 @@ export abstract class BaseRegistry {
 		const path =
 			group !== undefined ? group.getPath().append(options.name) : new ImmutableCommandPath([options.name]);
 
-		assert(!this.commands.has(path.toString()), `A command with the path '${path}' is already registered`);
-
+		this.validatePath(path.toString(), true);
 		const command = ExecutableCommand.create(this, ImmutableCommandPath.fromPath(path), commandData.metadata, [
 			...commandData.guards,
 		]);
@@ -104,6 +131,8 @@ export abstract class BaseRegistry {
 		if (group !== undefined) {
 			group.addCommand(command);
 		}
+
+		this.cacheCommandName(path);
 	}
 
 	private registerCommandHolder(commandHolder: object) {
@@ -144,7 +173,7 @@ export abstract class BaseRegistry {
 				continue;
 			}
 
-			assert(!this.groups.has(group.name), `Duplicate group: ${group.name}`);
+			this.validatePath(group.name, false);
 			const groupObject = this.createGroup(group);
 			this.groups.set(groupObject.path.toString(), groupObject);
 		}
@@ -152,14 +181,10 @@ export abstract class BaseRegistry {
 		for (const group of childGroups) {
 			const rootGroup = this.groups.get(group.root!);
 			assert(rootGroup !== undefined, `Parent group '${group.root!}' does not exist for group '${group.name}'`);
-			assert(
-				!rootGroup.hasGroup(group.name),
-				`Duplicate group found in parent group '${rootGroup.options.name}': ${group.name}`,
-			);
 
 			const groupObject = this.createGroup(group);
-			this.groups.set(groupObject.path.toString(), groupObject);
 			rootGroup.addGroup(groupObject);
+			this.groups.set(groupObject.path.toString(), groupObject);
 		}
 	}
 
@@ -171,5 +196,21 @@ export abstract class BaseRegistry {
 
 		groupParts.push(group.name);
 		return new CommandGroup(new ImmutableCommandPath(groupParts), group);
+	}
+
+	protected validatePath(path: string, isCommand: boolean) {
+		const hasCommand = this.commands.has(path);
+		if (hasCommand && isCommand) {
+			throw `Duplicate command: ${path}`;
+		} else if (hasCommand) {
+			throw `A command already exists with the same name as this group: ${path}`;
+		}
+
+		const hasGroup = this.groups.has(path);
+		if (hasGroup && isCommand) {
+			throw `A group already exists with the same name as this command: ${path}`;
+		} else if (hasGroup) {
+			throw `Duplicate group: ${path}`;
+		}
 	}
 }

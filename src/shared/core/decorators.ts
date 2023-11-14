@@ -1,4 +1,4 @@
-import { ClassDecorator, CmdxOptions, CommandMetadata, CommandOptions, GuardFunction, MethodDecorator } from "../types";
+import { CmdxOptions, CommandMetadata, CommandOptions, GuardFunction } from "../types";
 import { Reflect } from "../util/reflect";
 
 export enum MetadataKey {
@@ -35,3 +35,14 @@ export function Guard(...guards: GuardFunction[]): MethodDecorator {
 		Reflect.defineMetadata(target, MetadataKey.Guard, guards, key);
 	};
 }
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type DecoratorTarget = Record<string, any>;
+
+type ClassDecorator = (target: DecoratorTarget, propertyKey?: undefined, descriptor?: undefined) => void;
+
+type MethodDecorator = <T>(
+	target: DecoratorTarget,
+	propertyKey: string,
+	descriptor: TypedPropertyDescriptor<T>,
+) => void;

@@ -1,4 +1,4 @@
-import { BuiltInTypes, Cmdx, Command, Group } from "@rbxts/cmdx";
+import { BuiltInTypes, Cmdx, Command, CommandInteraction, Group } from "@rbxts/cmdx";
 
 @Cmdx({
 	groups: [
@@ -25,7 +25,15 @@ class InfoCommand {
 		arguments: [{ name: "player", description: "Player to view information for", type: BuiltInTypes.Player }],
 	})
 	@Group("user")
-	userView(player: Player) {
-		print("View", player.DisplayName);
+	userView(interaction: CommandInteraction, player: Player) {
+		interaction.reply(`<Random data about ${player.Name} here>`);
+	}
+
+	@Command({
+		name: "view",
+	})
+	@Group("server")
+	serverView(interaction: CommandInteraction, player: Player) {
+		interaction.reply(`<Random data about server here>`);
 	}
 }
