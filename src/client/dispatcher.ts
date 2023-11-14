@@ -8,7 +8,7 @@ export class ClientDispatcher extends BaseDispatcher {
 		super(registry);
 	}
 
-	async run(path: CommandPath, text: string) {
+	async run(path: CommandPath, text: string = "") {
 		return this.executeCommand(path, Players.LocalPlayer, text).catch((err) => {
 			warn(`An error occurred while running '${path}': ${err}`);
 			throw err;

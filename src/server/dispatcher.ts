@@ -30,7 +30,7 @@ export class ServerDispatcher extends BaseDispatcher {
 		});
 	}
 
-	run(path: CommandPath, executor: Player, text: string) {
+	run(path: CommandPath, executor: Player, text: string = "") {
 		return this.executeCommand(path, executor, text);
 	}
 }
