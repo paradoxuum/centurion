@@ -14,8 +14,9 @@ export class CmdxClient {
 		assert(IS_CLIENT, "CmdxClient can only be started from the client");
 		assert(!this.started, "Cmdx has already been started");
 
-		await this.registryInstance.init();
+		this.registryInstance.init();
 		callback(this.registryInstance);
+		await this.registryInstance.sync();
 		this.registryInstance.freeze();
 		this.started = true;
 	}
