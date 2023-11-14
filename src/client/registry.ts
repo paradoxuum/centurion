@@ -54,9 +54,11 @@ export class ClientRegistry extends BaseRegistry {
 			}
 
 			if (this.groups.has(group.name)) {
+				warn("Skipping duplicate server group:", group.name);
 				continue;
 			}
 
+			this.validatePath(group.name, false);
 			this.groups.set(group.name, this.createGroup(group));
 		}
 
@@ -65,6 +67,7 @@ export class ClientRegistry extends BaseRegistry {
 			assert(rootGroup !== undefined, `Parent group '${group.root!}' does not exist for group '${group.name}'`);
 
 			if (rootGroup.hasGroup(group.name)) {
+				warn(`Skipping duplicate server group in ${group.root!}: ${group.name}`);
 				continue;
 			}
 
@@ -95,6 +98,7 @@ export class ClientRegistry extends BaseRegistry {
 				warn(`Skipping shared command ${commandPath}`);
 				continue;
 			} else {
+				this.validatePath(path, true);
 				commandObject = ServerCommand.create(this, commandPath, command);
 				this.cacheCommandName(commandPath);
 			}

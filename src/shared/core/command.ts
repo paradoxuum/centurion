@@ -191,7 +191,16 @@ export class CommandGroup {
 			throw `${command} is not a child of this group (${this})`;
 		}
 
-		this.commands.set(command.getName(), command);
+		const commandName = command.getName();
+		if (this.hasCommand(commandName)) {
+			throw `There is already a command with the name '${commandName} in ${this}`;
+		}
+
+		if (this.hasGroup(commandName)) {
+			throw `There is already a group with the same name as the command '${command}' in ${this}`;
+		}
+
+		this.commands.set(commandName, command);
 	}
 
 	addGroup(group: CommandGroup) {
@@ -203,7 +212,16 @@ export class CommandGroup {
 			throw `${group} is not a child of this group (${this})`;
 		}
 
-		this.groups.set(group.options.name, group);
+		const groupName = group.options.name;
+		if (this.hasGroup(groupName)) {
+			throw `There is already a group with the name '${groupName} in ${this}`;
+		}
+
+		if (this.hasCommand(groupName)) {
+			throw `There is already a command with the same name as the group '${groupName}' in ${this}`;
+		}
+
+		this.groups.set(groupName, group);
 	}
 
 	getCommand(name: string) {
