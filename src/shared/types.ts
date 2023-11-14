@@ -1,6 +1,6 @@
+import { Result } from "@rbxts/rust-classes";
 import { t } from "@rbxts/t";
 import { CommandInteraction } from "./core/interaction";
-import { TransformationResult } from "./response";
 
 export type GuardFunction = (
 	runNext: (interaction: CommandInteraction) => unknown,
@@ -11,6 +11,8 @@ export interface CmdxOptions {
 	groups?: GroupOptions[];
 	globalGroups?: string[];
 }
+
+export type TransformationResult<T extends defined> = Result<T, string>;
 
 export interface TypeOptions<T extends defined> {
 	name: string;

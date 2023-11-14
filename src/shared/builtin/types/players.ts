@@ -2,8 +2,8 @@ import { Players } from "@rbxts/services";
 import { t } from "@rbxts/t";
 import { BuiltInTypes } from ".";
 import { BaseRegistry } from "../../core/registry";
-import { TransformationResult, transformErr, transformOk } from "../../response";
-import { TypeBuilder } from "../../util/type";
+import { TransformationResult } from "../../types";
+import { TypeBuilder, transformErr, transformOk } from "../../util/type";
 
 const getPlayer = (text: string): TransformationResult<Player> => {
 	const player = Players.FindFirstChild(text);
