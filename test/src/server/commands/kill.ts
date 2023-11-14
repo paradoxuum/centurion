@@ -1,16 +1,25 @@
-import { Cmdx, Command } from "@rbxts/cmdx";
+import { Cmdx, Command, CommandInteraction } from "@rbxts/cmdx";
 
-@Cmdx({
-	groups: [
-		{
-			name: "kill",
-			description: "Kills a player",
-		},
-	],
-})
+@Cmdx()
 class InfoCommand {
-	@Command({ name: "kill" })
-	kill(player: Player) {
-		print(player);
+	@Command({
+		name: "kill",
+		arguments: [
+			{
+				name: "player",
+				description: "Player to kill",
+				type: "player",
+			},
+		],
+	})
+	kill(interaction: CommandInteraction, player: Player) {
+		const humanoid = player.Character?.FindFirstChildOfClass("Humanoid");
+		if (humanoid === undefined) {
+			interaction.error(`${player.Name} does not have a Humanoid`);
+			return;
+		}
+
+		humanoid.Health = 0;
+		interaction.reply(`Successfully killed ${player.Name}`);
 	}
 }
