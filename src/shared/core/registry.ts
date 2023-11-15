@@ -11,7 +11,7 @@ export abstract class BaseRegistry {
 	protected readonly groups = new Map<string, CommandGroup>();
 	protected readonly types = new Map<string, TypeOptions<defined>>();
 	protected readonly registeredObjects = new Set<object>();
-	protected cachedNames = new Map<string, string[]>();
+	protected cachedPaths = new Map<string, CommandPath[]>();
 	protected frozen = false;
 
 	init() {
@@ -80,28 +80,32 @@ export abstract class BaseRegistry {
 		return this.commands.get(path.toString());
 	}
 
-	getCommandNames(path?: CommandPath) {
-		return this.cachedNames.get(path?.toString() ?? ROOT_NAME_KEY) ?? [];
+	getChildPaths(path?: CommandPath) {
+		return this.cachedPaths.get(path?.toString() ?? ROOT_NAME_KEY) ?? [];
 	}
 
-	protected cacheCommandName(path: CommandPath) {
+	protected cachePath(path: CommandPath) {
+		let cacheKey: string;
 		if (path.getSize() === 3) {
-			if (!this.cachedNames.has(path.getRoot())) {
-				this.cacheName(ROOT_NAME_KEY, path.getRoot());
+			if (!this.cachedPaths.has(path.getRoot())) {
+				this.addCacheEntry(ROOT_NAME_KEY, CommandPath.fromString(path.getRoot()));
 			}
 
-			this.cacheName(path.getRoot(), path.getPart(1));
+			const childPath = path.slice(0, 1);
+			this.addCacheEntry(path.getRoot(), childPath);
+			cacheKey = childPath.toString();
+		} else {
+			cacheKey = ROOT_NAME_KEY;
 		}
 
-		const cacheKey = path.getSize() > 1 ? path.getPart(1) : ROOT_NAME_KEY;
-		this.cacheName(cacheKey, path.getTail());
+		this.addCacheEntry(cacheKey, path);
 	}
 
-	private cacheName(key: string, value: string) {
-		const cache = this.cachedNames.get(key) ?? [];
-		cache.push(value);
-		cache.sort();
-		this.cachedNames.set(key, cache);
+	private addCacheEntry(key: string, path: CommandPath) {
+		const cache = this.cachedPaths.get(key) ?? [];
+		cache.push(path);
+		cache.sort((a, b) => a.getTail() < b.getTail());
+		this.cachedPaths.set(key, cache);
 		return cache;
 	}
 
@@ -132,7 +136,7 @@ export abstract class BaseRegistry {
 			group.addCommand(command);
 		}
 
-		this.cacheCommandName(path);
+		this.cachePath(path);
 	}
 
 	private registerCommandHolder(commandHolder: object) {
