@@ -12,7 +12,7 @@ export interface AppData {
 	history: HistoryEntry[];
 	onHistoryChanged: RBXScriptSignal<(entry: HistoryEntry) => void>;
 	getArgumentSuggestions: (path: CommandPath, index: number) => ArgumentSuggestion[];
-	getCommandSuggestions: (path: CommandPath) => CommandSuggestion[];
+	getCommandSuggestions: (text?: string, path?: CommandPath) => CommandSuggestion[];
 }
 
 export interface HistoryEntry {
@@ -24,13 +24,13 @@ export interface HistoryEntry {
 export interface CommandSuggestion {
 	type: "command";
 	title: string;
-	description: string;
+	description?: string;
 }
 
 export interface ArgumentSuggestion {
 	type: "argument";
 	title: string;
-	description: string;
+	description?: string;
 	dataType: string;
 	required: boolean;
 }

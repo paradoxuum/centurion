@@ -23,8 +23,8 @@ export interface SuggestionListProps {
 
 const HIGHLIGHT_PREFIX = `<font color="${toHex(palette.blue)}">`;
 
-function getHighlightedTitle(fieldText: string, suggestion?: Suggestion) {
-	if (suggestion?.type !== "command") {
+function getHighlightedTitle(fieldText?: string, suggestion?: Suggestion) {
+	if (suggestion?.type !== "command" || fieldText === undefined) {
 		return suggestion?.title;
 	}
 
@@ -41,8 +41,9 @@ export function SuggestionList({ position }: SuggestionListProps) {
 	const data = useContext(DataContext);
 
 	const terminalText = useSelector(selectTerminalText);
-	const suggestionPath = useMemo(() => {
-		return new CommandPath(terminalText.parts);
+
+	const currentTextPart = useMemo(() => {
+		return terminalText.index < terminalText.parts.size() ? terminalText.parts[terminalText.index] : undefined;
 	}, [terminalText]);
 
 	// Suggestions
@@ -66,14 +67,14 @@ export function SuggestionList({ position }: SuggestionListProps) {
 
 	// Update suggestions when typing
 	useEffect(() => {
-		const pathSize = suggestionPath.getSize();
-		if (pathSize === 0) {
+		const suggestionPath =
+			terminalText.index > 0 ? new CommandPath(slice(terminalText.parts, 1, terminalText.index)) : undefined;
+		if (currentTextPart === undefined && terminalText.index === -1) {
 			setSuggestions([]);
 			return;
 		}
-
-		setSuggestions(data.getCommandSuggestions(suggestionPath));
-	}, [suggestionPath]);
+		setSuggestions(data.getCommandSuggestions(currentTextPart, suggestionPath));
+	}, [terminalText]);
 
 	// Resize window based on suggestions
 	useEffect(() => {
@@ -103,7 +104,7 @@ export function SuggestionList({ position }: SuggestionListProps) {
 				  )
 				: new Vector2();
 
-		let windowWidth = math.max(titleBounds.X, descriptionBounds.X) + rem(1);
+		let windowWidth = math.max(titleBounds.X, descriptionBounds.X) + rem(2);
 		let windowHeight = titleBounds.Y + descriptionBounds.Y + rem(2);
 
 		// If the suggestion is an argument, calculate the data type text bounds
@@ -124,13 +125,28 @@ export function SuggestionList({ position }: SuggestionListProps) {
 			description: UDim2.fromOffset(descriptionBounds.X, descriptionBounds.Y),
 		});
 
-		suggestionSizeMotion.spring(UDim2.fromOffset(windowWidth, windowHeight), springs.responsive);
-
 		// Calculate other suggestion sizes
 		if (otherSuggestions.size() > 0) {
+			let maxSuggestionWidth = 0;
+			for (const suggestion of otherSuggestions) {
+				const suggestionBounds = TextService.GetTextSize(
+					suggestion.title,
+					rem(1.6),
+					"GothamMedium",
+					new Vector2(math.huge, math.huge),
+				);
+
+				if (suggestionBounds.X > maxSuggestionWidth) {
+					maxSuggestionWidth = suggestionBounds.X;
+				}
+			}
+
 			const otherHeight = otherSuggestions.size() * rem(2) + rem(1) + (otherSuggestions.size() - 1) * rem(0.5);
+			windowWidth = math.max(windowWidth, maxSuggestionWidth);
 			otherSuggestionSizeMotion.spring(UDim2.fromOffset(windowWidth, otherHeight), springs.gentle);
 		}
+
+		suggestionSizeMotion.spring(UDim2.fromOffset(windowWidth, windowHeight), springs.responsive);
 	}, [suggestions, rem]);
 
 	return (
@@ -195,7 +211,7 @@ export function SuggestionList({ position }: SuggestionListProps) {
 				<Text
 					key="title"
 					size={textSizes.title}
-					text={getHighlightedTitle(terminalText.value, firstSuggestion)}
+					text={getHighlightedTitle(currentTextPart, firstSuggestion)}
 					textSize={rem(2)}
 					textColor={palette.white}
 					textXAlignment="Left"
@@ -207,7 +223,7 @@ export function SuggestionList({ position }: SuggestionListProps) {
 					key="description"
 					size={textSizes.description}
 					position={UDim2.fromOffset(0, rem(2))}
-					text={firstSuggestion?.description}
+					text={firstSuggestion?.description ?? ""}
 					textSize={rem(1.5)}
 					textColor={palette.white}
 					textXAlignment="Left"
@@ -230,7 +246,7 @@ export function SuggestionList({ position }: SuggestionListProps) {
 
 							<Text
 								size={new UDim2(1, 0, 1, 0)}
-								text={getHighlightedTitle(terminalText.value, suggestion)}
+								text={getHighlightedTitle(currentTextPart, suggestion)}
 								textColor={palette.white}
 								textSize={rem(1.6)}
 								textXAlignment="Left"

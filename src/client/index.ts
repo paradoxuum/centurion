@@ -1,9 +1,10 @@
 import { RunService } from "@rbxts/services";
+import { CommandPath } from "../shared";
 import { RunCallback } from "../shared/core/types";
 import { ClientDispatcher } from "./dispatcher";
 import { DEFAULT_OPTIONS } from "./options";
 import { ClientRegistry } from "./registry";
-import { AppData, ClientOptions } from "./types";
+import { AppData, ClientOptions, CommandSuggestion } from "./types";
 
 const IS_CLIENT = RunService.IsClient();
 
@@ -41,6 +42,39 @@ export class CmdxClient {
 		return this.dispatcherInstance;
 	}
 
+	private static getSuggestionData(path: CommandPath): CommandSuggestion {
+		const options =
+			this.registryInstance.getCommand(path)?.options ?? this.registryInstance.getGroup(path)?.options;
+		assert(options !== undefined, `Invalid command path: ${path}`);
+
+		return {
+			type: "command",
+			title: options.name,
+			description: options.description,
+		};
+	}
+
+	private static getCommandSuggestions(text?: string, path?: CommandPath) {
+		const childPaths = this.registryInstance.getChildPaths(path);
+		if (text === undefined) {
+			return childPaths.map((childPath) => this.getSuggestionData(childPath));
+		}
+
+		const results: CommandSuggestion[] = [];
+		const textLower = text.lower();
+		const textSubIndex = text.size();
+		for (const childPath of childPaths) {
+			const pathNameLower = childPath.getTail().lower();
+			if (pathNameLower.sub(0, textSubIndex) !== textLower) {
+				continue;
+			}
+
+			results.push(this.getSuggestionData(childPath));
+		}
+
+		return results;
+	}
+
 	private static getAppData(options: ClientOptions): AppData {
 		return {
 			options,
@@ -49,7 +83,7 @@ export class CmdxClient {
 			history: this.dispatcherInstance.getHistory(),
 			onHistoryChanged: this.dispatcherInstance.getHistorySignal(),
 			getArgumentSuggestions: () => [],
-			getCommandSuggestions: () => [],
+			getCommandSuggestions: (text, path) => this.getCommandSuggestions(text, path),
 		};
 	}
 }
