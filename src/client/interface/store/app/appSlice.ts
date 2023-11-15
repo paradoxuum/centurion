@@ -45,7 +45,7 @@ export const appSlice = createProducer(initialState, {
 
 	setText: (state, text: string) => {
 		const parts = splitStringBySpace(text);
-		const endsWithSpace = text === "" || text.match("%s$").size() > 0;
+		const endsWithSpace = parts.size() > 0 && text.match("%s$").size() > 0;
 		return {
 			...state,
 			terminalText: {
