@@ -1,31 +1,31 @@
-import Roact, { createContext, useEffect } from "@rbxts/roact";
-import { DEFAULT_HISTORY_LENGTH, DEFAULT_OPTIONS } from "../../options";
+import Roact, { createContext } from "@rbxts/roact";
+import { DEFAULT_OPTIONS } from "../../options";
 import { AppData } from "../../types";
-import { useStore } from "../hooks/useStore";
-import { AppContext } from "../types/data";
 
 export interface DataProviderProps extends Roact.PropsWithChildren {
 	data: AppData;
 }
 
-export const DEFAULT_DATA: AppContext = {
+export const DEFAULT_DATA: AppData = {
 	options: DEFAULT_OPTIONS,
+	execute: async () => {
+		return {
+			text: "Command executed.",
+			success: true,
+			sentAt: DateTime.now().UnixTimestamp,
+		};
+	},
+
 	commands: new Map(),
 	groups: new Map(),
 	getArgumentSuggestions: () => [],
 	getCommandSuggestions: () => [],
+	history: [],
+	onHistoryUpdated: new Instance("BindableEvent").Event,
 };
 
 export const DataContext = createContext(DEFAULT_DATA);
 
 export function DataProvider({ data, children }: DataProviderProps) {
-	const store = useStore();
-
-	useEffect(() => store.setHistory(data.history), [data.history]);
-
-	data.onHistoryChanged.Connect((entry) =>
-		store.addHistoryEntry(entry, data.options.historyLength ?? DEFAULT_HISTORY_LENGTH),
-	);
-
 	return <DataContext.Provider value={data}>{children}</DataContext.Provider>;
 }

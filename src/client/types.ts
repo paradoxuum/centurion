@@ -7,12 +7,14 @@ export interface ClientOptions {
 
 export interface AppData {
 	options: ClientOptions;
+	execute: (path: CommandPath, text: string) => Promise<HistoryEntry>;
+
 	commands: Map<string, CommandOptions>;
 	groups: Map<string, GroupOptions>;
-	history: HistoryEntry[];
-	onHistoryChanged: RBXScriptSignal<(entry: HistoryEntry) => void>;
 	getArgumentSuggestions: (path: CommandPath, index: number) => ArgumentSuggestion[];
 	getCommandSuggestions: (text?: string, path?: CommandPath) => CommandSuggestion[];
+	history: HistoryEntry[];
+	onHistoryUpdated: RBXScriptSignal<(entry: HistoryEntry) => void>;
 }
 
 export interface HistoryEntry {
@@ -32,7 +34,7 @@ export interface ArgumentSuggestion {
 	title: string;
 	description?: string;
 	dataType: string;
-	required: boolean;
+	optional: boolean;
 }
 
 export type Suggestion = CommandSuggestion | ArgumentSuggestion;

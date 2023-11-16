@@ -1,3 +1,5 @@
+import "./config";
+
 import { createPortal, createRoot } from "@rbxts/react-roblox";
 import Roact, { StrictMode } from "@rbxts/roact";
 import { Players } from "@rbxts/services";

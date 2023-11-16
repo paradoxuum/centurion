@@ -1,37 +1,34 @@
+import { useEventListener, useMountEffect } from "@rbxts/pretty-react-hooks";
 import { useSelector } from "@rbxts/react-reflex";
-import Roact, { useEffect, useMemo, useState } from "@rbxts/roact";
+import Roact, { useContext, useEffect, useMemo, useState } from "@rbxts/roact";
 import { TextService } from "@rbxts/services";
-import { images } from "../../constants/images";
 import { palette } from "../../constants/palette";
 import { useMotion } from "../../hooks/useMotion";
 import { useRem } from "../../hooks/useRem";
 import { useStore } from "../../hooks/useStore";
+import { DataContext } from "../../providers/dataProvider";
 import { selectHistory } from "../../store/app";
+import { HistoryLineData } from "../../types";
 import { Frame } from "../interface/Frame";
-import { Group } from "../interface/Group";
-import { Image } from "../interface/Image";
 import { Padding } from "../interface/Padding";
-import { PrimaryButton } from "../interface/PrimaryButton";
-import { ScrollingFrame } from "../interface/ScrollingFrame";
 import { Shadow } from "../interface/Shadow";
-import { HistoryLine } from "./HistoryLine";
 import { TerminalTextField } from "./TerminalTextField";
+import { HistoryList } from "./history";
 
-interface TerminalWindowProps {
-	onSubmit?: (text: string) => void;
-}
-
-export function TerminalWindow({ onSubmit }: TerminalWindowProps) {
+export function TerminalWindow() {
 	const rem = useRem();
 	const store = useStore();
+	const data = useContext(DataContext);
 
 	const history = useSelector(selectHistory);
-	const [historyLines, setHistoryLines] = useState<number[]>([]);
+	const [historyLines, setHistoryLines] = useState<HistoryLineData[]>([]);
 	const [historyHeight, historyHeightMotion] = useMotion(0);
-	const [historyCanvas, setHistoryCanvas] = useState({
-		scrollingEnabled: false,
-		size: new UDim2(),
-		position: new Vector2(),
+
+	useMountEffect(() => {
+		store.setHistory(data.history);
+	});
+	useEventListener(data.onHistoryUpdated, (entry) => {
+		store.addHistoryEntry(entry);
 	});
 
 	const windowHeightBinding = useMemo(() => {
@@ -44,82 +41,38 @@ export function TerminalWindow({ onSubmit }: TerminalWindowProps) {
 		const historySize = history.size();
 		let totalHeight = historySize > 0 ? rem(0.5) + (historySize - 1) * rem(0.5) : 0;
 
-		const historyLines: number[] = [];
+		const historyLines: HistoryLineData[] = [];
 		const textMaxBounds = new Vector2(math.huge, math.huge);
 		for (const entry of history) {
 			const textSize = TextService.GetTextSize(entry.text, rem(1.5), "GothamMedium", textMaxBounds);
 			totalHeight += textSize.Y;
-			historyLines.push(textSize.Y);
+			historyLines.push({ entry, height: textSize.Y });
 		}
 
 		const isClamped = totalHeight > rem(16);
 		const clampedHeight = isClamped ? rem(16) : totalHeight;
 		historyHeightMotion.spring(clampedHeight);
 		setHistoryLines(historyLines);
-		setHistoryCanvas({
-			scrollingEnabled: isClamped,
-			size: new UDim2(0, 0, 0, totalHeight - rem(1)),
-			position: new Vector2(0, totalHeight),
-		});
 	}, [history, rem]);
 
 	return (
 		<Frame size={windowHeightBinding} backgroundColor={palette.crust} cornerRadius={new UDim(0, rem(0.5))}>
 			<Padding key="padding" all={new UDim(0, rem(0.5))} />
 
-			<ScrollingFrame
-				key="history"
-				size={new UDim2(1, 0, 1, -rem(4.5))}
-				canvasSize={historyCanvas.size}
-				canvasPosition={historyCanvas.position}
-				scrollBarColor={palette.surface2}
-				scrollBarThickness={historyCanvas.scrollingEnabled ? 10 : 0}
-			>
-				{historyLines.map((height, i) => {
-					const entry = history[i];
-					if (entry === undefined) {
-						return <></>;
-					}
+			<HistoryList key="history" historyLines={historyLines} historyHeight={historyHeight} />
 
-					return <HistoryLine key={`${entry.sentAt}-${i}`} size={new UDim2(1, 0, 0, height)} data={entry} />;
-				})}
-
-				<uilistlayout key="layout" Padding={new UDim(0, rem(0.5))} SortOrder="LayoutOrder" />
-			</ScrollingFrame>
-
-			<Group
-				key="command-bar"
+			<TerminalTextField
+				key="text-field"
 				anchorPoint={new Vector2(0, 1)}
-				size={new UDim2(1, 0, 0, rem(4))}
+				size={UDim2.fromScale(1, 1)}
 				position={UDim2.fromScale(0, 1)}
-			>
-				<TerminalTextField
-					key="text-field"
-					size={new UDim2(1, -rem(4.5), 1, 0)}
-					onTextChange={(text) => {
-						store.setText(text);
-					}}
-					onSubmit={onSubmit}
-				/>
-
-				<PrimaryButton
-					key="execute-button"
-					anchorPoint={new Vector2(1, 0.5)}
-					size={new UDim2(0, rem(4), 1, 0)}
-					position={new UDim2(1, 0, 0.5, 0)}
-					color={palette.green}
-					animatePosition={false}
-					cornerRadius={new UDim(0, rem(0.5))}
-				>
-					<Image
-						key="icon"
-						anchorPoint={new Vector2(0.5, 0.5)}
-						size={new UDim2(1, -rem(1), 1, -rem(1))}
-						position={UDim2.fromScale(0.5, 0.5)}
-						image={images.play}
-					/>
-				</PrimaryButton>
-			</Group>
+				onTextChange={(text) => {
+					store.setText(text);
+				}}
+				onSubmit={(text) => {
+					print(store.getState().app.terminalText.value);
+				}}
+			/>
 
 			<Shadow key="shadow" shadowSize={rem(1)} />
 		</Frame>

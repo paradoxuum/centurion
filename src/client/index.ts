@@ -4,7 +4,7 @@ import { RunCallback } from "../shared/core/types";
 import { ClientDispatcher } from "./dispatcher";
 import { DEFAULT_OPTIONS } from "./options";
 import { ClientRegistry } from "./registry";
-import { AppData, ClientOptions, CommandSuggestion } from "./types";
+import { AppData, ArgumentSuggestion, ClientOptions, CommandSuggestion } from "./types";
 
 const IS_CLIENT = RunService.IsClient();
 
@@ -12,22 +12,26 @@ export class CmdxClient {
 	private static started = false;
 	private static readonly registryInstance = new ClientRegistry();
 	private static readonly dispatcherInstance = new ClientDispatcher(CmdxClient.registryInstance);
+	private static optionsObject = DEFAULT_OPTIONS;
 
 	static async run(callback: RunCallback, options: ClientOptions = DEFAULT_OPTIONS) {
 		assert(IS_CLIENT, "CmdxClient can only be started from the client");
 		assert(!this.started, "Cmdx has already been started");
 
+		this.optionsObject = options;
+
 		this.registryInstance.init();
 		this.dispatcherInstance.init(options);
+
 		callback(this.registryInstance);
+
 		await this.registryInstance.sync();
 		this.registryInstance.freeze();
+		this.started = true;
 
 		if (options.app !== undefined) {
-			options.app(this.getAppData(options));
+			options.app(this.getAppData());
 		}
-
-		this.started = true;
 	}
 
 	static registry() {
@@ -42,16 +46,39 @@ export class CmdxClient {
 		return this.dispatcherInstance;
 	}
 
+	static options() {
+		assert(IS_CLIENT, "Cannot access client options from the server");
+		assert(this.started, "Cmdx has not been started yet");
+		return this.optionsObject;
+	}
+
 	private static getSuggestionData(path: CommandPath): CommandSuggestion {
-		const options =
-			this.registryInstance.getCommand(path)?.options ?? this.registryInstance.getGroup(path)?.options;
-		assert(options !== undefined, `Invalid command path: ${path}`);
+		const data = this.registryInstance.getCommand(path)?.options ?? this.registryInstance.getGroup(path)?.options;
+		assert(data !== undefined, `Invalid command path: ${path}`);
 
 		return {
 			type: "command",
-			title: options.name,
-			description: options.description,
+			title: data.name,
+			description: data.description,
 		};
+	}
+
+	private static getArgumentSuggestions(path: CommandPath, index: number): ArgumentSuggestion[] {
+		const command = this.registryInstance.getCommand(path);
+		const results: ArgumentSuggestion[] = [];
+		if (command === undefined) {
+			return [];
+		}
+
+		return (
+			command.options.arguments?.map((arg) => ({
+				type: "argument",
+				title: arg.name,
+				description: arg.description,
+				dataType: arg.type,
+				optional: arg.optional === true,
+			})) ?? []
+		);
 	}
 
 	private static getCommandSuggestions(text?: string, path?: CommandPath) {
@@ -75,15 +102,17 @@ export class CmdxClient {
 		return results;
 	}
 
-	private static getAppData(options: ClientOptions): AppData {
+	private static getAppData(): AppData {
 		return {
-			options,
+			options: this.optionsObject,
+			execute: (path, text) => this.dispatcherInstance.run(path, text),
+
 			commands: this.registryInstance.getCommandOptions(),
 			groups: this.registryInstance.getGroupOptions(),
-			history: this.dispatcherInstance.getHistory(),
-			onHistoryChanged: this.dispatcherInstance.getHistorySignal(),
-			getArgumentSuggestions: () => [],
+			getArgumentSuggestions: (path, index) => this.getArgumentSuggestions(path, index),
 			getCommandSuggestions: (text, path) => this.getCommandSuggestions(text, path),
+			history: this.dispatcherInstance.getHistory(),
+			onHistoryUpdated: this.dispatcherInstance.getHistorySignal(),
 		};
 	}
 }

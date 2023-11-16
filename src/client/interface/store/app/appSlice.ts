@@ -1,10 +1,15 @@
 import { createProducer } from "@rbxts/reflex";
 import { copyDeep, push, removeIndices } from "@rbxts/sift/out/Array";
+import { CmdxClient } from "../../..";
+import { CommandPath, ImmutableCommandPath } from "../../../../shared";
 import { splitStringBySpace } from "../../../../shared/util/string";
+import { DEFAULT_HISTORY_LENGTH } from "../../../options";
 import { HistoryEntry } from "../../../types";
 
 export interface AppState {
 	history: HistoryEntry[];
+	suggestionText: string;
+	command?: ImmutableCommandPath;
 	terminalText: {
 		value: string;
 		parts: string[];
@@ -12,8 +17,10 @@ export interface AppState {
 	};
 }
 
-const initialState: AppState = {
+export const initialAppState: AppState = {
 	history: [],
+	suggestionText: "",
+	command: ImmutableCommandPath.empty(),
 	terminalText: {
 		value: "",
 		parts: [],
@@ -21,12 +28,13 @@ const initialState: AppState = {
 	},
 };
 
-export const appSlice = createProducer(initialState, {
-	addHistoryEntry: (state, entry: HistoryEntry, limit: number) => {
+export const appSlice = createProducer(initialAppState, {
+	addHistoryEntry: (state, entry: HistoryEntry) => {
 		const history = copyDeep(state.history);
-		if (history.size() >= limit) {
+		const historyLimit = CmdxClient.options().historyLength ?? DEFAULT_HISTORY_LENGTH;
+		if (history.size() >= historyLimit) {
 			const indices: number[] = [];
-			for (const i of $range(limit, history.size())) {
+			for (const i of $range(historyLimit, history.size())) {
 				indices.push(i);
 			}
 			removeIndices(history, ...indices);
@@ -46,6 +54,7 @@ export const appSlice = createProducer(initialState, {
 	setText: (state, text: string) => {
 		const parts = splitStringBySpace(text);
 		const endsWithSpace = parts.size() > 0 && text.match("%s$").size() > 0;
+
 		return {
 			...state,
 			terminalText: {
@@ -55,4 +64,8 @@ export const appSlice = createProducer(initialState, {
 			},
 		};
 	},
+
+	setCommand: (state, path: CommandPath) => ({ ...state, path }),
+
+	setSuggestionText: (state, text) => ({ ...state, suggestionText: text }),
 });

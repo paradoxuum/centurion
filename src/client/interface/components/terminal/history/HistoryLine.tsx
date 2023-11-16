@@ -1,12 +1,12 @@
 import { BindingOrValue } from "@rbxts/pretty-react-hooks";
 import Roact, { useMemo } from "@rbxts/roact";
-import { HistoryEntry } from "../../../types";
-import { fonts } from "../../constants/fonts";
-import { palette } from "../../constants/palette";
-import { useRem } from "../../hooks/useRem";
-import { Frame } from "../interface/Frame";
-import { Group } from "../interface/Group";
-import { Text } from "../interface/Text";
+import { HistoryEntry } from "../../../../types";
+import { fonts } from "../../../constants/fonts";
+import { palette } from "../../../constants/palette";
+import { useRem } from "../../../hooks/useRem";
+import { Frame } from "../../interface/Frame";
+import { Group } from "../../interface/Group";
+import { Text } from "../../interface/Text";
 
 interface HistoryLineProps {
 	data: HistoryEntry;

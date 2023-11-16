@@ -10,7 +10,9 @@ export function RootProvider({ baseRem, data, children }: RootProviderProps) {
 	return (
 		<ReflexProvider producer={store}>
 			<RemProvider key="rem-provider" baseRem={baseRem}>
-				<DataProvider data={data}>{children}</DataProvider>
+				<DataProvider key="data-provider" data={data}>
+					{children}
+				</DataProvider>
 			</RemProvider>
 		</ReflexProvider>
 	);

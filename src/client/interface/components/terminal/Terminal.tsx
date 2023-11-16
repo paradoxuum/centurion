@@ -2,8 +2,8 @@ import Roact from "@rbxts/roact";
 import { GuiService } from "@rbxts/services";
 import { useRem } from "../../hooks/useRem";
 import { Group } from "../interface/Group";
-import { SuggestionList } from "./SuggestionList";
 import { TerminalWindow } from "./TerminalWindow";
+import { SuggestionList } from "./suggestion";
 
 export default function Terminal() {
 	const rem = useRem();

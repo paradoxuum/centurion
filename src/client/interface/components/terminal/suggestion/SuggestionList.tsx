@@ -2,20 +2,22 @@ import { useSelector } from "@rbxts/react-reflex";
 import Roact, { useContext, useEffect, useMemo, useState } from "@rbxts/roact";
 import { TextService } from "@rbxts/services";
 import { slice } from "@rbxts/sift/out/Array";
-import { CommandPath } from "../../../../shared";
-import { Suggestion } from "../../../types";
-import { fonts } from "../../constants/fonts";
-import { palette } from "../../constants/palette";
-import { springs } from "../../constants/springs";
-import { useMotion } from "../../hooks/useMotion";
-import { useRem } from "../../hooks/useRem";
-import { DataContext } from "../../providers/dataProvider";
-import { selectTerminalText } from "../../store/app";
-import { toHex } from "../../util/color";
-import { Frame } from "../interface/Frame";
-import { Group } from "../interface/Group";
-import { Padding } from "../interface/Padding";
-import { Text } from "../interface/Text";
+import { ImmutableCommandPath } from "../../../../../shared";
+import { Suggestion } from "../../../../types";
+import { fonts } from "../../../constants/fonts";
+import { palette } from "../../../constants/palette";
+import { springs } from "../../../constants/springs";
+import { useMotion } from "../../../hooks/useMotion";
+import { useRem } from "../../../hooks/useRem";
+import { useStore } from "../../../hooks/useStore";
+import { DataContext } from "../../../providers/dataProvider";
+import { selectTerminalText } from "../../../store/app";
+import { toHex } from "../../../util/color";
+import { Frame } from "../../interface/Frame";
+import { Group } from "../../interface/Group";
+import { Padding } from "../../interface/Padding";
+import { Text } from "../../interface/Text";
+import { Badge } from "./Badge";
 
 export interface SuggestionListProps {
 	position?: UDim2;
@@ -39,12 +41,41 @@ function getHighlightedTitle(fieldText?: string, suggestion?: Suggestion) {
 export function SuggestionList({ position }: SuggestionListProps) {
 	const rem = useRem();
 	const data = useContext(DataContext);
+	const store = useStore();
 
 	const terminalText = useSelector(selectTerminalText);
-
 	const currentTextPart = useMemo(() => {
-		return terminalText.index < terminalText.parts.size() ? terminalText.parts[terminalText.index] : undefined;
+		if (terminalText.index === -1 || terminalText.index >= terminalText.parts.size()) {
+			return;
+		}
+		return terminalText.parts[terminalText.index];
 	}, [terminalText]);
+
+	// Update suggestions when typing
+	useEffect(() => {
+		if (terminalText.index === -1) {
+			setSuggestions([]);
+			store.setSuggestionText("");
+			return;
+		}
+
+		const parentPath = new ImmutableCommandPath(slice(terminalText.parts, 1, terminalText.index));
+		const partCount = terminalText.parts.size();
+		const suggestions = data.getCommandSuggestions(
+			terminalText.index < partCount ? currentTextPart : undefined,
+			terminalText.index > 0 ? parentPath : undefined,
+		);
+
+		setSuggestions(suggestions);
+
+		if (suggestions.isEmpty()) {
+			store.setSuggestionText("");
+			return;
+		}
+
+		const startIndex = terminalText.index < partCount && currentTextPart !== undefined ? currentTextPart.size() : 0;
+		store.setSuggestionText(terminalText.value + suggestions[0].title.sub(startIndex + 1));
+	}, [currentTextPart]);
 
 	// Suggestions
 	const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
@@ -64,17 +95,6 @@ export function SuggestionList({ position }: SuggestionListProps) {
 
 	const [suggestionSize, suggestionSizeMotion] = useMotion(new UDim2());
 	const [otherSuggestionSize, otherSuggestionSizeMotion] = useMotion(new UDim2());
-
-	// Update suggestions when typing
-	useEffect(() => {
-		const suggestionPath =
-			terminalText.index > 0 ? new CommandPath(slice(terminalText.parts, 1, terminalText.index)) : undefined;
-		if (currentTextPart === undefined && terminalText.index === -1) {
-			setSuggestions([]);
-			return;
-		}
-		setSuggestions(data.getCommandSuggestions(currentTextPart, suggestionPath));
-	}, [terminalText]);
 
 	// Resize window based on suggestions
 	useEffect(() => {
@@ -167,44 +187,24 @@ export function SuggestionList({ position }: SuggestionListProps) {
 
 				{suggestions.size() > 0 && suggestions[0].type === "argument" && (
 					<Group
+						key="argument-badges"
 						anchorPoint={new Vector2(1, 0)}
 						size={UDim2.fromOffset(rem(6), rem(2))}
 						position={UDim2.fromScale(1, 0)}
 					>
-						<Frame
-							key="type-badge"
+						<Badge
+							key="type"
 							size={new UDim2(1, 0, 0, rem(2))}
-							backgroundColor={palette.surface0}
-							cornerRadius={new UDim(1)}
-						>
-							<Padding key="padding" all={new UDim(0, rem(1))} />
-							<Text
-								key="text"
-								text={suggestions[0].dataType}
-								textColor={palette.white}
-								textSize={rem(1)}
-								size={UDim2.fromScale(1, 1)}
-								font={fonts.inter.bold}
-							/>
-						</Frame>
+							color={palette.surface0}
+							text={suggestions[0].dataType}
+						/>
 
-						<Frame
-							key="required-badge"
+						<Badge
+							key="required"
 							size={new UDim2(1, 0, 0, rem(2))}
-							position={UDim2.fromOffset(0, rem(2.5))}
-							backgroundColor={suggestions[0].required ? palette.red : palette.blue}
-							cornerRadius={new UDim(1)}
-						>
-							<Padding key="padding" all={new UDim(0, rem(1))} />
-							<Text
-								key="text"
-								text={suggestions[0].required ? "Required" : "Optional"}
-								textColor={palette.white}
-								textSize={rem(1)}
-								size={UDim2.fromScale(1, 1)}
-								font={fonts.inter.bold}
-							/>
-						</Frame>
+							color={suggestions[0].optional ? palette.blue : palette.red}
+							text={suggestions[0].optional ? "Optional" : "Required"}
+						/>
 					</Group>
 				)}
 
@@ -235,16 +235,18 @@ export function SuggestionList({ position }: SuggestionListProps) {
 			<Group key="other" size={otherSuggestionSize}>
 				<uilistlayout key="layout" SortOrder="LayoutOrder" Padding={new UDim(0, rem(0.5))} />
 
-				{otherSuggestions?.map((suggestion) => {
+				{otherSuggestions?.map((suggestion, i) => {
 					return (
 						<Frame
+							key={suggestion.title}
 							size={new UDim2(1, 0, 0, rem(2))}
 							backgroundColor={palette.mantle}
 							cornerRadius={new UDim(0, rem(0.5))}
 						>
-							<Padding all={new UDim(0, rem(0.5))} />
+							<Padding key="padding" all={new UDim(0, rem(0.5))} />
 
 							<Text
+								key="text"
 								size={new UDim2(1, 0, 1, 0)}
 								text={getHighlightedTitle(currentTextPart, suggestion)}
 								textColor={palette.white}

@@ -24,10 +24,6 @@ export class ClientDispatcher extends BaseDispatcher {
 			throw err;
 		});
 
-		if (!interaction.isReplyReceived()) {
-			return;
-		}
-
 		const entry: HistoryEntry = {
 			text: interaction.getReplyText()!,
 			success: interaction.isReplySuccess()!,
@@ -40,6 +36,7 @@ export class ClientDispatcher extends BaseDispatcher {
 
 		this.history.push(entry);
 		this.historyEvent.Fire(entry);
+		return entry;
 	}
 
 	getHistory() {

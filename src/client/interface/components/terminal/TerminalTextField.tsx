@@ -1,11 +1,13 @@
 import { BindingOrValue } from "@rbxts/pretty-react-hooks";
+import { useSelector } from "@rbxts/react-reflex";
 import Roact, { useEffect, useRef } from "@rbxts/roact";
 import { fonts } from "../../constants/fonts";
 import { palette } from "../../constants/palette";
 import { useRem } from "../../hooks/useRem";
+import { selectSuggestionText } from "../../store/app";
 import { Frame } from "../interface/Frame";
-import { Group } from "../interface/Group";
 import { Padding } from "../interface/Padding";
+import { Text } from "../interface/Text";
 import { TextField } from "../interface/TextField";
 
 interface TerminalTextFieldProps {
@@ -20,11 +22,13 @@ export function TerminalTextField({ anchorPoint, size, position, onTextChange, o
 	const rem = useRem();
 	const ref = useRef<TextBox>();
 
+	const suggestionText = useSelector(selectSuggestionText);
+
 	useEffect(() => {
 		const textBox = ref.current!;
 
 		let prevText = "";
-		textBox.GetPropertyChangedSignal("Text").Connect(() => {
+		const connection = textBox.GetPropertyChangedSignal("Text").Connect(() => {
 			// Remove all tabs from text input - we use these for autocompletion
 			if (textBox.Text.match("\t")[0] !== undefined) {
 				textBox.Text = textBox.Text.gsub("\t", "")[0];
@@ -35,16 +39,26 @@ export function TerminalTextField({ anchorPoint, size, position, onTextChange, o
 				prevText = textBox.Text;
 			}
 		});
+
+		return () => connection.Disconnect();
 	}, [ref]);
 
 	return (
-		<Group key="text-field" anchorPoint={anchorPoint} size={size} position={position}>
+		<Frame
+			anchorPoint={anchorPoint}
+			size={size}
+			position={position}
+			backgroundColor={palette.mantle}
+			cornerRadius={new UDim(0, rem(0.5))}
+		>
+			<Padding key="padding" all={new UDim(0, rem(1))} />
+
 			<TextField
 				key="textbox"
 				size={UDim2.fromScale(1, 1)}
 				placeholderText="Enter command..."
 				textColor={palette.white}
-				textSize={20}
+				textSize={rem(2)}
 				textXAlignment="Left"
 				textTruncate="AtEnd"
 				clearTextOnFocus={false}
@@ -59,16 +73,19 @@ export function TerminalTextField({ anchorPoint, size, position, onTextChange, o
 						onSubmit?.(rbx.Text);
 					},
 				}}
-			>
-				<Padding all={new UDim(0, rem(1))} />
-			</TextField>
-
-			<Frame
-				zIndex={0}
-				backgroundColor={palette.mantle}
-				size={UDim2.fromScale(1, 1)}
-				cornerRadius={new UDim(0, rem(0.5))}
+				zIndex={2}
 			/>
-		</Group>
+
+			<Text
+				key="suggestion-text"
+				size={UDim2.fromScale(1, 1)}
+				text={suggestionText}
+				textColor={palette.surface2}
+				textSize={rem(2)}
+				textXAlignment="Left"
+				textTruncate="AtEnd"
+				font={fonts.inter.medium}
+			/>
+		</Frame>
 	);
 }

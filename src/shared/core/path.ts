@@ -45,6 +45,10 @@ export class CommandPath {
 	 * @returns The tail of this path
 	 */
 	getTail() {
+		if (this.parts.isEmpty()) {
+			return "";
+		}
+
 		return this.parts[this.parts.size() - 1];
 	}
 
@@ -191,6 +195,10 @@ export class CommandPath {
 	 */
 	clear() {
 		this.parts.clear();
+	}
+
+	isEmpty() {
+		return this.parts.isEmpty();
 	}
 
 	*iter() {
