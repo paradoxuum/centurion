@@ -152,8 +152,11 @@ export function TerminalWindow() {
 					}
 
 					store.setSuggestions(suggestions);
-					// TODO Figure out how suggestion text should look, maybe move
-					//		logic to TerminalTextField?
+
+					const suggestionStartIndex = (!atNextPart ? parts[parts.size() - 1].size() : 0) + 1;
+					store.setSuggestionText(
+						text + (!suggestions.isEmpty() ? suggestions[0].title.sub(suggestionStartIndex) : ""),
+					);
 				}}
 				onSubmit={(text) => {
 					const storeState = store.getState();
