@@ -136,14 +136,20 @@ export function TerminalWindow() {
 						}
 					} else {
 						parentPath = getParentPath(parts, atNextPart);
+						atCommand = atCommand && atNextPart;
 						if (atCommand) {
 							store.setCommand(new ImmutableCommandPath(copy(parts)));
-							atCommand = false;
 						}
 					}
 
-					let suggestions: Suggestion[];
+					let hasArgs = false;
 					if (atCommand) {
+						const commandArgs = data.commands.get(parentPath!.toString())!.arguments;
+						hasArgs = commandArgs !== undefined && !commandArgs.isEmpty();
+					}
+
+					let suggestions: Suggestion[];
+					if (hasArgs) {
 						const argIndex = parts.size() - parentPath!.getSize() - (atNextPart ? 0 : 1);
 						suggestions = data.getArgumentSuggestions(parentPath!, argIndex);
 					} else {
