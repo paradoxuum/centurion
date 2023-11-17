@@ -66,11 +66,6 @@ export function SuggestionList({ position }: SuggestionListProps) {
 		typeBadgeWidth: rem(6),
 	});
 
-	const [textSizes, setTextSizes] = useState({
-		title: UDim2.fromOffset(rem(16), rem(2)),
-		description: UDim2.fromOffset(rem(16), rem(2)),
-	});
-
 	const [suggestionSize, suggestionSizeMotion] = useMotion(new UDim2());
 	const [otherSuggestionSize, otherSuggestionSizeMotion] = useMotion(new UDim2());
 

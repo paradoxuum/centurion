@@ -3,8 +3,10 @@ import { useSelector } from "@rbxts/react-reflex";
 import Roact, { useCallback, useContext, useEffect, useMemo, useState } from "@rbxts/roact";
 import { TextService } from "@rbxts/services";
 import { copy, pop, slice } from "@rbxts/sift/out/Array";
+import { copyDeep } from "@rbxts/sift/out/Dictionary";
 import { ImmutableCommandPath } from "../../../../shared";
 import { endsWithSpace, formatPartsAsPath, splitStringBySpace } from "../../../../shared/util/string";
+import { DEFAULT_HISTORY_LENGTH } from "../../../options";
 import { Suggestion } from "../../../types";
 import { palette } from "../../constants/palette";
 import { useMotion } from "../../hooks/useMotion";
@@ -44,11 +46,11 @@ export function TerminalWindow() {
 
 	// Handle history updates
 	useMountEffect(() => {
-		store.setHistory(data.history);
+		store.setHistory(copyDeep(data.history));
 	});
 
 	useEventListener(data.onHistoryUpdated, (entry) => {
-		store.addHistoryEntry(entry);
+		store.addHistoryEntry(entry, data.options.historyLength ?? DEFAULT_HISTORY_LENGTH);
 	});
 
 	useEffect(() => {
@@ -73,12 +75,17 @@ export function TerminalWindow() {
 		<Frame size={windowHeightBinding} backgroundColor={palette.crust} cornerRadius={new UDim(0, rem(0.5))}>
 			<Padding key="padding" all={new UDim(0, rem(0.5))} />
 
-			<HistoryList key="history" historyLines={historyLines} historyHeight={historyHeight} />
+			<HistoryList
+				key="history"
+				size={new UDim2(1, 0, 1, -rem(4.5))}
+				historyLines={historyLines}
+				historyHeight={historyHeight}
+			/>
 
 			<TerminalTextField
 				key="text-field"
 				anchorPoint={new Vector2(0, 1)}
-				size={UDim2.fromScale(1, 1)}
+				size={new UDim2(1, 0, 0, rem(4))}
 				position={UDim2.fromScale(0, 1)}
 				onTextChange={(text) => {
 					const parts = splitStringBySpace(text);
@@ -129,9 +136,9 @@ export function TerminalWindow() {
 						}
 					} else {
 						parentPath = getParentPath(parts, atNextPart);
-						atCommand = atCommand && atNextPart;
 						if (atCommand) {
-							store.setCommand(parentPath);
+							store.setCommand(new ImmutableCommandPath(copy(parts)));
+							atCommand = false;
 						}
 					}
 

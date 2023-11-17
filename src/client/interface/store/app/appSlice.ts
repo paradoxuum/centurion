@@ -1,8 +1,6 @@
 import { createProducer } from "@rbxts/reflex";
 import { copyDeep, push, removeIndices } from "@rbxts/sift/out/Array";
-import { CmdxClient } from "../../..";
 import { ImmutableCommandPath } from "../../../../shared";
-import { DEFAULT_HISTORY_LENGTH } from "../../../options";
 import { HistoryEntry, Suggestion } from "../../../types";
 
 export interface AppState {
@@ -30,12 +28,11 @@ export const initialAppState: AppState = {
 };
 
 export const appSlice = createProducer(initialAppState, {
-	addHistoryEntry: (state, entry: HistoryEntry) => {
+	addHistoryEntry: (state, entry: HistoryEntry, limit: number) => {
 		const history = copyDeep(state.history);
-		const historyLimit = CmdxClient.options().historyLength ?? DEFAULT_HISTORY_LENGTH;
-		if (history.size() >= historyLimit) {
+		if (history.size() >= limit) {
 			const indices: number[] = [];
-			for (const i of $range(historyLimit, history.size())) {
+			for (const i of $range(limit, history.size())) {
 				indices.push(i);
 			}
 			removeIndices(history, ...indices);
