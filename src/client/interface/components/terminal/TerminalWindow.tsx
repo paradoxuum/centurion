@@ -105,6 +105,7 @@ export function TerminalWindow() {
 					// text part as part of the parent path.
 					const atNextPart = endsWithSpace(text);
 
+					let hasArgs = false;
 					if (parentPath !== undefined) {
 						if (parts.size() === parentPath.getSize() && !atNextPart) {
 							// This means the cursor is at the end of the command text part,
@@ -136,13 +137,12 @@ export function TerminalWindow() {
 						}
 					} else {
 						parentPath = getParentPath(parts, atNextPart);
-						atCommand = atCommand && atNextPart;
 						if (atCommand) {
 							store.setCommand(new ImmutableCommandPath(copy(parts)));
 						}
+						atCommand = atCommand && atNextPart;
 					}
 
-					let hasArgs = false;
 					if (atCommand) {
 						const commandArgs = data.commands.get(parentPath!.toString())!.arguments;
 						hasArgs = commandArgs !== undefined && !commandArgs.isEmpty();
