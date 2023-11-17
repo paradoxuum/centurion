@@ -149,20 +149,41 @@ export function TerminalWindow() {
 					}
 
 					let suggestions: Suggestion[];
+					let argSuggestion: Suggestion | undefined;
+					let argIndex = 0;
+
 					if (hasArgs) {
-						const argIndex = parts.size() - parentPath!.getSize() - (atNextPart ? 0 : 1);
-						suggestions = data.getArgumentSuggestions(parentPath!, argIndex);
+						argIndex = parts.size() - parentPath!.getSize() - (atNextPart ? 0 : 1);
+						suggestions = data.getArgumentSuggestions(parentPath!);
+						if (argIndex >= suggestions.size()) {
+							suggestions = [];
+						} else {
+							argSuggestion = suggestions[argIndex];
+						}
 					} else {
 						const currentPart = !atNextPart ? parts[parts.size() - 1] : undefined;
 						suggestions = data.getCommandSuggestions(parentPath, currentPart);
 					}
 
-					store.setSuggestions(suggestions);
+					store.setSuggestions(argSuggestion !== undefined ? [argSuggestion] : suggestions);
 
-					const suggestionStartIndex = (!atNextPart ? parts[parts.size() - 1].size() : 0) + 1;
-					store.setSuggestionText(
-						text + (!suggestions.isEmpty() ? suggestions[0].title.sub(suggestionStartIndex) : ""),
-					);
+					let suggestionText = text;
+					if (hasArgs) {
+						for (const i of $range(argIndex, suggestions.size() - 1)) {
+							const firstArg = i === argIndex;
+							if (firstArg && !atNextPart) {
+								suggestionText += " ";
+								continue;
+							}
+
+							suggestionText += suggestions[i].title + " ";
+						}
+					} else {
+						const suggestionStartIndex = (!atNextPart ? parts[parts.size() - 1].size() : 0) + 1;
+						suggestionText += !suggestions.isEmpty() ? suggestions[0].title.sub(suggestionStartIndex) : "";
+					}
+
+					store.setSuggestionText(suggestionText);
 				}}
 				onSubmit={(text) => {
 					const storeState = store.getState();

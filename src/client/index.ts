@@ -63,27 +63,24 @@ export class CmdxClient {
 		};
 	}
 
-	private static getArgumentSuggestions(path: CommandPath, index: number): ArgumentSuggestion[] {
+	private static getArgumentSuggestions(path: CommandPath): ArgumentSuggestion[] {
 		const command = this.registryInstance.getCommand(path);
 		if (command === undefined) {
 			return [];
 		}
 
 		const args = command.options.arguments;
-		if (args === undefined || args.isEmpty() || index >= args.size()) {
+		if (args === undefined || args.isEmpty()) {
 			return [];
 		}
 
-		const arg = args[index];
-		return [
-			{
-				type: "argument",
-				title: arg.name,
-				description: arg.description,
-				dataType: arg.type,
-				optional: arg.optional === true,
-			},
-		];
+		return args.map((arg) => ({
+			type: "argument",
+			title: arg.name,
+			description: arg.description,
+			dataType: arg.type,
+			optional: arg.optional === true,
+		}));
 	}
 
 	private static getCommandSuggestions(path?: CommandPath, text?: string) {
@@ -114,7 +111,7 @@ export class CmdxClient {
 
 			commands: this.registryInstance.getCommandOptions(),
 			groups: this.registryInstance.getGroupOptions(),
-			getArgumentSuggestions: (path, index) => this.getArgumentSuggestions(path, index),
+			getArgumentSuggestions: (path) => this.getArgumentSuggestions(path),
 			getCommandSuggestions: (path, text) => this.getCommandSuggestions(path, text),
 			history: this.dispatcherInstance.getHistory(),
 			onHistoryUpdated: this.dispatcherInstance.getHistorySignal(),
