@@ -12,7 +12,7 @@ export interface AppData {
 	commands: Map<string, CommandOptions>;
 	groups: Map<string, GroupOptions>;
 	getArgumentSuggestions: (path: CommandPath, index: number) => ArgumentSuggestion[];
-	getCommandSuggestions: (text?: string, path?: CommandPath) => CommandSuggestion[];
+	getCommandSuggestions: (path?: CommandPath, text?: string) => CommandSuggestion[];
 	history: HistoryEntry[];
 	onHistoryUpdated: RBXScriptSignal<(entry: HistoryEntry) => void>;
 }

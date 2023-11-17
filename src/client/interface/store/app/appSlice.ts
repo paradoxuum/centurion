@@ -1,16 +1,17 @@
 import { createProducer } from "@rbxts/reflex";
 import { copyDeep, push, removeIndices } from "@rbxts/sift/out/Array";
 import { CmdxClient } from "../../..";
-import { CommandPath, ImmutableCommandPath } from "../../../../shared";
-import { splitStringBySpace } from "../../../../shared/util/string";
+import { ImmutableCommandPath } from "../../../../shared";
 import { DEFAULT_HISTORY_LENGTH } from "../../../options";
-import { HistoryEntry } from "../../../types";
+import { HistoryEntry, Suggestion } from "../../../types";
 
 export interface AppState {
 	history: HistoryEntry[];
-	suggestionText: string;
 	command?: ImmutableCommandPath;
-	terminalText: {
+
+	suggestions: Suggestion[];
+	suggestionText: string;
+	text: {
 		value: string;
 		parts: string[];
 		index: number;
@@ -19,9 +20,9 @@ export interface AppState {
 
 export const initialAppState: AppState = {
 	history: [],
+	suggestions: [],
 	suggestionText: "",
-	command: ImmutableCommandPath.empty(),
-	terminalText: {
+	text: {
 		value: "",
 		parts: [],
 		index: -1,
@@ -51,21 +52,22 @@ export const appSlice = createProducer(initialAppState, {
 		history,
 	}),
 
-	setText: (state, text: string) => {
-		const parts = splitStringBySpace(text);
-		const endsWithSpace = parts.size() > 0 && text.match("%s$").size() > 0;
+	setCommand: (state, path?: ImmutableCommandPath) => ({ ...state, command: path }),
+
+	setSuggestions: (state, suggestions: Suggestion[]) => ({ ...state, suggestions }),
+
+	setText: (state, text: string, textParts: string[]) => {
+		const endsWithSpace = textParts.size() > 0 && text.match("%s$").size() > 0;
 
 		return {
 			...state,
-			terminalText: {
+			text: {
 				value: text,
-				parts,
-				index: endsWithSpace ? parts.size() : parts.size() - 1,
+				parts: textParts,
+				index: endsWithSpace ? textParts.size() : textParts.size() - 1,
 			},
 		};
 	},
-
-	setCommand: (state, path: CommandPath) => ({ ...state, path }),
 
 	setSuggestionText: (state, text) => ({ ...state, suggestionText: text }),
 });

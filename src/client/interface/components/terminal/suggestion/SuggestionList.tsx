@@ -1,17 +1,14 @@
 import { useSelector } from "@rbxts/react-reflex";
-import Roact, { useContext, useEffect, useMemo, useState } from "@rbxts/roact";
+import Roact, { useEffect, useMemo, useState } from "@rbxts/roact";
 import { TextService } from "@rbxts/services";
 import { slice } from "@rbxts/sift/out/Array";
-import { ImmutableCommandPath } from "../../../../../shared";
-import { Suggestion } from "../../../../types";
+import { ArgumentSuggestion, Suggestion } from "../../../../types";
 import { fonts } from "../../../constants/fonts";
 import { palette } from "../../../constants/palette";
 import { springs } from "../../../constants/springs";
 import { useMotion } from "../../../hooks/useMotion";
 import { useRem } from "../../../hooks/useRem";
-import { useStore } from "../../../hooks/useStore";
-import { DataContext } from "../../../providers/dataProvider";
-import { selectTerminalText } from "../../../store/app";
+import { selectSuggestions, selectText } from "../../../store/app";
 import { toHex } from "../../../util/color";
 import { Frame } from "../../interface/Frame";
 import { Group } from "../../interface/Group";
@@ -40,10 +37,8 @@ function getHighlightedTitle(fieldText?: string, suggestion?: Suggestion) {
 
 export function SuggestionList({ position }: SuggestionListProps) {
 	const rem = useRem();
-	const data = useContext(DataContext);
-	const store = useStore();
 
-	const terminalText = useSelector(selectTerminalText);
+	const terminalText = useSelector(selectText);
 	const currentTextPart = useMemo(() => {
 		if (terminalText.index === -1 || terminalText.index >= terminalText.parts.size()) {
 			return;
@@ -51,34 +46,8 @@ export function SuggestionList({ position }: SuggestionListProps) {
 		return terminalText.parts[terminalText.index];
 	}, [terminalText]);
 
-	// Update suggestions when typing
-	useEffect(() => {
-		if (terminalText.index === -1) {
-			setSuggestions([]);
-			store.setSuggestionText("");
-			return;
-		}
-
-		const parentPath = new ImmutableCommandPath(slice(terminalText.parts, 1, terminalText.index));
-		const partCount = terminalText.parts.size();
-		const suggestions = data.getCommandSuggestions(
-			terminalText.index < partCount ? currentTextPart : undefined,
-			terminalText.index > 0 ? parentPath : undefined,
-		);
-
-		setSuggestions(suggestions);
-
-		if (suggestions.isEmpty()) {
-			store.setSuggestionText("");
-			return;
-		}
-
-		const startIndex = terminalText.index < partCount && currentTextPart !== undefined ? currentTextPart.size() : 0;
-		store.setSuggestionText(terminalText.value + suggestions[0].title.sub(startIndex + 1));
-	}, [currentTextPart]);
-
 	// Suggestions
-	const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
+	const suggestions = useSelector(selectSuggestions);
 	const firstSuggestion = useMemo(() => (suggestions.size() > 0 ? suggestions[0] : undefined), [suggestions]);
 	const otherSuggestions = useMemo(() => {
 		if (suggestions.size() < 2) {
@@ -86,8 +55,17 @@ export function SuggestionList({ position }: SuggestionListProps) {
 		}
 		return slice(suggestions, 2, math.max(suggestions.size(), 4));
 	}, [suggestions]);
+	const isArgument = useMemo(() => {
+		return firstSuggestion?.type === "argument";
+	}, [firstSuggestion]);
 
 	// Suggestion size bindings
+	const [sizes, setSizes] = useState({
+		titleText: UDim2.fromOffset(rem(16), rem(2)),
+		descriptionText: UDim2.fromOffset(rem(16), rem(2)),
+		typeBadgeWidth: rem(6),
+	});
+
 	const [textSizes, setTextSizes] = useState({
 		title: UDim2.fromOffset(rem(16), rem(2)),
 		description: UDim2.fromOffset(rem(16), rem(2)),
@@ -129,20 +107,22 @@ export function SuggestionList({ position }: SuggestionListProps) {
 
 		// If the suggestion is an argument, calculate the data type text bounds
 		// and add it to the size of the suggestion window
+		let typeBadgeBounds: Vector2 | undefined;
 		if (firstSuggestion.type === "argument") {
-			const dataTypeBounds = TextService.GetTextSize(
+			typeBadgeBounds = TextService.GetTextSize(
 				firstSuggestion.dataType,
-				rem(1),
+				rem(1.5),
 				"GothamMedium",
 				new Vector2(rem(8), rem(2)),
 			);
-			windowWidth += dataTypeBounds.X + rem(4);
+			windowWidth += typeBadgeBounds.X + rem(4);
 			windowHeight += rem(1);
 		}
 
-		setTextSizes({
-			title: UDim2.fromOffset(titleBounds.X, titleBounds.Y),
-			description: UDim2.fromOffset(descriptionBounds.X, descriptionBounds.Y),
+		setSizes({
+			titleText: UDim2.fromOffset(titleBounds.X, titleBounds.Y),
+			descriptionText: UDim2.fromOffset(descriptionBounds.X, descriptionBounds.Y),
+			typeBadgeWidth: typeBadgeBounds !== undefined ? typeBadgeBounds.X + rem(2) : sizes.typeBadgeWidth,
 		});
 
 		// Calculate other suggestion sizes
@@ -185,32 +165,38 @@ export function SuggestionList({ position }: SuggestionListProps) {
 			>
 				<Padding key="padding" all={new UDim(0, rem(1))} />
 
-				{suggestions.size() > 0 && suggestions[0].type === "argument" && (
-					<Group
-						key="argument-badges"
-						anchorPoint={new Vector2(1, 0)}
-						size={UDim2.fromOffset(rem(6), rem(2))}
-						position={UDim2.fromScale(1, 0)}
-					>
-						<Badge
-							key="type"
-							size={new UDim2(1, 0, 0, rem(2))}
-							color={palette.surface0}
-							text={suggestions[0].dataType}
-						/>
+				<Group
+					key="badges"
+					anchorPoint={new Vector2(1, 0)}
+					size={UDim2.fromOffset(math.max(sizes.typeBadgeWidth, rem(7)), rem(4.5))}
+					position={UDim2.fromScale(1, 0)}
+					visible={isArgument}
+				>
+					<Badge
+						key="optional-badge"
+						size={new UDim2(1, 0, 0, rem(2))}
+						color={
+							isArgument && (firstSuggestion as ArgumentSuggestion).optional ? palette.blue : palette.red
+						}
+						text={isArgument && (firstSuggestion as ArgumentSuggestion).optional ? "Optional" : "Required"}
+						textColor={palette.white}
+						textSize={rem(1.5)}
+					/>
 
-						<Badge
-							key="required"
-							size={new UDim2(1, 0, 0, rem(2))}
-							color={suggestions[0].optional ? palette.blue : palette.red}
-							text={suggestions[0].optional ? "Optional" : "Required"}
-						/>
-					</Group>
-				)}
+					<Badge
+						key="type-badge"
+						size={new UDim2(1, 0, 0, rem(2))}
+						position={UDim2.fromOffset(0, rem(2.5))}
+						color={palette.surface0}
+						text={isArgument ? (firstSuggestion as ArgumentSuggestion).dataType : ""}
+						textColor={palette.white}
+						textSize={rem(1.5)}
+					/>
+				</Group>
 
 				<Text
 					key="title"
-					size={textSizes.title}
+					size={sizes.titleText}
 					text={getHighlightedTitle(currentTextPart, firstSuggestion)}
 					textSize={rem(2)}
 					textColor={palette.white}
@@ -221,7 +207,7 @@ export function SuggestionList({ position }: SuggestionListProps) {
 
 				<Text
 					key="description"
-					size={textSizes.description}
+					size={sizes.descriptionText}
 					position={UDim2.fromOffset(0, rem(2))}
 					text={firstSuggestion?.description ?? ""}
 					textSize={rem(1.5)}
@@ -242,6 +228,7 @@ export function SuggestionList({ position }: SuggestionListProps) {
 							size={new UDim2(1, 0, 0, rem(2))}
 							backgroundColor={palette.mantle}
 							cornerRadius={new UDim(0, rem(0.5))}
+							clipsDescendants={true}
 						>
 							<Padding key="padding" all={new UDim(0, rem(0.5))} />
 

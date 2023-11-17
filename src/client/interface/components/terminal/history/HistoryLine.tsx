@@ -25,14 +25,22 @@ export function HistoryLine({ data, size, position, order }: HistoryLineProps) {
 	return (
 		<Group size={size} position={position} layoutOrder={order}>
 			<Frame
+				key="date"
 				backgroundColor={palette.surface1}
 				size={UDim2.fromOffset(rem(7), rem(1.5))}
 				cornerRadius={new UDim(1, 0)}
 			>
-				<Text size={UDim2.fromScale(1, 1)} text={date} textColor={palette.white} textSize={rem(1.2)} />
+				<Text
+					key="text"
+					size={UDim2.fromScale(1, 1)}
+					text={date}
+					textColor={palette.white}
+					textSize={rem(1.2)}
+				/>
 			</Frame>
 
 			<Text
+				key="entry-text"
 				anchorPoint={new Vector2(1, 0)}
 				size={new UDim2(1, -rem(7.5), 1, 0)}
 				position={UDim2.fromScale(1, 0)}

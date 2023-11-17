@@ -65,7 +65,6 @@ export class CmdxClient {
 
 	private static getArgumentSuggestions(path: CommandPath, index: number): ArgumentSuggestion[] {
 		const command = this.registryInstance.getCommand(path);
-		const results: ArgumentSuggestion[] = [];
 		if (command === undefined) {
 			return [];
 		}
@@ -81,7 +80,7 @@ export class CmdxClient {
 		);
 	}
 
-	private static getCommandSuggestions(text?: string, path?: CommandPath) {
+	private static getCommandSuggestions(path?: CommandPath, text?: string) {
 		const childPaths = this.registryInstance.getChildPaths(path);
 		if (text === undefined) {
 			return childPaths.map((childPath) => this.getSuggestionData(childPath));
@@ -110,7 +109,7 @@ export class CmdxClient {
 			commands: this.registryInstance.getCommandOptions(),
 			groups: this.registryInstance.getGroupOptions(),
 			getArgumentSuggestions: (path, index) => this.getArgumentSuggestions(path, index),
-			getCommandSuggestions: (text, path) => this.getCommandSuggestions(text, path),
+			getCommandSuggestions: (path, text) => this.getCommandSuggestions(path, text),
 			history: this.dispatcherInstance.getHistory(),
 			onHistoryUpdated: this.dispatcherInstance.getHistorySignal(),
 		};

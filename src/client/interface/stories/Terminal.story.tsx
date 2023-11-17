@@ -30,7 +30,7 @@ export = story({
 					groups: new Map(),
 					getArgumentSuggestions: () => [],
 					getCommandSuggestions: () => [],
-					history,
+					history: history,
 					onHistoryUpdated: historyEvent.Event,
 				}}
 			>

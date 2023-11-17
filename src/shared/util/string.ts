@@ -84,3 +84,11 @@ export function splitStringBySpace(text: string, max: number = math.huge): strin
 
 	return t;
 }
+
+export function endsWithSpace(text: string) {
+	return text.size() > 0 && text.match("%s$").size() > 0;
+}
+
+export function formatPartsAsPath(textParts: string[]) {
+	return textParts.join("/");
+}

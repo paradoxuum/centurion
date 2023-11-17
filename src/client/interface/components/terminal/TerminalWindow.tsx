@@ -1,7 +1,11 @@
 import { useEventListener, useMountEffect } from "@rbxts/pretty-react-hooks";
 import { useSelector } from "@rbxts/react-reflex";
-import Roact, { useContext, useEffect, useMemo, useState } from "@rbxts/roact";
+import Roact, { useCallback, useContext, useEffect, useMemo, useState } from "@rbxts/roact";
 import { TextService } from "@rbxts/services";
+import { copy, pop, slice } from "@rbxts/sift/out/Array";
+import { ImmutableCommandPath } from "../../../../shared";
+import { endsWithSpace, formatPartsAsPath, splitStringBySpace } from "../../../../shared/util/string";
+import { Suggestion } from "../../../types";
 import { palette } from "../../constants/palette";
 import { useMotion } from "../../hooks/useMotion";
 import { useRem } from "../../hooks/useRem";
@@ -24,18 +28,28 @@ export function TerminalWindow() {
 	const [historyLines, setHistoryLines] = useState<HistoryLineData[]>([]);
 	const [historyHeight, historyHeightMotion] = useMotion(0);
 
-	useMountEffect(() => {
-		store.setHistory(data.history);
-	});
-	useEventListener(data.onHistoryUpdated, (entry) => {
-		store.addHistoryEntry(entry);
-	});
+	const getParentPath = useCallback((parts: string[], atNextPart: boolean) => {
+		if (!atNextPart && parts.size() <= 1) {
+			return;
+		}
+
+		return new ImmutableCommandPath(atNextPart ? copy(parts) : pop(parts));
+	}, []);
 
 	const windowHeightBinding = useMemo(() => {
 		return historyHeight.map((y) => {
 			return new UDim2(1, 0, 0, math.ceil(rem(5) + y));
 		});
 	}, [rem]);
+
+	// Handle history updates
+	useMountEffect(() => {
+		store.setHistory(data.history);
+	});
+
+	useEventListener(data.onHistoryUpdated, (entry) => {
+		store.addHistoryEntry(entry);
+	});
 
 	useEffect(() => {
 		const historySize = history.size();
@@ -67,10 +81,79 @@ export function TerminalWindow() {
 				size={UDim2.fromScale(1, 1)}
 				position={UDim2.fromScale(0, 1)}
 				onTextChange={(text) => {
-					store.setText(text);
+					const parts = splitStringBySpace(text);
+					store.setText(text, parts);
+
+					if (parts.isEmpty()) {
+						store.setSuggestionText("");
+						store.setSuggestions([]);
+						return;
+					}
+
+					let parentPath = store.getState().app.command;
+					let atCommand = data.commands.has(formatPartsAsPath(parts));
+
+					// If the text ends in a space, we want to count that as having traversed
+					// to the next "part" of the text. This means we should include the previous
+					// text part as part of the parent path.
+					const atNextPart = endsWithSpace(text);
+
+					if (parentPath !== undefined) {
+						if (parts.size() === parentPath.getSize() && !atNextPart) {
+							// This means the cursor is at the end of the command text part,
+							// we don't want to show arg suggestions here so we set this to false
+							atCommand = false;
+						} else if (formatPartsAsPath(slice(parts, 1, parentPath.getSize())) === parentPath.toString()) {
+							// The current path still leads to the command, so it's valid
+							atCommand = true;
+						} else {
+							// As a last resort, iterate over all parts of text to check if it points to a command
+							// This could be the case if the text is selected and a valid command is pasted into
+							// the text box, meaning the command path will still point to the previous command.
+							for (const i of $range(0, parts.size() - 1)) {
+								const pathSlice = formatPartsAsPath(slice(parts, 1, i + 1));
+								if (data.commands.has(pathSlice)) {
+									atCommand = true;
+
+									// Since the command has possibly changed, we also need to update the path
+									parentPath = ImmutableCommandPath.fromString(pathSlice);
+									store.setCommand(parentPath);
+									break;
+								}
+							}
+						}
+
+						if (!atCommand) {
+							store.setCommand(undefined);
+							parentPath = getParentPath(parts, atNextPart);
+						}
+					} else {
+						parentPath = getParentPath(parts, atNextPart);
+						atCommand = atCommand && atNextPart;
+						if (atCommand) {
+							store.setCommand(parentPath);
+						}
+					}
+
+					let suggestions: Suggestion[];
+					if (atCommand) {
+						const argIndex = parts.size() - parentPath!.getSize() - (atNextPart ? 0 : 1);
+						suggestions = data.getArgumentSuggestions(parentPath!, argIndex);
+					} else {
+						const currentPart = !atNextPart ? parts[parts.size() - 1] : undefined;
+						suggestions = data.getCommandSuggestions(parentPath, currentPart);
+					}
+
+					store.setSuggestions(suggestions);
+					// TODO Figure out how suggestion text should look, maybe move
+					//		logic to TerminalTextField?
 				}}
 				onSubmit={(text) => {
-					print(store.getState().app.terminalText.value);
+					const storeState = store.getState();
+					const command = storeState.app.command;
+					if (command === undefined) return;
+
+					data.execute(command, text);
 				}}
 			/>
 
