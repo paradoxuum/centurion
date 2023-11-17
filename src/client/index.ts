@@ -69,15 +69,21 @@ export class CmdxClient {
 			return [];
 		}
 
-		return (
-			command.options.arguments?.map((arg) => ({
+		const args = command.options.arguments;
+		if (args === undefined || args.isEmpty() || index >= args.size()) {
+			return [];
+		}
+
+		const arg = args[index];
+		return [
+			{
 				type: "argument",
 				title: arg.name,
 				description: arg.description,
 				dataType: arg.type,
 				optional: arg.optional === true,
-			})) ?? []
-		);
+			},
+		];
 	}
 
 	private static getCommandSuggestions(path?: CommandPath, text?: string) {
