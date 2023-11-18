@@ -1,9 +1,11 @@
-import { BindingOrValue } from "@rbxts/pretty-react-hooks";
+import { BindingOrValue, useEventListener } from "@rbxts/pretty-react-hooks";
 import { useSelector } from "@rbxts/react-reflex";
 import Roact, { useEffect, useRef } from "@rbxts/roact";
+import { UserInputService } from "@rbxts/services";
 import { fonts } from "../../constants/fonts";
 import { palette } from "../../constants/palette";
 import { useRem } from "../../hooks/useRem";
+import { useStore } from "../../hooks/useStore";
 import { selectSuggestionText } from "../../store/app";
 import { Frame } from "../interface/Frame";
 import { Padding } from "../interface/Padding";
@@ -21,8 +23,21 @@ interface TerminalTextFieldProps {
 export function TerminalTextField({ anchorPoint, size, position, onTextChange, onSubmit }: TerminalTextFieldProps) {
 	const rem = useRem();
 	const ref = useRef<TextBox>();
+	const store = useStore();
 
 	const suggestionText = useSelector(selectSuggestionText);
+
+	useEventListener(UserInputService.InputBegan, (input) => {
+		if (ref.current === undefined) return;
+
+		if (input.KeyCode === Enum.KeyCode.Tab) {
+			const atCommand = store.getState().app.command !== undefined;
+			if (!atCommand && suggestionText !== undefined) {
+				ref.current.Text = suggestionText;
+				ref.current.CursorPosition = suggestionText.size();
+			} // TODO Implement argument suggestions
+		}
+	});
 
 	useEffect(() => {
 		const textBox = ref.current!;
@@ -66,11 +81,7 @@ export function TerminalTextField({ anchorPoint, size, position, onTextChange, o
 				ref={ref}
 				event={{
 					FocusLost: (rbx, enterPressed) => {
-						if (!enterPressed) {
-							return;
-						}
-
-						onSubmit?.(rbx.Text);
+						if (enterPressed) onSubmit?.(rbx.Text);
 					},
 				}}
 				zIndex={2}
