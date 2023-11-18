@@ -1,5 +1,6 @@
+import { getBindingValue } from "@rbxts/pretty-react-hooks";
 import { useSelector } from "@rbxts/react-reflex";
-import Roact, { useEffect, useMemo, useState } from "@rbxts/roact";
+import Roact, { useBinding, useEffect, useMemo } from "@rbxts/roact";
 import { TextService } from "@rbxts/services";
 import { slice } from "@rbxts/sift/out/Array";
 import { ArgumentSuggestion, Suggestion } from "../../../../types";
@@ -60,7 +61,7 @@ export function SuggestionList({ position }: SuggestionListProps) {
 	}, [firstSuggestion]);
 
 	// Suggestion size bindings
-	const [sizes, setSizes] = useState({
+	const [sizes, setSizes] = useBinding({
 		titleText: UDim2.fromOffset(rem(16), rem(2)),
 		descriptionText: UDim2.fromOffset(rem(16), rem(2)),
 		typeBadgeWidth: rem(6),
@@ -117,7 +118,8 @@ export function SuggestionList({ position }: SuggestionListProps) {
 		setSizes({
 			titleText: UDim2.fromOffset(titleBounds.X, titleBounds.Y),
 			descriptionText: UDim2.fromOffset(descriptionBounds.X, descriptionBounds.Y),
-			typeBadgeWidth: typeBadgeBounds !== undefined ? typeBadgeBounds.X + rem(2) : sizes.typeBadgeWidth,
+			typeBadgeWidth:
+				typeBadgeBounds !== undefined ? typeBadgeBounds.X + rem(2) : getBindingValue(sizes).typeBadgeWidth,
 		});
 
 		// Calculate other suggestion sizes
@@ -163,7 +165,7 @@ export function SuggestionList({ position }: SuggestionListProps) {
 				<Group
 					key="badges"
 					anchorPoint={new Vector2(1, 0)}
-					size={UDim2.fromOffset(math.max(sizes.typeBadgeWidth, rem(7)), rem(4.5))}
+					size={sizes.map((val) => UDim2.fromOffset(math.max(val.typeBadgeWidth, rem(7)), rem(4.5)))}
 					position={UDim2.fromScale(1, 0)}
 					visible={isArgument}
 				>
@@ -191,7 +193,7 @@ export function SuggestionList({ position }: SuggestionListProps) {
 
 				<Text
 					key="title"
-					size={sizes.titleText}
+					size={sizes.map((val) => val.titleText)}
 					text={getHighlightedTitle(currentTextPart, firstSuggestion)}
 					textSize={rem(2)}
 					textColor={palette.white}
@@ -202,7 +204,7 @@ export function SuggestionList({ position }: SuggestionListProps) {
 
 				<Text
 					key="description"
-					size={sizes.descriptionText}
+					size={sizes.map((val) => val.descriptionText)}
 					position={UDim2.fromOffset(0, rem(2))}
 					text={firstSuggestion?.description ?? ""}
 					textSize={rem(1.5)}
