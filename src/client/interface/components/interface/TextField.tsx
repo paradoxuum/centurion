@@ -1,7 +1,7 @@
 import Roact, { Ref, forwardRef } from "@rbxts/roact";
 
 import { BindingOrValue } from "@rbxts/pretty-react-hooks";
-import { fonts } from "../../constants/fonts";
+import { DEFAULT_FONT } from "../../constants/fonts";
 import { TextProps } from "./Text";
 
 const GRADIENT = new NumberSequence([
@@ -29,7 +29,7 @@ export const TextField = forwardRef((props: TextFieldProps, ref: Ref<TextBox>) =
 			MultiLine={props.multiLine}
 			TextEditable={props.textEditable}
 			Font={Enum.Font.Unknown}
-			FontFace={props.font || fonts.inter.regular}
+			FontFace={props.font || DEFAULT_FONT}
 			Text={props.text}
 			TextColor3={props.textColor}
 			TextSize={props.textSize}

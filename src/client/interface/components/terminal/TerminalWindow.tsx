@@ -8,6 +8,7 @@ import { ImmutableCommandPath } from "../../../../shared";
 import { endsWithSpace, formatPartsAsPath, splitStringBySpace } from "../../../../shared/util/string";
 import { DEFAULT_HISTORY_LENGTH } from "../../../options";
 import { Suggestion } from "../../../types";
+import { DEFAULT_FONT } from "../../constants/fonts";
 import { palette } from "../../constants/palette";
 import { useMotion } from "../../hooks/useMotion";
 import { useRem } from "../../hooks/useRem";
@@ -29,6 +30,13 @@ export function TerminalWindow() {
 	const history = useSelector(selectHistory);
 	const [historyLines, setHistoryLines] = useState<HistoryLineData[]>([]);
 	const [historyHeight, historyHeightMotion] = useMotion(0);
+
+	const textBoundsParams = useMemo(() => {
+		const params = new Instance("GetTextBoundsParams");
+		params.Width = math.huge;
+		params.Font = DEFAULT_FONT;
+		return params;
+	}, []);
 
 	const getParentPath = useCallback((parts: string[], atNextPart: boolean) => {
 		if (!atNextPart && parts.size() <= 1) {
@@ -57,10 +65,12 @@ export function TerminalWindow() {
 		const historySize = history.size();
 		let totalHeight = historySize > 0 ? rem(0.5) + (historySize - 1) * rem(0.5) : 0;
 
+		textBoundsParams.Size = rem(1.5);
+
 		const historyLines: HistoryLineData[] = [];
-		const textMaxBounds = new Vector2(math.huge, math.huge);
 		for (const entry of history) {
-			const textSize = TextService.GetTextSize(entry.text, rem(1.5), "GothamMedium", textMaxBounds);
+			textBoundsParams.Text = entry.text;
+			const textSize = TextService.GetTextBoundsAsync(textBoundsParams);
 			totalHeight += textSize.Y;
 			historyLines.push({ entry, height: textSize.Y });
 		}

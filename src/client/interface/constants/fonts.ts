@@ -8,3 +8,5 @@ export const fonts = {
 		regular: Font.fromEnum(Enum.Font.RobotoMono),
 	},
 };
+
+export const DEFAULT_FONT = fonts.inter.regular;

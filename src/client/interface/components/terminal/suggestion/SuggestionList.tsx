@@ -4,7 +4,7 @@ import Roact, { useBinding, useEffect, useMemo } from "@rbxts/roact";
 import { TextService } from "@rbxts/services";
 import { slice } from "@rbxts/sift/out/Array";
 import { ArgumentSuggestion, Suggestion } from "../../../../types";
-import { fonts } from "../../../constants/fonts";
+import { DEFAULT_FONT, fonts } from "../../../constants/fonts";
 import { palette } from "../../../constants/palette";
 import { springs } from "../../../constants/springs";
 import { useMotion } from "../../../hooks/useMotion";
@@ -47,6 +47,8 @@ export function SuggestionList({ position }: SuggestionListProps) {
 		return terminalText.parts[terminalText.index];
 	}, [terminalText]);
 
+	const textBoundsParams = useMemo(() => new Instance("GetTextBoundsParams"), []);
+
 	// Suggestions
 	const suggestions = useSelector(selectSuggestions);
 	const firstSuggestion = useMemo(() => (suggestions.size() > 0 ? suggestions[0] : undefined), [suggestions]);
@@ -81,22 +83,22 @@ export function SuggestionList({ position }: SuggestionListProps) {
 			return;
 		}
 
-		const titleBounds = TextService.GetTextSize(
-			firstSuggestion.title,
-			rem(2),
-			"GothamMedium",
-			new Vector2(rem(16), math.huge),
-		);
+		textBoundsParams.Text = firstSuggestion.title;
+		textBoundsParams.Font = fonts.inter.bold;
+		textBoundsParams.Size = rem(2);
+		textBoundsParams.Width = rem(16);
 
-		const descriptionBounds =
-			firstSuggestion.description !== undefined
-				? TextService.GetTextSize(
-						firstSuggestion.description,
-						rem(1.5),
-						"GothamMedium",
-						new Vector2(rem(16), math.huge),
-				  )
-				: new Vector2();
+		const titleBounds = TextService.GetTextBoundsAsync(textBoundsParams);
+
+		let descriptionBounds: Vector2;
+		if (firstSuggestion.description !== undefined) {
+			textBoundsParams.Text = firstSuggestion.description;
+			textBoundsParams.Font = DEFAULT_FONT;
+			textBoundsParams.Size = rem(1.5);
+			descriptionBounds = TextService.GetTextBoundsAsync(textBoundsParams);
+		} else {
+			descriptionBounds = new Vector2();
+		}
 
 		let windowWidth = math.max(titleBounds.X, descriptionBounds.X) + rem(2);
 		let windowHeight = titleBounds.Y + descriptionBounds.Y + rem(2);
@@ -105,12 +107,12 @@ export function SuggestionList({ position }: SuggestionListProps) {
 		// and add it to the size of the suggestion window
 		let typeBadgeBounds: Vector2 | undefined;
 		if (firstSuggestion.type === "argument") {
-			typeBadgeBounds = TextService.GetTextSize(
-				firstSuggestion.dataType,
-				rem(1.5),
-				"GothamMedium",
-				new Vector2(rem(8), rem(2)),
-			);
+			textBoundsParams.Text = firstSuggestion.dataType;
+			textBoundsParams.Font = DEFAULT_FONT;
+			textBoundsParams.Size = rem(1.5);
+			textBoundsParams.Width = rem(8);
+
+			typeBadgeBounds = TextService.GetTextBoundsAsync(textBoundsParams);
 			windowWidth += typeBadgeBounds.X + rem(4);
 			windowHeight += rem(1);
 		}
@@ -125,14 +127,14 @@ export function SuggestionList({ position }: SuggestionListProps) {
 		// Calculate other suggestion sizes
 		if (otherSuggestions.size() > 0) {
 			let maxSuggestionWidth = 0;
-			for (const suggestion of otherSuggestions) {
-				const suggestionBounds = TextService.GetTextSize(
-					suggestion.title,
-					rem(1.6),
-					"GothamMedium",
-					new Vector2(math.huge, math.huge),
-				);
 
+			textBoundsParams.Font = DEFAULT_FONT;
+			textBoundsParams.Size = rem(1.6);
+			textBoundsParams.Width = math.huge;
+
+			for (const suggestion of otherSuggestions) {
+				textBoundsParams.Text = suggestion.title;
+				const suggestionBounds = TextService.GetTextBoundsAsync(textBoundsParams);
 				if (suggestionBounds.X > maxSuggestionWidth) {
 					maxSuggestionWidth = suggestionBounds.X;
 				}
