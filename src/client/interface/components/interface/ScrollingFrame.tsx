@@ -1,5 +1,5 @@
 import { BindingOrValue } from "@rbxts/pretty-react-hooks";
-import Roact from "@rbxts/roact";
+import Roact, { Ref, forwardRef } from "@rbxts/roact";
 import { FrameProps } from "./Frame";
 
 export interface ScrollingFrameProps extends FrameProps<ScrollingFrame> {
@@ -14,9 +14,10 @@ export interface ScrollingFrameProps extends FrameProps<ScrollingFrame> {
 	canvasPosition?: BindingOrValue<Vector2>;
 }
 
-export function ScrollingFrame(props: ScrollingFrameProps) {
+export const ScrollingFrame = forwardRef((props: ScrollingFrameProps, ref: Ref<ScrollingFrame>) => {
 	return (
 		<scrollingframe
+			ref={ref}
 			AutomaticSize={props.automaticSize}
 			AutomaticCanvasSize={props.automaticCanvasSize}
 			ScrollingDirection={props.scrollingDirection}
@@ -44,4 +45,4 @@ export function ScrollingFrame(props: ScrollingFrameProps) {
 			{props.children}
 		</scrollingframe>
 	);
-}
+});
