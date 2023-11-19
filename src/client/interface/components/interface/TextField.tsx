@@ -1,8 +1,7 @@
-import Roact, { Ref, forwardRef, useEffect, useRef } from "@rbxts/roact";
+import Roact, { Ref, forwardRef } from "@rbxts/roact";
 
 import { BindingOrValue } from "@rbxts/pretty-react-hooks";
 import { fonts } from "../../constants/fonts";
-import { Group } from "./Group";
 import { TextProps } from "./Text";
 
 const GRADIENT = new NumberSequence([
@@ -12,7 +11,7 @@ const GRADIENT = new NumberSequence([
 ]);
 
 interface TextFieldProps extends TextProps<TextBox> {
-	text?: string;
+	text?: BindingOrValue<string>;
 	placeholderText?: BindingOrValue<string>;
 	placeholderColor?: BindingOrValue<Color3>;
 	clearTextOnFocus?: BindingOrValue<boolean>;
@@ -21,13 +20,6 @@ interface TextFieldProps extends TextProps<TextBox> {
 }
 
 export const TextField = forwardRef((props: TextFieldProps, ref: Ref<TextBox>) => {
-	const childRef = useRef<Frame>();
-	useEffect(() => {
-		if (childRef.current !== undefined && childRef.current.Parent?.IsA("TextBox")) {
-			childRef.current.Parent.Text = props.text ?? "";
-		}
-	}, [childRef, props.text]);
-
 	return (
 		<textbox
 			ref={ref}
@@ -38,6 +30,7 @@ export const TextField = forwardRef((props: TextFieldProps, ref: Ref<TextBox>) =
 			TextEditable={props.textEditable}
 			Font={Enum.Font.Unknown}
 			FontFace={props.font || fonts.inter.regular}
+			Text={props.text}
 			TextColor3={props.textColor}
 			TextSize={props.textSize}
 			TextTransparency={props.textTransparency}
@@ -60,7 +53,6 @@ export const TextField = forwardRef((props: TextFieldProps, ref: Ref<TextBox>) =
 			Event={props.event || {}}
 			Change={props.change || {}}
 		>
-			<Group key="ref" ref={childRef} />
 			{props.cornerRadius && <uicorner key="corner" CornerRadius={props.cornerRadius} />}
 			{props.children}
 		</textbox>

@@ -1,6 +1,6 @@
 import { BindingOrValue, useEventListener } from "@rbxts/pretty-react-hooks";
 import { useSelector } from "@rbxts/react-reflex";
-import Roact, { useEffect, useRef } from "@rbxts/roact";
+import Roact, { useBinding, useRef } from "@rbxts/roact";
 import { UserInputService } from "@rbxts/services";
 import { fonts } from "../../constants/fonts";
 import { palette } from "../../constants/palette";
@@ -26,6 +26,7 @@ export function TerminalTextField({ anchorPoint, size, position, onTextChange, o
 	const store = useStore();
 
 	const suggestionText = useSelector(selectSuggestionText);
+	const [text, setText] = useBinding("");
 
 	useEventListener(UserInputService.InputBegan, (input) => {
 		if (ref.current === undefined) return;
@@ -33,30 +34,11 @@ export function TerminalTextField({ anchorPoint, size, position, onTextChange, o
 		if (input.KeyCode === Enum.KeyCode.Tab) {
 			const atCommand = store.getState().app.command !== undefined;
 			if (!atCommand && suggestionText !== undefined) {
-				ref.current.Text = suggestionText;
+				setText(suggestionText);
 				ref.current.CursorPosition = suggestionText.size();
 			} // TODO Implement argument suggestions
 		}
 	});
-
-	useEffect(() => {
-		const textBox = ref.current!;
-
-		let prevText = "";
-		const connection = textBox.GetPropertyChangedSignal("Text").Connect(() => {
-			// Remove all tabs from text input - we use these for autocompletion
-			if (textBox.Text.match("\t")[0] !== undefined) {
-				textBox.Text = textBox.Text.gsub("\t", "")[0];
-			}
-
-			if (prevText !== textBox.Text) {
-				onTextChange?.(textBox.Text);
-				prevText = textBox.Text;
-			}
-		});
-
-		return () => connection.Disconnect();
-	}, [ref]);
 
 	return (
 		<Frame
@@ -72,16 +54,29 @@ export function TerminalTextField({ anchorPoint, size, position, onTextChange, o
 				key="textbox"
 				size={UDim2.fromScale(1, 1)}
 				placeholderText="Enter command..."
+				text={text}
 				textColor={palette.white}
 				textSize={rem(2)}
 				textXAlignment="Left"
-				textTruncate="AtEnd"
 				clearTextOnFocus={false}
 				font={fonts.inter.medium}
 				ref={ref}
 				event={{
 					FocusLost: (rbx, enterPressed) => {
 						if (enterPressed) onSubmit?.(rbx.Text);
+					},
+				}}
+				change={{
+					Text: (rbx) => {
+						let newText = rbx.Text;
+
+						// Remove all tabs from text input - we use these for autocompletion
+						if (newText.match("\t")[0] !== undefined) {
+							newText = newText.gsub("\t", "")[0];
+						}
+
+						setText(newText);
+						onTextChange?.(newText);
 					},
 				}}
 				zIndex={2}
@@ -94,7 +89,6 @@ export function TerminalTextField({ anchorPoint, size, position, onTextChange, o
 				textColor={palette.surface2}
 				textSize={rem(2)}
 				textXAlignment="Left"
-				textTruncate="AtEnd"
 				font={fonts.inter.medium}
 			/>
 		</Frame>
