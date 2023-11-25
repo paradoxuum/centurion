@@ -23,8 +23,8 @@ export class CmdxClient {
 		this.dispatcherInstance.init(options);
 
 		callback(this.registryInstance);
-
 		await this.registryInstance.sync();
+
 		this.registryInstance.freeze();
 		this.started = true;
 

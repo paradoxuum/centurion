@@ -29,7 +29,7 @@ const stringType = TypeBuilder.create(BuiltInTypes.String)
 
 const numberType = TypeBuilder.create(BuiltInTypes.Number).validate(t.number).transform(toNumberTransformation).build();
 
-const integerType = TypeBuilder.create(BuiltInTypes.Number)
+const integerType = TypeBuilder.create(BuiltInTypes.Integer)
 	.validate(t.integer)
 	.transform(getNumTransformation(t.integer, "Invalid integer"))
 	.build();

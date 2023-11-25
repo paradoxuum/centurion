@@ -98,32 +98,26 @@ export class ExecutableCommand extends BaseCommand {
 
 	transformArgs(args: string[]): Result<unknown[], string> {
 		const argOptions = this.options.arguments;
-		if (argOptions === undefined) {
+		if (argOptions === undefined || argOptions.isEmpty()) {
 			return Result.ok([]);
 		}
 
-		const lastArgIndex = args.size() - 1;
+		const startIndex = this.path.getSize();
+		const endIndex = args.size() - startIndex - 1;
+
 		const transformedArgs: unknown[] = [];
 		for (const i of $range(0, this.argTypes.size() - 1)) {
 			const argType = this.argTypes[i];
-			if (argType === undefined) {
-				continue;
-			}
+			if (argType === undefined) continue;
 
 			const argData = argOptions[i];
-			if (i > lastArgIndex) {
-				if (argData.optional) {
-					break;
-				}
-
+			if (i > endIndex) {
+				if (argData.optional) break;
 				return Result.err(`Missing required argument: ${argData.name}`);
 			}
 
-			const transformedArg = argType.transform(args[i]);
-			if (transformedArg.isErr()) {
-				return Result.err(transformedArg.unwrapErr());
-			}
-
+			const transformedArg = argType.transform(args[startIndex + i]);
+			if (transformedArg.isErr()) return Result.err(transformedArg.unwrapErr());
 			transformedArgs[i] = transformedArg.unwrap();
 		}
 
@@ -165,9 +159,7 @@ export class ExecutableCommand extends BaseCommand {
 			}
 
 			const guardResult = this.guards[nextIndex++](runNext, interaction);
-			if (guardResult === false || interaction.isReplyReceived()) {
-				return;
-			}
+			if (guardResult === false || interaction.isReplyReceived()) return;
 		};
 
 		return runNext;
