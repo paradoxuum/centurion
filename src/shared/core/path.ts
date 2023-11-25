@@ -249,7 +249,7 @@ export class ImmutableCommandPath extends CommandPath {
 
 	remove(index: number) {
 		assert(index > -1 && index < this.parts.size(), "Index out of bounds");
-		return new ImmutableCommandPath(removeIndex(this.parts, index));
+		return new ImmutableCommandPath(removeIndex(this.parts, index + 1));
 	}
 
 	clear() {
