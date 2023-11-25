@@ -61,6 +61,7 @@ export function HistoryLine({ data, size, position, order }: HistoryLineProps) {
 				textColor={data.success ? palette.white : palette.red}
 				textXAlignment="Left"
 				font={fonts.inter.medium}
+				richText={true}
 			/>
 		</Group>
 	);
