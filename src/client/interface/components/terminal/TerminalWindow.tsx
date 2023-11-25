@@ -1,6 +1,6 @@
 import { useEventListener, useMountEffect } from "@rbxts/pretty-react-hooks";
 import { useSelector } from "@rbxts/react-reflex";
-import Roact, { useCallback, useContext, useEffect, useMemo, useState } from "@rbxts/roact";
+import Roact, { useContext, useEffect, useMemo, useState } from "@rbxts/roact";
 import { TextService } from "@rbxts/services";
 import { copy, pop, slice } from "@rbxts/sift/out/Array";
 import { copyDeep } from "@rbxts/sift/out/Dictionary";
@@ -22,6 +22,14 @@ import { Shadow } from "../interface/Shadow";
 import { TerminalTextField } from "./TerminalTextField";
 import { HistoryList } from "./history";
 
+function getParentPath(parts: string[], atNextPart: boolean) {
+	if (!atNextPart && parts.size() <= 1) {
+		return;
+	}
+
+	return new ImmutableCommandPath(atNextPart ? copy(parts) : pop(parts));
+}
+
 export function TerminalWindow() {
 	const rem = useRem();
 	const store = useStore();
@@ -37,14 +45,6 @@ export function TerminalWindow() {
 		params.Width = math.huge;
 		params.Font = DEFAULT_FONT;
 		return params;
-	}, []);
-
-	const getParentPath = useCallback((parts: string[], atNextPart: boolean) => {
-		if (!atNextPart && parts.size() <= 1) {
-			return;
-		}
-
-		return new ImmutableCommandPath(atNextPart ? copy(parts) : pop(parts));
 	}, []);
 
 	const windowHeightBinding = useMemo(() => {
@@ -115,15 +115,18 @@ export function TerminalWindow() {
 					// to the next "part" of the text. This means we should include the previous
 					// text part as part of the parent path.
 					const atNextPart = endsWithSpace(text);
+					let showArgs = atCommand && atNextPart;
 
 					if (parentPath !== undefined) {
-						if (parts.size() === parentPath.getSize() && !atNextPart) {
-							// This means the cursor is at the end of the command text part,
-							// we don't want to show arg suggestions here so we set this to false
-							atCommand = false;
-						} else if (formatPartsAsPath(slice(parts, 1, parentPath.getSize())) === parentPath.toString()) {
+						if (formatPartsAsPath(slice(parts, 1, parentPath.getSize())) === parentPath.toString()) {
 							// The current path still leads to the command, so it's valid
 							atCommand = true;
+							showArgs = atNextPart || parts.size() !== parentPath.getSize();
+
+							if (!showArgs) {
+								parentPath =
+									parentPath.getSize() > 1 ? parentPath.remove(parentPath.getSize() - 1) : undefined;
+							}
 						} else {
 							// As a last resort, iterate over all parts of text to check if it points to a command
 							// This could be the case if the text is selected and a valid command is pasted into
@@ -140,20 +143,17 @@ export function TerminalWindow() {
 								}
 							}
 						}
-
-						if (!atCommand) {
-							store.setCommand(undefined);
-							parentPath = getParentPath(parts, atNextPart);
-						}
 					} else {
 						parentPath = getParentPath(parts, atNextPart);
-						if (atCommand) {
-							store.setCommand(new ImmutableCommandPath(copy(parts)));
-						}
-						atCommand = atCommand && atNextPart;
+						if (atCommand) store.setCommand(new ImmutableCommandPath(copy(parts)));
 					}
 
-					const commandArgs = atCommand ? data.commands.get(parentPath!.toString())?.arguments : undefined;
+					if (!atCommand) {
+						store.setCommand(undefined);
+						parentPath = getParentPath(parts, atNextPart);
+					}
+
+					const commandArgs = showArgs ? data.commands.get(parentPath!.toString())?.arguments : undefined;
 					const currentTextPart = !atNextPart ? parts[parts.size() - 1] : undefined;
 					if (commandArgs !== undefined) {
 						const argIndex = parts.size() - parentPath!.getSize() - (atNextPart ? 0 : 1);
