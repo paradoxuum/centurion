@@ -1,4 +1,4 @@
-import { BindingOrValue, getBindingValue } from "@rbxts/pretty-react-hooks";
+import { BindingOrValue } from "@rbxts/pretty-react-hooks";
 import Roact, { useBinding, useEffect } from "@rbxts/roact";
 import { palette } from "../../../constants/palette";
 import { useRem } from "../../../hooks/useRem";
@@ -6,25 +6,29 @@ import { HistoryLineData } from "../../../types";
 import { ScrollingFrame } from "../../interface/ScrollingFrame";
 import { HistoryLine } from "./HistoryLine";
 
+export interface HistoryData {
+	lines: HistoryLineData[];
+	height: number;
+}
+
 interface HistoryListProps {
-	historyLines: HistoryLineData[];
-	historyHeight: BindingOrValue<number>;
+	data: HistoryData;
 	size?: BindingOrValue<UDim2>;
 	position?: BindingOrValue<UDim2>;
 	scrollingEnabled?: BindingOrValue<boolean>;
 }
 
-export function HistoryList({ historyLines, historyHeight, size, position, scrollingEnabled }: HistoryListProps) {
+export function HistoryList({ data, size, position, scrollingEnabled }: HistoryListProps) {
 	const rem = useRem();
 
 	const [canvasSize, setCanvasSize] = useBinding(new UDim2());
 	const [canvasPosition, setCanvasPosition] = useBinding(new Vector2());
 
 	useEffect(() => {
-		const totalHeight = getBindingValue(historyHeight);
-		setCanvasSize(new UDim2(0, 0, 0, totalHeight - rem(1)));
-		setCanvasPosition(new Vector2(0, totalHeight));
-	}, [historyHeight, rem]);
+		const height = data.height - rem(0.5);
+		setCanvasSize(new UDim2(0, 0, 0, height));
+		setCanvasPosition(new Vector2(0, height));
+	}, [data, rem]);
 
 	return (
 		<ScrollingFrame
@@ -36,7 +40,7 @@ export function HistoryList({ historyLines, historyHeight, size, position, scrol
 			scrollBarThickness={scrollingEnabled ? 10 : 0}
 			scrollingEnabled={scrollingEnabled}
 		>
-			{historyLines.map((data, i) => {
+			{data.lines.map((data, i) => {
 				return (
 					<HistoryLine
 						key={`${data.entry.sentAt}-${i}`}

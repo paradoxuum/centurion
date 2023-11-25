@@ -20,7 +20,7 @@ import { Frame } from "../interface/Frame";
 import { Padding } from "../interface/Padding";
 import { Shadow } from "../interface/Shadow";
 import { TerminalTextField } from "./TerminalTextField";
-import { HistoryList } from "./history";
+import { HistoryData, HistoryList } from "./history";
 
 function getParentPath(parts: string[], atNextPart: boolean) {
 	if (!atNextPart && parts.size() <= 1) {
@@ -37,7 +37,10 @@ export function TerminalWindow() {
 	const suggestionData = useContext(SuggestionContext);
 
 	const history = useSelector(selectHistory);
-	const [historyLines, setHistoryLines] = useState<HistoryLineData[]>([]);
+	const [historyData, setHistoryData] = useState<HistoryData>({
+		lines: [],
+		height: 0,
+	});
 	const [historyHeight, historyHeightMotion] = useMotion(0);
 
 	const textBoundsParams = useMemo(() => {
@@ -79,19 +82,17 @@ export function TerminalWindow() {
 		const isClamped = totalHeight > rem(16);
 		const clampedHeight = isClamped ? rem(16) : totalHeight;
 		historyHeightMotion.spring(clampedHeight);
-		setHistoryLines(historyLines);
+		setHistoryData({
+			lines: historyLines,
+			height: totalHeight,
+		});
 	}, [history, rem]);
 
 	return (
 		<Frame size={windowHeightBinding} backgroundColor={palette.crust} cornerRadius={new UDim(0, rem(0.5))}>
 			<Padding key="padding" all={new UDim(0, rem(0.5))} />
 
-			<HistoryList
-				key="history"
-				size={new UDim2(1, 0, 1, -rem(4.5))}
-				historyLines={historyLines}
-				historyHeight={historyHeight}
-			/>
+			<HistoryList key="history" size={new UDim2(1, 0, 1, -rem(4.5))} data={historyData} />
 
 			<TerminalTextField
 				key="text-field"
