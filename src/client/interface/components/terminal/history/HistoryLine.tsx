@@ -18,8 +18,9 @@ interface HistoryLineProps {
 export function HistoryLine({ data, size, position, order }: HistoryLineProps) {
 	const rem = useRem();
 	const date = useMemo(() => {
-		const dateTime = DateTime.fromUnixTimestamp(data.sentAt);
-		return dateTime.FormatUniversalTime("LT", "en-us");
+		const dateTime = DateTime.fromUnixTimestamp(data.sentAt).FormatUniversalTime("LT", "en-us");
+		const dateParts = dateTime.split(" ");
+		return "<b>" + dateParts[0] + "</b> " + dateParts[1];
 	}, [data]);
 
 	return (
@@ -27,7 +28,7 @@ export function HistoryLine({ data, size, position, order }: HistoryLineProps) {
 			<Frame
 				key="date"
 				backgroundColor={palette.surface1}
-				size={UDim2.fromOffset(rem(7), rem(1.5))}
+				size={UDim2.fromOffset(rem(6), rem(1.5))}
 				cornerRadius={new UDim(1, 0)}
 			>
 				<Text
@@ -36,17 +37,18 @@ export function HistoryLine({ data, size, position, order }: HistoryLineProps) {
 					text={date}
 					textColor={palette.white}
 					textSize={rem(1.2)}
+					richText={true}
 				/>
 			</Frame>
 
 			<Text
 				key="entry-text"
 				anchorPoint={new Vector2(1, 0)}
-				size={new UDim2(1, -rem(7.5), 1, 0)}
+				size={new UDim2(1, -rem(6.5), 1, 0)}
 				position={UDim2.fromScale(1, 0)}
 				text={data.text}
 				textSize={rem(1.5)}
-				textColor={palette.white}
+				textColor={data.success ? palette.white : palette.red}
 				textXAlignment="Left"
 				font={fonts.inter.medium}
 			/>
