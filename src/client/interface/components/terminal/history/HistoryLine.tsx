@@ -6,6 +6,7 @@ import { palette } from "../../../constants/palette";
 import { useRem } from "../../../hooks/useRem";
 import { Frame } from "../../interface/Frame";
 import { Group } from "../../interface/Group";
+import { Outline } from "../../interface/Outline";
 import { Text } from "../../interface/Text";
 
 interface HistoryLineProps {
@@ -38,6 +39,15 @@ export function HistoryLine({ data, size, position, order }: HistoryLineProps) {
 					textColor={palette.white}
 					textSize={rem(1.2)}
 					richText={true}
+				/>
+
+				<Outline
+					key="outline"
+					innerThickness={rem(2, "pixel")}
+					innerTransparency={0.25}
+					innerColor={data.success ? palette.green : palette.red}
+					outerThickness={0}
+					cornerRadius={new UDim(1, 0)}
 				/>
 			</Frame>
 
