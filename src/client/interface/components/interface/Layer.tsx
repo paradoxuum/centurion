@@ -1,8 +1,6 @@
 import Roact from "@rbxts/roact";
-import { RunService } from "@rbxts/services";
+import { IS_EDIT } from "../../constants/util";
 import { Group } from "./Group";
-
-const IS_EDIT = RunService.IsStudio() && !RunService.IsRunning();
 
 interface LayerProps extends Roact.PropsWithChildren {
 	displayOrder?: number;

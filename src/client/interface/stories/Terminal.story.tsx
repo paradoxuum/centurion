@@ -28,11 +28,10 @@ export = story({
 
 					commands: new Map(),
 					groups: new Map(),
-					getArgumentSuggestions: () => [],
-					getCommandSuggestions: () => [],
 					history: history,
 					onHistoryUpdated: historyEvent.Event,
 				}}
+				getSuggestion={() => undefined}
 			>
 				<Terminal />
 			</RootProvider>

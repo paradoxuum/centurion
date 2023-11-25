@@ -7,13 +7,13 @@ import { copyDeep } from "@rbxts/sift/out/Dictionary";
 import { ImmutableCommandPath } from "../../../../shared";
 import { endsWithSpace, formatPartsAsPath, splitStringBySpace } from "../../../../shared/util/string";
 import { DEFAULT_HISTORY_LENGTH } from "../../../options";
-import { Suggestion } from "../../../types";
 import { DEFAULT_FONT } from "../../constants/fonts";
 import { palette } from "../../constants/palette";
 import { useMotion } from "../../hooks/useMotion";
 import { useRem } from "../../hooks/useRem";
 import { useStore } from "../../hooks/useStore";
 import { DataContext } from "../../providers/dataProvider";
+import { SuggestionContext } from "../../providers/suggestionProvider";
 import { selectHistory } from "../../store/app";
 import { HistoryLineData } from "../../types";
 import { Frame } from "../interface/Frame";
@@ -26,6 +26,7 @@ export function TerminalWindow() {
 	const rem = useRem();
 	const store = useStore();
 	const data = useContext(DataContext);
+	const suggestionData = useContext(SuggestionContext);
 
 	const history = useSelector(selectHistory);
 	const [historyLines, setHistoryLines] = useState<HistoryLineData[]>([]);
@@ -102,8 +103,8 @@ export function TerminalWindow() {
 					store.setText(text, parts);
 
 					if (parts.isEmpty()) {
-						store.setSuggestionText("");
-						store.setSuggestions([]);
+						suggestionData.updateSuggestion();
+						store.setArgIndex(undefined);
 						return;
 					}
 
@@ -115,7 +116,6 @@ export function TerminalWindow() {
 					// text part as part of the parent path.
 					const atNextPart = endsWithSpace(text);
 
-					let hasArgs = false;
 					if (parentPath !== undefined) {
 						if (parts.size() === parentPath.getSize() && !atNextPart) {
 							// This means the cursor is at the end of the command text part,
@@ -153,47 +153,26 @@ export function TerminalWindow() {
 						atCommand = atCommand && atNextPart;
 					}
 
-					if (atCommand) {
-						const commandArgs = data.commands.get(parentPath!.toString())!.arguments;
-						hasArgs = commandArgs !== undefined && !commandArgs.isEmpty();
-					}
+					const commandArgs = atCommand ? data.commands.get(parentPath!.toString())?.arguments : undefined;
+					const currentTextPart = !atNextPart ? parts[parts.size() - 1] : undefined;
+					if (commandArgs !== undefined) {
+						const argIndex = parts.size() - parentPath!.getSize() - (atNextPart ? 0 : 1);
+						if (argIndex >= commandArgs.size()) return;
 
-					let suggestions: Suggestion[];
-					let argSuggestion: Suggestion | undefined;
-					let argIndex = 0;
-
-					if (hasArgs) {
-						argIndex = parts.size() - parentPath!.getSize() - (atNextPart ? 0 : 1);
-						suggestions = data.getArgumentSuggestions(parentPath!);
-						if (argIndex >= suggestions.size()) {
-							suggestions = [];
-						} else {
-							argSuggestion = suggestions[argIndex];
-						}
+						store.setArgIndex(argIndex);
+						suggestionData.updateSuggestion({
+							type: "argument",
+							commandPath: parentPath!,
+							index: argIndex,
+							text: currentTextPart,
+						});
 					} else {
-						const currentPart = !atNextPart ? parts[parts.size() - 1] : undefined;
-						suggestions = data.getCommandSuggestions(parentPath, currentPart);
+						suggestionData.updateSuggestion({
+							type: "command",
+							parentPath,
+							text: currentTextPart,
+						});
 					}
-
-					store.setSuggestions(argSuggestion !== undefined ? [argSuggestion] : suggestions);
-
-					let suggestionText = text;
-					if (hasArgs) {
-						for (const i of $range(argIndex, suggestions.size() - 1)) {
-							const firstArg = i === argIndex;
-							if (firstArg && !atNextPart) {
-								suggestionText += " ";
-								continue;
-							}
-
-							suggestionText += suggestions[i].title + " ";
-						}
-					} else {
-						const suggestionStartIndex = (!atNextPart ? parts[parts.size() - 1].size() : 0) + 1;
-						suggestionText += !suggestions.isEmpty() ? suggestions[0].title.sub(suggestionStartIndex) : "";
-					}
-
-					store.setSuggestionText(suggestionText);
 				}}
 				onSubmit={(text) => {
 					const storeState = store.getState();

@@ -18,8 +18,6 @@ export const DEFAULT_DATA: AppData = {
 
 	commands: new Map(),
 	groups: new Map(),
-	getArgumentSuggestions: () => [],
-	getCommandSuggestions: () => [],
 	history: [],
 	onHistoryUpdated: new Instance("BindableEvent").Event,
 };

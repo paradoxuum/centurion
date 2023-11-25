@@ -1,14 +1,12 @@
 import { createProducer } from "@rbxts/reflex";
 import { copyDeep, push, removeIndices } from "@rbxts/sift/out/Array";
 import { ImmutableCommandPath } from "../../../../shared";
-import { HistoryEntry, Suggestion } from "../../../types";
+import { HistoryEntry } from "../../../types";
 
 export interface AppState {
 	history: HistoryEntry[];
 	command?: ImmutableCommandPath;
-
-	suggestions: Suggestion[];
-	suggestionText: string;
+	argIndex?: number;
 	text: {
 		value: string;
 		parts: string[];
@@ -18,8 +16,6 @@ export interface AppState {
 
 export const initialAppState: AppState = {
 	history: [],
-	suggestions: [],
-	suggestionText: "",
 	text: {
 		value: "",
 		parts: [],
@@ -51,7 +47,7 @@ export const appSlice = createProducer(initialAppState, {
 
 	setCommand: (state, path?: ImmutableCommandPath) => ({ ...state, command: path }),
 
-	setSuggestions: (state, suggestions: Suggestion[]) => ({ ...state, suggestions }),
+	setArgIndex: (state, index?: number) => ({ ...state, argIndex: index }),
 
 	setText: (state, text: string, textParts: string[]) => {
 		const endsWithSpace = textParts.size() > 0 && text.match("%s$").size() > 0;
@@ -65,6 +61,4 @@ export const appSlice = createProducer(initialAppState, {
 			},
 		};
 	},
-
-	setSuggestionText: (state, text) => ({ ...state, suggestionText: text }),
 });

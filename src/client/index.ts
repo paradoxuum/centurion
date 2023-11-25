@@ -1,10 +1,9 @@
 import { RunService } from "@rbxts/services";
-import { CommandPath } from "../shared";
 import { RunCallback } from "../shared/core/types";
 import { ClientDispatcher } from "./dispatcher";
 import { DEFAULT_OPTIONS } from "./options";
 import { ClientRegistry } from "./registry";
-import { AppData, ArgumentSuggestion, ClientOptions, CommandSuggestion } from "./types";
+import { AppData, ClientOptions } from "./types";
 
 const IS_CLIENT = RunService.IsClient();
 
@@ -52,67 +51,12 @@ export class CmdxClient {
 		return this.optionsObject;
 	}
 
-	private static getSuggestionData(path: CommandPath): CommandSuggestion {
-		const data = this.registryInstance.getCommand(path)?.options ?? this.registryInstance.getGroup(path)?.options;
-		assert(data !== undefined, `Invalid command path: ${path}`);
-
-		return {
-			type: "command",
-			title: data.name,
-			description: data.description,
-		};
-	}
-
-	private static getArgumentSuggestions(path: CommandPath): ArgumentSuggestion[] {
-		const command = this.registryInstance.getCommand(path);
-		if (command === undefined) {
-			return [];
-		}
-
-		const args = command.options.arguments;
-		if (args === undefined || args.isEmpty()) {
-			return [];
-		}
-
-		return args.map((arg) => ({
-			type: "argument",
-			title: arg.name,
-			description: arg.description,
-			dataType: arg.type,
-			optional: arg.optional === true,
-		}));
-	}
-
-	private static getCommandSuggestions(path?: CommandPath, text?: string) {
-		const childPaths = this.registryInstance.getChildPaths(path);
-		if (text === undefined) {
-			return childPaths.map((childPath) => this.getSuggestionData(childPath));
-		}
-
-		const results: CommandSuggestion[] = [];
-		const textLower = text.lower();
-		const textSubIndex = text.size();
-		for (const childPath of childPaths) {
-			const pathNameLower = childPath.getTail().lower();
-			if (pathNameLower.sub(0, textSubIndex) !== textLower) {
-				continue;
-			}
-
-			results.push(this.getSuggestionData(childPath));
-		}
-
-		return results;
-	}
-
 	private static getAppData(): AppData {
 		return {
 			options: this.optionsObject,
 			execute: (path, text) => this.dispatcherInstance.run(path, text),
-
 			commands: this.registryInstance.getCommandOptions(),
 			groups: this.registryInstance.getGroupOptions(),
-			getArgumentSuggestions: (path) => this.getArgumentSuggestions(path),
-			getCommandSuggestions: (path, text) => this.getCommandSuggestions(path, text),
 			history: this.dispatcherInstance.getHistory(),
 			onHistoryUpdated: this.dispatcherInstance.getHistorySignal(),
 		};
