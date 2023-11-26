@@ -1,5 +1,7 @@
 /**
  * Reflection/metadata API
+ *
+ * @see https://github.com/rbxts-flamework/core/blob/20683a7f7eb1f8844f7f75e643d764222d06ef24/src/reflect.ts
  */
 export namespace Reflect {
 	// object -> property -> key -> value

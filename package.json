@@ -30,28 +30,31 @@
 	},
 	"devDependencies": {
 		"@rbxts/compiler-types": "2.2.0-types.0",
-		"@rbxts/types": "^1.0.730",
-		"@typescript-eslint/eslint-plugin": "^6.9.1",
-		"@typescript-eslint/parser": "^6.9.1",
-		"eslint": "^8.53.0",
+		"@rbxts/types": "^1.0.732",
+		"@typescript-eslint/eslint-plugin": "^6.12.0",
+		"@typescript-eslint/parser": "^6.12.0",
+		"eslint": "^8.54.0",
 		"eslint-config-prettier": "^9.0.0",
 		"eslint-plugin-prettier": "^5.0.1",
 		"eslint-plugin-roblox-ts": "^0.0.36",
-		"prettier": "^3.0.3",
+		"prettier": "^3.1.0",
 		"roblox-ts": "^2.2.0",
 		"typescript": "^5.2.2"
 	},
 	"dependencies": {
 		"@rbxts/pretty-react-hooks": "^0.3.3",
+		"@rbxts/react-reflex": "^0.2.0",
 		"@rbxts/react-roblox": "^0.2.0",
+		"@rbxts/reflex": "^4.3.0",
 		"@rbxts/remo": "^1.2.4",
 		"@rbxts/ripple": "^0.7.1",
-		"@rbxts/roact": "npm:@rbxts/react-ts@latest",
+		"@rbxts/roact": "npm:@rbxts/react-ts@^1.0.1",
 		"@rbxts/rust-classes": "^0.12.0",
 		"@rbxts/services": "^1.5.1",
 		"@rbxts/set-timeout": "^1.1.2",
 		"@rbxts/sift": "^0.0.8",
 		"@rbxts/t": "^3.1.0",
-		"@rbxts/testez": "0.4.2-ts.0"
+		"@rbxts/testez": "0.4.2-ts.0",
+		"@rbxts/ui-labs": "^1.0.2"
 	}
 }

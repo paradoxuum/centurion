@@ -7,12 +7,15 @@ export class CommandPath {
 	private pathString: string;
 
 	constructor(protected readonly parts: string[]) {
-		assert(parts.size() > 0, `CommandPath must contain at least one part`);
 		this.pathString = parts.join("/");
 	}
 
 	static fromString(path: string) {
 		return new CommandPath(path.split("/"));
+	}
+
+	static empty() {
+		return new CommandPath([]);
 	}
 
 	/**
@@ -42,6 +45,10 @@ export class CommandPath {
 	 * @returns The tail of this path
 	 */
 	getTail() {
+		if (this.parts.isEmpty()) {
+			return "";
+		}
+
 		return this.parts[this.parts.size() - 1];
 	}
 
@@ -190,6 +197,10 @@ export class CommandPath {
 		this.parts.clear();
 	}
 
+	isEmpty() {
+		return this.parts.isEmpty();
+	}
+
 	*iter() {
 		for (const part of this.parts) {
 			yield part;
@@ -218,6 +229,10 @@ export class ImmutableCommandPath extends CommandPath {
 		return new ImmutableCommandPath(path.split("/"));
 	}
 
+	static empty() {
+		return new ImmutableCommandPath([]);
+	}
+
 	slice(from: number, to?: number) {
 		return new ImmutableCommandPath(slice(this.parts, from + 1, to !== undefined ? to + 1 : this.parts.size()));
 	}
@@ -234,7 +249,7 @@ export class ImmutableCommandPath extends CommandPath {
 
 	remove(index: number) {
 		assert(index > -1 && index < this.parts.size(), "Index out of bounds");
-		return new ImmutableCommandPath(removeIndex(this.parts, index));
+		return new ImmutableCommandPath(removeIndex(this.parts, index + 1));
 	}
 
 	clear() {

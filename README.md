@@ -113,3 +113,11 @@ class InfoCommand {
 	serverView(executor: Player) {}
 }
 ```
+
+# Attributions
+
+-   [Cmdr](https://github.com/evaera/Cmdr): String utilities ([see usage](src/shared/util/string.ts))
+
+-   [Flamework](https://github.com/rbxts-flamework/core): Metadata reflection API ([see usage](src/shared/util/reflect.ts))
+
+-   [Slither](https://github.com/littensy/slither): Basic UI components and hooks

@@ -113,7 +113,7 @@ export class ExecutableCommand extends BaseCommand {
 			const argData = argOptions[i];
 			if (i > endIndex) {
 				if (argData.optional) break;
-				return Result.err(`Missing required argument: ${argData.name}`);
+				return Result.err(`Missing required argument: <b>${argData.name}</b>`);
 			}
 
 			const transformedArg = argType.transform(args[startIndex + i]);

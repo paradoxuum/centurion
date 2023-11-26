@@ -1,5 +1,5 @@
 import { RunService } from "@rbxts/services";
-import { ReadonlyDeepObject } from "@rbxts/sift/out/Util";
+import { copyDeep } from "@rbxts/sift/out/Dictionary";
 import { CommandOptions, GroupOptions, ImmutableCommandPath } from "../shared";
 import { BaseCommand, CommandGroup } from "../shared/core/command";
 import { BaseRegistry } from "../shared/core/registry";
@@ -32,17 +32,20 @@ export class ClientRegistry extends BaseRegistry {
 			});
 	}
 
-	getRegistryData() {
-		const commandMap = new Map<string, ReadonlyDeepObject<CommandOptions>>();
-		const groupMap = new Map<string, ReadonlyDeepObject<GroupOptions>>();
-
+	getCommandOptions() {
+		const commandMap = new Map<string, CommandOptions>();
 		for (const [k, v] of this.commands) {
-			commandMap.set(k, v.options);
+			commandMap.set(k, copyDeep(v.options as CommandOptions));
 		}
+		return commandMap;
+	}
 
-		for (const [k, v] of this.groups) {
-			groupMap.set(k, v.options);
+	getGroupOptions() {
+		const groupMap = new Map<string, GroupOptions>();
+		for (const [k, v] of this.commands) {
+			groupMap.set(k, copyDeep(v.options as CommandOptions));
 		}
+		return groupMap;
 	}
 
 	private registerServerGroups(sharedGroups: GroupOptions[]) {
@@ -100,7 +103,7 @@ export class ClientRegistry extends BaseRegistry {
 			} else {
 				this.validatePath(path, true);
 				commandObject = ServerCommand.create(this, commandPath, command);
-				this.cacheCommandName(commandPath);
+				this.cachePath(commandPath);
 			}
 
 			this.commands.set(path, commandObject);
