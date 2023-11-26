@@ -39,7 +39,7 @@ export const initialAppState: AppState = {
  * @param limit the limit
  */
 function limitArray<T extends defined>(array: T[], limit: number) {
-	if (array.size() >= limit) return;
+	if (array.size() <= limit) return;
 	for (const i of $range(0, math.min(array.size() - 1, limit - 1))) {
 		array.remove(i);
 	}
