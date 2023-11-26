@@ -1,6 +1,6 @@
 import { t } from "@rbxts/t";
 import { BaseRegistry } from "../../core/registry";
-import { TypeBuilder, transformErr, transformOk } from "../../util/type";
+import { TransformResult, TypeBuilder } from "../../util/type";
 
 const brickColorNames = new Set([
 	"White",
@@ -219,10 +219,10 @@ const brickColorType = TypeBuilder.create<BrickColor>("brickColor")
 	.validate(t.BrickColor)
 	.transform((text) => {
 		if (!brickColorNames.has(text)) {
-			return transformErr("Invalid BrickColor");
+			return TransformResult.err("Invalid BrickColor");
 		}
 
-		return transformOk(BrickColor[text as never]);
+		return TransformResult.ok(BrickColor[text as never]);
 	})
 	.suggestions(() => brickColorNameArray)
 	.build();

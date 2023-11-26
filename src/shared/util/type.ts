@@ -2,10 +2,11 @@ import { Result } from "@rbxts/rust-classes";
 import { t } from "@rbxts/t";
 import { TransformationResult, TypeOptions } from "../types";
 
-export const transformOk: <T extends defined>(value: T) => TransformationResult<T> = (value) => Result.ok(value);
+export namespace TransformResult {
+	export const ok: <T extends defined>(value: T) => TransformationResult<T> = (value) => Result.ok(value);
 
-export const transformErr: <T extends defined>(text: string) => TransformationResult<T> = (text: string) =>
-	Result.err(text);
+	export const err: <T extends defined>(text: string) => TransformationResult<T> = (text: string) => Result.err(text);
+}
 
 export class TypeBuilder<T extends defined> {
 	private validationFn?: t.check<T>;

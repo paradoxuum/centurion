@@ -1,15 +1,15 @@
 import { t } from "@rbxts/t";
 import { BuiltInTypes } from ".";
 import { BaseRegistry } from "../../core/registry";
-import { TypeBuilder, transformErr, transformOk } from "../../util/type";
+import { TransformResult, TypeBuilder } from "../../util/type";
 
 const toNumberTransformation = (text: string) => {
 	const num = tonumber(text);
 	if (num === undefined) {
-		return transformErr<number>("Invalid number");
+		return TransformResult.err<number>("Invalid number");
 	}
 
-	return transformOk(num);
+	return TransformResult.ok(num);
 };
 
 const getNumTransformation = (validateFn: t.check<number>, errMsg: string) => (text: string) => {
@@ -19,12 +19,12 @@ const getNumTransformation = (validateFn: t.check<number>, errMsg: string) => (t
 	}
 
 	const num = numResult.unwrap();
-	return validateFn(num) ? transformOk(num) : transformErr<number>(errMsg);
+	return validateFn(num) ? TransformResult.ok(num) : TransformResult.err<number>(errMsg);
 };
 
 const stringType = TypeBuilder.create(BuiltInTypes.String)
 	.validate(t.string)
-	.transform((text) => transformOk(text))
+	.transform((text) => TransformResult.ok(text))
 	.build();
 
 const numberType = TypeBuilder.create(BuiltInTypes.Number).validate(t.number).transform(toNumberTransformation).build();
@@ -41,12 +41,12 @@ const booleanType = TypeBuilder.create(BuiltInTypes.Boolean)
 	.transform((text) => {
 		const textLower = text.lower();
 		if (truthyValues.has(textLower)) {
-			return transformOk(true);
+			return TransformResult.ok(true);
 		} else if (falsyValues.has(textLower)) {
-			return transformOk(false);
+			return TransformResult.ok(false);
 		}
 
-		return transformErr("Invalid boolean");
+		return TransformResult.err("Invalid boolean");
 	})
 	.build();
 
