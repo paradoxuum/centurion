@@ -4,9 +4,6 @@ export const fonts = {
 		medium: new Font("rbxassetid://12187365364", Enum.FontWeight.Medium),
 		bold: new Font("rbxassetid://12187365364", Enum.FontWeight.Bold),
 	},
-	robotoMono: {
-		regular: Font.fromEnum(Enum.Font.RobotoMono),
-	},
 };
 
 export const DEFAULT_FONT = fonts.inter.regular;
