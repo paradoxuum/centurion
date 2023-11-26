@@ -1,4 +1,5 @@
 import { RunService } from "@rbxts/services";
+import { mergeDeep } from "@rbxts/sift/out/Dictionary";
 import { RunCallback } from "../shared/core/types";
 import { ClientDispatcher } from "./dispatcher";
 import { DEFAULT_OPTIONS } from "./options";
@@ -17,7 +18,7 @@ export class CmdxClient {
 		assert(IS_CLIENT, "CmdxClient can only be started from the client");
 		assert(!this.started, "Cmdx has already been started");
 
-		this.optionsObject = options;
+		this.optionsObject = mergeDeep(DEFAULT_OPTIONS, options);
 
 		this.registryInstance.init();
 		this.dispatcherInstance.init(options);
