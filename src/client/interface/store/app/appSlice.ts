@@ -4,6 +4,7 @@ import { ImmutableCommandPath } from "../../../../shared";
 import { HistoryEntry } from "../../../types";
 
 export interface AppState {
+	visible: boolean;
 	history: HistoryEntry[];
 	command?: ImmutableCommandPath;
 	argIndex?: number;
@@ -15,6 +16,7 @@ export interface AppState {
 }
 
 export const initialAppState: AppState = {
+	visible: false,
 	history: [],
 	text: {
 		value: "",
@@ -24,6 +26,8 @@ export const initialAppState: AppState = {
 };
 
 export const appSlice = createProducer(initialAppState, {
+	setVisible: (state, visible: boolean) => ({ ...state, visible }),
+
 	addHistoryEntry: (state, entry: HistoryEntry, limit: number) => {
 		const history = copyDeep(state.history);
 		if (history.size() >= limit) {

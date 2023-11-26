@@ -2,6 +2,7 @@ import { CommandOptions, CommandPath, GroupOptions } from "../shared";
 
 export interface ClientOptions {
 	historyLength?: number;
+	activationKeys?: Enum.KeyCode[];
 	app?: (data: AppData) => void;
 }
 

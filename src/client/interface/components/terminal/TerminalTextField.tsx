@@ -1,4 +1,5 @@
 import { BindingOrValue, getBindingValue, useEventListener } from "@rbxts/pretty-react-hooks";
+import { useSelector } from "@rbxts/react-reflex";
 import Roact, { useBinding, useContext, useEffect, useRef } from "@rbxts/roact";
 import { UserInputService } from "@rbxts/services";
 import { endsWithSpace } from "../../../../shared/util/string";
@@ -6,8 +7,8 @@ import { fonts } from "../../constants/fonts";
 import { palette } from "../../constants/palette";
 import { useRem } from "../../hooks/useRem";
 import { useStore } from "../../hooks/useStore";
-import { DataContext } from "../../providers/dataProvider";
 import { SuggestionContext } from "../../providers/suggestionProvider";
+import { selectVisible } from "../../store/app";
 import { getArgumentNames } from "../../util/argument";
 import { Frame } from "../interface/Frame";
 import { Padding } from "../interface/Padding";
@@ -25,12 +26,22 @@ interface TerminalTextFieldProps {
 export function TerminalTextField({ anchorPoint, size, position, onTextChange, onSubmit }: TerminalTextFieldProps) {
 	const rem = useRem();
 	const ref = useRef<TextBox>();
-	const data = useContext(DataContext);
 	const suggestion = useContext(SuggestionContext).suggestion;
 	const store = useStore();
 
+	const appVisible = useSelector(selectVisible);
 	const [text, setText] = useBinding("");
 	const [suggestionText, setSuggestionText] = useBinding("");
+
+	useEffect(() => {
+		if (ref.current === undefined) return;
+
+		if (appVisible) {
+			ref.current.CaptureFocus();
+		} else {
+			ref.current.ReleaseFocus();
+		}
+	}, [appVisible]);
 
 	useEffect(() => {
 		if (suggestion === undefined) {
@@ -65,32 +76,30 @@ export function TerminalTextField({ anchorPoint, size, position, onTextChange, o
 	}, [suggestion]);
 
 	useEventListener(UserInputService.InputBegan, (input) => {
-		if (ref.current === undefined) return;
+		if (ref.current === undefined || input.KeyCode !== Enum.KeyCode.Tab) return;
 
-		if (input.KeyCode === Enum.KeyCode.Tab) {
-			const atCommand = store.getState().app.command !== undefined;
-			const suggestionTextValue = getBindingValue(suggestionText);
+		const atCommand = store.getState().app.command !== undefined;
+		const suggestionTextValue = getBindingValue(suggestionText);
 
-			// Handle command suggestions
-			if (!atCommand && suggestionTextValue !== undefined) {
-				setText(suggestionTextValue);
-				ref.current.CursorPosition = suggestionTextValue.size();
-				return;
-			}
-
-			// Handle argument suggestions
-			if (!atCommand || suggestion === undefined || suggestion.others.isEmpty()) return;
-
-			let newText = getBindingValue(text);
-			if (!endsWithSpace(newText)) {
-				const parts = store.getState().app.text.parts;
-				newText = newText.sub(0, newText.size() - parts[parts.size() - 1].size());
-			}
-			newText += suggestion.others[0];
-
-			setText(newText);
-			ref.current.CursorPosition = newText.size();
+		// Handle command suggestions
+		if (!atCommand && suggestionTextValue !== undefined) {
+			setText(suggestionTextValue);
+			ref.current.CursorPosition = suggestionTextValue.size();
+			return;
 		}
+
+		// Handle argument suggestions
+		if (!atCommand || suggestion === undefined || suggestion.others.isEmpty()) return;
+
+		let newText = getBindingValue(text);
+		if (!endsWithSpace(newText)) {
+			const parts = store.getState().app.text.parts;
+			newText = newText.sub(0, newText.size() - parts[parts.size() - 1].size());
+		}
+		newText += suggestion.others[0];
+
+		setText(newText);
+		ref.current.CursorPosition = newText.size();
 	});
 
 	return (
@@ -116,12 +125,20 @@ export function TerminalTextField({ anchorPoint, size, position, onTextChange, o
 				ref={ref}
 				event={{
 					FocusLost: (rbx, enterPressed) => {
-						if (enterPressed) onSubmit?.(rbx.Text);
+						if (!enterPressed) return;
+						onSubmit?.(rbx.Text);
+						ref.current?.CaptureFocus();
+						setText("");
 					},
 				}}
 				change={{
 					Text: (rbx) => {
 						let newText = rbx.Text;
+
+						// Remove line breaks
+						if (newText.match("[\n\r]")[0] !== undefined) {
+							newText = newText.gsub("[\n\r]", "")[0];
+						}
 
 						// Remove all tabs from text input - we use these for autocompletion
 						if (newText.match("\t")[0] !== undefined) {
