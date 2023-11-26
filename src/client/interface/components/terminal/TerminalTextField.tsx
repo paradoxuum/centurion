@@ -2,11 +2,12 @@ import { BindingOrValue, getBindingValue, useEventListener } from "@rbxts/pretty
 import { useSelector } from "@rbxts/react-reflex";
 import Roact, { useBinding, useContext, useEffect, useRef } from "@rbxts/roact";
 import { UserInputService } from "@rbxts/services";
-import { endsWithSpace } from "../../../../shared/util/string";
+import { endsWithSpace, formatPartsAsPath } from "../../../../shared/util/string";
 import { fonts } from "../../constants/fonts";
 import { palette } from "../../constants/palette";
 import { useRem } from "../../hooks/useRem";
 import { useStore } from "../../hooks/useStore";
+import { DataContext } from "../../providers/dataProvider";
 import { SuggestionContext } from "../../providers/suggestionProvider";
 import { selectVisible } from "../../store/app";
 import { getArgumentNames } from "../../util/argument";
@@ -26,6 +27,7 @@ interface TerminalTextFieldProps {
 export function TerminalTextField({ anchorPoint, size, position, onTextChange, onSubmit }: TerminalTextFieldProps) {
 	const rem = useRem();
 	const ref = useRef<TextBox>();
+	const data = useContext(DataContext);
 	const suggestion = useContext(SuggestionContext).suggestion;
 	const store = useStore();
 
@@ -78,18 +80,30 @@ export function TerminalTextField({ anchorPoint, size, position, onTextChange, o
 	useEventListener(UserInputService.InputBegan, (input) => {
 		if (ref.current === undefined || input.KeyCode !== Enum.KeyCode.Tab) return;
 
-		const atCommand = store.getState().app.command !== undefined;
+		const commandPath = store.getState().app.command;
 		const suggestionTextValue = getBindingValue(suggestionText);
 
 		// Handle command suggestions
-		if (!atCommand && suggestionTextValue !== undefined) {
-			setText(suggestionTextValue + " ");
-			ref.current.CursorPosition = suggestionTextValue.size() + 1;
-			return;
+		if (commandPath === undefined && suggestionTextValue !== undefined) {
+			const suggestionTextParts = suggestionTextValue.gsub("%s+", " ")[0].split(" ");
+			const nextCommand = data.commands.get(formatPartsAsPath(suggestionTextParts));
+
+			let newText = suggestionTextValue;
+			if (nextCommand === undefined || (nextCommand.arguments?.size() ?? 0) > 0) {
+				newText += " ";
+			}
+
+			setSuggestionText("");
+			setText(newText);
+			ref.current.CursorPosition = newText.size() + 1;
 		}
 
 		// Handle argument suggestions
-		if (!atCommand || suggestion === undefined || suggestion.others.isEmpty()) return;
+		if (commandPath === undefined || suggestion === undefined || suggestion.others.isEmpty()) return;
+
+		const argIndex = store.getState().app.argIndex;
+		const commandArgs = data.commands.get(commandPath.toString())?.arguments;
+		if (argIndex === undefined || commandArgs === undefined) return;
 
 		let newText = getBindingValue(text);
 		if (!endsWithSpace(newText)) {
@@ -98,7 +112,13 @@ export function TerminalTextField({ anchorPoint, size, position, onTextChange, o
 		}
 		newText += suggestion.others[0];
 
-		setText(newText + " ");
+		print(argIndex, commandArgs.size() - 1);
+		if (argIndex < commandArgs.size() - 1) {
+			newText += " ";
+		}
+
+		setSuggestionText("");
+		setText(newText);
 		ref.current.CursorPosition = newText.size() + 1;
 	});
 
