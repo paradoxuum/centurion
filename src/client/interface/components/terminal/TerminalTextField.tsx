@@ -1,8 +1,9 @@
 import { BindingOrValue, getBindingValue, useEventListener } from "@rbxts/pretty-react-hooks";
 import { useSelector } from "@rbxts/react-reflex";
-import Roact, { useBinding, useContext, useEffect, useRef } from "@rbxts/roact";
+import Roact, { useBinding, useCallback, useContext, useEffect, useRef } from "@rbxts/roact";
 import { UserInputService } from "@rbxts/services";
 import { endsWithSpace, formatPartsAsPath } from "../../../../shared/util/string";
+import { DEFAULT_HISTORY_LENGTH } from "../../../options";
 import { fonts } from "../../constants/fonts";
 import { palette } from "../../constants/palette";
 import { useRem } from "../../hooks/useRem";
@@ -34,6 +35,28 @@ export function TerminalTextField({ anchorPoint, size, position, onTextChange, o
 	const appVisible = useSelector(selectVisible);
 	const [text, setText] = useBinding("");
 	const [suggestionText, setSuggestionText] = useBinding("");
+
+	const traverseHistory = useCallback((up: boolean) => {
+		const history = store.getState().app.commandHistory;
+		if (history.isEmpty()) return;
+
+		const historyIndex = store.getState().app.commandHistoryIndex;
+		if ((up && historyIndex === 0) || (!up && historyIndex === -1)) return;
+
+		let newIndex: number;
+		if (up) {
+			newIndex = historyIndex === -1 ? history.size() - 1 : historyIndex - 1;
+		} else {
+			newIndex = historyIndex !== history.size() - 1 ? historyIndex + 1 : -1;
+		}
+
+		const newText = newIndex !== -1 ? history[newIndex] : "";
+		setText(newText);
+		setSuggestionText("");
+		store.setCommandHistoryIndex(newIndex);
+
+		if (ref.current !== undefined) ref.current.CursorPosition = newText.size() + 1;
+	}, []);
 
 	useEffect(() => {
 		if (ref.current === undefined) return;
@@ -78,7 +101,15 @@ export function TerminalTextField({ anchorPoint, size, position, onTextChange, o
 	}, [suggestion]);
 
 	useEventListener(UserInputService.InputBegan, (input) => {
-		if (ref.current === undefined || input.KeyCode !== Enum.KeyCode.Tab) return;
+		if (ref.current === undefined) return;
+
+		if (input.KeyCode === Enum.KeyCode.Up) {
+			traverseHistory(true);
+		} else if (input.KeyCode === Enum.KeyCode.Down) {
+			traverseHistory(false);
+		}
+
+		if (input.KeyCode !== Enum.KeyCode.Tab) return;
 
 		const commandPath = store.getState().app.command;
 		const suggestionTextValue = getBindingValue(suggestionText);
@@ -112,7 +143,6 @@ export function TerminalTextField({ anchorPoint, size, position, onTextChange, o
 		}
 		newText += suggestion.others[0];
 
-		print(argIndex, commandArgs.size() - 1);
 		if (argIndex < commandArgs.size() - 1) {
 			newText += " ";
 		}
@@ -146,6 +176,8 @@ export function TerminalTextField({ anchorPoint, size, position, onTextChange, o
 				event={{
 					FocusLost: (rbx, enterPressed) => {
 						if (!enterPressed) return;
+						store.addCommandHistory(rbx.Text, data.options.historyLength ?? DEFAULT_HISTORY_LENGTH);
+						store.setCommandHistoryIndex(-1);
 						onSubmit?.(rbx.Text);
 						ref.current?.CaptureFocus();
 						setText("");
