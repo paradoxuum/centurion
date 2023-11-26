@@ -36,7 +36,7 @@ const ESCAPE_PATTERN = `(\*)['"]$`;
  * Splits a string by space and takes into account quoted sentences,
  * which will be treated as a single part instead of being split.
  *
- * @see https://github.com/evaera/Cmdr/blob/master/Cmdr/Shared/Util.lua
+ * @see https://github.com/evaera/Cmdr/blob/e3180638849a8615bb982bb74f970bf64435da63/Cmdr/Shared/Util.lua
  * @param text the text to split
  * @param max the max number of splits
  * @returns the split string
