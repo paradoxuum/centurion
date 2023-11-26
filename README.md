@@ -10,12 +10,11 @@ defined in a readable and easy to maintain way.
 Custom types can be registered, allowing the string arguments provided by the user to be transformed into new types. These
 types also provide some extra functionality such as the ability to provide autocomplete suggestions.
 
-A user interface is currently not implemented but will be implemented in the future.
-The framework will be designed in a way that allows the default interface to easily be swapped out for another.
+The command framework comes with a default interface that can easily be swapped out for a custom one.
 
 ## Usage
 
-All classes must be decorated with `@Cmdx` in order for their commands to be registered.
+All classes containing commands must be decorated with `@Cmdx` in order for their commands to be registered.
 
 The command registry then looks for all methods annotated with `@Command` in this class.
 
