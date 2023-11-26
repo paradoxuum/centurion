@@ -83,8 +83,8 @@ export function TerminalTextField({ anchorPoint, size, position, onTextChange, o
 
 		// Handle command suggestions
 		if (!atCommand && suggestionTextValue !== undefined) {
-			setText(suggestionTextValue);
-			ref.current.CursorPosition = suggestionTextValue.size();
+			setText(suggestionTextValue + " ");
+			ref.current.CursorPosition = suggestionTextValue.size() + 1;
 			return;
 		}
 
@@ -98,8 +98,8 @@ export function TerminalTextField({ anchorPoint, size, position, onTextChange, o
 		}
 		newText += suggestion.others[0];
 
-		setText(newText);
-		ref.current.CursorPosition = newText.size();
+		setText(newText + " ");
+		ref.current.CursorPosition = newText.size() + 1;
 	});
 
 	return (
