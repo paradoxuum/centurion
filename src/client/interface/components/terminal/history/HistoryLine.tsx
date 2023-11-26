@@ -28,7 +28,7 @@ export function HistoryLine({ data, size, position, order }: HistoryLineProps) {
 		<Group size={size} position={position} layoutOrder={order}>
 			<Frame
 				key="date"
-				backgroundColor={palette.surface1}
+				backgroundColor={palette.base}
 				size={UDim2.fromOffset(rem(6), rem(1.5))}
 				cornerRadius={new UDim(1, 0)}
 			>
