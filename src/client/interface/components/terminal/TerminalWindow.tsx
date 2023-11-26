@@ -92,7 +92,7 @@ export function TerminalWindow() {
 		<Frame size={windowHeightBinding} backgroundColor={palette.crust} cornerRadius={new UDim(0, rem(0.5))}>
 			<Padding key="padding" all={new UDim(0, rem(0.5))} />
 
-			<HistoryList key="history" size={new UDim2(1, 0, 1, -rem(4.5))} data={historyData} />
+			<HistoryList key="history" size={new UDim2(1, 0, 1, -rem(4.5))} data={historyData} maxHeight={rem(16)} />
 
 			<TerminalTextField
 				key="text-field"
