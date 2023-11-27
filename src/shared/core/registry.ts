@@ -126,9 +126,13 @@ export abstract class BaseRegistry {
 			group !== undefined ? group.getPath().append(options.name) : new ImmutableCommandPath([options.name]);
 
 		this.validatePath(path.toString(), true);
-		const command = ExecutableCommand.create(this, ImmutableCommandPath.fromPath(path), commandData.metadata, [
-			...commandData.guards,
-		]);
+		const command = ExecutableCommand.create(
+			this,
+			ImmutableCommandPath.fromPath(path),
+			commandData.commandClass,
+			commandData.metadata,
+			[...commandData.guards],
+		);
 
 		this.commands.set(path.toString(), command);
 

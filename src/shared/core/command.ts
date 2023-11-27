@@ -11,19 +11,22 @@ import { BaseRegistry } from "./registry";
 
 export class CommandData {
 	private constructor(
+		readonly commandClass: defined,
 		readonly metadata: Readonly<CommandMetadata>,
 		readonly group: ReadonlyArray<string>,
 		readonly guards: ReadonlyArray<GuardFunction>,
 	) {}
 
 	static fromHolder(commandHolder: object, commandName: string) {
+		const commandClass = new (commandHolder as new () => defined)();
+
 		const metadata = Reflect.getOwnMetadata<CommandMetadata>(commandHolder, MetadataKey.Command, commandName);
 		assert(metadata !== undefined, `Command metadata not found: ${commandHolder}/${commandName}`);
 
 		const group = Reflect.getOwnMetadata<string[]>(commandHolder, MetadataKey.Group, commandName);
 		const guards = Reflect.getOwnMetadata<GuardFunction[]>(commandHolder, MetadataKey.Guard, commandName);
 
-		return new CommandData(metadata, group ?? [], guards ?? []);
+		return new CommandData(commandClass, metadata, group ?? [], guards ?? []);
 	}
 }
 
@@ -72,23 +75,32 @@ export abstract class BaseCommand {
 }
 
 export class ExecutableCommand extends BaseCommand {
+	private readonly commandClass: defined;
 	private readonly func: (...args: unknown[]) => unknown;
 	private readonly guards: ReadonlyArray<GuardFunction>;
 
 	constructor(
 		registry: BaseRegistry,
 		path: ImmutableCommandPath,
+		commandClass: defined,
 		options: CommandOptions,
 		func: (...args: unknown[]) => unknown,
 		guards: GuardFunction[],
 	) {
 		super(registry, path, options);
+		this.commandClass = commandClass;
 		this.func = func;
 		this.guards = freezeArray(guards);
 	}
 
-	static create(registry: BaseRegistry, path: ImmutableCommandPath, data: CommandMetadata, guards?: GuardFunction[]) {
-		return new ExecutableCommand(registry, path, data.options, data.func, guards ?? []);
+	static create(
+		registry: BaseRegistry,
+		path: ImmutableCommandPath,
+		commandClass: defined,
+		data: CommandMetadata,
+		guards?: GuardFunction[],
+	) {
+		return new ExecutableCommand(registry, path, commandClass, data.options, data.func, guards ?? []);
 	}
 
 	execute(interaction: CommandInteraction, args: string[]) {
@@ -155,7 +167,7 @@ export class ExecutableCommand extends BaseCommand {
 					return;
 				}
 
-				return this.func(undefined, interaction, ...transformedArgs.unwrap());
+				return this.func(this.commandClass, interaction, ...transformedArgs.unwrap());
 			}
 
 			const guardResult = this.guards[nextIndex++](runNext, interaction);

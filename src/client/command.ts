@@ -7,10 +7,11 @@ export class SharedCommand extends ExecutableCommand {
 	static create(
 		registry: BaseRegistry,
 		path: ImmutableCommandPath,
+		commandClass: defined,
 		data: CommandMetadata,
 		guards?: GuardFunction[] | undefined,
 	) {
-		return new SharedCommand(registry, path, data.options, data.func, guards ?? []);
+		return new SharedCommand(registry, path, commandClass, data.options, data.func, guards ?? []);
 	}
 
 	execute(interaction: CommandInteraction, args: string[]) {
