@@ -1,5 +1,5 @@
-import { CommanderClient } from "../..";
 import { CommandPath } from "../../../shared";
+import { CommanderClient } from "../../core";
 import { IS_EDIT } from "../constants/util";
 
 export function getArgumentNames(path: CommandPath) {

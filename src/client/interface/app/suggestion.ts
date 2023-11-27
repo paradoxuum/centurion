@@ -1,6 +1,6 @@
 import { slice } from "@rbxts/sift/out/Array";
-import { CommanderClient } from "../..";
 import { CommandPath } from "../../../shared";
+import { CommanderClient } from "../../core";
 import { Suggestion } from "../types";
 
 export function getArgumentSuggestion(path: CommandPath, index: number, text?: string): Suggestion | undefined {

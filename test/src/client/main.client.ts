@@ -1,5 +1,4 @@
-import { CommanderClient } from "@rbxts/commander";
-import { defaultApp } from "./interface";
+import { CommanderApp, CommanderClient } from "@rbxts/commander";
 
 CommanderClient.run(
 	(registry) => {
@@ -7,7 +6,7 @@ CommanderClient.run(
 		registry.registerCommandsIn(commandContainer);
 	},
 	{
-		app: defaultApp,
+		app: CommanderApp,
 	},
 ).catch((err) => {
 	warn(`An error occurred and Commander could not be started: ${err}`);

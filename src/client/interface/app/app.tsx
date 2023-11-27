@@ -18,7 +18,7 @@ function getSuggestion(query: SuggestionQuery) {
 	return getCommandSuggestion(query.parentPath, query.text);
 }
 
-export function defaultApp(data: AppData) {
+export function CommanderApp(data: AppData) {
 	const root = createRoot(new Instance("Folder"));
 	const target = Players.LocalPlayer.WaitForChild("PlayerGui");
 
