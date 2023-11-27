@@ -67,7 +67,9 @@ class BanCommand {
 			},
 		],
 	})
-	ban(executor: Player, player: Player) {}
+	ban(interaction: CommandInteraction, executor: Player, player: Player) {
+		interaction.reply(`Successfully banned <b>${player.Name}</b>`);
+	}
 }
 ```
 
@@ -112,7 +114,9 @@ class InfoCommand {
 		],
 	})
 	@Group("user") // You can also define groups like this: @Group("info", "user")
-	userView(executor: Player, player: Player) {}
+	userView(interaction: CommandInteraction, executor: Player, player: Player) {
+		interaction.reply(`<Random data about ${player.Name}...>`);
+	}
 
 	// This command can have the same name as the above command, because it
 	// is grouped under "server" instead.
@@ -121,7 +125,9 @@ class InfoCommand {
 		name: "view",
 	})
 	@Group("server")
-	serverView(executor: Player) {}
+	serverView(interaction: CommandInteraction, executor: Player) {
+		interaction.error("Not implemented!");
+	}
 }
 ```
 
