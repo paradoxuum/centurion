@@ -33,7 +33,21 @@ CommanderServer.run((registry) => {
 	// All ModuleScripts (that return a function) in the container will
 	// be called with the registry argument.
 	registry.registerContainer(script.Parent.Types);
-});
+}).catch((err) => warn("Commander could not be started:", tostring(err)));
+```
+
+In order to run Commander on the client, you'll need to provide some extra options:
+
+```ts
+CommanderClient.run(
+	(registry) => {
+		const commandContainer = script.Parent!.WaitForChild("commands");
+		registry.registerCommandsIn(commandContainer);
+	},
+	{
+		app: CommanderApp,
+	},
+).catch((err) => warn("Commander could not be started:", tostring(err)));
 ```
 
 ## Examples
