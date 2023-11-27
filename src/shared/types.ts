@@ -7,7 +7,7 @@ export type GuardFunction = (
 	interaction: CommandInteraction,
 ) => boolean;
 
-export interface CmdxOptions {
+export interface CommanderOptions {
 	groups?: GroupOptions[];
 	globalGroups?: string[];
 }

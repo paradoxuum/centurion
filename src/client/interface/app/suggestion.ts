@@ -1,10 +1,10 @@
 import { slice } from "@rbxts/sift/out/Array";
-import { CmdxClient } from "../..";
+import { CommanderClient } from "../..";
 import { CommandPath } from "../../../shared";
 import { Suggestion } from "../types";
 
 export function getArgumentSuggestion(path: CommandPath, index: number, text?: string): Suggestion | undefined {
-	const command = CmdxClient.registry().getCommand(path);
+	const command = CommanderClient.registry().getCommand(path);
 	if (command === undefined) return;
 
 	const args = command.options.arguments;
@@ -12,7 +12,7 @@ export function getArgumentSuggestion(path: CommandPath, index: number, text?: s
 	if (index < 0 || index > args.size()) return;
 
 	const arg = args[index];
-	const typeObject = CmdxClient.registry().getType(arg.type);
+	const typeObject = CommanderClient.registry().getType(arg.type);
 	if (typeObject === undefined) return;
 
 	let typeSuggestions = typeObject.suggestions !== undefined ? typeObject.suggestions(text ?? "") : [];
@@ -33,7 +33,7 @@ export function getArgumentSuggestion(path: CommandPath, index: number, text?: s
 }
 
 export function getCommandSuggestion(parentPath?: CommandPath, text?: string): Suggestion | undefined {
-	const childPaths = CmdxClient.registry().getChildPaths(parentPath);
+	const childPaths = CommanderClient.registry().getChildPaths(parentPath);
 	if (childPaths.isEmpty()) return;
 
 	const pathNames = childPaths.map((path) => path.getTail());
@@ -42,7 +42,8 @@ export function getCommandSuggestion(parentPath?: CommandPath, text?: string): S
 
 	const firstPath = childPaths[indices[0]];
 	const mainData =
-		CmdxClient.registry().getCommand(firstPath)?.options ?? CmdxClient.registry().getGroup(firstPath)?.options;
+		CommanderClient.registry().getCommand(firstPath)?.options ??
+		CommanderClient.registry().getGroup(firstPath)?.options;
 	if (mainData === undefined) return;
 
 	const otherNames = indices.size() > 1 ? slice(indices, 2, indices.size()).map((index) => pathNames[index]) : [];

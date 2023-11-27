@@ -1,5 +1,5 @@
 {
-	"name": "cmdx",
+	"name": "commander",
 	"tree": {
 		"$className": "DataModel",
 		"ReplicatedStorage": {
@@ -10,7 +10,7 @@
 					"$className": "Folder",
 					"@rbxts": {
 						"$path": "../node_modules/@rbxts",
-						"cmdx": {
+						"commander": {
 							"$path": "out"
 						}
 					}

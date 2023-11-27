@@ -21,7 +21,7 @@
 
 		// configurable
 		"paths": {
-			"@rbxts/cmdx": ["../../src"]
+			"@rbxts/commander": ["../../src"]
 		},
 		"rootDirs": ["./src", "../src"],
 		"baseUrl": "./src",

@@ -1,6 +1,6 @@
-import { BuiltInTypes, Cmdx, Command, CommandInteraction, Group } from "@rbxts/cmdx";
+import { BuiltInTypes, Command, CommandInteraction, Commander, Group } from "@rbxts/commander";
 
-@Cmdx({
+@Commander({
 	groups: [
 		{
 			name: "info",

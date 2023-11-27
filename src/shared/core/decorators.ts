@@ -1,4 +1,4 @@
-import { CmdxOptions, CommandMetadata, CommandOptions, GuardFunction } from "../types";
+import { CommanderOptions, CommandMetadata, CommandOptions, GuardFunction } from "../types";
 import { Reflect } from "../util/reflect";
 
 export enum MetadataKey {
@@ -8,7 +8,7 @@ export enum MetadataKey {
 	Guard = "guard",
 }
 
-export function Cmdx(options?: CmdxOptions): ClassDecorator {
+export function Commander(options?: CommanderOptions): ClassDecorator {
 	return function (target) {
 		Reflect.defineMetadata(target, MetadataKey.CommandHolder, options);
 	};

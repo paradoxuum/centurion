@@ -1,6 +1,6 @@
-import { Cmdx, Command, CommandInteraction } from "@rbxts/cmdx";
+import { Command, CommandInteraction, Commander } from "@rbxts/commander";
 
-@Cmdx()
+@Commander()
 class InfoCommand {
 	@Command({
 		name: "kill",

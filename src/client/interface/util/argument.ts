@@ -1,4 +1,4 @@
-import { CmdxClient } from "../..";
+import { CommanderClient } from "../..";
 import { CommandPath } from "../../../shared";
 import { IS_EDIT } from "../constants/util";
 
@@ -7,7 +7,7 @@ export function getArgumentNames(path: CommandPath) {
 		return [];
 	}
 
-	const command = CmdxClient.registry().getCommand(path);
+	const command = CommanderClient.registry().getCommand(path);
 	if (command === undefined || command.options.arguments === undefined) return [];
 
 	return command.options.arguments.map((arg) => arg.name);

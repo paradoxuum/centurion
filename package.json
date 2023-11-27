@@ -1,5 +1,5 @@
 {
-	"name": "@rbxts/cmdx",
+	"name": "@rbxts/commander",
 	"version": "1.0.0",
 	"description": "Type-safe command framework for Roblox",
 	"private": true,
@@ -14,12 +14,12 @@
 		"typescript",
 		"command"
 	],
-	"author": "SpatialParadox",
+	"author": "paradoxuum",
 	"license": "MIT",
 	"types": "out/index.d.ts",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/SpatialParadox/cmdx"
+		"url": "https://github.com/paradoxuum/commander"
 	},
 	"files": [
 		"out",

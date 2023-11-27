@@ -1,7 +1,7 @@
-import { CmdxClient } from ".";
+import { CommanderClient } from "@rbxts/commander";
 import { defaultApp } from "./interface";
 
-CmdxClient.run(
+CommanderClient.run(
 	(registry) => {
 		const commandContainer = script.Parent!.WaitForChild("commands");
 		registry.registerCommandsIn(commandContainer);
@@ -10,5 +10,5 @@ CmdxClient.run(
 		app: defaultApp,
 	},
 ).catch((err) => {
-	warn(`An error occurred and Cmdx could not be started: ${err}`);
+	warn(`An error occurred and Commander could not be started: ${err}`);
 });

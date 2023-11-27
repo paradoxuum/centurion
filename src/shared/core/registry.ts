@@ -1,4 +1,4 @@
-import { CmdxOptions, GroupOptions, TypeOptions } from "../types";
+import { CommanderOptions, GroupOptions, TypeOptions } from "../types";
 import { Reflect } from "../util/reflect";
 import { BaseCommand, CommandData, CommandGroup, ExecutableCommand } from "./command";
 import { MetadataKey } from "./decorators";
@@ -144,7 +144,7 @@ export abstract class BaseRegistry {
 	}
 
 	private registerCommandHolder(commandHolder: object) {
-		const holderOptions = Reflect.getOwnMetadata<CmdxOptions>(commandHolder, MetadataKey.CommandHolder);
+		const holderOptions = Reflect.getOwnMetadata<CommanderOptions>(commandHolder, MetadataKey.CommandHolder);
 		const globalGroups = holderOptions?.globalGroups ?? [];
 		if (holderOptions?.groups !== undefined) {
 			this.registerCommandGroups(holderOptions.groups);

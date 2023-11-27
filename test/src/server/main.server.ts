@@ -1,6 +1,6 @@
-import { CmdxServer } from "@rbxts/cmdx";
+import { CommanderServer } from "@rbxts/commander";
 
-CmdxServer.run((registry) => {
+CommanderServer.run((registry) => {
 	const commandContainer = script.Parent!.WaitForChild("commands");
 	registry.registerCommandsIn(commandContainer);
 });

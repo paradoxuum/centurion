@@ -1,6 +1,6 @@
-import { BuiltInTypes, Cmdx, Command, CommandInteraction } from "@rbxts/cmdx";
+import { BuiltInTypes, Command, CommandInteraction, Commander } from "@rbxts/commander";
 
-@Cmdx()
+@Commander()
 class DamageCommand {
 	@Command({
 		name: "damage",
