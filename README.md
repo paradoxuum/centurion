@@ -4,8 +4,7 @@
 
 Commander is a flexible and extensible command framework built for roblox-ts.
 
-Commands are registered using decorators. This allows for commands to be
-defined in a readable and easy to maintain manner.
+Commands are defined using decorators. This allows for them to be defined in a readable and easy to maintain manner.
 
 Custom types can be registered, allowing the string arguments provided by the user to be transformed into new types. These types also provide some extra functionality such as the ability to provide autocomplete suggestions.
 
