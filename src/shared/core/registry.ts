@@ -29,7 +29,7 @@ export abstract class BaseRegistry {
 		this.types.set(typeOptions.name, typeOptions);
 	}
 
-	registerTypes<T extends defined>(...types: TypeOptions<T>[]) {
+	registerTypes(...types: TypeOptions<defined>[]) {
 		assert(!this.frozen, "Registry frozen");
 		for (const options of types) {
 			this.registerType(options);

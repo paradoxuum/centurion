@@ -244,6 +244,5 @@ const hexColorType = TypeBuilder.create<Color3>(BuiltInTypes.HexColor)
 	.build();
 
 export = (registry: BaseRegistry) => {
-	registry.registerType(brickColorType);
-	registry.registerType(hexColorType);
+	registry.registerTypes(brickColorType, hexColorType);
 };
