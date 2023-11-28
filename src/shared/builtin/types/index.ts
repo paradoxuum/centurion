@@ -5,6 +5,7 @@ export const BuiltInTypes = {
 	Boolean: "boolean",
 	Player: "player",
 	Players: "players",
+	Team: "team",
 };
 
 export type BuiltInType = keyof typeof BuiltInTypes;
