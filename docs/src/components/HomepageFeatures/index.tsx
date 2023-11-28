@@ -1,17 +1,20 @@
+import { useColorMode } from "@docusaurus/theme-common";
 import Heading from "@theme/Heading";
 import clsx from "clsx";
 import styles from "./styles.module.css";
 
 type FeatureItem = {
 	title: string;
-	Svg: React.ComponentType<React.ComponentProps<"svg">>;
+	SvgDark: React.ComponentType<React.ComponentProps<"svg">>;
+	SvgLight: React.ComponentType<React.ComponentProps<"svg">>;
 	description: JSX.Element;
 };
 
 const FeatureList: FeatureItem[] = [
 	{
 		title: "Easy to Use",
-		Svg: require("@site/static/img/undraw_docusaurus_mountain.svg").default,
+		SvgDark: require("@site/static/img/hero_rocket_dark.svg").default,
+		SvgLight: require("@site/static/img/hero_rocket_light.svg").default,
 		description: (
 			<>
 				Commander uses <b>decorators</b> to make defining commands easy and readable.
@@ -20,7 +23,8 @@ const FeatureList: FeatureItem[] = [
 	},
 	{
 		title: "Extensible",
-		Svg: require("@site/static/img/undraw_docusaurus_tree.svg").default,
+		SvgDark: require("@site/static/img/hero_arrow_dark.svg").default,
+		SvgLight: require("@site/static/img/hero_arrow_light.svg").default,
 		description: (
 			<>
 				Commander allows for a custom user interface, custom <b>types</b> and more, providing a wide range of
@@ -30,7 +34,8 @@ const FeatureList: FeatureItem[] = [
 	},
 	{
 		title: "Powerful",
-		Svg: require("@site/static/img/undraw_docusaurus_react.svg").default,
+		SvgDark: require("@site/static/img/hero_bolt_dark.svg").default,
+		SvgLight: require("@site/static/img/hero_bolt_light.svg").default,
 		description: (
 			<>
 				Features like command <b>guards</b> and custom <b>types</b> are provided, allowing for a wide range of
@@ -40,7 +45,11 @@ const FeatureList: FeatureItem[] = [
 	},
 ];
 
-function Feature({ title, Svg, description }: FeatureItem) {
+function Feature({ title, SvgDark, SvgLight, description }: FeatureItem) {
+	const { colorMode } = useColorMode();
+
+	const Svg = colorMode === "dark" ? SvgDark : SvgLight;
+
 	return (
 		<div className={clsx("col col--4")}>
 			<div className="text--center">
