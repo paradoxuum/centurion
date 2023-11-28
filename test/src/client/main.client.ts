@@ -1,6 +1,6 @@
 import { CommanderApp, CommanderClient } from "@rbxts/commander";
 
-CommanderClient.run(
+CommanderClient.start(
 	(registry) => {
 		const commandContainer = script.Parent!.WaitForChild("commands");
 		registry.registerCommandsIn(commandContainer);

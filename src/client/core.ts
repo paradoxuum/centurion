@@ -14,7 +14,7 @@ export class CommanderClient {
 	private static readonly dispatcherInstance = new ClientDispatcher(CommanderClient.registryInstance);
 	private static optionsObject = DEFAULT_OPTIONS;
 
-	static async run(callback: RunCallback, options: ClientOptions = DEFAULT_OPTIONS) {
+	static async start(callback: RunCallback, options: ClientOptions = DEFAULT_OPTIONS) {
 		assert(IS_CLIENT, "CommanderClient can only be started from the client");
 		assert(!this.started, "Commander has already been started");
 

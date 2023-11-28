@@ -10,7 +10,7 @@ export class CommanderServer {
 	private static readonly registryInstance = new ServerRegistry();
 	private static readonly dispatcherInstance = new ServerDispatcher(CommanderServer.registryInstance);
 
-	static async run(callback: RunCallback) {
+	static async start(callback: RunCallback) {
 		assert(IS_SERVER, "CommanderServer can only be started from the server");
 		assert(!this.started, "Commander has already been started");
 
