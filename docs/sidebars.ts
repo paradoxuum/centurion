@@ -21,6 +21,15 @@ const sidebars: SidebarsConfig = {
 			},
 			items: ["getting-started/installation", "getting-started/examples"],
 		},
+		{
+			type: "category",
+			label: "Guides",
+			link: {
+				type: "doc",
+				id: "guides/index",
+			},
+			items: ["guides/commands"],
+		},
 	],
 };
 

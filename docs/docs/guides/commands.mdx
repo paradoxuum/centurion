@@ -1,0 +1,123 @@
+---
+description: Learn how commands are defined and registered
+---
+
+# Commands
+
+:::warning
+
+To avoid confusing bugs or errors, make sure to look at [type safety](#type-safety)!
+
+:::
+
+## What are commands?
+
+Commands are functions that players can execute. They're defined by their **name** and **group** and can
+have **arguments**.
+
+A command does not necessarily have to belong to a **group**. Groups are simply a way to organize
+your commands, effectively turning them into subcommands.
+
+If the command has arguments, the player's text input may be **transformed** into a new value, which is then
+passed to the command function. The argument's **type** handles this transformation.
+
+## Defining commands
+
+Commands are defined using **decorators**.
+
+There are three decorators that you'll likely use the most:
+
+-   `@Commander` - Classes containing commands **must** be decorated with this to be registered
+-   `@Command` - This is used to define commands
+-   `@Group` - This is used to assign a command to a group
+
+A command can be defined as follows:
+
+```ts showLineNumbers
+@Commander()
+class EchoCommand {
+    @Command({
+        name: "echo",
+        description: "Displays text",
+        arguments: [
+            {
+                name: "text",
+                description: "The text to display",
+                type: BuiltInTypes.String,
+            },
+        ],
+    })
+    echo(interaction: CommandInteraction, text: string) {
+        interaction.reply(text);
+    }
+}
+```
+
+## Command interactions
+
+Each command is passed a `CommandInteraction` as its first argument. A `CommandInteraction` contains data
+such as the `Player` who executed the command and the text used to execute the command.
+
+You can access the interaction's data like so:
+
+```ts showLineNumbers
+@Command({ name: "printInteraction" })
+printInteraction(interaction: CommandInteraction) {
+    print(`${interaction.executor.Name} executed: ${interaction.text}`);
+}
+```
+
+It also allows you to send a reply to the executor of the command, like so:
+
+```ts showLineNumbers
+@Command({ name: "hello" })
+hello(interaction: CommandInteraction) {
+    // You can use rich text here!
+    interaction.reply(`Hello, ${interaction.executor.Name}!`);
+}
+
+@Command({ name: "error" })
+errorMessage(interaction: CommandInteraction) {
+    interaction.error("An <b>error</b> occurred.");
+}
+```
+
+## Type safety
+
+Type safety can only be provided if the types for your arguments match your parameters' types.
+
+It's worth keeping in mind that **no warning or error will be displayed** for argument
+and parameter types that do not match. To avoid confusing bugs or errors, you should exercise
+caution when defining command arguments and ensure they have the correct type.
+
+For example, the following code would **not** be type-safe - the argument types and parameter types do not match!
+
+```ts showLineNumbers
+@Command({
+    name: "echo",
+    description: "Displays text",
+    arguments: [
+        {
+            name: "text",
+            description: "The text to display",
+            // highlight-next-line
+            type: BuiltInTypes.String, // We're requiring a string for this argument...
+        },
+    ],
+})
+// error-next-line
+echo(interaction: CommandInteraction, text: number) {} // But we're requiring a number here!
+```
+
+In order to assert that the argument and parameter types are equal, there would need to be a way to
+retrieve each parameter's type. Unfortunately, this is not possible without using a TypeScript transformer.
+There are no plans to implement this currently, as it would require manual configuration and
+add a significant maintenance cost to the project.
+
+## Summary
+
+-   **Commands** are functions executed by players, defined by their name and group.
+-   All classes containing commands must be decorated with the `@Commander` decorator.
+-   Commands are defined using the `@Command` decorator.
+-   You can **group** commands with the `@Group` decorator.
+-   **Type safety** is only provided if the argument and parameter types match.
