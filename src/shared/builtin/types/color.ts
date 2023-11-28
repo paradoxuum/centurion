@@ -228,6 +228,22 @@ const brickColorType = TypeBuilder.create<BrickColor>(BuiltInTypes.BrickColor)
 	.suggestions(() => brickColorNameArray)
 	.build();
 
+const HEX_COLOR_PATTERN = "^#[%a%d]+$";
+
+function isHexColor(value: unknown): value is Color3 {
+	if (!typeIs(value, "string")) return false;
+	return !value.match(HEX_COLOR_PATTERN).isEmpty();
+}
+
+const hexColorType = TypeBuilder.create<Color3>(BuiltInTypes.HexColor)
+	.validate(isHexColor)
+	.transform((text) => {
+		if (text.match(HEX_COLOR_PATTERN).isEmpty()) return TransformResult.err("Invalid hex code");
+		return TransformResult.ok(Color3.fromHex(text));
+	})
+	.build();
+
 export = (registry: BaseRegistry) => {
 	registry.registerType(brickColorType);
+	registry.registerType(hexColorType);
 };
