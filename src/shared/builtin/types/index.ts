@@ -1,4 +1,5 @@
 export const BuiltInTypes = {
+	BrickColor: "brickColor",
 	String: "string",
 	Number: "number",
 	Integer: "integer",
