@@ -1,14 +1,15 @@
-import { Command, CommandInteraction, Commander } from "@rbxts/commander";
+import { BuiltInTypes, Command, CommandInteraction, Commander } from "@rbxts/commander";
 
 @Commander()
 class InfoCommand {
 	@Command({
 		name: "kill",
+		description: "Kills a player",
 		arguments: [
 			{
 				name: "player",
 				description: "Player to kill",
-				type: "player",
+				type: BuiltInTypes.String,
 			},
 		],
 	})
