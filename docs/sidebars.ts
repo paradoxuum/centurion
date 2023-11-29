@@ -28,7 +28,7 @@ const sidebars: SidebarsConfig = {
 				type: "doc",
 				id: "guides/index",
 			},
-			items: ["guides/commands"],
+			items: ["guides/commands", "guides/types", "guides/registration"],
 		},
 	],
 };

@@ -1,5 +1,5 @@
 ---
-description: Learn how commands are defined and registered
+description: Learn how to define and register commands
 ---
 
 # Commands
@@ -82,6 +82,122 @@ errorMessage(interaction: CommandInteraction) {
 }
 ```
 
+## Command groups
+
+Groups are simply a way to organize your commands. Any command assigned under a group
+will effectively become a subcommand.
+
+Groups must be defined in the `@Commander` decorator in order to be used.
+
+You can use the `@Group` decorator to assign a command to a group.
+
+For example, let's say you want to organize `view` and `delete` commands under a
+`profile` group:
+
+```ts showLineNumbers
+@Commander({
+	groups: [
+		{
+			name: "profile",
+			description: "Profile commands",
+		},
+	],
+})
+class ProfileCommand {
+	@Command({
+		name: "view",
+		description: "Views a player's profile",
+		arguments: [
+			{
+				name: "player",
+				description: "The player",
+				type: BuiltInTypes.Player,
+			},
+		],
+	})
+	@Group("profile")
+	view(interaction: CommandInteraction, player: Player) {}
+
+	@Command({
+		name: "delete",
+		description: "Deletes a player's profile",
+		arguments: [
+			{
+				name: "player",
+				description: "The player",
+				type: BuiltInTypes.Player,
+			},
+		],
+	})
+	@Group("profile")
+	delete(interaction: CommandInteraction, player: Player) {}
+}
+```
+
+You can also add **global groups**, which are assigned to all commands in the class:
+
+```ts showLineNumbers
+@Commander({
+	groups: [
+		{
+			name: "profile",
+			description: "Profile commands",
+		},
+	],
+
+	globalGroups: ["profile"],
+})
+```
+
+### Nested groups
+
+Each **root** group can have child group(s).
+
+A **root** group is any group that does not have a parent group; it is top-level.
+This limitation means that groups can have at most **two layers** of nesting. This may be changed
+in the future.
+
+To define a group as a child of another group, you specify its name using the `root` key:
+
+```ts showLineNumbers
+@Commander({
+	groups: [
+		{
+			name: "info",
+			description: "View info about a user or the server",
+		},
+		{
+			name: "user",
+			description: "View info about a user",
+			root: "info",
+		},
+		{
+			name: "server",
+			description: "View info about the server",
+			root: "info",
+		},
+	],
+})
+class InfoCommand {
+	@Command({
+		name: "view",
+        description: "View information about a player",
+		arguments: [{ name: "player", description: "Player to view information for", type: BuiltInTypes.Player }],
+	})
+	// If info was a global group, you could do @Group("user") here
+    // highlight-next-line
+	@Group("info", "user")
+	userView(interaction: CommandInteraction, player: Player) {}
+
+	@Command({
+		name: "view",
+        description: "View information about the server",
+	})
+	@Group("info", "server")
+	serverView(interaction: CommandInteraction, player: Player) {}
+}
+```
+
 ## Type safety
 
 Type safety can only be provided if the types for your arguments match your parameters' types.
@@ -90,7 +206,7 @@ It's worth keeping in mind that **no warning or error will be displayed** for ar
 and parameter types that do not match. To avoid confusing bugs or errors, you should exercise
 caution when defining command arguments and ensure they have the correct type.
 
-For example, the following code would **not** be type-safe - the argument types and parameter types do not match!
+For example, the following code would **not** be type-safe - the argument types and parameter types don't match!
 
 ```ts showLineNumbers
 @Command({
@@ -109,7 +225,7 @@ For example, the following code would **not** be type-safe - the argument types 
 echo(interaction: CommandInteraction, text: number) {} // But we're requiring a number here!
 ```
 
-In order to assert that the argument and parameter types are equal, there would need to be a way to
+In order to assert that the argument and parameter types are equal, we would need a way to
 retrieve each parameter's type. Unfortunately, this is not possible without using a TypeScript transformer.
 There are no plans to implement this currently, as it would require manual configuration and
 add a significant maintenance cost to the project.

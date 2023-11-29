@@ -16,7 +16,7 @@ and readable.
 
 Commander is not yet available through the npm registry.
 
-You can install it using its GitHub URL, however.
+To install it, you'll have to use the GitHub URL.
 
 <Tabs>
     <TabItem value="npm" default>
@@ -49,7 +49,7 @@ its user interface.
 ```ts showLineNumbers
 CommanderClient.run(
     (registry) => {
-        // Register commands here
+        // Register commands or types here
     },
     {
         app: CommanderApp,
@@ -61,7 +61,7 @@ CommanderClient.run(
 <TabItem value="server" label="Server">
 ```ts showLineNumbers
 CommanderServer.start((registry) => {
-    // Register commands here
+    // Register commands or types here
 }).catch((err) => warn("Commander could not be started:", tostring(err)));
 ```
 </TabItem>
@@ -85,3 +85,5 @@ CommanderServer.start((registry) => {
     registry.registerContainer(typesContainer);
 }).catch((err) => warn("Commander could not be started:", tostring(err)));
 ```
+
+See the [Registration](/guides/registration.mdx) guide for more details on how these methods work.
