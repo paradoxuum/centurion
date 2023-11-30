@@ -1,7 +1,7 @@
 import { BuiltInTypes, Command, CommandInteraction, Commander } from "@rbxts/commander";
 
 @Commander()
-class InfoCommand {
+class KillCommand {
 	@Command({
 		name: "kill",
 		description: "Kills a player",
