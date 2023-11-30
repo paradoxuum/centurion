@@ -51,6 +51,47 @@ The `transform` method must return a `Result`. To create a `Result`, you can use
 
 The `suggestions` method is optional and should return an array of strings.
 
+## Using types
+
+:::note
+Your type must be [registered](/docs/guides/registration#registering-types) in order to be used!
+:::
+
+Types are primarily used when defining arguments - they specify what type the argument requires.
+
+Let's say you have a `kill` command that requires a `Player` argument:
+
+```ts showLineNumbers
+import { BuiltInTypes } from "@rbxts/commander";
+
+@Commander()
+class KillCommand {
+	@Command({
+		name: "kill",
+		description: "Kills a player",
+		arguments: [
+			{
+				name: "player",
+				description: "Player to kill",
+				type: BuiltInTypes.Player,
+			},
+		],
+	})
+	kill(interaction: CommandInteraction, player: Player) {
+		const humanoid = player.Character?.FindFirstChildOfClass("Humanoid");
+		if (humanoid === undefined) {
+			interaction.error(`${player.Name} does not have a Humanoid`);
+			return;
+		}
+
+		humanoid.Health = 0;
+		interaction.reply(`Successfully killed ${player.Name}`);
+	}
+}
+```
+
+`BuiltInTypes.Player` refers to
+[the name of the type](https://github.com/paradoxuum/commander/blob/main/src/shared/builtin/types/index.ts).
 
 ## Registering types
 
