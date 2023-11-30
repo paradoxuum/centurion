@@ -12,6 +12,9 @@ An error will be thrown if you attempt registration after it has been started.
 
 [Commands](commands.mdx) and [Types](types.mdx) must be registered in order to be used.
 
+You can only register commands and types in the callback you provide when starting Commander:
+`CommanderServer.start` and `CommanderClient.start`.
+
 ## Registering commands
 
 In order to register commands, you must use the `registerCommandsIn` method.
@@ -41,5 +44,14 @@ export = (registry: BaseRegistry) => {
 
     // You can also register multiple types at once
     register.registerTypes(someOtherType, yetAnotherType)
+
+    // You can register commands here as well, if you want!
+    const commandContainer = script.Parent.commands;
+    register.registerCommandsIn(commandContainer)
 }
 ```
+
+## Summary
+
+- Commands are registered using `registerCommandsIn`
+- Types are registered using `registerContainer`
