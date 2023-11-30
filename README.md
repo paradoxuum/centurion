@@ -1,136 +1,30 @@
-# Commander
+<div align="center">
+  <a href="https://paradoxuum.github.io/commander/" target="_blank">
+	<img src="https://paradoxuum.github.io/commander/img/logo.png" width="150" />
+  </a>
 
-⚠️ This project is currently work-in-progress. Many features are missing and existing features are likely to change.
+  <h1>Commander</h1>
+
+  <p>
+    <strong>A flexible and extensible command framework for roblox-ts</strong>
+  </p>
+
+  <h4>
+    <a href="https://paradoxuum.github.io/commander/">Documentation</a>
+  </h4>
+</div>
+
+## About
 
 Commander is a flexible and extensible command framework built for roblox-ts.
 
-Commands are defined using decorators. This allows for them to be defined in a readable and easy to maintain manner.
+- Commands are defined using decorators in an easy and readable manner.
+- Custom argument types can be created, allowing for a great deal of flexibility for your commands.
+- Comes with an optional user interface which can easily be swapped out for a custom one.
 
-Custom types can be registered, allowing the string arguments provided by the user to be transformed into new types. These types also provide some extra functionality such as the ability to provide autocomplete suggestions.
+**Note**: This library isn't production ready yet. You will likely encounter bugs and breaking changes.
 
-Commander also comes with an optional default user interface that can easily be swapped out for a custom one.
-
-## Usage
-
-All classes containing commands must be decorated with `@Commander` in order for their commands to be registered.
-
-In order to register commands, you must run `BaseRegistry#registerCommandsIn`. This `require`s all `ModuleScripts` in the
-provided `Instance` and will register all methods annotated with `@Command` inside classes annotated with `@Commander`.
-
-A registry can be obtained by running `CommanderClient` or `CommanderServer` depending on which side the script is
-being executed, for example:
-
-```ts
-CommanderServer.run((registry) => {
-	// Get the Instance containing your commands
-	const commandContainer = script.Parent.Commands;
-
-	// Register them!
-	registry.registerCommandsIn(commandContainer);
-
-	// You can also provide a registry to any container you want using this method.
-	// All ModuleScripts (that return a function) in the container will
-	// be called with the registry argument.
-	registry.registerContainer(script.Parent.Types);
-}).catch((err) => warn("Commander could not be started:", tostring(err)));
-```
-
-In order to run Commander on the client, you'll need to provide some extra options:
-
-```ts
-CommanderClient.run(
-	(registry) => {
-		const commandContainer = script.Parent!.WaitForChild("commands");
-		registry.registerCommandsIn(commandContainer);
-	},
-	{
-		app: CommanderApp,
-	},
-).catch((err) => warn("Commander could not be started:", tostring(err)));
-```
-
-## Examples
-
-A simple `ban` command with a `Player` argument:
-
-```ts
-@Commander()
-class BanCommand {
-	@Command({
-		name: "ban",
-		arguments: [
-			{
-				name: "player",
-				description: "Player to ban",
-				type: BuiltInTypes.Player,
-			},
-		],
-	})
-	ban(interaction: CommandInteraction, player: Player) {
-		interaction.reply(`Successfully banned <b>${player.Name}</b>`);
-	}
-}
-```
-
-A command that uses the group feature:
-
-```ts
-// Groups must be defined in this annotation in order to be used.
-// At the moment, only the root group can have children.
-// This allows for 2 layers of groups. This may be changed in the future!
-@Commander({
-	groups: [
-		{
-			name: "info",
-			description: "View info about a user or the server",
-		},
-		{
-			name: "user",
-			description: "View info about a user",
-			root: "info",
-		},
-		{
-			name: "server",
-			description: "View info about the server",
-			root: "info",
-		},
-	],
-
-	// Global groups are groups assigned to all commands
-	// defined in this class.
-	globalGroups: ["info"],
-})
-class InfoCommand {
-	// This command will be executable through "info user view" once registered!
-	@Command({
-		name: "view",
-		arguments: [
-			{
-				name: "player",
-				description: "Player to display information about",
-				type: BuiltInTypes.Player,
-			},
-		],
-	})
-	@Group("user") // You can also define groups like this: @Group("info", "user")
-	userView(interaction: CommandInteraction, player: Player) {
-		interaction.reply(`<Random data about ${player.Name}...>`);
-	}
-
-	// This command can have the same name as the above command, because it
-	// is grouped under "server" instead.
-	// This command will be executable through "info server view" once registered!
-	@Command({
-		name: "view",
-	})
-	@Group("server")
-	serverView(interaction: CommandInteraction) {
-		interaction.error("Not implemented!");
-	}
-}
-```
-
-# Attributions
+## Attributions
 
 -   [Cmdr](https://github.com/evaera/Cmdr): String utilities ([see usage](src/shared/util/string.ts))
 
