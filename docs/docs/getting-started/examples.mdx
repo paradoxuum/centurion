@@ -1,0 +1,102 @@
+---
+description: See examples for Commander
+---
+
+# Examples
+
+These are some examples featuring Commander being used to define commands.
+
+## Ban Command
+
+This is a simple command featuring one argument. Keep in mind that the class containing
+this command **must** be decorated with `@Commander` in order to be registered.
+
+```ts showLineNumbers
+import { BuiltInTypes, Command, CommandInteraction, Commander } from "@rbxts/commander";
+
+@Commander()
+class BanCommand {
+    @Command({
+        name: "ban",
+        description: "Ban a player",
+        arguments: [
+            {
+                name: "player",
+                description: "Player to ban",
+                type: BuiltInTypes.Player
+            }
+        ]
+    })
+    ban(interaction: CommandInteraction, player: Player) {
+        if (player.UserId === 0) {
+            interaction.error("You cannot ban this player!");
+            return;
+        }
+
+        print(`${interaction.executor.Name} banned ${player.Name}!`);
+        interaction.reply(`Successfully banned ${player.Name}.`);
+    }
+}
+```
+
+## Info Command
+
+This is an example of a command that uses **groups**.
+
+Groups are defined in the `@Commander` decorator. At the moment, only the root group may
+have children, but this may be changed in the future.
+
+A command can be assigned to a group using the `@Group` decorator.
+
+```ts showLineNumbers
+@Commander({
+	groups: [
+		{
+			name: "info",
+			description: "View info about a user or the server",
+		},
+		{
+			name: "user",
+			description: "View info about a user",
+			root: "info",
+		},
+		{
+			name: "server",
+			description: "View info about the server",
+			root: "info",
+		},
+	],
+
+	// Global groups are groups assigned to all commands
+	// defined in this class.
+	globalGroups: ["info"],
+})
+class InfoCommand {
+	// This command will be executable through "info user view" once registered!
+	@Command({
+		name: "view",
+		arguments: [
+			{
+				name: "player",
+				description: "Player to display information about",
+				type: BuiltInTypes.Player,
+			},
+		],
+	})
+	@Group("user") // You can also define groups like this: @Group("info", "user")
+	userView(interaction: CommandInteraction, player: Player) {
+		interaction.reply(`<Random data about ${player.Name}...>`);
+	}
+
+	// This command can have the same name as the above command, because it
+	// is grouped under "server" instead.
+	// This command will be executable through "info server view" once registered!
+	@Command({
+		name: "view",
+	})
+	@Group("server")
+	serverView(interaction: CommandInteraction) {
+		interaction.error("Not implemented!");
+	}
+}
+```

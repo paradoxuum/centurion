@@ -1,0 +1,57 @@
+---
+description: Learn how to register commands and types
+---
+
+# Registration
+
+:::warning
+Commands and types can only be registered when starting Commander.
+
+An error will be thrown if you attempt registration after it has been started.
+:::
+
+[Commands](commands.mdx) and [Types](types.mdx) must be registered in order to be used.
+
+You can only register commands and types in the callback you provide when starting Commander:
+`CommanderServer.start` and `CommanderClient.start`.
+
+## Registering commands
+
+In order to register commands, you must use the `registerCommandsIn` method.
+
+This searches for all children that are a `ModuleScript` in the provided `Instance`. These will then be
+loaded and any methods that have the `@Command` decorator will be registered. Commands will only be registered
+if their parent class has the `@Commander` decorator.
+
+```ts showLineNumbers
+CommanderServer.start((registry) => {
+    const commandContainer = script.Parent.commands;
+    registry.registerCommandsIn(commandContainer)
+}).catch((err) => warn("Commander could not be started:", tostring(err)));
+```
+
+## Registering types
+
+Types should be registered using the `registerContainer` method.
+
+This searches for all children that are a `ModuleScript` and export a function in the provided `Instance`.
+
+If any ModuleScripts that export a function are found, the function will be called with the registry.
+
+```ts showLineNumbers
+export = (registry: BaseRegistry) => {
+    registry.registerType(someType)
+
+    // You can also register multiple types at once
+    register.registerTypes(someOtherType, yetAnotherType)
+
+    // You can register commands here as well, if you want!
+    const commandContainer = script.Parent.commands;
+    register.registerCommandsIn(commandContainer)
+}
+```
+
+## Summary
+
+- Commands are registered using `registerCommandsIn`
+- Types are registered using `registerContainer`

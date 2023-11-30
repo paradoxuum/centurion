@@ -1,0 +1,89 @@
+---
+description: "Learn the basics for Commander usage"
+slug: "/"
+---
+
+
+import TabItem from '@theme/TabItem';
+import Tabs from '@theme/Tabs';
+
+# Getting Started
+
+**Commander** is a flexible and extensible command framework for roblox-ts that makes defining commands easy
+and readable.
+
+## Installation
+
+Commander is not yet available through the npm registry.
+
+To install it, you'll have to use the GitHub URL.
+
+<Tabs>
+    <TabItem value="npm" default>
+    ```bash title="Terminal"
+    npm install paradoxuum/commander
+    ```
+    </TabItem>
+	<TabItem value="yarn">
+    ```bash title="Terminal"
+    yarn add https://github.com/paradoxuum/commander.git
+    ```
+    </TabItem>
+	<TabItem value="pnpm">
+    ```bash title="Terminal"
+    pnpm add paradoxuum/commander
+    ```
+    </TabItem>
+</Tabs>
+
+## Starting Commander
+
+Commander needs to be started **once** on the client and server.
+
+<Tabs>
+
+<TabItem value="client" label="Client" default>
+To start Commander on the client, you'll need to provide some extra options if you want to use
+its user interface.
+
+```ts showLineNumbers
+CommanderClient.run(
+    (registry) => {
+        // Register commands or types here
+    },
+    {
+        app: CommanderApp,
+    },
+).catch((err) => warn("Commander could not be started:", tostring(err)));
+```
+</TabItem>
+
+<TabItem value="server" label="Server">
+```ts showLineNumbers
+CommanderServer.start((registry) => {
+    // Register commands or types here
+}).catch((err) => warn("Commander could not be started:", tostring(err)));
+```
+</TabItem>
+
+</Tabs>
+
+## Registration
+
+The way commands or types are registered is the same on the server and client.
+
+```ts showLineNumbers
+CommanderServer.start((registry) => {
+    // Registering commands
+    const commandContainer = script.Parent.commands;
+    registry.registerCommandsIn(commandContainer)
+
+    // Registering types
+    // This method isn't limited to just types! This simply provides the regsitry
+    // object to any ModuleScripts in the container that return a function.
+    const typesContainer = script.Parent.types;
+    registry.registerContainer(typesContainer);
+}).catch((err) => warn("Commander could not be started:", tostring(err)));
+```
+
+See the [Registration](/guides/registration.mdx) guide for more details on how these methods work.

@@ -1,0 +1,66 @@
+---
+description: Learn how to create and register types
+---
+
+# Types
+
+## What are types?
+
+**Types** are used to define how an argument should treat text when executing a command.
+
+The primary purpose of a type is to **transform** text into another value.
+For example, a `Number` type would transform the provided text (`string`) into a `number`.
+
+They also allow for extra functionality, such as providing **suggestions**.
+
+## Creating types
+
+In order to create a type, you should use `TypeBuilder`. This is a helper class to make
+defining types easier.
+
+`TypeBuilder` will create a `TypeOptions` for you, using the values you provide
+to each method. This is what you will use to register the type.
+
+```ts showLineNumbers
+import { TransformResult, TypeBuilder } from "@rbxts/commander";
+import { t } from "@rbxts/t";
+
+const playerType = TypeBuilder.create<Player>("player")
+	.validate(t.instanceOf("Player"))
+	.transform((text) => {
+		const player = Players.FindFirstChild(text);
+		if (player === undefined || !classIs(player, "Player")) {
+			return TransformResult.err("Player not found");
+		}
+		return TransformResult.ok(player);
+	})
+	.suggestions(() => Players.GetPlayers().map((player) => player.Name))
+	.build();
+```
+
+The string you provide to `TypeBuilder.create` will be the name of the type. It may be useful to store
+your type names in an enum or constant to make them more accessible -
+see [BuiltInTypes](https://github.com/paradoxuum/commander/blob/main/src/shared/builtin/types/index.ts)
+for an example.
+
+The `validate` method requires a type guard. `@rbxts/t` is preferable for
+creating type guards as it's easy to use, but you can also define it manually if you want.
+
+The `transform` method must return a `Result`. To create a `Result`, you can use the
+`TransformResult.ok` and `TransformResult.err` functions.
+
+The `suggestions` method is optional and should return an array of strings.
+
+
+## Registering types
+
+Types need to be registered to be used.
+
+See the [Registration](/guides/registration.mdx#registering-types) guide to learn how types are registered.
+
+## Summary
+
+- Types transform text into another value.
+- They can optionally provide suggestions.
+- They should be created using `TypeBuilder`.
+- They should be [registered](/guides/registration.mdx#registering-types) in order to be used.

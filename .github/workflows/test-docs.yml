@@ -1,0 +1,31 @@
+name: Test docs deployment
+
+on:
+    pull_request:
+        branches:
+            - main
+        paths:
+            - docs/**
+
+jobs:
+    test-deploy:
+        name: Test deployment
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v3
+            - uses: pnpm/action-setup@v2
+              with:
+                  version: 8.11.0
+            - uses: actions/setup-node@v3
+              with:
+                  node-version: 18
+                  cache: pnpm
+                  cache-dependency-path: ./docs/pnpm-lock.yaml
+
+            - name: Install dependencies
+              working-directory: ./docs
+              run: pnpm install
+
+            - name: Test build website
+              working-directory: ./docs
+              run: pnpm build
