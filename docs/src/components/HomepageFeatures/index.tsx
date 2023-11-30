@@ -27,8 +27,7 @@ const FeatureList: FeatureItem[] = [
 		SvgLight: require("@site/static/img/hero_arrow_light.svg").default,
 		description: (
 			<>
-				Commander allows for a custom user interface, custom <b>types</b> and more, providing a wide range of
-				extensibility for your commands.
+				Commander allows for a custom user interface, custom <b>types</b> and more.
 			</>
 		),
 	},
