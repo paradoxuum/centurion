@@ -14,19 +14,9 @@ export abstract class BaseDispatcher {
 		assert(command !== undefined, `Command '${path}' is not registered`);
 		const args = splitStringBySpace(text);
 
-		return Promise.try(() => {
-			const interaction = new CommandInteraction(executor, text);
-			command.execute(interaction, args);
-
-			if (!interaction.isReplyReceived()) {
-				interaction.reply(DEFAULT_REPLY_TEXT);
-			}
-
-			return interaction;
-		}).catch(() => {
-			const interaction = new CommandInteraction(executor, text);
-			interaction.error(ERROR_TEXT);
-			return interaction;
-		});
+		const interaction = new CommandInteraction(executor, text);
+		command.execute(interaction, args);
+		if (!interaction.isReplyReceived()) interaction.reply(DEFAULT_REPLY_TEXT);
+		return interaction;
 	}
 }

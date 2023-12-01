@@ -19,10 +19,18 @@ export class ClientDispatcher extends BaseDispatcher {
 	}
 
 	async run(path: CommandPath, text: string = "") {
-		const interaction = await this.executeCommand(path, Players.LocalPlayer, text).catch((err) => {
-			warn(`An error occurred while running '${path}': ${err}`);
-			throw err;
-		});
+		const [success, interaction] = this.executeCommand(path, Players.LocalPlayer, text).await();
+		if (!success) {
+			warn(`An error occurred while executing '${text}': ${interaction}`);
+
+			const errorEntry: HistoryEntry = {
+				text: "An error occurred.",
+				success: false,
+				sentAt: os.time(),
+			};
+			this.addHistoryEntry(errorEntry);
+			return errorEntry;
+		}
 
 		const entry: HistoryEntry = {
 			text: interaction.getReplyText()!,
@@ -30,12 +38,7 @@ export class ClientDispatcher extends BaseDispatcher {
 			sentAt: interaction.getReplyTime()!,
 		};
 
-		if (this.history.size() >= this.maxHistoryLength) {
-			this.history.remove(0);
-		}
-
-		this.history.push(entry);
-		this.historyEvent.Fire(entry);
+		this.addHistoryEntry(entry);
 		return entry;
 	}
 
@@ -45,5 +48,14 @@ export class ClientDispatcher extends BaseDispatcher {
 
 	getHistorySignal() {
 		return this.historyEvent.Event;
+	}
+
+	private addHistoryEntry(entry: HistoryEntry) {
+		if (this.history.size() >= this.maxHistoryLength) {
+			this.history.remove(0);
+		}
+
+		this.history.push(entry);
+		this.historyEvent.Fire(entry);
 	}
 }
