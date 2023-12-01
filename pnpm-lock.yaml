@@ -5,6 +5,9 @@ settings:
   excludeLinksFromLockfile: false
 
 dependencies:
+  '@rbxts/midori':
+    specifier: ^0.1.3
+    version: 0.1.3
   '@rbxts/pretty-react-hooks':
     specifier: ^0.3.3
     version: 0.3.3(@rbxts/flipper@2.0.1)(@rbxts/react-roblox@0.2.0)(@rbxts/react-ts@1.0.1)
@@ -190,6 +193,10 @@ packages:
 
   /@rbxts/luau-polyfill-internal@1.2.3-ts.0:
     resolution: {integrity: sha512-LG1h4uf+MpMxu6RfOLowRe+NOs2SWXzCmYd49WvfR8ZKVUNHvT0BeVIL9rS9q//mTlz8BXDyl5EVIyjnKgsekA==}
+    dev: false
+
+  /@rbxts/midori@0.1.3:
+    resolution: {integrity: sha512-GT3P4ETL2k3SuCx7hw6CnSWthti5NpJ74GN3WEhFTNIjcHHbb7DzH8OxVdrD54BlSDQ2O8PAZ0ArTW6MeXge6Q==}
     dev: false
 
   /@rbxts/pretty-react-hooks@0.3.3(@rbxts/flipper@2.0.1)(@rbxts/react-roblox@0.2.0)(@rbxts/react-ts@1.0.1):

@@ -42,6 +42,7 @@
 		"typescript": "^5.2.2"
 	},
 	"dependencies": {
+		"@rbxts/midori": "^0.1.3",
 		"@rbxts/pretty-react-hooks": "^0.3.3",
 		"@rbxts/react-reflex": "^0.2.0",
 		"@rbxts/react-roblox": "^0.2.0",
