@@ -2,7 +2,7 @@ import { Result } from "@rbxts/rust-classes";
 import { freeze as freezeArray } from "@rbxts/sift/out/Array";
 import { copyDeep as copyObjectDeep, freezeDeep as freezeObjectDeep } from "@rbxts/sift/out/Dictionary";
 import { ReadonlyDeepObject } from "@rbxts/sift/out/Util";
-import { CommandMetadata, CommandOptions, GroupOptions, GuardFunction, TypeOptions } from "../types";
+import { CommandGuard, CommandMetadata, CommandOptions, GroupOptions, TypeOptions } from "../types";
 import { Reflect } from "../util/reflect";
 import { MetadataKey } from "./decorators";
 import { CommandInteraction } from "./interaction";
@@ -14,7 +14,7 @@ export class CommandData {
 		readonly commandClass: defined,
 		readonly metadata: Readonly<CommandMetadata>,
 		readonly group: ReadonlyArray<string>,
-		readonly guards: ReadonlyArray<GuardFunction>,
+		readonly guards: ReadonlyArray<CommandGuard>,
 	) {}
 
 	static fromHolder(commandHolder: object, commandName: string) {
@@ -24,7 +24,7 @@ export class CommandData {
 		assert(metadata !== undefined, `Command metadata not found: ${commandHolder}/${commandName}`);
 
 		const group = Reflect.getOwnMetadata<string[]>(commandHolder, MetadataKey.Group, commandName);
-		const guards = Reflect.getOwnMetadata<GuardFunction[]>(commandHolder, MetadataKey.Guard, commandName);
+		const guards = Reflect.getOwnMetadata<CommandGuard[]>(commandHolder, MetadataKey.Guard, commandName);
 
 		return new CommandData(commandClass, metadata, group ?? [], guards ?? []);
 	}
@@ -77,7 +77,7 @@ export abstract class BaseCommand {
 export class ExecutableCommand extends BaseCommand {
 	private readonly commandClass: defined;
 	private readonly func: (...args: unknown[]) => unknown;
-	private readonly guards: ReadonlyArray<GuardFunction>;
+	private readonly guards: ReadonlyArray<CommandGuard>;
 
 	constructor(
 		registry: BaseRegistry,
@@ -85,7 +85,7 @@ export class ExecutableCommand extends BaseCommand {
 		commandClass: defined,
 		options: CommandOptions,
 		func: (...args: unknown[]) => unknown,
-		guards: GuardFunction[],
+		guards: CommandGuard[],
 	) {
 		super(registry, path, options);
 		this.commandClass = commandClass;
@@ -98,7 +98,7 @@ export class ExecutableCommand extends BaseCommand {
 		path: ImmutableCommandPath,
 		commandClass: defined,
 		data: CommandMetadata,
-		guards?: GuardFunction[],
+		guards?: CommandGuard[],
 	) {
 		return new ExecutableCommand(registry, path, commandClass, data.options, data.func, guards ?? []);
 	}

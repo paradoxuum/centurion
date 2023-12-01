@@ -1,4 +1,4 @@
-import { CommandInteraction, CommandMetadata, CommandOptions, GuardFunction, ImmutableCommandPath } from "../shared";
+import { CommandGuard, CommandInteraction, CommandMetadata, CommandOptions, ImmutableCommandPath } from "../shared";
 import { BaseCommand, ExecutableCommand } from "../shared/core/command";
 import { BaseRegistry } from "../shared/core/registry";
 import { remotes } from "../shared/network";
@@ -9,7 +9,7 @@ export class SharedCommand extends ExecutableCommand {
 		path: ImmutableCommandPath,
 		commandClass: defined,
 		data: CommandMetadata,
-		guards?: GuardFunction[] | undefined,
+		guards?: CommandGuard[] | undefined,
 	) {
 		return new SharedCommand(registry, path, commandClass, data.options, data.func, guards ?? []);
 	}

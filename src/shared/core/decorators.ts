@@ -1,4 +1,4 @@
-import { CommanderOptions, CommandMetadata, CommandOptions, GuardFunction } from "../types";
+import { CommandGuard, CommandMetadata, CommandOptions, CommanderOptions } from "../types";
 import { Reflect } from "../util/reflect";
 
 export enum MetadataKey {
@@ -30,7 +30,7 @@ export function Group(...groups: string[]): MethodDecorator {
 	};
 }
 
-export function Guard(...guards: GuardFunction[]): MethodDecorator {
+export function Guard(...guards: CommandGuard[]): MethodDecorator {
 	return function (target, key) {
 		Reflect.defineMetadata(target, MetadataKey.Guard, guards, key);
 	};
