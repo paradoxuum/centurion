@@ -9,7 +9,7 @@ class KillCommand {
 			{
 				name: "player",
 				description: "Player to kill",
-				type: BuiltInTypes.String,
+				type: BuiltInTypes.Player,
 			},
 		],
 	})
