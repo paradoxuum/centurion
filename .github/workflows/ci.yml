@@ -16,16 +16,32 @@ jobs:
         runs-on: ubuntu-latest
 
         steps:
-            - uses: actions/checkout@v3
-            - uses: bahmutov/npm-install@v1
-            - uses: ok-nick/setup-aftman@v0.4.2
+            - name: Checkout
+              uses: actions/checkout@v3
+
+            - name: Install pnpm
+              uses: pnpm/action-setup@v2
+              with:
+                  version: 8
+
+            - name: Install Node.js
+              uses: actions/setup-node@v3
+              with:
+                  node-version: 18
+                  cache: pnpm
+
+            - name: Install dependencies
+              run: pnpm install
+
+            - name: Setup Aftman
+              uses: ok-nick/setup-aftman@v0.4.2
               with:
                   token: ${{ secrets.GITHUB_TOKEN }}
 
             - name: Lint
               run: |
-                  npm exec eslint src
-                  npm exec prettier --check src
+                  pnpm eslint src
+                  pnpm prettier --check src
 
             - name: Compile
-              run: npm run compile --verbose
+              run: pnpm compile --verbose
