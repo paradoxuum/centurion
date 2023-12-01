@@ -104,8 +104,7 @@ export class ExecutableCommand extends BaseCommand {
 	}
 
 	execute(interaction: CommandInteraction, args: string[]) {
-		const runCommand = this.getCommandCallback(args);
-		return runCommand(interaction);
+		return this.getCommandCallback(interaction, args)();
 	}
 
 	transformArgs(args: string[]): Result<unknown[], string> {
@@ -154,24 +153,24 @@ export class ExecutableCommand extends BaseCommand {
 		return `ExecutableCommand{path=${this.path}}`;
 	}
 
-	protected getCommandCallback(args: string[]) {
+	protected getCommandCallback(interaction: CommandInteraction, args: string[]) {
 		const guardCount = this.guards.size();
 		let nextIndex = 0;
-
-		const runNext = (interaction: CommandInteraction) => {
-			// Once we reach the last index, run the command
-			if (nextIndex === guardCount) {
-				const transformedArgs = this.transformArgs(args);
-				if (transformedArgs.isErr()) {
-					interaction.error(transformedArgs.unwrapErr());
-					return;
-				}
-
-				return this.func(this.commandClass, interaction, ...transformedArgs.unwrap());
+		const runNext = () => {
+			if (nextIndex < guardCount) {
+				this.guards[nextIndex++](runNext, interaction);
+				return;
 			}
 
-			const guardResult = this.guards[nextIndex++](runNext, interaction);
-			if (guardResult === false || interaction.isReplyReceived()) return;
+			if (interaction.isReplyReceived()) return;
+
+			const transformedArgs = this.transformArgs(args);
+			if (transformedArgs.isErr()) {
+				interaction.error(transformedArgs.unwrapErr());
+				return;
+			}
+
+			return this.func(this.commandClass, interaction, ...transformedArgs.unwrap());
 		};
 
 		return runNext;

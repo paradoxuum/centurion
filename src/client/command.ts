@@ -15,8 +15,7 @@ export class SharedCommand extends ExecutableCommand {
 	}
 
 	execute(interaction: CommandInteraction, args: string[]) {
-		const runCommand = this.getCommandCallback(args);
-		return runCommand(interaction);
+		return this.getCommandCallback(interaction, args)();
 	}
 
 	toString() {
