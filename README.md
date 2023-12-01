@@ -16,7 +16,7 @@
 
 ## About
 
-Commander is a flexible and extensible command framework built for roblox-ts.
+Commander is a command framework built for roblox-ts.
 
 - Commands are defined using decorators in an easy and readable manner.
 - Custom argument types can be created, allowing for a great deal of flexibility for your commands.
