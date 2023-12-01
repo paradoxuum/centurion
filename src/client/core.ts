@@ -35,20 +35,17 @@ export class CommanderClient {
 	}
 
 	static registry() {
-		assert(IS_CLIENT, "Cannot access client registry from the server");
-		assert(this.started, "Commander has not been started yet");
+		this.assertAccess("registry");
 		return this.registryInstance;
 	}
 
 	static dispatcher() {
-		assert(IS_CLIENT, "Cannot access client dispatcher from the server");
-		assert(this.started, "Commander has not been started yet");
+		this.assertAccess("dispatcher");
 		return this.dispatcherInstance;
 	}
 
 	static options() {
-		assert(IS_CLIENT, "Cannot access client options from the server");
-		assert(this.started, "Commander has not been started yet");
+		this.assertAccess("options");
 		return this.optionsObject;
 	}
 
@@ -61,5 +58,10 @@ export class CommanderClient {
 			history: this.dispatcherInstance.getHistory(),
 			onHistoryUpdated: this.dispatcherInstance.getHistorySignal(),
 		};
+	}
+
+	private static assertAccess(name: string) {
+		assert(IS_CLIENT, `Client ${name} cannot be accessed from the server`);
+		assert(this.started, "Commander has not been started yet");
 	}
 }

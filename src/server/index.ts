@@ -22,14 +22,17 @@ export class CommanderServer {
 	}
 
 	static registry() {
-		assert(IS_SERVER, "Cannot access server registry from the client");
-		assert(this.started, "Commander has not been started yet");
+		this.assertAccess("registry");
 		return this.registryInstance;
 	}
 
 	static dispatcher() {
-		assert(IS_SERVER, "Cannot access server dispatcher from the client");
-		assert(this.started, "Commander has not been started yet");
+		this.assertAccess("dispatcher");
 		return this.dispatcherInstance;
+	}
+
+	private static assertAccess(name: string) {
+		assert(IS_SERVER, `Server ${name} cannot be accessed from the server`);
+		assert(this.started, "Commander has not been started yet");
 	}
 }
