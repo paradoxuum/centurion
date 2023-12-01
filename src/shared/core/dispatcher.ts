@@ -11,10 +11,15 @@ export abstract class BaseDispatcher {
 
 	protected async executeCommand(path: CommandPath, executor: Player, text: string) {
 		const command = this.registry.getCommand(path);
-		assert(command !== undefined, `Command '${path}' is not registered`);
+		const interaction = new CommandInteraction(executor, text);
+
+		if (command === undefined) {
+			interaction.error("Command not found.");
+			return interaction;
+		}
+
 		const args = splitStringBySpace(text);
 
-		const interaction = new CommandInteraction(executor, text);
 		command.execute(interaction, args);
 		if (!interaction.isReplyReceived()) interaction.reply(DEFAULT_REPLY_TEXT);
 		return interaction;
