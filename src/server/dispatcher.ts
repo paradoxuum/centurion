@@ -40,10 +40,10 @@ export class ServerDispatcher extends BaseDispatcher {
 	/**
 	 * Executes a command.
 	 *
-	 * @param path the path of the command
-	 * @param executor the command executor
-	 * @param text the text input used to execute the command
-	 * @returns a {@link CommandInteraction} determining the result of execution
+	 * @param path The path of the command
+	 * @param executor The command executor
+	 * @param text The text input used to execute the command
+	 * @returns A {@link CommandInteraction} determining the result of execution
 	 */
 	async run(path: CommandPath, executor: Player, text = "") {
 		return this.executeCommand(path, executor, text).catch((err) => {

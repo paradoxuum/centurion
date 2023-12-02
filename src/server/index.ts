@@ -17,8 +17,8 @@ export namespace CommanderServer {
 	 *
 	 * All registration must be done in the provided callback.
 	 *
-	 * @param callback the run callback
-	 * @param options server options
+	 * @param callback The run callback
+	 * @param options Server options
 	 */
 	export async function start(
 		callback: (run: ServerRegistry) => void,

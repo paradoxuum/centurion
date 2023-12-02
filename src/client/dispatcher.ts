@@ -12,7 +12,7 @@ export class ClientDispatcher extends BaseDispatcher {
 	/**
 	 * Initialises the client dispatcher.
 	 *
-	 * @param options the client options provided when starting Commander
+	 * @param options The client options provided when starting Commander
 	 */
 	init(options: ClientOptions) {
 		this.maxHistoryLength = options.historyLength ?? DEFAULT_HISTORY_LENGTH;
@@ -21,9 +21,9 @@ export class ClientDispatcher extends BaseDispatcher {
 	/**
 	 * Executes a command.
 	 *
-	 * @param path the path of the command
-	 * @param text the text input used to execute the command
-	 * @returns a {@link HistoryEntry} containing the command's response
+	 * @param path The path of the command
+	 * @param text The text input used to execute the command
+	 * @returns A {@link HistoryEntry} containing the command's response
 	 */
 	async run(path: CommandPath, text = "") {
 		const [success, interaction] = this.executeCommand(
@@ -64,7 +64,7 @@ export class ClientDispatcher extends BaseDispatcher {
 	 * Gets the history signal, which will be fired each time a new
 	 * {@link HistoryEntry} is added.
 	 *
-	 * @returns the history signal
+	 * @returns The history signal
 	 */
 	getHistorySignal() {
 		return this.historyEvent.Event;

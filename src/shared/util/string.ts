@@ -37,9 +37,9 @@ const ESCAPE_PATTERN = `(\*)['"]$`;
  * which will be treated as a single part instead of being split.
  *
  * @see https://github.com/evaera/Cmdr/blob/e3180638849a8615bb982bb74f970bf64435da63/Cmdr/Shared/Util.lua
- * @param text the text to split
- * @param max the max number of splits
- * @returns the split string
+ * @param text The text to split
+ * @param max The max number of splits
+ * @returns The split string
  */
 export function splitStringBySpace(
 	text: string,

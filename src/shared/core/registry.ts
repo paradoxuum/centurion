@@ -39,7 +39,7 @@ export abstract class BaseRegistry {
 	/**
 	 * Registers a type from a given {@link TypeOptions}.
 	 *
-	 * @param typeOptions the type to register
+	 * @param typeOptions The type to register
 	 */
 	registerType<T extends defined>(typeOptions: TypeOptions<T>) {
 		assert(!this.frozen, "Registry frozen");
@@ -49,7 +49,7 @@ export abstract class BaseRegistry {
 	/**
 	 * Registers multiple types from a list of {@link TypeOptions}.
 	 *
-	 * @param types the types to register
+	 * @param types The types to register
 	 */
 	registerTypes(...types: TypeOptions<defined>[]) {
 		assert(!this.frozen, "Registry frozen");
@@ -62,8 +62,7 @@ export abstract class BaseRegistry {
 	 * Requires all {@link ModuleScript}s in the given {@link Instance} and
 	 * passes this registry as an argument to the modules which export a function.
 	 *
-	 * @param container
-	 * @returns
+	 * @param container The container containing {@link ModuleScript}s
 	 */
 	registerContainer(container: Instance) {
 		assert(!this.frozen, "Registry frozen");
@@ -87,7 +86,7 @@ export abstract class BaseRegistry {
 	 * Only {@link ModuleScript}s which are direct children of the
 	 * {@link Instance} will be loaded.
 	 *
-	 * @param container the {@link Instance} containing commands
+	 * @param container The {@link Instance} containing commands
 	 */
 	registerCommandsIn(container: Instance) {
 		assert(!this.frozen, "Registry frozen");
@@ -112,8 +111,8 @@ export abstract class BaseRegistry {
 	/**
 	 * Gets a registered type.
 	 *
-	 * @param name the name of the type
-	 * @returns the registered {@link TypeOptions}, or `undefined` if it is not registered
+	 * @param name The name of the type
+	 * @returns The registered {@link TypeOptions}, or `undefined` if it is not registered
 	 */
 	getType(name: string) {
 		return this.types.get(name);
@@ -122,8 +121,8 @@ export abstract class BaseRegistry {
 	/**
 	 * Gets a registered command.
 	 *
-	 * @param path the path of the command
-	 * @returns a {@link BaseCommand} or `undefined` if no command with the given path is registered
+	 * @param path The path of the command
+	 * @returns A {@link BaseCommand} or `undefined` if no command with the given path is registered
 	 */
 	getCommand(path: CommandPath) {
 		return this.commands.get(path.toString());
@@ -132,8 +131,8 @@ export abstract class BaseRegistry {
 	/**
 	 * Gets a registered {@link GroupOptions} from a given {@link CommandPath}.
 	 *
-	 * @param path the path of the group
-	 * @returns a {@link GroupOptions} or `undefined` if none exists at the given path
+	 * @param path The path of the group
+	 * @returns A {@link GroupOptions} or `undefined` if none exists at the given path
 	 */
 	getGroup(path: CommandPath) {
 		assert(
@@ -155,8 +154,8 @@ export abstract class BaseRegistry {
 	 *
 	 * A root path is a path which contains only one part.
 	 *
-	 * @param path the path to get the children of, or `undefined` to list all root paths
-	 * @returns the paths that are children of the given path, or all paths
+	 * @param path The path to get the children of, or `undefined` to list all root paths
+	 * @returns The paths that are children of the given path, or all paths
 	 */
 	getChildPaths(path?: CommandPath) {
 		return this.cachedPaths.get(path?.toString() ?? ROOT_NAME_KEY) ?? [];

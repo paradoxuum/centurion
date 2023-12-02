@@ -16,7 +16,7 @@ export class CommandInteraction {
 	 *
 	 * This creates a new {@link CommandInteractionData} each time it is called.
 	 *
-	 * @returns the interaction's data
+	 * @returns The interaction's data
 	 */
 	getData(): CommandInteractionData {
 		return {
@@ -29,7 +29,7 @@ export class CommandInteraction {
 	/**
 	 * Replies to the interaction.
 	 *
-	 * @param text the reply text
+	 * @param text The reply text
 	 */
 	reply(text: string) {
 		this.setReply(text, true);
@@ -38,7 +38,7 @@ export class CommandInteraction {
 	/**
 	 * Replies to the interaction using {@link CommandInteractionData}.
 	 *
-	 * @param data the interaction data
+	 * @param data The interaction data
 	 */
 	replyFromData(data: CommandInteractionData) {
 		assert(
@@ -52,7 +52,7 @@ export class CommandInteraction {
 	/**
 	 * Replies to the interaction, indicating an error has occurred.
 	 *
-	 * @param text the reply text
+	 * @param text The reply text
 	 */
 	error(text: string) {
 		this.setReply(text, false);

@@ -35,8 +35,8 @@ export const initialAppState: AppState = {
  * Limits an array by removing the first n (limit) elments if
  * the array's size exceeds the limit.
  *
- * @param array the array to limit
- * @param limit the limit
+ * @param array The array to limit
+ * @param limit The limit
  */
 function limitArray<T extends defined>(array: T[], limit: number) {
 	if (array.size() <= limit) return;

@@ -17,8 +17,8 @@ export namespace CommanderClient {
 	 *
 	 * All registration must be done in the provided callback.
 	 *
-	 * @param callback the run callback
-	 * @param options client options
+	 * @param callback The run callback
+	 * @param options Client options
 	 */
 	export async function start(
 		callback: (run: ClientRegistry) => void,
