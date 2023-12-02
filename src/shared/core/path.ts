@@ -31,6 +31,12 @@ export class CommandPath {
 		return copy(this.parts);
 	}
 
+	/**
+	 * Returns the part of this path at the given index.
+	 *
+	 * @param index The index of the part
+	 * @returns The part at the given index
+	 */
 	getPart(index: number) {
 		assert(index > -1 && index < this.parts.size(), "Index out of bounds");
 		return this.parts[index];
@@ -152,6 +158,13 @@ export class CommandPath {
 		return true;
 	}
 
+	/**
+	 * Returns a new {@link CommandPath} from a slice of this path.
+	 *
+	 * @param from The start index
+	 * @param to The end index
+	 * @returns A new path containing a slice of this path
+	 */
 	slice(from: number, to?: number) {
 		return new CommandPath(
 			slice(
@@ -162,6 +175,12 @@ export class CommandPath {
 		);
 	}
 
+	/**
+	 * Determines if this path equals the given {@link CommandPath}.
+	 *
+	 * @param other The path to compare against
+	 * @returns True if the paths are equal, false if not
+	 */
 	equals(other: CommandPath) {
 		return equals(this.parts, other.parts);
 	}
@@ -195,7 +214,7 @@ export class CommandPath {
 	/**
 	 * Removes the part at the given index
 	 *
-	 * @param index the index of the part to remove
+	 * @param index The index of the part to remove
 	 */
 	remove(index: number) {
 		assert(index > -1 && index < this.parts.size(), "Index out of bounds");
@@ -230,8 +249,8 @@ export class ImmutableCommandPath extends CommandPath {
 	/**
 	 * Returns a new {@link ImmutableCommandPath} from a given {@link CommandPath}.
 	 *
-	 * @param path the {@link CommandPath}
-	 * @returns a new {@link ImmutableCommandPath}
+	 * @param path The {@link CommandPath}
+	 * @returns A new {@link ImmutableCommandPath}
 	 */
 	static fromPath(path: CommandPath) {
 		return new ImmutableCommandPath(path.getParts());
@@ -265,11 +284,23 @@ export class ImmutableCommandPath extends CommandPath {
 		return new ImmutableCommandPath(append(this.parts, ...parts));
 	}
 
+	/**
+	 * Returns a new {@link ImmutableCommandPath} with the part at the given index
+	 * removed.
+	 *
+	 * @param index The index of the part to remove
+	 * @returns A command path with the part removed
+	 */
 	remove(index: number) {
 		assert(index > -1 && index < this.parts.size(), "Index out of bounds");
 		return new ImmutableCommandPath(removeIndex(this.parts, index + 1));
 	}
 
+	/**
+	 * Creates a new empty {@link ImmutableCommandPath}.
+	 *
+	 * @returns An empty command path
+	 */
 	clear() {
 		return new ImmutableCommandPath([]);
 	}
