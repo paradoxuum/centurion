@@ -1,10 +1,9 @@
 import { RunService } from "@rbxts/services";
 import { mergeDeep } from "@rbxts/sift/out/Dictionary";
-import { RunCallback } from "../shared/core/types";
 import { ClientDispatcher } from "./dispatcher";
 import { DEFAULT_OPTIONS } from "./options";
 import { ClientRegistry } from "./registry";
-import { AppData, ClientOptions } from "./types";
+import { AppData } from "./types";
 
 export namespace CommanderClient {
 	let started = false;
@@ -15,8 +14,8 @@ export namespace CommanderClient {
 	const IS_CLIENT = RunService.IsClient();
 
 	export async function start(
-		callback: RunCallback,
-		options: ClientOptions = DEFAULT_OPTIONS,
+		callback: (run: ClientRegistry) => void,
+		options = DEFAULT_OPTIONS,
 	) {
 		assert(IS_CLIENT, "CommanderClient can only be started from the client");
 		assert(!started, "Commander has already been started");
