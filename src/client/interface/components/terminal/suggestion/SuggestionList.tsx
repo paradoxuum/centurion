@@ -1,6 +1,11 @@
 import { getBindingValue } from "@rbxts/pretty-react-hooks";
 import { useSelector } from "@rbxts/react-reflex";
-import Roact, { useBinding, useContext, useEffect, useMemo } from "@rbxts/roact";
+import Roact, {
+	useBinding,
+	useContext,
+	useEffect,
+	useMemo,
+} from "@rbxts/roact";
 import { TextService } from "@rbxts/services";
 import { DEFAULT_FONT, fonts } from "../../../constants/fonts";
 import { palette } from "../../../constants/palette";
@@ -32,7 +37,8 @@ function highlight(text?: string, terminalText?: string) {
 		return text;
 	}
 
-	return HIGHLIGHT_PREFIX + subText + "</font>" + text.sub(terminalText.size() + 1);
+	const unhighlightedText = text.sub(terminalText.size() + 1);
+	return `${HIGHLIGHT_PREFIX}${subText}</font>${unhighlightedText}`;
 }
 
 export function SuggestionList({ position }: SuggestionListProps) {
@@ -40,17 +46,26 @@ export function SuggestionList({ position }: SuggestionListProps) {
 
 	const terminalText = useSelector(selectText);
 	const currentTextPart = useMemo(() => {
-		if (terminalText.index === -1 || terminalText.index >= terminalText.parts.size()) {
+		if (
+			terminalText.index === -1 ||
+			terminalText.index >= terminalText.parts.size()
+		) {
 			return;
 		}
 		return terminalText.parts[terminalText.index];
 	}, [terminalText]);
 
-	const textBoundsParams = useMemo(() => new Instance("GetTextBoundsParams"), []);
+	const textBoundsParams = useMemo(
+		() => new Instance("GetTextBoundsParams"),
+		[],
+	);
 
 	// Suggestions
 	const suggestion = useContext(SuggestionContext).suggestion;
-	const isArgument = useMemo(() => suggestion?.main.type === "argument", [suggestion]);
+	const isArgument = useMemo(
+		() => suggestion?.main.type === "argument",
+		[suggestion],
+	);
 
 	const [sizes, setSizes] = useBinding({
 		titleText: UDim2.fromOffset(rem(16), rem(2)),
@@ -59,7 +74,9 @@ export function SuggestionList({ position }: SuggestionListProps) {
 	});
 
 	const [suggestionSize, suggestionSizeMotion] = useMotion(new UDim2());
-	const [otherSuggestionSize, otherSuggestionSizeMotion] = useMotion(new UDim2());
+	const [otherSuggestionSize, otherSuggestionSizeMotion] = useMotion(
+		new UDim2(),
+	);
 
 	// Resize window based on suggestions
 	useEffect(() => {
@@ -111,9 +128,14 @@ export function SuggestionList({ position }: SuggestionListProps) {
 
 		setSizes({
 			titleText: UDim2.fromOffset(titleBounds.X, titleBounds.Y),
-			descriptionText: UDim2.fromOffset(descriptionBounds.X, descriptionBounds.Y),
+			descriptionText: UDim2.fromOffset(
+				descriptionBounds.X,
+				descriptionBounds.Y,
+			),
 			typeBadgeWidth:
-				typeBadgeBounds !== undefined ? typeBadgeBounds.X + rem(2) : getBindingValue(sizes).typeBadgeWidth,
+				typeBadgeBounds !== undefined
+					? typeBadgeBounds.X + rem(2)
+					: getBindingValue(sizes).typeBadgeWidth,
 		});
 
 		// Calculate other suggestion sizes
@@ -126,18 +148,28 @@ export function SuggestionList({ position }: SuggestionListProps) {
 
 			for (const name of otherSuggestions) {
 				textBoundsParams.Text = name;
-				const suggestionBounds = TextService.GetTextBoundsAsync(textBoundsParams);
+				const suggestionBounds =
+					TextService.GetTextBoundsAsync(textBoundsParams);
 				if (suggestionBounds.X > maxSuggestionWidth) {
 					maxSuggestionWidth = suggestionBounds.X;
 				}
 			}
 
-			const otherHeight = otherSuggestions.size() * rem(2) + rem(1) + (otherSuggestions.size() - 1) * rem(0.5);
+			const otherHeight =
+				otherSuggestions.size() * rem(2) +
+				rem(1) +
+				(otherSuggestions.size() - 1) * rem(0.5);
 			windowWidth = math.max(windowWidth, maxSuggestionWidth);
-			otherSuggestionSizeMotion.spring(UDim2.fromOffset(windowWidth, otherHeight), springs.gentle);
+			otherSuggestionSizeMotion.spring(
+				UDim2.fromOffset(windowWidth, otherHeight),
+				springs.gentle,
+			);
 		}
 
-		suggestionSizeMotion.spring(UDim2.fromOffset(windowWidth, windowHeight), springs.responsive);
+		suggestionSizeMotion.spring(
+			UDim2.fromOffset(windowWidth, windowHeight),
+			springs.responsive,
+		);
 	}, [suggestion, rem]);
 
 	return (
@@ -159,7 +191,9 @@ export function SuggestionList({ position }: SuggestionListProps) {
 				<Group
 					key="badges"
 					anchorPoint={new Vector2(1, 0)}
-					size={sizes.map((val) => UDim2.fromOffset(math.max(val.typeBadgeWidth, rem(7)), rem(4.5)))}
+					size={sizes.map((val) =>
+						UDim2.fromOffset(math.max(val.typeBadgeWidth, rem(7)), rem(4.5)),
+					)}
 					position={UDim2.fromScale(1, 0)}
 					visible={isArgument}
 				>
@@ -167,9 +201,19 @@ export function SuggestionList({ position }: SuggestionListProps) {
 						key="optional-badge"
 						size={new UDim2(1, 0, 0, rem(2))}
 						color={
-							isArgument && (suggestion!.main as ArgumentSuggestion).optional ? palette.blue : palette.red
+							isArgument &&
+							suggestion !== undefined &&
+							(suggestion.main as ArgumentSuggestion).optional
+								? palette.blue
+								: palette.red
 						}
-						text={isArgument && (suggestion!.main as ArgumentSuggestion).optional ? "Optional" : "Required"}
+						text={
+							isArgument &&
+							suggestion !== undefined &&
+							(suggestion.main as ArgumentSuggestion).optional
+								? "Optional"
+								: "Required"
+						}
 						textColor={palette.white}
 						textSize={rem(1.5)}
 					/>
@@ -179,7 +223,11 @@ export function SuggestionList({ position }: SuggestionListProps) {
 						size={new UDim2(1, 0, 0, rem(2))}
 						position={UDim2.fromOffset(0, rem(2.5))}
 						color={palette.surface0}
-						text={isArgument ? (suggestion!.main as ArgumentSuggestion).dataType : ""}
+						text={
+							isArgument && suggestion !== undefined
+								? (suggestion.main as ArgumentSuggestion).dataType
+								: ""
+						}
 						textColor={palette.white}
 						textSize={rem(1.5)}
 					/>
@@ -188,7 +236,11 @@ export function SuggestionList({ position }: SuggestionListProps) {
 				<Text
 					key="title"
 					size={sizes.map((val) => val.titleText)}
-					text={isArgument ? suggestion?.main.title : highlight(suggestion?.main.title, currentTextPart)}
+					text={
+						isArgument
+							? suggestion?.main.title
+							: highlight(suggestion?.main.title, currentTextPart)
+					}
 					textSize={rem(2)}
 					textColor={palette.white}
 					textXAlignment="Left"
@@ -210,7 +262,11 @@ export function SuggestionList({ position }: SuggestionListProps) {
 			</Frame>
 
 			<Group key="other" size={otherSuggestionSize}>
-				<uilistlayout key="layout" SortOrder="LayoutOrder" Padding={new UDim(0, rem(0.5))} />
+				<uilistlayout
+					key="layout"
+					SortOrder="LayoutOrder"
+					Padding={new UDim(0, rem(0.5))}
+				/>
 
 				{suggestion?.others?.map((name, i) => {
 					return (
@@ -237,7 +293,11 @@ export function SuggestionList({ position }: SuggestionListProps) {
 				})}
 			</Group>
 
-			<uilistlayout key="layout" SortOrder="LayoutOrder" Padding={new UDim(0, rem(0.5))} />
+			<uilistlayout
+				key="layout"
+				SortOrder="LayoutOrder"
+				Padding={new UDim(0, rem(0.5))}
+			/>
 		</Group>
 	);
 }

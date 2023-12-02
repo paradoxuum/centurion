@@ -1,4 +1,10 @@
-import { append, copy, equals, removeIndex, slice } from "@rbxts/sift/out/Array";
+import {
+	append,
+	copy,
+	equals,
+	removeIndex,
+	slice,
+} from "@rbxts/sift/out/Array";
 
 /**
  * A representation of a command or command group's path
@@ -147,7 +153,13 @@ export class CommandPath {
 	}
 
 	slice(from: number, to?: number) {
-		return new CommandPath(slice(this.parts, from + 1, to !== undefined ? to + 1 : this.parts.size()));
+		return new CommandPath(
+			slice(
+				this.parts,
+				from + 1,
+				to !== undefined ? to + 1 : this.parts.size(),
+			),
+		);
 	}
 
 	equals(other: CommandPath) {
@@ -175,7 +187,7 @@ export class CommandPath {
 
 		let newPathString = this.pathString;
 		for (const part of parts) {
-			newPathString += "/" + part;
+			newPathString = `${newPathString}/${part}`;
 		}
 		this.pathString = newPathString;
 	}
@@ -234,7 +246,13 @@ export class ImmutableCommandPath extends CommandPath {
 	}
 
 	slice(from: number, to?: number) {
-		return new ImmutableCommandPath(slice(this.parts, from + 1, to !== undefined ? to + 1 : this.parts.size()));
+		return new ImmutableCommandPath(
+			slice(
+				this.parts,
+				from + 1,
+				to !== undefined ? to + 1 : this.parts.size(),
+			),
+		);
 	}
 
 	/**

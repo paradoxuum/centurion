@@ -1,4 +1,9 @@
-import { BuiltInTypes, Command, CommandInteraction, Commander } from "@rbxts/commander";
+import {
+	BuiltInTypes,
+	Command,
+	CommandInteraction,
+	Commander,
+} from "@rbxts/commander";
 
 @Commander()
 class DamageCommand {
@@ -36,6 +41,8 @@ class DamageCommand {
 		}
 
 		humanoid.Health -= damage;
-		interaction.reply(`Damaged <b>${player.DisplayName}</b> for <b>${damage}</b> HP`);
+		interaction.reply(
+			`Damaged <b>${player.DisplayName}</b> for <b>${damage}</b> HP`,
+		);
 	}
 }

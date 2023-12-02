@@ -16,7 +16,15 @@ interface BadgeProps {
 	textSize?: BindingOrValue<number>;
 }
 
-export function Badge({ anchorPoint, size, position, color, text, textColor, textSize }: BadgeProps) {
+export function Badge({
+	anchorPoint,
+	size,
+	position,
+	color,
+	text,
+	textColor,
+	textSize,
+}: BadgeProps) {
 	const rem = useRem();
 
 	return (

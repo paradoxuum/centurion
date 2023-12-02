@@ -24,9 +24,7 @@ const playersType = TypeBuilder.create(BuiltInTypes.Players)
 	.validate(t.array(isPlayer))
 	.transform((text) => {
 		const textLower = text.lower();
-		if (textLower === "*") {
-			return TransformResult.ok(Players.GetPlayers());
-		}
+		if (textLower === "*") return TransformResult.ok(Players.GetPlayers());
 
 		return getPlayer(text).map((player) => [player]);
 	})

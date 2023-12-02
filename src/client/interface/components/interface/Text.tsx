@@ -4,7 +4,8 @@ import { DEFAULT_FONT } from "../../constants/fonts";
 import { useRem } from "../../hooks/useRem";
 import { FrameProps } from "./Frame";
 
-export interface TextProps<T extends Instance = TextLabel> extends FrameProps<T> {
+export interface TextProps<T extends Instance = TextLabel>
+	extends FrameProps<T> {
 	font?: Font;
 	text?: BindingOrValue<string>;
 	textColor?: BindingOrValue<Color3>;
@@ -54,7 +55,9 @@ export const Text = forwardRef((props: TextProps, ref: Ref<TextLabel>) => {
 			Change={props.change || {}}
 			Event={props.event || {}}
 		>
-			{props.cornerRadius && <uicorner key="corner" CornerRadius={props.cornerRadius} />}
+			{props.cornerRadius && (
+				<uicorner key="corner" CornerRadius={props.cornerRadius} />
+			)}
 			{props.children}
 		</textlabel>
 	);

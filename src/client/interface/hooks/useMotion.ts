@@ -1,5 +1,5 @@
 import { useLatestCallback } from "@rbxts/pretty-react-hooks";
-import { createMotion, Motion, MotionGoal } from "@rbxts/ripple";
+import { Motion, MotionGoal, createMotion } from "@rbxts/ripple";
 import { Binding, useBinding, useEffect, useMemo } from "@rbxts/roact";
 
 export function useMotion<T = number>(
@@ -12,7 +12,10 @@ export function useMotion<T extends MotionGoal, U = T>(
 	mapper?: (value: T) => U,
 ): LuaTuple<[Binding<U>, Motion<T>]>;
 
-export function useMotion<T extends MotionGoal, U>(goal: T, mapper?: (value: T) => U) {
+export function useMotion<T extends MotionGoal, U>(
+	goal: T,
+	mapper?: (value: T) => U,
+) {
 	const motion = useMemo(() => {
 		return createMotion(goal, { start: true });
 	}, []);

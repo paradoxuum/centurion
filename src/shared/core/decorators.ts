@@ -1,5 +1,10 @@
-import { CommandGuard, CommandMetadata, CommandOptions, CommanderOptions } from "../types";
-import { Reflect } from "../util/reflect";
+import {
+	CommandGuard,
+	CommandMetadata,
+	CommandOptions,
+	CommanderOptions,
+} from "../types";
+import { MetadataReflect } from "../util/reflect";
 
 export enum MetadataKey {
 	CommandHolder = "holder",
@@ -9,37 +14,46 @@ export enum MetadataKey {
 }
 
 export function Commander(options?: CommanderOptions): ClassDecorator {
-	return function (target) {
-		Reflect.defineMetadata(target, MetadataKey.CommandHolder, options);
+	return (target) => {
+		MetadataReflect.defineMetadata(target, MetadataKey.CommandHolder, options);
 	};
 }
 
 export function Command(options: CommandOptions): MethodDecorator {
-	return function (target, key) {
+	return (target, key) => {
 		const commandData: CommandMetadata = {
 			options,
 			func: target[key],
 		};
-		Reflect.defineMetadata(target, MetadataKey.Command, commandData, key);
+		MetadataReflect.defineMetadata(
+			target,
+			MetadataKey.Command,
+			commandData,
+			key,
+		);
 	};
 }
 
 export function Group(...groups: string[]): MethodDecorator {
-	return function (target, key) {
-		Reflect.defineMetadata(target, MetadataKey.Group, groups, key);
+	return (target, key) => {
+		MetadataReflect.defineMetadata(target, MetadataKey.Group, groups, key);
 	};
 }
 
 export function Guard(...guards: CommandGuard[]): MethodDecorator {
-	return function (target, key) {
-		Reflect.defineMetadata(target, MetadataKey.Guard, guards, key);
+	return (target, key) => {
+		MetadataReflect.defineMetadata(target, MetadataKey.Guard, guards, key);
 	};
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 type DecoratorTarget = Record<string, any>;
 
-type ClassDecorator = (target: DecoratorTarget, propertyKey?: undefined, descriptor?: undefined) => void;
+type ClassDecorator = (
+	target: DecoratorTarget,
+	propertyKey?: undefined,
+	descriptor?: undefined,
+) => void;
 
 type MethodDecorator = <T>(
 	target: DecoratorTarget,

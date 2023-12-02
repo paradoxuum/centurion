@@ -3,34 +3,49 @@
  *
  * @see https://github.com/rbxts-flamework/core/blob/20683a7f7eb1f8844f7f75e643d764222d06ef24/src/reflect.ts
  */
-export namespace Reflect {
+export namespace MetadataReflect {
 	// object -> property -> key -> value
-	export const metadata = new WeakMap<object, Map<string | typeof NO_PROP_MARKER, Map<string, unknown>>>();
+	export const metadata = new WeakMap<
+		object,
+		Map<string | typeof NO_PROP_MARKER, Map<string, unknown>>
+	>();
 	export const decorators = new Map<string, Array<object>>();
 	export const idToObj = new Map<string, object>();
 	export const objToId = new Map<object, string>();
 
 	const NO_PROP_MARKER = {} as { _nominal_Marker: never };
 
-	function getObjMetadata(obj: object, prop: string | undefined, create: true): Map<string, unknown>;
-	function getObjMetadata(obj: object, prop?: string): Map<string, unknown> | undefined;
-	// eslint-disable-next-line no-inner-declarations
+	function getObjMetadata(
+		obj: object,
+		prop: string | undefined,
+		create: true,
+	): Map<string, unknown>;
+	function getObjMetadata(
+		obj: object,
+		prop?: string,
+	): Map<string, unknown> | undefined;
+
 	function getObjMetadata(obj: object, prop?: string, create?: boolean) {
 		const realProp = prop ?? NO_PROP_MARKER;
 		if (create) {
 			let objMetadata = metadata.get(obj);
-			if (!objMetadata) metadata.set(obj, (objMetadata = new Map()));
+			if (!objMetadata) {
+				objMetadata = new Map();
+				metadata.set(obj, objMetadata);
+			}
 
 			let propMetadata = objMetadata.get(realProp);
-			if (!propMetadata) objMetadata.set(realProp, (propMetadata = new Map()));
+			if (!propMetadata) {
+				propMetadata = new Map();
+				objMetadata.set(realProp, propMetadata);
+			}
 
 			return propMetadata;
-		} else {
-			return metadata.get(obj)?.get(realProp);
 		}
+
+		return metadata.get(obj)?.get(realProp);
 	}
 
-	// eslint-disable-next-line no-inner-declarations
 	function getParentConstructor(obj: object) {
 		const metatable = getmetatable(obj) as { __index?: object };
 		if (metatable && typeIs(metatable, "table")) {
@@ -41,7 +56,12 @@ export namespace Reflect {
 	/**
 	 * Apply metadata onto this object.
 	 */
-	export function defineMetadata(obj: object, key: string, value: unknown, property?: string) {
+	export function defineMetadata(
+		obj: object,
+		key: string,
+		value: unknown,
+		property?: string,
+	) {
 		// 'identifier' is a special, unique ID across all metadata classes.
 		if (key === "identifier") {
 			assert(typeIs(value, "string"), "identifier must be a string.");
@@ -59,7 +79,11 @@ export namespace Reflect {
 	/**
 	 * Apply metadata in batch onto this object.
 	 */
-	export function defineMetadataBatch(obj: object, list: { [key: string]: unknown }, property?: string) {
+	export function defineMetadataBatch(
+		obj: object,
+		list: { [key: string]: unknown },
+		property?: string,
+	) {
 		const metadata = getObjMetadata(obj, property, true);
 
 		for (const [key, value] of pairs(list)) {
@@ -79,7 +103,11 @@ export namespace Reflect {
 	 * Get metadata from this object.
 	 * Type parameter is an assertion.
 	 */
-	export function getOwnMetadata<T>(obj: object, key: string, property?: string): T | undefined {
+	export function getOwnMetadata<T>(
+		obj: object,
+		key: string,
+		property?: string,
+	): T | undefined {
 		const metadata = getObjMetadata(obj, property);
 		return metadata?.get(key) as T;
 	}
@@ -99,7 +127,12 @@ export namespace Reflect {
 		const metadata = getObjMetadata(obj, property);
 		const keys = new Array<string>();
 
-		metadata?.forEach((_, key) => keys.push(key));
+		if (metadata !== undefined) {
+			for (const [key] of metadata) {
+				keys.push(key);
+			}
+		}
+
 		return keys;
 	}
 
@@ -123,7 +156,11 @@ export namespace Reflect {
 	 * Retrieve all values for the specified key from the object and its parents.
 	 * Type parameter is an assertion.
 	 */
-	export function getMetadatas<T extends defined>(obj: object, key: string, property?: string): T[] {
+	export function getMetadatas<T extends defined>(
+		obj: object,
+		key: string,
+		property?: string,
+	): T[] {
 		const values = new Array<T>();
 
 		const value = getOwnMetadata(obj, key, property);
@@ -133,7 +170,9 @@ export namespace Reflect {
 
 		const parent = getParentConstructor(obj);
 		if (parent) {
-			getMetadatas<T>(parent, key, property).forEach((value) => values.push(value));
+			for (const value of getMetadatas<T>(parent, key, property)) {
+				values.push(value);
+			}
 		}
 
 		return values;
@@ -143,7 +182,11 @@ export namespace Reflect {
 	 * Get metadata from this object or its parents.
 	 * Type parameter is an assertion.
 	 */
-	export function getMetadata<T>(obj: object, key: string, property?: string): T | undefined {
+	export function getMetadata<T>(
+		obj: object,
+		key: string,
+		property?: string,
+	): T | undefined {
 		const value = getOwnMetadata(obj, key, property);
 		if (value !== undefined) {
 			return value as T;
@@ -158,7 +201,11 @@ export namespace Reflect {
 	/**
 	 * Check if this object or any of its parents has the specified metadata key.
 	 */
-	export function hasMetadata(obj: object, key: string, property?: string): boolean {
+	export function hasMetadata(
+		obj: object,
+		key: string,
+		property?: string,
+	): boolean {
 		const value = hasOwnMetadata(obj, key, property);
 		if (value) {
 			return value;
@@ -180,7 +227,9 @@ export namespace Reflect {
 
 		const parent = getParentConstructor(obj);
 		if (parent) {
-			getMetadataKeys(parent, property).forEach((key) => keys.add(key));
+			for (const key of getMetadataKeys(parent, property)) {
+				keys.add(key);
+			}
 		}
 
 		return [...keys];
@@ -194,7 +243,9 @@ export namespace Reflect {
 
 		const parent = getParentConstructor(obj);
 		if (parent) {
-			getProperties(parent).forEach((key) => keys.add(key));
+			for (const key of getProperties(parent)) {
+				keys.add(key);
+			}
 		}
 
 		return [...keys];

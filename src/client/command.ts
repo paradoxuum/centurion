@@ -1,4 +1,10 @@
-import { CommandGuard, CommandInteraction, CommandMetadata, CommandOptions, ImmutableCommandPath } from "../shared";
+import {
+	CommandGuard,
+	CommandInteraction,
+	CommandMetadata,
+	CommandOptions,
+	ImmutableCommandPath,
+} from "../shared";
 import { BaseCommand, ExecutableCommand } from "../shared/core/command";
 import { BaseRegistry } from "../shared/core/registry";
 import { remotes } from "../shared/network";
@@ -11,7 +17,14 @@ export class SharedCommand extends ExecutableCommand {
 		data: CommandMetadata,
 		guards?: CommandGuard[] | undefined,
 	) {
-		return new SharedCommand(registry, path, commandClass, data.options, data.func, guards ?? []);
+		return new SharedCommand(
+			registry,
+			path,
+			commandClass,
+			data.options,
+			data.func,
+			guards ?? [],
+		);
 	}
 
 	execute(interaction: CommandInteraction, args: string[]) {
@@ -24,12 +37,18 @@ export class SharedCommand extends ExecutableCommand {
 }
 
 export class ServerCommand extends BaseCommand {
-	static create(registry: BaseRegistry, path: ImmutableCommandPath, options: CommandOptions) {
+	static create(
+		registry: BaseRegistry,
+		path: ImmutableCommandPath,
+		options: CommandOptions,
+	) {
 		return new ServerCommand(registry, path, options);
 	}
 
 	execute(interaction: CommandInteraction, args: string[]) {
-		const [success, data] = remotes.executeCommand.request(this.path.toString(), args.join(" ")).await();
+		const [success, data] = remotes.executeCommand
+			.request(this.path.toString(), args.join(" "))
+			.await();
 		if (!success) {
 			interaction.error("An error occurred.");
 			return;

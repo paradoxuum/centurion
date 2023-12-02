@@ -1,4 +1,8 @@
-import { BindingOrValue, blend, composeBindings } from "@rbxts/pretty-react-hooks";
+import {
+	BindingOrValue,
+	blend,
+	composeBindings,
+} from "@rbxts/pretty-react-hooks";
 import Roact, { useMemo } from "@rbxts/roact";
 import { palette } from "../../constants/palette";
 import { useRem } from "../../hooks/useRem";
@@ -32,41 +36,73 @@ export function Outline({
 }: OutlineProps) {
 	const rem = useRem();
 
-	innerThickness ??= rem(3, "pixel");
-	outerThickness ??= rem(1.5, "pixel");
-	cornerRadius ??= new UDim(0, rem(0.5));
+	const remProperties = {
+		innerThickness: innerThickness ?? rem(3, "pixel"),
+		outerThickness: outerThickness ?? rem(1.5, "pixel"),
+		cornerRadius: cornerRadius ?? new UDim(0, rem(0.5)),
+	};
 
 	const innerStyle = useMemo(() => {
-		const size = composeBindings(innerThickness!, (thickness) => {
-			return new UDim2(1, ceilEven(-2 * thickness), 1, ceilEven(-2 * thickness));
+		const size = composeBindings(remProperties.innerThickness, (thickness) => {
+			return new UDim2(
+				1,
+				ceilEven(-2 * thickness),
+				1,
+				ceilEven(-2 * thickness),
+			);
 		});
 
-		const position = composeBindings(innerThickness!, (thickness) => {
-			return new UDim2(0, thickness, 0, thickness);
-		});
+		const position = composeBindings(
+			remProperties.innerThickness,
+			(thickness) => {
+				return new UDim2(0, thickness, 0, thickness);
+			},
+		);
 
-		const radius = composeBindings(cornerRadius!, innerThickness!, (radius, thickness) => {
-			return radius.sub(new UDim(0, thickness));
-		});
+		const radius = composeBindings(
+			remProperties.cornerRadius,
+			remProperties.innerThickness,
+			(radius, thickness) => {
+				return radius.sub(new UDim(0, thickness));
+			},
+		);
 
-		const transparency = composeBindings(outlineTransparency, innerTransparency, (a, b) => {
-			return math.clamp(blend(a, b), 0, 1);
-		});
+		const transparency = composeBindings(
+			outlineTransparency,
+			innerTransparency,
+			(a, b) => {
+				return math.clamp(blend(a, b), 0, 1);
+			},
+		);
 
 		return { size, position, radius, transparency };
-	}, [innerThickness, innerTransparency, cornerRadius, outlineTransparency, rem]);
+	}, [
+		remProperties.innerThickness,
+		innerTransparency,
+		remProperties.cornerRadius,
+		outlineTransparency,
+		rem,
+	]);
 
 	const outerStyle = useMemo(() => {
-		const transparency = composeBindings(outlineTransparency, outerTransparency, (a, b) => {
-			return math.clamp(blend(a, b), 0, 1);
-		});
+		const transparency = composeBindings(
+			outlineTransparency,
+			outerTransparency,
+			(a, b) => {
+				return math.clamp(blend(a, b), 0, 1);
+			},
+		);
 
 		return { transparency };
 	}, [outlineTransparency, outerTransparency]);
 
 	return (
 		<>
-			<Group key="inner-border" size={innerStyle.size} position={innerStyle.position}>
+			<Group
+				key="inner-border"
+				size={innerStyle.size}
+				position={innerStyle.position}
+			>
 				<uicorner key="corner" CornerRadius={innerStyle.radius} />
 				<uistroke
 					key="stroke"

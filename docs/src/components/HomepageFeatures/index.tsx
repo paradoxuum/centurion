@@ -17,7 +17,8 @@ const FeatureList: FeatureItem[] = [
 		SvgLight: require("@site/static/img/hero_rocket_light.svg").default,
 		description: (
 			<>
-				Commander uses <b>decorators</b> to make defining commands easy and readable.
+				Commander uses <b>decorators</b> to make defining commands easy and
+				readable.
 			</>
 		),
 	},
@@ -27,7 +28,8 @@ const FeatureList: FeatureItem[] = [
 		SvgLight: require("@site/static/img/hero_arrow_light.svg").default,
 		description: (
 			<>
-				Commander allows for a custom user interface, custom <b>types</b> and more.
+				Commander allows for a custom user interface, custom <b>types</b> and
+				more.
 			</>
 		),
 	},
@@ -37,8 +39,8 @@ const FeatureList: FeatureItem[] = [
 		SvgLight: require("@site/static/img/hero_bolt_light.svg").default,
 		description: (
 			<>
-				Features like command <b>guards</b> and custom <b>types</b> are provided, allowing for a wide range of
-				customization.
+				Features like command <b>guards</b> and custom <b>types</b> are
+				provided, allowing for a wide range of customization.
 			</>
 		),
 	},
@@ -68,7 +70,7 @@ export default function HomepageFeatures(): JSX.Element {
 			<div className="container">
 				<div className="row">
 					{FeatureList.map((props, idx) => (
-						<Feature key={idx} {...props} />
+						<Feature key={`${props.title}-${idx}`} {...props} />
 					))}
 				</div>
 			</div>

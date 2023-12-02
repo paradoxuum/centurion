@@ -9,7 +9,11 @@ const ERROR_TEXT = "An error occurred.";
 export abstract class BaseDispatcher {
 	constructor(private readonly registry: BaseRegistry) {}
 
-	protected async executeCommand(path: CommandPath, executor: Player, text: string) {
+	protected async executeCommand(
+		path: CommandPath,
+		executor: Player,
+		text: string,
+	) {
 		const command = this.registry.getCommand(path);
 		const interaction = new CommandInteraction(executor, text);
 

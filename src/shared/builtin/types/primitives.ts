@@ -12,22 +12,28 @@ const toNumberTransformation = (text: string) => {
 	return TransformResult.ok(num);
 };
 
-const getNumTransformation = (validateFn: t.check<number>, errMsg: string) => (text: string) => {
-	const numResult = toNumberTransformation(text);
-	if (numResult.isErr()) {
-		return numResult;
-	}
+const getNumTransformation =
+	(validateFn: t.check<number>, errMsg: string) => (text: string) => {
+		const numResult = toNumberTransformation(text);
+		if (numResult.isErr()) {
+			return numResult;
+		}
 
-	const num = numResult.unwrap();
-	return validateFn(num) ? TransformResult.ok(num) : TransformResult.err<number>(errMsg);
-};
+		const num = numResult.unwrap();
+		return validateFn(num)
+			? TransformResult.ok(num)
+			: TransformResult.err<number>(errMsg);
+	};
 
 const stringType = TypeBuilder.create(BuiltInTypes.String)
 	.validate(t.string)
 	.transform((text) => TransformResult.ok(text))
 	.build();
 
-const numberType = TypeBuilder.create(BuiltInTypes.Number).validate(t.number).transform(toNumberTransformation).build();
+const numberType = TypeBuilder.create(BuiltInTypes.Number)
+	.validate(t.number)
+	.transform(toNumberTransformation)
+	.build();
 
 const integerType = TypeBuilder.create(BuiltInTypes.Integer)
 	.validate(t.integer)
@@ -40,11 +46,8 @@ const booleanType = TypeBuilder.create(BuiltInTypes.Boolean)
 	.validate(t.boolean)
 	.transform((text) => {
 		const textLower = text.lower();
-		if (truthyValues.has(textLower)) {
-			return TransformResult.ok(true);
-		} else if (falsyValues.has(textLower)) {
-			return TransformResult.ok(false);
-		}
+		if (truthyValues.has(textLower)) return TransformResult.ok(true);
+		if (falsyValues.has(textLower)) return TransformResult.ok(false);
 
 		return TransformResult.err("Invalid boolean");
 	})

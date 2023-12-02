@@ -6,62 +6,65 @@ import { DEFAULT_OPTIONS } from "./options";
 import { ClientRegistry } from "./registry";
 import { AppData, ClientOptions } from "./types";
 
-const IS_CLIENT = RunService.IsClient();
+export namespace CommanderClient {
+	let started = false;
+	const registryInstance = new ClientRegistry();
+	const dispatcherInstance = new ClientDispatcher(registryInstance);
+	let optionsObject = DEFAULT_OPTIONS;
 
-export class CommanderClient {
-	private static started = false;
-	private static readonly registryInstance = new ClientRegistry();
-	private static readonly dispatcherInstance = new ClientDispatcher(CommanderClient.registryInstance);
-	private static optionsObject = DEFAULT_OPTIONS;
+	const IS_CLIENT = RunService.IsClient();
 
-	static async start(callback: RunCallback, options: ClientOptions = DEFAULT_OPTIONS) {
+	export async function start(
+		callback: RunCallback,
+		options: ClientOptions = DEFAULT_OPTIONS,
+	) {
 		assert(IS_CLIENT, "CommanderClient can only be started from the client");
-		assert(!this.started, "Commander has already been started");
+		assert(!started, "Commander has already been started");
 
-		this.optionsObject = mergeDeep(DEFAULT_OPTIONS, options);
+		optionsObject = mergeDeep(DEFAULT_OPTIONS, options);
 
-		this.registryInstance.init();
-		this.dispatcherInstance.init(options);
+		registryInstance.init();
+		dispatcherInstance.init(options);
 
-		callback(this.registryInstance);
-		await this.registryInstance.sync();
+		callback(registryInstance);
+		await registryInstance.sync();
 
-		this.registryInstance.freeze();
-		this.started = true;
+		registryInstance.freeze();
+		started = true;
 
 		if (options.app !== undefined) {
-			options.app(this.getAppData());
+			options.app(getAppData());
 		}
 	}
 
-	static registry() {
-		this.assertAccess("registry");
-		return this.registryInstance;
+	export function registry() {
+		assertAccess("registry");
+		return registryInstance;
 	}
 
-	static dispatcher() {
-		this.assertAccess("dispatcher");
-		return this.dispatcherInstance;
+	export function dispatcher() {
+		assertAccess("dispatcher");
+		return dispatcherInstance;
 	}
 
-	static options() {
-		this.assertAccess("options");
-		return this.optionsObject;
+	export function options() {
+		assertAccess("options");
+		return optionsObject;
 	}
 
-	private static getAppData(): AppData {
+	export function getAppData(): AppData {
 		return {
-			options: this.optionsObject,
-			execute: (path, text) => this.dispatcherInstance.run(path, text),
-			commands: this.registryInstance.getCommandOptions(),
-			groups: this.registryInstance.getGroupOptions(),
-			history: this.dispatcherInstance.getHistory(),
-			onHistoryUpdated: this.dispatcherInstance.getHistorySignal(),
+			options: optionsObject,
+			execute: (path, text) => dispatcherInstance.run(path, text),
+			commands: registryInstance.getCommandOptions(),
+			groups: registryInstance.getGroupOptions(),
+			history: dispatcherInstance.getHistory(),
+			onHistoryUpdated: dispatcherInstance.getHistorySignal(),
 		};
 	}
 
-	private static assertAccess(name: string) {
+	function assertAccess(name: string) {
 		assert(IS_CLIENT, `Client ${name} cannot be accessed from the server`);
-		assert(this.started, "Commander has not been started yet");
+		assert(started, "Commander has not been started yet");
 	}
 }

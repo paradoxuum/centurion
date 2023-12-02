@@ -1,7 +1,8 @@
 import { BindingOrValue } from "@rbxts/pretty-react-hooks";
-import Roact, { forwardRef, Ref } from "@rbxts/roact";
+import Roact, { Ref, forwardRef } from "@rbxts/roact";
 
-export interface FrameProps<T extends Instance = Frame> extends Roact.PropsWithChildren {
+export interface FrameProps<T extends Instance = Frame>
+	extends Roact.PropsWithChildren {
 	ref?: Roact.Ref<T>;
 	event?: Roact.JsxInstanceEvents<T>;
 	change?: Roact.JsxInstanceChangeEvents<T>;
@@ -36,7 +37,9 @@ export const Frame = forwardRef((props: FrameProps, ref: Ref<Frame>) => {
 			Event={props.event || {}}
 			Change={props.change || {}}
 		>
-			{props.cornerRadius && <uicorner key="corner" CornerRadius={props.cornerRadius} />}
+			{props.cornerRadius && (
+				<uicorner key="corner" CornerRadius={props.cornerRadius} />
+			)}
 			{props.children}
 		</frame>
 	);

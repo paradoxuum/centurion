@@ -1,21 +1,14 @@
-import { CommandInteractionData } from "../types";
+import { CommandInteractionData, CommandReply } from "../types";
 
 export class CommandInteraction {
 	private onReplySignal = new Instance("BindableEvent");
-	private replySuccess?: boolean;
-	private replyText?: string;
-	private replyTime?: number;
+	private replyData?: CommandReply;
 
-	constructor(
-		readonly executor: Player,
-		readonly text: string,
-	) {}
+	constructor(readonly executor: Player, readonly text: string) {}
 
 	static fromData(data: CommandInteractionData) {
 		const interaction = new CommandInteraction(data.executor, data.text);
-		interaction.replySuccess = data.replySuccess;
-		interaction.replyText = data.replyText;
-		interaction.replyTime = data.replyTime;
+		interaction.replyData = data.reply;
 		return interaction;
 	}
 
@@ -23,9 +16,7 @@ export class CommandInteraction {
 		return {
 			executor: this.executor,
 			text: this.text,
-			replySuccess: this.replySuccess,
-			replyText: this.replyText,
-			replyTime: this.replyTime,
+			reply: this.replyData,
 		};
 	}
 
@@ -34,14 +25,13 @@ export class CommandInteraction {
 	}
 
 	replyFromData(data: CommandInteractionData) {
-		if (data.replyText === undefined) {
-			return;
-		}
+		if (data.reply === undefined) return;
 
-		assert(this.replyText === undefined, "This CommandInteraction has already received a reply");
-		this.replySuccess = data.replySuccess;
-		this.replyText = data.replyText;
-		this.replyTime = data.replyTime;
+		assert(
+			this.replyData === undefined,
+			"This CommandInteraction has already received a reply",
+		);
+		this.replyData = data.reply;
 		this.onReplySignal.Fire();
 	}
 
@@ -57,27 +47,24 @@ export class CommandInteraction {
 		this.onReplySignal.Destroy();
 	}
 
-	isReplySuccess() {
-		return this.replySuccess;
-	}
-
 	isReplyReceived() {
-		return this.replyText !== undefined;
+		return this.reply !== undefined;
 	}
 
-	getReplyText() {
-		return this.replyText;
-	}
-
-	getReplyTime() {
-		return this.replyTime;
+	getReply() {
+		return this.replyData;
 	}
 
 	private setReply(text: string, success: boolean) {
-		assert(this.replyText === undefined, "This CommandInteraction has already received a reply");
-		this.replyText = text;
-		this.replySuccess = success;
-		this.replyTime = os.time();
+		assert(
+			this.reply === undefined,
+			"This CommandInteraction has already received a reply",
+		);
+		this.replyData = {
+			text,
+			success,
+			sentAt: os.time(),
+		};
 		this.onReplySignal.Fire();
 	}
 }

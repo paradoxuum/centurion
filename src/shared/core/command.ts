@@ -1,9 +1,18 @@
 import { Result } from "@rbxts/rust-classes";
 import { freeze as freezeArray } from "@rbxts/sift/out/Array";
-import { copyDeep as copyObjectDeep, freezeDeep as freezeObjectDeep } from "@rbxts/sift/out/Dictionary";
+import {
+	copyDeep as copyObjectDeep,
+	freezeDeep as freezeObjectDeep,
+} from "@rbxts/sift/out/Dictionary";
 import { ReadonlyDeepObject } from "@rbxts/sift/out/Util";
-import { CommandGuard, CommandMetadata, CommandOptions, GroupOptions, TypeOptions } from "../types";
-import { Reflect } from "../util/reflect";
+import {
+	CommandGuard,
+	CommandMetadata,
+	CommandOptions,
+	GroupOptions,
+	TypeOptions,
+} from "../types";
+import { MetadataReflect } from "../util/reflect";
 import { MetadataKey } from "./decorators";
 import { CommandInteraction } from "./interaction";
 import { ImmutableCommandPath } from "./path";
@@ -20,11 +29,26 @@ export class CommandData {
 	static fromHolder(commandHolder: object, commandName: string) {
 		const commandClass = new (commandHolder as new () => defined)();
 
-		const metadata = Reflect.getOwnMetadata<CommandMetadata>(commandHolder, MetadataKey.Command, commandName);
-		assert(metadata !== undefined, `Command metadata not found: ${commandHolder}/${commandName}`);
+		const metadata = MetadataReflect.getOwnMetadata<CommandMetadata>(
+			commandHolder,
+			MetadataKey.Command,
+			commandName,
+		);
+		assert(
+			metadata !== undefined,
+			`Command metadata not found: ${commandHolder}/${commandName}`,
+		);
 
-		const group = Reflect.getOwnMetadata<string[]>(commandHolder, MetadataKey.Group, commandName);
-		const guards = Reflect.getOwnMetadata<CommandGuard[]>(commandHolder, MetadataKey.Guard, commandName);
+		const group = MetadataReflect.getOwnMetadata<string[]>(
+			commandHolder,
+			MetadataKey.Group,
+			commandName,
+		);
+		const guards = MetadataReflect.getOwnMetadata<CommandGuard[]>(
+			commandHolder,
+			MetadataKey.Guard,
+			commandName,
+		);
 
 		return new CommandData(commandClass, metadata, group ?? [], guards ?? []);
 	}
@@ -35,7 +59,11 @@ export abstract class BaseCommand {
 	protected readonly path: ImmutableCommandPath;
 	readonly options: ReadonlyDeepObject<CommandOptions>;
 
-	constructor(registry: BaseRegistry, path: ImmutableCommandPath, options: CommandOptions) {
+	constructor(
+		registry: BaseRegistry,
+		path: ImmutableCommandPath,
+		options: CommandOptions,
+	) {
 		this.path = path;
 		this.options = freezeObjectDeep(copyObjectDeep(options));
 
@@ -100,7 +128,14 @@ export class ExecutableCommand extends BaseCommand {
 		data: CommandMetadata,
 		guards?: CommandGuard[],
 	) {
-		return new ExecutableCommand(registry, path, commandClass, data.options, data.func, guards ?? []);
+		return new ExecutableCommand(
+			registry,
+			path,
+			commandClass,
+			data.options,
+			data.func,
+			guards ?? [],
+		);
 	}
 
 	execute(interaction: CommandInteraction, args: string[]) {
@@ -153,7 +188,10 @@ export class ExecutableCommand extends BaseCommand {
 		return `ExecutableCommand{path=${this.path}}`;
 	}
 
-	protected getCommandCallback(interaction: CommandInteraction, args: string[]) {
+	protected getCommandCallback(
+		interaction: CommandInteraction,
+		args: string[],
+	) {
 		const guardCount = this.guards.size();
 		let nextIndex = 0;
 		const runNext = () => {
@@ -170,7 +208,11 @@ export class ExecutableCommand extends BaseCommand {
 				return;
 			}
 
-			return this.func(this.commandClass, interaction, ...transformedArgs.unwrap());
+			return this.func(
+				this.commandClass,
+				interaction,
+				...transformedArgs.unwrap(),
+			);
 		};
 
 		return runNext;
@@ -182,10 +224,7 @@ export class CommandGroup {
 	private readonly groups = new Map<string, CommandGroup>();
 	readonly options: ReadonlyDeepObject<GroupOptions>;
 
-	constructor(
-		readonly path: ImmutableCommandPath,
-		options: GroupOptions,
-	) {
+	constructor(readonly path: ImmutableCommandPath, options: GroupOptions) {
 		this.options = options;
 	}
 

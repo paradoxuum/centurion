@@ -41,7 +41,9 @@ export function Image(props: ImageProps) {
 			Event={props.event || {}}
 			Change={props.change || {}}
 		>
-			{props.cornerRadius && <uicorner key="corner" CornerRadius={props.cornerRadius} />}
+			{props.cornerRadius && (
+				<uicorner key="corner" CornerRadius={props.cornerRadius} />
+			)}
 			{props.children}
 		</imagelabel>
 	);

@@ -35,7 +35,10 @@ export class ServerRegistry extends BaseRegistry {
 		});
 	}
 
-	protected registerCommand(commandData: CommandData, group?: CommandGroup | undefined): void {
+	protected registerCommand(
+		commandData: CommandData,
+		group?: CommandGroup | undefined,
+	): void {
 		super.registerCommand(commandData, group);
 		this.notifySyncUpdate();
 	}
@@ -53,9 +56,10 @@ export class ServerRegistry extends BaseRegistry {
 		const syncedCommands = new Map<string, CommandOptions>();
 		for (const [k, v] of this.commands) {
 			const readonlyArgs = v.options.arguments;
-			const args: ArgumentOptions[] | undefined = readonlyArgs !== undefined ? [] : undefined;
-			if (args !== undefined) {
-				for (const arg of readonlyArgs!) {
+			let args: ArgumentOptions[] | undefined;
+			if (readonlyArgs !== undefined) {
+				args = [];
+				for (const arg of readonlyArgs) {
 					args.push({
 						...arg,
 					});

@@ -10,7 +10,12 @@ export function Layer({ displayOrder, children }: LayerProps) {
 	return IS_EDIT ? (
 		<Group zIndex={displayOrder}>{children}</Group>
 	) : (
-		<screengui ResetOnSpawn={false} DisplayOrder={displayOrder} IgnoreGuiInset ZIndexBehavior="Sibling">
+		<screengui
+			ResetOnSpawn={false}
+			DisplayOrder={displayOrder}
+			IgnoreGuiInset
+			ZIndexBehavior="Sibling"
+		>
 			{children}
 		</screengui>
 	);

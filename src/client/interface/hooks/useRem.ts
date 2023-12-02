@@ -21,7 +21,12 @@ const scaleFunctions = {
 	},
 
 	UDim2: (value: UDim2, rem: number): UDim2 => {
-		return new UDim2(value.X.Scale, value.X.Offset * rem, value.Y.Scale, value.Y.Offset * rem);
+		return new UDim2(
+			value.X.Scale,
+			value.X.Offset * rem,
+			value.Y.Scale,
+			value.Y.Offset * rem,
+		);
 	},
 
 	UDim: (value: UDim, rem: number): UDim => {
@@ -41,14 +46,22 @@ function useRemContext({ minimum = 0, maximum = math.huge }: RemOptions = {}) {
 export function useRem(options?: RemOptions): RemFunction {
 	const rem = useRemContext(options);
 
-	const remFunction: RemFunction = <T>(value: T, mode: RemScaleMode = "unit"): T => {
-		const scale = scaleFunctions[typeOf(value) as never] as <T>(value: T, rem: number) => T;
+	const remFunction: RemFunction = <T>(
+		value: T,
+		mode: RemScaleMode = "unit",
+	): T => {
+		const scale = scaleFunctions[typeOf(value) as never] as <T>(
+			value: T,
+			rem: number,
+		) => T;
 
 		if (scale) {
-			return mode === "unit" ? scale(value, rem) : scale(value, rem / DEFAULT_REM);
-		} else {
-			return value;
+			return mode === "unit"
+				? scale(value, rem)
+				: scale(value, rem / DEFAULT_REM);
 		}
+
+		return value;
 	};
 
 	return useCallback(remFunction, [rem]);

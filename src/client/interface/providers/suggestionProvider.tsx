@@ -16,12 +16,19 @@ export const DEFAULT_SUGGESTION_CONTEXT: SuggestionContextData = {
 
 export const SuggestionContext = createContext(DEFAULT_SUGGESTION_CONTEXT);
 
-export function SuggestionProvider({ getSuggestion, children }: SuggestionProviderProps) {
+export function SuggestionProvider({
+	getSuggestion,
+	children,
+}: SuggestionProviderProps) {
 	const [suggestion, setSuggestion] = useState<Suggestion | undefined>();
 
 	const updateSuggestion = useCallback((query?: SuggestionQuery) => {
 		setSuggestion(query !== undefined ? getSuggestion(query) : undefined);
 	}, []);
 
-	return <SuggestionContext.Provider value={{ suggestion, updateSuggestion }}>{children}</SuggestionContext.Provider>;
+	return (
+		<SuggestionContext.Provider value={{ suggestion, updateSuggestion }}>
+			{children}
+		</SuggestionContext.Provider>
+	);
 }

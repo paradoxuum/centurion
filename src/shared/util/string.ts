@@ -41,32 +41,45 @@ const ESCAPE_PATTERN = `(\*)['"]$`;
  * @param max the max number of splits
  * @returns the split string
  */
-export function splitStringBySpace(text: string, max: number = math.huge): string[] {
-	text = encodeControlChars(text);
+export function splitStringBySpace(
+	text: string,
+	max: number = math.huge,
+): string[] {
+	const resultText = encodeControlChars(text);
 	const t: string[] = [];
 
 	let buf: string | undefined;
 	let quoted: string | undefined;
-	for (let [str] of text.gmatch("[^ ]+")) {
+	for (let [str] of resultText.gmatch("[^ ]+")) {
 		str = parseEscapeSequences(str as string);
 
 		const startQuote = str.match(START_QUOTE_PATTERN)[0] as string;
 		const endQuote = str.match(END_QUOTE_PATTERN)[0] as string;
 		const escaped = str.match(ESCAPE_PATTERN)[0] as string;
 
-		if (startQuote !== undefined && quoted === undefined && endQuote === undefined) {
+		if (
+			startQuote !== undefined &&
+			quoted === undefined &&
+			endQuote === undefined
+		) {
 			[buf, quoted] = [str, startQuote];
-		} else if (buf !== undefined && endQuote === quoted && escaped.size() % 2 === 0) {
-			[str, buf, quoted] = [buf + (" " + str), undefined, undefined];
+		} else if (
+			buf !== undefined &&
+			endQuote === quoted &&
+			escaped.size() % 2 === 0
+		) {
+			[str, buf, quoted] = [`${buf} ${str}`, undefined, undefined];
 		} else if (buf !== undefined) {
-			buf = buf + (" " + str);
+			buf = `${buf} ${str}`;
 		}
 
 		if (buf !== undefined) {
 			continue;
 		}
 
-		const result = decodeControlChars(str.gsub(START_QUOTE_PATTERN, "")[0].gsub(END_QUOTE_PATTERN, "")[0]);
+		const result = decodeControlChars(
+			str.gsub(START_QUOTE_PATTERN, "")[0].gsub(END_QUOTE_PATTERN, "")[0],
+		);
 		if (t.size() > max) {
 			t[t.size() - 1] = result;
 		} else {

@@ -25,7 +25,11 @@ export function CommanderApp(data: AppData) {
 	root.render(
 		createPortal(
 			<StrictMode>
-				<RootProvider key="root-provider" data={data} getSuggestion={getSuggestion}>
+				<RootProvider
+					key="root-provider"
+					data={data}
+					getSuggestion={getSuggestion}
+				>
 					<Layer key="terminal">
 						<Terminal key="terminal-layer" />
 					</Layer>

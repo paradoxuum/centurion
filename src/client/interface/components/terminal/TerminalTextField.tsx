@@ -1,8 +1,21 @@
-import { BindingOrValue, getBindingValue, useEventListener } from "@rbxts/pretty-react-hooks";
+import {
+	BindingOrValue,
+	getBindingValue,
+	useEventListener,
+} from "@rbxts/pretty-react-hooks";
 import { useSelector } from "@rbxts/react-reflex";
-import Roact, { useBinding, useCallback, useContext, useEffect, useRef } from "@rbxts/roact";
+import Roact, {
+	useBinding,
+	useCallback,
+	useContext,
+	useEffect,
+	useRef,
+} from "@rbxts/roact";
 import { UserInputService } from "@rbxts/services";
-import { endsWithSpace, formatPartsAsPath } from "../../../../shared/util/string";
+import {
+	endsWithSpace,
+	formatPartsAsPath,
+} from "../../../../shared/util/string";
 import { DEFAULT_HISTORY_LENGTH } from "../../../options";
 import { fonts } from "../../constants/fonts";
 import { palette } from "../../constants/palette";
@@ -25,7 +38,13 @@ interface TerminalTextFieldProps {
 	onSubmit?: (text: string) => void;
 }
 
-export function TerminalTextField({ anchorPoint, size, position, onTextChange, onSubmit }: TerminalTextFieldProps) {
+export function TerminalTextField({
+	anchorPoint,
+	size,
+	position,
+	onTextChange,
+	onSubmit,
+}: TerminalTextFieldProps) {
 	const rem = useRem();
 	const ref = useRef<TextBox>();
 	const data = useContext(DataContext);
@@ -55,7 +74,8 @@ export function TerminalTextField({ anchorPoint, size, position, onTextChange, o
 		setSuggestionText("");
 		store.setCommandHistoryIndex(newIndex);
 
-		if (ref.current !== undefined) ref.current.CursorPosition = newText.size() + 1;
+		if (ref.current !== undefined)
+			ref.current.CursorPosition = newText.size() + 1;
 	}, []);
 
 	useEffect(() => {
@@ -78,11 +98,14 @@ export function TerminalTextField({ anchorPoint, size, position, onTextChange, o
 		const atNextPart = endsWithSpace(store.getState().app.text.value);
 
 		let newText = getBindingValue(text);
-		if (suggestion.main.type === "argument") {
-			const command = store.getState().app.command!;
-			const argIndex = store.getState().app.argIndex!;
+		const command = store.getState().app.command;
+		const argIndex = store.getState().app.argIndex;
+		if (
+			suggestion.main.type === "argument" &&
+			command !== undefined &&
+			argIndex !== undefined
+		) {
 			const argNames = getArgumentNames(command);
-
 			for (const i of $range(argIndex, argNames.size() - 1)) {
 				const firstArg = i === argIndex;
 				if (firstArg && !atNextPart) {
@@ -90,10 +113,11 @@ export function TerminalTextField({ anchorPoint, size, position, onTextChange, o
 					continue;
 				}
 
-				newText += argNames[i] + " ";
+				newText = `${newText}${argNames[i]} `;
 			}
-		} else {
-			const suggestionStartIndex = (!atNextPart ? parts[parts.size() - 1].size() : 0) + 1;
+		} else if (suggestion.main.type === "command") {
+			const suggestionStartIndex =
+				(!atNextPart ? parts[parts.size() - 1].size() : 0) + 1;
 			newText += suggestion.main.title.sub(suggestionStartIndex);
 		}
 
@@ -116,11 +140,18 @@ export function TerminalTextField({ anchorPoint, size, position, onTextChange, o
 
 		// Handle command suggestions
 		if (commandPath === undefined && suggestionTextValue !== undefined) {
-			const suggestionTextParts = suggestionTextValue.gsub("%s+", " ")[0].split(" ");
-			const nextCommand = data.commands.get(formatPartsAsPath(suggestionTextParts));
+			const suggestionTextParts = suggestionTextValue
+				.gsub("%s+", " ")[0]
+				.split(" ");
+			const nextCommand = data.commands.get(
+				formatPartsAsPath(suggestionTextParts),
+			);
 
 			let newText = suggestionTextValue;
-			if (nextCommand === undefined || (nextCommand.arguments?.size() ?? 0) > 0) {
+			if (
+				nextCommand === undefined ||
+				(nextCommand.arguments?.size() ?? 0) > 0
+			) {
 				newText += " ";
 			}
 
@@ -130,7 +161,12 @@ export function TerminalTextField({ anchorPoint, size, position, onTextChange, o
 		}
 
 		// Handle argument suggestions
-		if (commandPath === undefined || suggestion === undefined || suggestion.others.isEmpty()) return;
+		if (
+			commandPath === undefined ||
+			suggestion === undefined ||
+			suggestion.others.isEmpty()
+		)
+			return;
 
 		const argIndex = store.getState().app.argIndex;
 		const commandArgs = data.commands.get(commandPath.toString())?.arguments;
@@ -176,7 +212,10 @@ export function TerminalTextField({ anchorPoint, size, position, onTextChange, o
 				event={{
 					FocusLost: (rbx, enterPressed) => {
 						if (!enterPressed) return;
-						store.addCommandHistory(rbx.Text, data.options.historyLength ?? DEFAULT_HISTORY_LENGTH);
+						store.addCommandHistory(
+							rbx.Text,
+							data.options.historyLength ?? DEFAULT_HISTORY_LENGTH,
+						);
 						store.setCommandHistoryIndex(-1);
 						onSubmit?.(rbx.Text);
 						ref.current?.CaptureFocus();

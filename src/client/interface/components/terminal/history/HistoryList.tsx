@@ -19,7 +19,12 @@ interface HistoryListProps {
 	scrollingEnabled?: BindingOrValue<boolean>;
 }
 
-export function HistoryList({ data, size, position, maxHeight }: HistoryListProps) {
+export function HistoryList({
+	data,
+	size,
+	position,
+	maxHeight,
+}: HistoryListProps) {
 	const rem = useRem();
 
 	const [scrollingEnabled, setScrollingEnabled] = useBinding(false);
@@ -56,7 +61,11 @@ export function HistoryList({ data, size, position, maxHeight }: HistoryListProp
 				);
 			})}
 
-			<uilistlayout key="layout" Padding={new UDim(0, rem(0.5))} SortOrder="LayoutOrder" />
+			<uilistlayout
+				key="layout"
+				Padding={new UDim(0, rem(0.5))}
+				SortOrder="LayoutOrder"
+			/>
 		</ScrollingFrame>
 	);
 }

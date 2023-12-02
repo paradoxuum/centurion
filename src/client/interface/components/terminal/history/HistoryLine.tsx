@@ -19,9 +19,11 @@ interface HistoryLineProps {
 export function HistoryLine({ data, size, position, order }: HistoryLineProps) {
 	const rem = useRem();
 	const date = useMemo(() => {
-		const dateTime = DateTime.fromUnixTimestamp(data.sentAt).FormatUniversalTime("LT", "en-us");
+		const dateTime = DateTime.fromUnixTimestamp(
+			data.sentAt,
+		).FormatUniversalTime("LT", "en-us");
 		const dateParts = dateTime.split(" ");
-		return "<b>" + dateParts[0] + "</b> " + dateParts[1];
+		return `<b>${dateParts[0]}</b>${dateParts[1]}`;
 	}, [data]);
 
 	return (

@@ -1,4 +1,9 @@
-import { BuiltInTypes, Command, CommandInteraction, Commander } from "@rbxts/commander";
+import {
+	BuiltInTypes,
+	Command,
+	CommandInteraction,
+	Commander,
+} from "@rbxts/commander";
 
 @Commander()
 class KillCommand {

@@ -8,7 +8,8 @@ export function getArgumentNames(path: CommandPath) {
 	}
 
 	const command = CommanderClient.registry().getCommand(path);
-	if (command === undefined || command.options.arguments === undefined) return [];
+	if (command === undefined || command.options.arguments === undefined)
+		return [];
 
 	return command.options.arguments.map((arg) => arg.name);
 }

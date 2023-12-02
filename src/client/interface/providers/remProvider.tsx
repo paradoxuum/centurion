@@ -1,4 +1,9 @@
-import { map, useCamera, useDebounceState, useEventListener } from "@rbxts/pretty-react-hooks";
+import {
+	map,
+	useCamera,
+	useDebounceState,
+	useEventListener,
+} from "@rbxts/pretty-react-hooks";
 import Roact, { createContext, useEffect } from "@rbxts/roact";
 
 export interface RemProviderProps extends Roact.PropsWithChildren {
@@ -33,7 +38,10 @@ export function RemProvider({
 		}
 
 		// wide screens should not scale beyond mobile aspect ratio
-		const resolution = new Vector2(math.min(viewport.X, viewport.Y * MAX_ASPECT_RATIO), viewport.Y);
+		const resolution = new Vector2(
+			math.min(viewport.X, viewport.Y * MAX_ASPECT_RATIO),
+			viewport.Y,
+		);
 		const scale = resolution.Magnitude / BASE_RESOLUTION.Magnitude;
 		const desktop = resolution.X > resolution.Y || scale >= 1;
 

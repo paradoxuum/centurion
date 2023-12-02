@@ -13,5 +13,8 @@ export const remotes = createRemotes({
 		dispatch: remote<Client, [data: SyncData]>(),
 	}),
 
-	executeCommand: remote<Server, [path: string, text: string]>(t.string, t.string).returns<CommandInteractionData>(),
+	executeCommand: remote<Server, [path: string, text: string]>(
+		t.string,
+		t.string,
+	).returns<CommandInteractionData>(),
 });

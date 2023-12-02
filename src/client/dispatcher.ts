@@ -1,8 +1,7 @@
 import { Players } from "@rbxts/services";
 import { CommandPath } from "../shared";
 import { BaseDispatcher } from "../shared/core/dispatcher";
-import { DEFAULT_HISTORY_LENGTH, DEFAULT_OPTIONS } from "./options";
-import { ClientRegistry } from "./registry";
+import { DEFAULT_HISTORY_LENGTH } from "./options";
 import { ClientOptions, HistoryEntry } from "./types";
 
 export class ClientDispatcher extends BaseDispatcher {
@@ -10,16 +9,16 @@ export class ClientDispatcher extends BaseDispatcher {
 	private readonly historyEvent = new Instance("BindableEvent");
 	private maxHistoryLength = DEFAULT_HISTORY_LENGTH;
 
-	constructor(registry: ClientRegistry) {
-		super(registry);
-	}
-
 	init(options: ClientOptions) {
-		this.maxHistoryLength = options.historyLength ?? DEFAULT_OPTIONS.historyLength!;
+		this.maxHistoryLength = options.historyLength ?? DEFAULT_HISTORY_LENGTH;
 	}
 
-	async run(path: CommandPath, text: string = "") {
-		const [success, interaction] = this.executeCommand(path, Players.LocalPlayer, text).await();
+	async run(path: CommandPath, text = "") {
+		const [success, interaction] = this.executeCommand(
+			path,
+			Players.LocalPlayer,
+			text,
+		).await();
 		if (!success) {
 			warn(`An error occurred while executing '${text}': ${interaction}`);
 
@@ -32,10 +31,13 @@ export class ClientDispatcher extends BaseDispatcher {
 			return errorEntry;
 		}
 
+		const reply = interaction.getData().reply;
+		assert(reply !== undefined, "Reply not received");
+
 		const entry: HistoryEntry = {
-			text: interaction.getReplyText()!,
-			success: interaction.isReplySuccess()!,
-			sentAt: interaction.getReplyTime()!,
+			text: reply.text,
+			success: reply.success,
+			sentAt: reply.sentAt,
 		};
 
 		this.addHistoryEntry(entry);
@@ -58,4 +60,6 @@ export class ClientDispatcher extends BaseDispatcher {
 		this.history.push(entry);
 		this.historyEvent.Fire(entry);
 	}
+
+	private addErrorEntry() {}
 }

@@ -1,4 +1,10 @@
-import { BuiltInTypes, Command, CommandInteraction, Commander, Group } from "@rbxts/commander";
+import {
+	BuiltInTypes,
+	Command,
+	CommandInteraction,
+	Commander,
+	Group,
+} from "@rbxts/commander";
 
 @Commander({
 	groups: [
@@ -23,7 +29,13 @@ class InfoCommand {
 	@Command({
 		name: "view",
 		description: "Views information about a user",
-		arguments: [{ name: "player", description: "Player to view information for", type: BuiltInTypes.Player }],
+		arguments: [
+			{
+				name: "player",
+				description: "Player to view information for",
+				type: BuiltInTypes.Player,
+			},
+		],
 	})
 	@Group("user")
 	userView(interaction: CommandInteraction, player: Player) {
@@ -36,6 +48,6 @@ class InfoCommand {
 	})
 	@Group("server")
 	serverView(interaction: CommandInteraction) {
-		interaction.reply(`<Random data about the server here>`);
+		interaction.reply("<Random data about the server here>");
 	}
 }

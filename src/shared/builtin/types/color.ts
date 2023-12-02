@@ -219,10 +219,8 @@ const brickColorNameArray = [...brickColorNames];
 const brickColorType = TypeBuilder.create<BrickColor>(BuiltInTypes.BrickColor)
 	.validate(t.BrickColor)
 	.transform((text) => {
-		if (!brickColorNames.has(text)) {
+		if (!brickColorNames.has(text))
 			return TransformResult.err("Invalid BrickColor");
-		}
-
 		return TransformResult.ok(BrickColor[text as never]);
 	})
 	.suggestions(() => brickColorNameArray)
@@ -238,7 +236,8 @@ function isHexColor(value: unknown): value is Color3 {
 const hexColorType = TypeBuilder.create<Color3>(BuiltInTypes.HexColor)
 	.validate(isHexColor)
 	.transform((text) => {
-		if (text.match(HEX_COLOR_PATTERN).isEmpty()) return TransformResult.err("Invalid hex code");
+		if (text.match(HEX_COLOR_PATTERN).isEmpty())
+			return TransformResult.err("Invalid hex code");
 		return TransformResult.ok(Color3.fromHex(text));
 	})
 	.build();

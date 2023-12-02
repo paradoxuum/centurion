@@ -1,13 +1,12 @@
-import { CommandInteraction, CommandInteractionData, CommandPath } from "../shared";
+import {
+	CommandInteraction,
+	CommandInteractionData,
+	CommandPath,
+} from "../shared";
 import { BaseDispatcher } from "../shared/core/dispatcher";
 import { remotes } from "../shared/network";
-import { ServerRegistry } from "./registry";
 
 export class ServerDispatcher extends BaseDispatcher {
-	constructor(registry: ServerRegistry) {
-		super(registry);
-	}
-
 	init() {
 		remotes.executeCommand.onRequest(async (player, path, text) => {
 			const commandPath = CommandPath.fromString(path);
@@ -21,16 +20,18 @@ export class ServerDispatcher extends BaseDispatcher {
 				interactionData = {
 					executor: player,
 					text,
-					replySuccess: false,
-					replyText: "An error occurred.",
-					replyTime: os.time(),
+					reply: {
+						success: false,
+						text: "An error occurred.",
+						sentAt: os.time(),
+					},
 				};
 			}
 			return interactionData;
 		});
 	}
 
-	async run(path: CommandPath, executor: Player, text: string = "") {
+	async run(path: CommandPath, executor: Player, text = "") {
 		return this.executeCommand(path, executor, text).catch((err) => {
 			this.handleError(executor, text, err);
 
@@ -41,6 +42,8 @@ export class ServerDispatcher extends BaseDispatcher {
 	}
 
 	private handleError(executor: Player, text: string, err: unknown) {
-		warn(`${executor.Name} tried to run '${text}' but an error occurred: ${err}`);
+		warn(
+			`${executor.Name} tried to run '${text}' but an error occurred: ${err}`,
+		);
 	}
 }

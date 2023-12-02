@@ -5,7 +5,11 @@ import { TextService } from "@rbxts/services";
 import { copy, pop, slice } from "@rbxts/sift/out/Array";
 import { copyDeep } from "@rbxts/sift/out/Dictionary";
 import { ImmutableCommandPath } from "../../../../shared";
-import { endsWithSpace, formatPartsAsPath, splitStringBySpace } from "../../../../shared/util/string";
+import {
+	endsWithSpace,
+	formatPartsAsPath,
+	splitStringBySpace,
+} from "../../../../shared/util/string";
 import { DEFAULT_HISTORY_LENGTH } from "../../../options";
 import { DEFAULT_FONT } from "../../constants/fonts";
 import { palette } from "../../constants/palette";
@@ -62,12 +66,16 @@ export function TerminalWindow() {
 	});
 
 	useEventListener(data.onHistoryUpdated, (entry) => {
-		store.addHistoryEntry(entry, data.options.historyLength ?? DEFAULT_HISTORY_LENGTH);
+		store.addHistoryEntry(
+			entry,
+			data.options.historyLength ?? DEFAULT_HISTORY_LENGTH,
+		);
 	});
 
 	useEffect(() => {
 		const historySize = history.size();
-		let totalHeight = historySize > 0 ? rem(0.5) + (historySize - 1) * rem(0.5) : 0;
+		let totalHeight =
+			historySize > 0 ? rem(0.5) + (historySize - 1) * rem(0.5) : 0;
 
 		textBoundsParams.Size = rem(1.5);
 
@@ -89,10 +97,19 @@ export function TerminalWindow() {
 	}, [history, rem]);
 
 	return (
-		<Frame size={windowHeightBinding} backgroundColor={palette.crust} cornerRadius={new UDim(0, rem(0.5))}>
+		<Frame
+			size={windowHeightBinding}
+			backgroundColor={palette.crust}
+			cornerRadius={new UDim(0, rem(0.5))}
+		>
 			<Padding key="padding" all={new UDim(0, rem(0.5))} />
 
-			<HistoryList key="history" size={new UDim2(1, 0, 1, -rem(4.5))} data={historyData} maxHeight={rem(16)} />
+			<HistoryList
+				key="history"
+				size={new UDim2(1, 0, 1, -rem(4.5))}
+				data={historyData}
+				maxHeight={rem(16)}
+			/>
 
 			<TerminalTextField
 				key="text-field"
@@ -119,14 +136,19 @@ export function TerminalWindow() {
 					let showArgs = atCommand && atNextPart;
 
 					if (parentPath !== undefined) {
-						if (formatPartsAsPath(slice(parts, 1, parentPath.getSize())) === parentPath.toString()) {
+						if (
+							formatPartsAsPath(slice(parts, 1, parentPath.getSize())) ===
+							parentPath.toString()
+						) {
 							// The current path still leads to the command, so it's valid
 							atCommand = true;
 							showArgs = atNextPart || parts.size() !== parentPath.getSize();
 
 							if (!showArgs) {
 								parentPath =
-									parentPath.getSize() > 1 ? parentPath.remove(parentPath.getSize() - 1) : undefined;
+									parentPath.getSize() > 1
+										? parentPath.remove(parentPath.getSize() - 1)
+										: undefined;
 							}
 						} else {
 							// As a last resort, iterate over all parts of text to check if it points to a command
@@ -146,7 +168,8 @@ export function TerminalWindow() {
 						}
 					} else {
 						parentPath = getParentPath(parts, atNextPart);
-						if (atCommand) store.setCommand(new ImmutableCommandPath(copy(parts)));
+						if (atCommand)
+							store.setCommand(new ImmutableCommandPath(copy(parts)));
 					}
 
 					if (!atCommand) {
@@ -154,26 +177,36 @@ export function TerminalWindow() {
 						parentPath = getParentPath(parts, atNextPart);
 					}
 
-					const commandArgs = showArgs ? data.commands.get(parentPath!.toString())?.arguments : undefined;
-					const currentTextPart = !atNextPart ? parts[parts.size() - 1] : undefined;
-					if (commandArgs !== undefined) {
-						const argIndex = parts.size() - parentPath!.getSize() - (atNextPart ? 0 : 1);
-						if (argIndex >= commandArgs.size()) return;
+					const argCount =
+						showArgs && parentPath !== undefined
+							? data.commands.get(parentPath.toString())?.arguments?.size() ?? 0
+							: 0;
+					const currentTextPart = !atNextPart
+						? parts[parts.size() - 1]
+						: undefined;
 
-						store.setArgIndex(argIndex);
-						suggestionData.updateSuggestion({
-							type: "argument",
-							commandPath: parentPath!,
-							index: argIndex,
-							text: currentTextPart,
-						});
-					} else {
+					if (argCount === 0) {
 						suggestionData.updateSuggestion({
 							type: "command",
 							parentPath,
 							text: currentTextPart,
 						});
+						return;
 					}
+
+					if (parentPath === undefined) return;
+
+					const argIndex =
+						parts.size() - parentPath.getSize() - (atNextPart ? 0 : 1);
+					if (argIndex >= argCount) return;
+
+					store.setArgIndex(argIndex);
+					suggestionData.updateSuggestion({
+						type: "argument",
+						commandPath: parentPath,
+						index: argIndex,
+						text: currentTextPart,
+					});
 				}}
 				onSubmit={(text) => {
 					const storeState = store.getState();

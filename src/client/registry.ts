@@ -1,7 +1,7 @@
 import { RunService } from "@rbxts/services";
 import { copyDeep } from "@rbxts/sift/out/Dictionary";
 import { CommandOptions, GroupOptions, ImmutableCommandPath } from "../shared";
-import { BaseCommand, CommandGroup } from "../shared/core/command";
+import { CommandGroup } from "../shared/core/command";
 import { BaseRegistry } from "../shared/core/registry";
 import { remotes } from "../shared/network";
 import { ServerCommand } from "./command";
@@ -49,10 +49,12 @@ export class ClientRegistry extends BaseRegistry {
 	}
 
 	private registerServerGroups(sharedGroups: GroupOptions[]) {
-		const childGroups: GroupOptions[] = [];
+		const childMap = new Map<string, GroupOptions[]>();
 		for (const group of sharedGroups) {
 			if (group.root !== undefined) {
-				childGroups.push(group);
+				const childArray = childMap.get(group.root) ?? [];
+				childArray.push(group);
+				childMap.set(group.root, childArray);
 				continue;
 			}
 
@@ -65,16 +67,17 @@ export class ClientRegistry extends BaseRegistry {
 			this.groups.set(group.name, this.createGroup(group));
 		}
 
-		for (const group of childGroups) {
-			const rootGroup = this.groups.get(group.name);
-			assert(rootGroup !== undefined, `Parent group '${group.root!}' does not exist for group '${group.name}'`);
+		for (const [root, children] of childMap) {
+			const rootGroup = this.groups.get(root);
+			assert(rootGroup !== undefined, `Parent group '${root}' does not exist`);
 
-			if (rootGroup.hasGroup(group.name)) {
-				warn(`Skipping duplicate server group in ${group.root!}: ${group.name}`);
-				continue;
+			for (const child of children) {
+				if (rootGroup.hasGroup(child.name)) {
+					warn(`Skipping duplicate server group in ${root}: ${child}`);
+					continue;
+				}
+				rootGroup.addGroup(this.createGroup(child));
 			}
-
-			rootGroup.addGroup(this.createGroup(group));
 		}
 	}
 
@@ -91,7 +94,6 @@ export class ClientRegistry extends BaseRegistry {
 				);
 			}
 
-			let commandObject: BaseCommand;
 			if (this.commands.has(path)) {
 				// TODO Implement shared command support:
 				// - Verify that the argument options are the same
@@ -100,13 +102,11 @@ export class ClientRegistry extends BaseRegistry {
 				// - Maybe log a warning if the description is different on the client
 				warn(`Skipping shared command ${commandPath}`);
 				continue;
-			} else {
-				this.validatePath(path, true);
-				commandObject = ServerCommand.create(this, commandPath, command);
-				this.cachePath(commandPath);
 			}
 
-			this.commands.set(path, commandObject);
+			this.validatePath(path, true);
+			this.cachePath(commandPath);
+			this.commands.set(path, ServerCommand.create(this, commandPath, command));
 		}
 	}
 }

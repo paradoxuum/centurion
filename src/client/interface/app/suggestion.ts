@@ -3,7 +3,11 @@ import { CommandPath } from "../../../shared";
 import { CommanderClient } from "../../core";
 import { Suggestion } from "../types";
 
-export function getArgumentSuggestion(path: CommandPath, index: number, text?: string): Suggestion | undefined {
+export function getArgumentSuggestion(
+	path: CommandPath,
+	index: number,
+	text?: string,
+): Suggestion | undefined {
 	const command = CommanderClient.registry().getCommand(path);
 	if (command === undefined) return;
 
@@ -15,9 +19,14 @@ export function getArgumentSuggestion(path: CommandPath, index: number, text?: s
 	const typeObject = CommanderClient.registry().getType(arg.type);
 	if (typeObject === undefined) return;
 
-	let typeSuggestions = typeObject.suggestions !== undefined ? typeObject.suggestions(text ?? "") : [];
+	let typeSuggestions =
+		typeObject.suggestions !== undefined
+			? typeObject.suggestions(text ?? "")
+			: [];
 	if (!typeSuggestions.isEmpty()) {
-		typeSuggestions = getSortedIndices(typeSuggestions, text).map((index) => typeSuggestions[index]);
+		typeSuggestions = getSortedIndices(typeSuggestions, text).map(
+			(index) => typeSuggestions[index],
+		);
 	}
 
 	return {
@@ -32,7 +41,10 @@ export function getArgumentSuggestion(path: CommandPath, index: number, text?: s
 	};
 }
 
-export function getCommandSuggestion(parentPath?: CommandPath, text?: string): Suggestion | undefined {
+export function getCommandSuggestion(
+	parentPath?: CommandPath,
+	text?: string,
+): Suggestion | undefined {
 	const childPaths = CommanderClient.registry().getChildPaths(parentPath);
 	if (childPaths.isEmpty()) return;
 
@@ -46,7 +58,10 @@ export function getCommandSuggestion(parentPath?: CommandPath, text?: string): S
 		CommanderClient.registry().getGroup(firstPath)?.options;
 	if (mainData === undefined) return;
 
-	const otherNames = indices.size() > 1 ? slice(indices, 2, indices.size()).map((index) => pathNames[index]) : [];
+	const otherNames =
+		indices.size() > 1
+			? slice(indices, 2, indices.size()).map((index) => pathNames[index])
+			: [];
 	return {
 		main: {
 			type: "command",

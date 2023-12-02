@@ -2,7 +2,10 @@ import { Result } from "@rbxts/rust-classes";
 import { t } from "@rbxts/t";
 import { CommandInteraction } from "./core/interaction";
 
-export type CommandGuard = (runNext: () => void, interaction: CommandInteraction) => void;
+export type CommandGuard = (
+	runNext: () => void,
+	interaction: CommandInteraction,
+) => void;
 
 export interface CommanderOptions {
 	groups?: GroupOptions[];
@@ -42,10 +45,14 @@ export interface CommandMetadata {
 	func: (...args: unknown[]) => unknown;
 }
 
+export interface CommandReply {
+	success: boolean;
+	text: string;
+	sentAt: number;
+}
+
 export interface CommandInteractionData {
 	executor: Player;
 	text: string;
-	replySuccess?: boolean;
-	replyText?: string;
-	replyTime?: number;
+	reply?: CommandReply;
 }

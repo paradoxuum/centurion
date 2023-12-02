@@ -70,14 +70,20 @@ export const appSlice = createProducer(initialAppState, {
 		};
 	},
 
-	setCommandHistoryIndex: (state, index: number) => ({ ...state, commandHistoryIndex: index }),
+	setCommandHistoryIndex: (state, index: number) => ({
+		...state,
+		commandHistoryIndex: index,
+	}),
 
 	setHistory: (state, history: HistoryEntry[]) => ({
 		...state,
 		history,
 	}),
 
-	setCommand: (state, path?: ImmutableCommandPath) => ({ ...state, command: path }),
+	setCommand: (state, path?: ImmutableCommandPath) => ({
+		...state,
+		command: path,
+	}),
 
 	setArgIndex: (state, index?: number) => ({ ...state, argIndex: index }),
 
