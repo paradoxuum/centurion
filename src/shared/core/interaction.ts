@@ -6,7 +6,6 @@ import { CommandInteractionData, CommandReply } from "../types";
  * if one was given.
  */
 export class CommandInteraction {
-	private onReplySignal = new Instance("BindableEvent");
 	private replyData?: CommandReply;
 
 	constructor(readonly executor: Player, readonly text: string) {}
@@ -46,7 +45,6 @@ export class CommandInteraction {
 			"This CommandInteraction has already received a reply",
 		);
 		this.replyData = data.reply;
-		this.onReplySignal.Fire();
 	}
 
 	/**
@@ -56,14 +54,6 @@ export class CommandInteraction {
 	 */
 	error(text: string) {
 		this.setReply(text, false);
-	}
-
-	onReply(callback: () => void) {
-		this.onReplySignal.Event.Connect(callback);
-	}
-
-	destroy() {
-		this.onReplySignal.Destroy();
 	}
 
 	isReplyReceived() {
@@ -84,6 +74,5 @@ export class CommandInteraction {
 			success,
 			sentAt: os.time(),
 		};
-		this.onReplySignal.Fire();
 	}
 }
