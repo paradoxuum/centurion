@@ -25,8 +25,6 @@ export class CommandInteraction {
 	}
 
 	replyFromData(data: CommandInteractionData) {
-		if (data.reply === undefined) return;
-
 		assert(
 			this.replyData === undefined,
 			"This CommandInteraction has already received a reply",
@@ -48,7 +46,7 @@ export class CommandInteraction {
 	}
 
 	isReplyReceived() {
-		return this.reply !== undefined;
+		return this.replyData !== undefined;
 	}
 
 	getReply() {
@@ -57,7 +55,7 @@ export class CommandInteraction {
 
 	private setReply(text: string, success: boolean) {
 		assert(
-			this.reply === undefined,
+			this.replyData === undefined,
 			"This CommandInteraction has already received a reply",
 		);
 		this.replyData = {
