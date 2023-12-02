@@ -12,6 +12,14 @@ export namespace CommanderServer {
 	const dispatcherInstance = new ServerDispatcher(registryInstance);
 	let optionsObject = DEFAULT_OPTIONS;
 
+	/**
+	 * Starts {@link CommanderServer}.
+	 *
+	 * All registration must be done in the provided callback.
+	 *
+	 * @param callback the run callback
+	 * @param options server options
+	 */
 	export async function start(
 		callback: (run: ServerRegistry) => void,
 		options = DEFAULT_OPTIONS,
