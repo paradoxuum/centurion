@@ -5,12 +5,33 @@ on:
     pull_request:
 
 jobs:
-    quality:
+    build:
         runs-on: ubuntu-latest
         steps:
             - name: Checkout
-              uses: actions/checkout@v4
-            - name: Setup Biome
-              uses: biomejs/setup-biome@v1
+              uses: actions/checkout@v3
+
+            - name: Install pnpm
+              uses: pnpm/action-setup@v2
+              with:
+                  version: 8
+
+            - name: Install Node.js
+              uses: actions/setup-node@v3
+              with:
+                  node-version: 18
+                  cache: pnpm
+
+            - name: Install dependencies
+              run: pnpm install
+
+            - name: Setup Aftman
+              uses: ok-nick/setup-aftman@v0.4.2
+              with:
+                  token: ${{ secrets.GITHUB_TOKEN }}
+
             - name: Run Biome
-              run: biome ci .
+              run: pnpm biome ci .
+
+            - name: Compile
+              run: pnpm compile --verbose
