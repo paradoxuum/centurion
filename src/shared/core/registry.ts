@@ -29,15 +29,28 @@ export abstract class BaseRegistry {
 		this.registerContainer(builtInTypes);
 	}
 
+	/**
+	 * Freezes the registry, preventing any further registration.
+	 */
 	freeze() {
 		this.frozen = true;
 	}
 
+	/**
+	 * Registers a type from a given {@link TypeOptions}.
+	 *
+	 * @param typeOptions the type to register
+	 */
 	registerType<T extends defined>(typeOptions: TypeOptions<T>) {
 		assert(!this.frozen, "Registry frozen");
 		this.types.set(typeOptions.name, typeOptions);
 	}
 
+	/**
+	 * Registers multiple types from a list of {@link TypeOptions}.
+	 *
+	 * @param types the types to register
+	 */
 	registerTypes(...types: TypeOptions<defined>[]) {
 		assert(!this.frozen, "Registry frozen");
 		for (const options of types) {
@@ -45,6 +58,13 @@ export abstract class BaseRegistry {
 		}
 	}
 
+	/**
+	 * Requires all {@link ModuleScript}s in the given {@link Instance} and
+	 * passes this registry as an argument to the modules which export a function.
+	 *
+	 * @param container
+	 * @returns
+	 */
 	registerContainer(container: Instance) {
 		assert(!this.frozen, "Registry frozen");
 		for (const obj of container.GetChildren()) {
@@ -61,10 +81,14 @@ export abstract class BaseRegistry {
 		}
 	}
 
-	getType(name: string) {
-		return this.types.get(name);
-	}
-
+	/**
+	 * Registers all commands in the given {@link Instance}.
+	 *
+	 * Only {@link ModuleScript}s which are direct children of the
+	 * {@link Instance} will be loaded.
+	 *
+	 * @param container the {@link Instance} containing commands
+	 */
 	registerCommandsIn(container: Instance) {
 		assert(!this.frozen, "Registry frozen");
 		for (const obj of container.GetChildren()) {
@@ -85,10 +109,55 @@ export abstract class BaseRegistry {
 		}
 	}
 
+	/**
+	 * Gets a registered type.
+	 *
+	 * @param name the name of the type
+	 * @returns the registered {@link TypeOptions}, or `undefined` if it is not registered
+	 */
+	getType(name: string) {
+		return this.types.get(name);
+	}
+
+	/**
+	 * Gets a registered command.
+	 *
+	 * @param path the path of the command
+	 * @returns a {@link BaseCommand} or `undefined` if no command with the given path is registered
+	 */
 	getCommand(path: CommandPath) {
 		return this.commands.get(path.toString());
 	}
 
+	/**
+	 * Gets a registered {@link GroupOptions} from a given {@link CommandPath}.
+	 *
+	 * @param path the path of the group
+	 * @returns a {@link GroupOptions} or `undefined` if none exists at the given path
+	 */
+	getGroup(path: CommandPath) {
+		assert(
+			path.getSize() < 3,
+			`Invalid group path '${path}', a group path has a maximum of 2 parts`,
+		);
+
+		const root = this.groups.get(path.getPart(0));
+		if (path.getSize() === 1 || root === undefined) {
+			return root;
+		}
+
+		return root.getGroup(path.getPart(1));
+	}
+
+	/**
+	 * Gets all paths that are children of the given {@link CommandPath},
+	 * or gets every root path if no {@link CommandPath} is given.
+	 *
+	 * A root path is a path which contains only one part.
+	 *
+	 * @param path the path to get the children of, or `undefined` to list all root paths
+	 * @returns the paths that are children of the given path, or all paths
+	 */
 	getChildPaths(path?: CommandPath) {
 		return this.cachedPaths.get(path?.toString() ?? ROOT_NAME_KEY) ?? [];
 	}
@@ -119,20 +188,6 @@ export abstract class BaseRegistry {
 		cache.sort((a, b) => a.getTail() < b.getTail());
 		this.cachedPaths.set(key, cache);
 		return cache;
-	}
-
-	getGroup(path: CommandPath) {
-		assert(
-			path.getSize() < 3,
-			`Invalid group path '${path}', a group path has a maximum of 2 parts`,
-		);
-
-		const root = this.groups.get(path.getPart(0));
-		if (path.getSize() === 1 || root === undefined) {
-			return root;
-		}
-
-		return root.getGroup(path.getPart(1));
 	}
 
 	protected registerCommand(commandData: CommandData, group?: CommandGroup) {
