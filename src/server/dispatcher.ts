@@ -7,6 +7,12 @@ import { BaseDispatcher } from "../shared/core/dispatcher";
 import { remotes } from "../shared/network";
 
 export class ServerDispatcher extends BaseDispatcher {
+	/**
+	 * Initialises the server dispatcher.
+	 *
+	 * This handles any connections to dispatcher remotes. It is
+	 * required in order to handle server command execution from clients.
+	 */
 	init() {
 		remotes.executeCommand.onRequest(async (player, path, text) => {
 			const commandPath = CommandPath.fromString(path);
@@ -31,6 +37,14 @@ export class ServerDispatcher extends BaseDispatcher {
 		});
 	}
 
+	/**
+	 * Executes a command.
+	 *
+	 * @param path the path of the command
+	 * @param executor the command executor
+	 * @param text the text input used to execute the command
+	 * @returns a {@link CommandInteraction} determining the result of execution
+	 */
 	async run(path: CommandPath, executor: Player, text = "") {
 		return this.executeCommand(path, executor, text).catch((err) => {
 			this.handleError(executor, text, err);
