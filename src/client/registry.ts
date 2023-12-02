@@ -7,6 +7,10 @@ import { remotes } from "../shared/network";
 import { ServerCommand } from "./command";
 
 export class ClientRegistry extends BaseRegistry {
+	init() {
+		this.registerBuiltInTypes();
+	}
+
 	async sync() {
 		let firstDispatch = false;
 		remotes.sync.dispatch.connect((data) => {

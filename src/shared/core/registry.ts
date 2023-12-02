@@ -19,7 +19,7 @@ export abstract class BaseRegistry {
 	protected cachedPaths = new Map<string, CommandPath[]>();
 	protected frozen = false;
 
-	init() {
+	protected registerBuiltInTypes() {
 		const builtInTypes =
 			script.Parent?.Parent?.FindFirstChild("builtin")?.FindFirstChild("types");
 		assert(
@@ -158,6 +158,7 @@ export abstract class BaseRegistry {
 		}
 
 		this.cachePath(path);
+		return command;
 	}
 
 	private registerCommandHolder(commandHolder: object) {

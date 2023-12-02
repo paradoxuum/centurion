@@ -1,61 +1,77 @@
-import { Players, RunService } from "@rbxts/services";
-import { ArgumentOptions, CommandOptions, GroupOptions } from "../shared";
+import { Players } from "@rbxts/services";
+import {
+	ArgumentOptions,
+	CommandOptions,
+	CommandPath,
+	GroupOptions,
+} from "../shared";
 import { CommandData, CommandGroup } from "../shared/core/command";
 import { BaseRegistry } from "../shared/core/registry";
 import { SyncData, remotes } from "../shared/network";
+import { ServerOptions } from "./types";
 
 export class ServerRegistry extends BaseRegistry {
-	private readonly syncedPlayers = new Set<Player>();
-	private pendingSyncData?: SyncData;
+	private readonly syncMap = new Map<Player, CommandPath[]>();
+	private commandFilter: (path: CommandPath, player: Player) => boolean = () =>
+		true;
 
-	init() {
-		super.init();
-		this.notifySyncUpdate();
+	init(options: ServerOptions) {
+		this.registerBuiltInTypes();
+
+		const filter = options.commandFilter;
+		if (filter !== undefined) {
+			this.commandFilter = filter;
+		}
 
 		remotes.sync.start.connect((player) => {
-			const data = this.getSyncData();
-			this.syncedPlayers.add(player);
-			remotes.sync.dispatch.fire(player, data);
-		});
-
-		RunService.Heartbeat.Connect(() => {
-			if (this.pendingSyncData === undefined) {
-				return;
+			const pathArray: CommandPath[] = [];
+			for (const [_, command] of this.commands) {
+				if (!this.commandFilter(command.getPath(), player)) continue;
+				pathArray.push(command.getPath());
 			}
+			this.syncMap.set(player, pathArray);
 
-			const data = this.pendingSyncData;
-			this.pendingSyncData = undefined;
-			for (const player of this.syncedPlayers) {
-				remotes.sync.dispatch.fire(player, data);
-			}
+			remotes.sync.dispatch.fire(player, this.getSyncData(player));
 		});
 
 		Players.PlayerRemoving.Connect((player) => {
-			this.syncedPlayers.delete(player);
+			this.syncMap.delete(player);
 		});
 	}
 
 	protected registerCommand(
 		commandData: CommandData,
 		group?: CommandGroup | undefined,
-	): void {
-		super.registerCommand(commandData, group);
-		this.notifySyncUpdate();
+	) {
+		const command = super.registerCommand(commandData, group);
+
+		const path = command.getPath();
+		for (const player of Players.GetPlayers()) {
+			if (!this.commandFilter(path, player)) continue;
+			const pathArray = this.syncMap.get(player) ?? [];
+			pathArray.push(path);
+			this.syncMap.set(player, pathArray);
+
+			remotes.sync.dispatch.fire(player, this.getSyncData(player));
+		}
+
+		return command;
 	}
 
-	protected registerCommandGroups(groups: GroupOptions[]) {
-		super.registerCommandGroups(groups);
-		this.notifySyncUpdate();
-	}
+	private getSyncData(player: Player): SyncData {
+		const commandPaths = this.syncMap.get(player) ?? [];
+		const rootGroupNames: string[] = [];
 
-	private notifySyncUpdate() {
-		this.pendingSyncData = this.getSyncData();
-	}
-
-	private getSyncData(): SyncData {
 		const syncedCommands = new Map<string, CommandOptions>();
-		for (const [k, v] of this.commands) {
-			const readonlyArgs = v.options.arguments;
+		for (const path of commandPaths) {
+			const command = this.getCommand(path);
+			if (command === undefined) continue;
+
+			if (path.getSize() > 1) {
+				rootGroupNames.push(path.getRoot());
+			}
+
+			const readonlyArgs = command.options.arguments;
 			let args: ArgumentOptions[] | undefined;
 			if (readonlyArgs !== undefined) {
 				args = [];
@@ -66,23 +82,23 @@ export class ServerRegistry extends BaseRegistry {
 				}
 			}
 
-			syncedCommands.set(k, {
-				name: v.options.name,
-				description: v.options.description,
+			syncedCommands.set(path.toString(), {
+				name: command.options.name,
+				description: command.options.description,
 				arguments: args,
 			});
 		}
 
 		const rootGroups: CommandGroup[] = [];
-		for (const [_, v] of this.groups) {
-			rootGroups.push(v);
+		for (const name of rootGroupNames) {
+			const group = this.groups.get(name);
+			if (group === undefined) continue;
+			rootGroups.push(group);
 		}
-
-		const syncedGroups = this.getGroups(rootGroups);
 
 		return {
 			commands: syncedCommands,
-			groups: syncedGroups,
+			groups: this.getGroups(rootGroups),
 		};
 	}
 
