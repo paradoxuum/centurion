@@ -1,17 +1,23 @@
 import { CommandInteractionData, CommandReply } from "../types";
 
+/**
+ * A data structure containing the executor of a command, the
+ * text used to execute it and the reply sent to the executor,
+ * if one was given.
+ */
 export class CommandInteraction {
 	private onReplySignal = new Instance("BindableEvent");
 	private replyData?: CommandReply;
 
 	constructor(readonly executor: Player, readonly text: string) {}
 
-	static fromData(data: CommandInteractionData) {
-		const interaction = new CommandInteraction(data.executor, data.text);
-		interaction.replyData = data.reply;
-		return interaction;
-	}
-
+	/**
+	 * Gets the command interaction's data.
+	 *
+	 * This creates a new {@link CommandInteractionData} each time it is called.
+	 *
+	 * @returns the interaction's data
+	 */
 	getData(): CommandInteractionData {
 		return {
 			executor: this.executor,
@@ -20,10 +26,20 @@ export class CommandInteraction {
 		};
 	}
 
+	/**
+	 * Replies to the interaction.
+	 *
+	 * @param text the reply text
+	 */
 	reply(text: string) {
 		this.setReply(text, true);
 	}
 
+	/**
+	 * Replies to the interaction using {@link CommandInteractionData}.
+	 *
+	 * @param data the interaction data
+	 */
 	replyFromData(data: CommandInteractionData) {
 		assert(
 			this.replyData === undefined,
@@ -33,6 +49,11 @@ export class CommandInteraction {
 		this.onReplySignal.Fire();
 	}
 
+	/**
+	 * Replies to the interaction, indicating an error has occurred.
+	 *
+	 * @param text the reply text
+	 */
 	error(text: string) {
 		this.setReply(text, false);
 	}
