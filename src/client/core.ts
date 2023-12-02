@@ -3,7 +3,6 @@ import { mergeDeep } from "@rbxts/sift/out/Dictionary";
 import { ClientDispatcher } from "./dispatcher";
 import { DEFAULT_OPTIONS } from "./options";
 import { ClientRegistry } from "./registry";
-import { AppData } from "./types";
 
 export namespace CommanderClient {
 	let started = false;
@@ -13,6 +12,14 @@ export namespace CommanderClient {
 
 	const IS_CLIENT = RunService.IsClient();
 
+	/**
+	 * Starts {@link CommanderClient}.
+	 *
+	 * All registration must be done in the provided callback.
+	 *
+	 * @param callback the run callback
+	 * @param options client options
+	 */
 	export async function start(
 		callback: (run: ClientRegistry) => void,
 		options = DEFAULT_OPTIONS,
@@ -32,7 +39,14 @@ export namespace CommanderClient {
 		started = true;
 
 		if (options.app !== undefined) {
-			options.app(getAppData());
+			options.app({
+				options: optionsObject,
+				execute: (path, text) => dispatcherInstance.run(path, text),
+				commands: registryInstance.getCommandOptions(),
+				groups: registryInstance.getGroupOptions(),
+				history: dispatcherInstance.getHistory(),
+				onHistoryUpdated: dispatcherInstance.getHistorySignal(),
+			});
 		}
 	}
 
@@ -49,17 +63,6 @@ export namespace CommanderClient {
 	export function options() {
 		assertAccess("options");
 		return optionsObject;
-	}
-
-	export function getAppData(): AppData {
-		return {
-			options: optionsObject,
-			execute: (path, text) => dispatcherInstance.run(path, text),
-			commands: registryInstance.getCommandOptions(),
-			groups: registryInstance.getGroupOptions(),
-			history: dispatcherInstance.getHistory(),
-			onHistoryUpdated: dispatcherInstance.getHistorySignal(),
-		};
 	}
 
 	function assertAccess(name: string) {
