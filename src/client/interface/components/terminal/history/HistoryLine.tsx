@@ -23,7 +23,7 @@ export function HistoryLine({ data, size, position, order }: HistoryLineProps) {
 			data.sentAt,
 		).FormatUniversalTime("LT", "en-us");
 		const dateParts = dateTime.split(" ");
-		return `<b>${dateParts[0]}</b>${dateParts[1]}`;
+		return `<b>${dateParts[0]}</b> ${dateParts[1]}`;
 	}, [data]);
 
 	return (
