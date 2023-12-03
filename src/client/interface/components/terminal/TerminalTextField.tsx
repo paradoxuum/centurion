@@ -139,7 +139,7 @@ export function TerminalTextField({
 		const suggestionTextValue = getBindingValue(suggestionText);
 
 		// Handle command suggestions
-		if (commandPath === undefined && suggestionTextValue !== undefined) {
+		if (commandPath === undefined && suggestionTextValue !== "") {
 			const suggestionTextParts = suggestionTextValue
 				.gsub("%s+", " ")[0]
 				.split(" ");
@@ -158,6 +158,7 @@ export function TerminalTextField({
 			setSuggestionText("");
 			setText(newText);
 			ref.current.CursorPosition = newText.size() + 1;
+			return;
 		}
 
 		// Handle argument suggestions
