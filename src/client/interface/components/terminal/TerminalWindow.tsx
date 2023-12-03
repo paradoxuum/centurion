@@ -211,7 +211,17 @@ export function TerminalWindow() {
 				onSubmit={(text) => {
 					const storeState = store.getState();
 					const command = storeState.app.command;
-					if (command === undefined) return;
+					if (command === undefined) {
+						store.addHistoryEntry(
+							{
+								success: false,
+								text: "Command not found.",
+								sentAt: os.time(),
+							},
+							data.options.historyLength ?? DEFAULT_HISTORY_LENGTH,
+						);
+						return;
+					}
 
 					data.execute(command, text);
 				}}
