@@ -5,9 +5,6 @@ settings:
   excludeLinksFromLockfile: false
 
 dependencies:
-  '@rbxts/midori':
-    specifier: ^0.1.3
-    version: 0.1.3
   '@rbxts/pretty-react-hooks':
     specifier: ^0.3.3
     version: 0.3.3(@rbxts/flipper@2.0.1)(@rbxts/react-roblox@0.2.0)(@rbxts/react-ts@1.0.1)
@@ -35,21 +32,12 @@ dependencies:
   '@rbxts/services':
     specifier: ^1.5.1
     version: 1.5.1
-  '@rbxts/set-timeout':
-    specifier: ^1.1.2
-    version: 1.1.2
   '@rbxts/sift':
     specifier: ^0.0.8
     version: 0.0.8
   '@rbxts/t':
     specifier: ^3.1.0
     version: 3.1.0
-  '@rbxts/testez':
-    specifier: 0.4.2-ts.0
-    version: 0.4.2-ts.0
-  '@rbxts/ui-labs':
-    specifier: ^1.0.2
-    version: 1.0.2
 
 devDependencies:
   '@biomejs/biome':
@@ -58,6 +46,9 @@ devDependencies:
   '@rbxts/compiler-types':
     specifier: 2.2.0-types.0
     version: 2.2.0-types.0
+  '@rbxts/midori':
+    specifier: ^0.1.3
+    version: 0.1.3
   '@rbxts/types':
     specifier: ^1.0.736
     version: 1.0.736
@@ -152,7 +143,7 @@ packages:
 
   /@rbxts/midori@0.1.3:
     resolution: {integrity: sha512-GT3P4ETL2k3SuCx7hw6CnSWthti5NpJ74GN3WEhFTNIjcHHbb7DzH8OxVdrD54BlSDQ2O8PAZ0ArTW6MeXge6Q==}
-    dev: false
+    dev: true
 
   /@rbxts/pretty-react-hooks@0.3.3(@rbxts/flipper@2.0.1)(@rbxts/react-roblox@0.2.0)(@rbxts/react-ts@1.0.1):
     resolution: {integrity: sha512-vcphO7E7pPl/3qmaVquKwnDvAhaPy62wwP0MIUskddpMH3++wk3bZvZq/nXGxlwV+fqQyvhl59yTHBNzik1A8g==}
@@ -247,10 +238,6 @@ packages:
       '@rbxts/shared-internal': 0.2.1
     dev: false
 
-  /@rbxts/roact@1.4.4-ts.0:
-    resolution: {integrity: sha512-gn9mBoGG/Clzgv2kyOvLNVd9dh5t6z+jukC3ITv2HnfPqvf/sMbz/VMaBoiB7t5umuiIe0LjW0ctZrkrS+uTOA==}
-    dev: false
-
   /@rbxts/rust-classes@0.12.0:
     resolution: {integrity: sha512-Ibk532/9tHswqU9AdJlLGDjb3fD+tisI0WzTvzsbFcndcdRfEmpBqXC0JZ+4+lIfSERJmL4zRXZQNN//nJ4rmw==}
     dev: false
@@ -286,20 +273,9 @@ packages:
     resolution: {integrity: sha512-ba/wfKYtAL6JWVhZNbhMnBZtzgGaTxttvfzxxpEcHDy0Qeaq0DF2Odo/zJ32Ajw961EMYkAMTnPXLLrLB/r+mw==}
     dev: false
 
-  /@rbxts/testez@0.4.2-ts.0:
-    resolution: {integrity: sha512-8Q+OG9ddTD2P3aARCuRKpPqUBvuifgSnHvQMZ6jBMqUzxhIysnb0l4c3vnnaQnvdyZ1OW9tKxcdEHMGTb67uOw==}
-    dev: false
-
   /@rbxts/types@1.0.736:
     resolution: {integrity: sha512-IJUpRztNnB7rFUV9G/tffRhTyU6f3PmaxnOrQtuYZfXPZ1D1yYgef5YdJdON7hVZx1ulKP9dAakYofYbSGh2iQ==}
     dev: true
-
-  /@rbxts/ui-labs@1.0.2:
-    resolution: {integrity: sha512-PED8QJTBQFIXzJBDE0Vz6CKGn3+0X3rHzQAlAQjFX/JZxaK2M/UMkZ0GZiH3SQqhPnrcPxi+qXyBPnpqxDaZ1Q==}
-    dependencies:
-      '@rbxts/roact': 1.4.4-ts.0
-      '@rbxts/t': 3.1.0
-    dev: false
 
   /@roblox-ts/luau-ast@1.0.10:
     resolution: {integrity: sha512-Yts0q76OPDosqFpFO9VbLIyRilWnXjN0cHMc6ljlMqPfJjZ5ubrsbLKEVSOFbVP3WaKWSujwee6dgrAJOgig+w==}
