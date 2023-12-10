@@ -1,3 +1,0 @@
-roots = [
-    "ReplicatedStorage/rbxts_include/node_modules/@rbxts/commander/src/shared/test",
-]
