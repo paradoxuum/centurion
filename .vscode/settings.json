@@ -18,5 +18,7 @@
 		"editor.formatOnSave": true
 	},
 	"eslint.run": "onType",
-	"eslint.format.enable": true
+	"eslint.format.enable": true,
+	"roblox-ts.boundary.paths.serverPaths": ["src/server"],
+	"roblox-ts.boundary.paths.clientPaths": ["src/client"]
 }
