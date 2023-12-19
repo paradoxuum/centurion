@@ -1,13 +1,19 @@
 import { Players } from "@rbxts/services";
-import { CommandPath } from "../shared";
+import { BaseRegistry, CommandPath } from "../shared";
 import { BaseDispatcher } from "../shared/core/dispatcher";
 import { DEFAULT_HISTORY_LENGTH } from "./options";
-import { ClientOptions, HistoryEntry } from "./types";
+import { ClientOptions, CommanderEvents, HistoryEntry } from "./types";
 
 export class ClientDispatcher extends BaseDispatcher {
 	private readonly history: HistoryEntry[] = [];
-	private readonly historyEvent = new Instance("BindableEvent");
 	private maxHistoryLength = DEFAULT_HISTORY_LENGTH;
+
+	constructor(
+		registry: BaseRegistry,
+		private readonly events: CommanderEvents,
+	) {
+		super(registry);
+	}
 
 	/**
 	 * Initialises the client dispatcher.
@@ -60,22 +66,12 @@ export class ClientDispatcher extends BaseDispatcher {
 		return this.history;
 	}
 
-	/**
-	 * Gets the history signal, which will be fired each time a new
-	 * {@link HistoryEntry} is added.
-	 *
-	 * @returns The history signal
-	 */
-	getHistorySignal() {
-		return this.historyEvent.Event;
-	}
-
 	private addHistoryEntry(entry: HistoryEntry) {
 		if (this.history.size() >= this.maxHistoryLength) {
 			this.history.remove(0);
 		}
 
 		this.history.push(entry);
-		this.historyEvent.Fire(entry);
+		this.events.historyUpdated.Fire(entry);
 	}
 }

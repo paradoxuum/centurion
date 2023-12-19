@@ -5,19 +5,22 @@ import { CommandGroup } from "../shared/core/command";
 import { BaseRegistry } from "../shared/core/registry";
 import { remotes } from "../shared/network";
 import { ServerCommand } from "./command";
+import { CommanderEvents } from "./types";
 
 export class ClientRegistry extends BaseRegistry {
+	private initialSyncReceived = false;
+
+	constructor(private readonly events: CommanderEvents) {
+		super();
+	}
+
 	init() {
 		this.registerBuiltInTypes();
 	}
 
 	async sync() {
-		let firstDispatch = false;
 		remotes.sync.dispatch.connect((data) => {
-			if (!firstDispatch) {
-				firstDispatch = true;
-			}
-
+			if (!this.initialSyncReceived) this.initialSyncReceived = true;
 			this.registerServerGroups(data.groups);
 			this.registerServerCommands(data.commands);
 		});
@@ -25,9 +28,7 @@ export class ClientRegistry extends BaseRegistry {
 
 		return new Promise((resolve) => {
 			// Wait until dispatch has been received
-			while (!firstDispatch) {
-				RunService.Heartbeat.Wait();
-			}
+			while (!this.initialSyncReceived) RunService.Heartbeat.Wait();
 			resolve(undefined);
 		})
 			.timeout(5)
@@ -46,8 +47,8 @@ export class ClientRegistry extends BaseRegistry {
 
 	getGroupOptions() {
 		const groupMap = new Map<string, GroupOptions>();
-		for (const [k, v] of this.commands) {
-			groupMap.set(k, copyDeep(v.options as CommandOptions));
+		for (const [k, v] of this.groups) {
+			groupMap.set(k, copyDeep(v.options as GroupOptions));
 		}
 		return groupMap;
 	}
