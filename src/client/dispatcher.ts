@@ -66,12 +66,12 @@ export class ClientDispatcher extends BaseDispatcher {
 		return this.history;
 	}
 
-	private addHistoryEntry(entry: HistoryEntry) {
+	addHistoryEntry(entry: HistoryEntry) {
 		if (this.history.size() >= this.maxHistoryLength) {
 			this.history.remove(0);
 		}
 
 		this.history.push(entry);
-		this.events.historyUpdated.Fire(entry);
+		this.events.historyUpdated.Fire(this.history);
 	}
 }

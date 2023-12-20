@@ -1,12 +1,11 @@
 import { createProducer } from "@rbxts/reflex";
-import { copy, copyDeep } from "@rbxts/sift/out/Array";
+import { copy } from "@rbxts/sift/out/Array";
 import { ImmutableCommandPath } from "../../../../shared";
 import { HistoryEntry } from "../../../types";
 
 export interface AppState {
 	visible: boolean;
 
-	history: HistoryEntry[];
 	commandHistory: string[];
 	commandHistoryIndex: number;
 
@@ -21,7 +20,6 @@ export interface AppState {
 
 export const initialAppState: AppState = {
 	visible: false,
-	history: [],
 	commandHistory: [],
 	commandHistoryIndex: -1,
 	text: {
@@ -47,17 +45,6 @@ function limitArray<T extends defined>(array: T[], limit: number) {
 
 export const appSlice = createProducer(initialAppState, {
 	setVisible: (state, visible: boolean) => ({ ...state, visible }),
-
-	addHistoryEntry: (state, entry: HistoryEntry, limit: number) => {
-		const history = copyDeep(state.history);
-		limitArray(history, limit);
-		history.push(entry);
-
-		return {
-			...state,
-			history,
-		};
-	},
 
 	addCommandHistory: (state, command: string, limit: number) => {
 		const commandHistory = copy(state.commandHistory);

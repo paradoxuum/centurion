@@ -7,9 +7,9 @@ export interface ClientOptions {
 }
 
 export interface CommanderEvents {
-	historyUpdated: BindableEvent<(entry: HistoryEntry) => void>;
-	commandAdded: BindableEvent<(command: CommandOptions) => void>;
-	groupAdded: BindableEvent<(group: GroupOptions) => void>;
+	historyUpdated: BindableEvent<(history: HistoryEntry[]) => void>;
+	commandAdded: BindableEvent<(key: string, command: CommandOptions) => void>;
+	groupAdded: BindableEvent<(key: string, group: GroupOptions) => void>;
 }
 
 export type CommanderEventCallbacks = {
@@ -23,6 +23,7 @@ export type CommanderEventCallbacks = {
 export type AppContext = {
 	options: ClientOptions;
 	execute: (path: CommandPath, text: string) => Promise<HistoryEntry>;
+	addHistoryEntry: (entry: HistoryEntry) => void;
 	initialData: {
 		commands: Map<string, CommandOptions>;
 		groups: Map<string, GroupOptions>;

@@ -1,7 +1,7 @@
 import { ReflexProvider } from "@rbxts/react-reflex";
 import Roact from "@rbxts/roact";
 import { store } from "../store";
-import { DataProvider, DataProviderProps } from "./dataProvider";
+import { CommanderProvider, CommanderProviderProps } from "./commanderProvider";
 import { RemProvider, RemProviderProps } from "./remProvider";
 import {
 	SuggestionProvider,
@@ -10,26 +10,26 @@ import {
 
 interface RootProviderProps
 	extends RemProviderProps,
-		DataProviderProps,
+		CommanderProviderProps,
 		SuggestionProviderProps {}
 
 export function RootProvider({
 	baseRem,
-	data,
+	value: data,
 	getSuggestion,
 	children,
 }: RootProviderProps) {
 	return (
 		<ReflexProvider producer={store}>
 			<RemProvider key="rem-provider" baseRem={baseRem}>
-				<DataProvider key="data-provider" data={data}>
+				<CommanderProvider key="data-provider" value={data}>
 					<SuggestionProvider
 						key="suggestion-provider"
 						getSuggestion={getSuggestion}
 					>
 						{children}
 					</SuggestionProvider>
-				</DataProvider>
+				</CommanderProvider>
 			</RemProvider>
 		</ReflexProvider>
 	);

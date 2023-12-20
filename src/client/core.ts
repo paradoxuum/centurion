@@ -48,6 +48,7 @@ export namespace CommanderClient {
 			options.app({
 				options: optionsObject,
 				execute: (path, text) => dispatcherInstance.run(path, text),
+				addHistoryEntry: (entry) => dispatcherInstance.addHistoryEntry(entry),
 				initialData: {
 					commands: registryInstance.getCommandOptions(),
 					groups: registryInstance.getGroupOptions(),

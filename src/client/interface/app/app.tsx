@@ -3,7 +3,7 @@ import "./config";
 import { createPortal, createRoot } from "@rbxts/react-roblox";
 import Roact, { StrictMode } from "@rbxts/roact";
 import { Players } from "@rbxts/services";
-import { AppData } from "../../types";
+import { AppContext } from "../../types";
 import { Layer } from "../components/interface/Layer";
 import Terminal from "../components/terminal/Terminal";
 import { RootProvider } from "../providers/rootProvider";
@@ -18,7 +18,7 @@ function getSuggestion(query: SuggestionQuery) {
 	return getCommandSuggestion(query.parentPath, query.text);
 }
 
-export function CommanderApp(data: AppData) {
+export function CommanderApp(data: AppContext) {
 	const root = createRoot(new Instance("Folder"));
 	const target = Players.LocalPlayer.WaitForChild("PlayerGui");
 
@@ -27,7 +27,7 @@ export function CommanderApp(data: AppData) {
 			<StrictMode>
 				<RootProvider
 					key="root-provider"
-					data={data}
+					value={data}
 					getSuggestion={getSuggestion}
 				>
 					<Layer key="terminal">
