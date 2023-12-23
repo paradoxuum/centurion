@@ -32,7 +32,6 @@ export namespace CommanderServer {
 		dispatcherInstance.init();
 		registryInstance.init(optionsObject);
 		callback(registryInstance);
-		registryInstance.freeze();
 		started = true;
 	}
 

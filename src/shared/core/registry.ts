@@ -16,7 +16,6 @@ export abstract class BaseRegistry {
 	protected readonly types = new Map<string, TypeOptions<defined>>();
 	protected readonly registeredObjects = new Set<object>();
 	protected cachedPaths = new Map<string, CommandPath[]>();
-	protected frozen = false;
 
 	protected registerBuiltInTypes() {
 		const builtInTypes =
@@ -29,19 +28,11 @@ export abstract class BaseRegistry {
 	}
 
 	/**
-	 * Freezes the registry, preventing any further registration.
-	 */
-	freeze() {
-		this.frozen = true;
-	}
-
-	/**
 	 * Registers a type from a given {@link TypeOptions}.
 	 *
 	 * @param typeOptions The type to register
 	 */
 	registerType<T extends defined>(typeOptions: TypeOptions<T>) {
-		assert(!this.frozen, "Registry frozen");
 		this.types.set(typeOptions.name, typeOptions);
 	}
 
@@ -51,7 +42,6 @@ export abstract class BaseRegistry {
 	 * @param types The types to register
 	 */
 	registerTypes(...types: TypeOptions<defined>[]) {
-		assert(!this.frozen, "Registry frozen");
 		for (const options of types) {
 			this.registerType(options);
 		}
@@ -64,7 +54,6 @@ export abstract class BaseRegistry {
 	 * @param container The container containing {@link ModuleScript}s
 	 */
 	registerContainer(container: Instance) {
-		assert(!this.frozen, "Registry frozen");
 		for (const obj of container.GetChildren()) {
 			if (!obj.IsA("ModuleScript")) {
 				continue;
@@ -88,7 +77,6 @@ export abstract class BaseRegistry {
 	 * @param container The {@link Instance} containing commands
 	 */
 	registerCommandsIn(container: Instance) {
-		assert(!this.frozen, "Registry frozen");
 		for (const obj of container.GetChildren()) {
 			if (!obj.IsA("ModuleScript")) {
 				return;

@@ -40,8 +40,6 @@ export namespace CommanderClient {
 
 		callback(registryInstance);
 		await registryInstance.sync();
-
-		registryInstance.freeze();
 		started = true;
 
 		if (options.app !== undefined) {
