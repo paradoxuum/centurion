@@ -1,5 +1,5 @@
 import Roact, { createContext, useEffect, useState } from "@rbxts/roact";
-import { copyDeep, merge, set } from "@rbxts/sift/out/Dictionary";
+import { copyDeep } from "@rbxts/sift/out/Dictionary";
 import { CommandOptions, CommandPath, GroupOptions } from "../../../shared";
 import { DEFAULT_OPTIONS } from "../../options";
 import { AppContext, ClientOptions, HistoryEntry } from "../../types";
@@ -13,60 +13,74 @@ export interface CommanderContextData {
 	addHistoryEntry: (entry: HistoryEntry) => void;
 }
 
-export interface CommanderProviderProps extends Roact.PropsWithChildren {
-	value: AppContext;
-}
+type StaticContextData = Omit<
+	CommanderContextData,
+	"commands" | "groups" | "history"
+>;
+
+const DEFAULT_EXECUTE_CALLBACK = async () => ({
+	text: "Command executed.",
+	success: true,
+	sentAt: DateTime.now().UnixTimestamp,
+});
 
 export const DEFAULT_COMMANDER_CONTEXT: CommanderContextData = {
 	options: DEFAULT_OPTIONS,
-	execute: async () => ({
-		text: "Command executed.",
-		success: true,
-		sentAt: DateTime.now().UnixTimestamp,
-	}),
+	execute: DEFAULT_EXECUTE_CALLBACK,
 	commands: new Map(),
 	groups: new Map(),
 	history: [],
 	addHistoryEntry: () => {},
 };
 
+export interface CommanderProviderProps extends Roact.PropsWithChildren {
+	value: AppContext;
+}
+
 export const CommanderContext = createContext<CommanderContextData>(
 	DEFAULT_COMMANDER_CONTEXT,
 );
 
 export function CommanderProvider({ value, children }: CommanderProviderProps) {
-	const [data, setData] = useState<CommanderContextData>(
-		DEFAULT_COMMANDER_CONTEXT,
+	const [staticData, setStaticData] = useState<StaticContextData>({
+		addHistoryEntry: () => {},
+		execute: DEFAULT_EXECUTE_CALLBACK,
+		options: DEFAULT_OPTIONS,
+	});
+
+	const [history, setHistory] = useState<HistoryEntry[]>([]);
+	const [commands, setCommands] = useState<Map<string, CommandOptions>>(
+		new Map(),
 	);
+	const [groups, setGroups] = useState<Map<string, GroupOptions>>(new Map());
 
 	useEffect(() => {
-		setData(
-			merge(data, {
-				options: value.options,
-				execute: value.execute,
-				history: value.initialData.history,
-				commands: value.initialData.commands,
-				groups: value.initialData.groups,
-				addHistoryEntry: value.addHistoryEntry,
-			}),
-		);
+		setStaticData({
+			addHistoryEntry: value.addHistoryEntry,
+			execute: value.execute,
+			options: value.options,
+		});
+
+		setHistory(value.initialData.history);
+		setCommands(value.initialData.commands);
+		setGroups(value.initialData.groups);
 
 		const historyConnection = value.events.historyUpdated.Connect((entries) => {
-			setData(set(data, "groups", copyDeep(entries)));
+			setHistory(copyDeep(entries));
 		});
 
 		const commandConnection = value.events.commandAdded.Connect(
 			(key, command) => {
-				const newData = copyDeep(data);
-				data.commands.set(key, command);
-				setData(newData);
+				const newData = copyDeep(commands);
+				newData.set(key, command);
+				setCommands(commands);
 			},
 		);
 
 		const groupConnection = value.events.groupAdded.Connect((key, group) => {
-			const newData = copyDeep(data);
-			data.commands.set(key, group);
-			setData(newData);
+			const newData = copyDeep(groups);
+			groups.set(key, group);
+			setGroups(newData);
 		});
 
 		return () => {
@@ -77,7 +91,16 @@ export function CommanderProvider({ value, children }: CommanderProviderProps) {
 	}, []);
 
 	return (
-		<CommanderContext.Provider value={data}>
+		<CommanderContext.Provider
+			value={{
+				addHistoryEntry: staticData.addHistoryEntry,
+				execute: staticData.execute,
+				options: staticData.options,
+				history,
+				commands,
+				groups,
+			}}
+		>
 			{children}
 		</CommanderContext.Provider>
 	);
