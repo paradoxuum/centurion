@@ -1,7 +1,7 @@
 import { RunService } from "@rbxts/services";
 import { copyDeep } from "@rbxts/sift/out/Dictionary";
 import { CommandOptions, GroupOptions, ImmutableCommandPath } from "../shared";
-import { CommandGroup } from "../shared/core/command";
+import { BaseCommand, CommandGroup } from "../shared/core/command";
 import { BaseRegistry } from "../shared/core/registry";
 import { remotes } from "../shared/network";
 import { ServerCommand } from "./command";
@@ -21,7 +21,7 @@ export class ClientRegistry extends BaseRegistry {
 	async sync() {
 		remotes.sync.dispatch.connect((data) => {
 			if (!this.initialSyncReceived) this.initialSyncReceived = true;
-			this.registerServerGroups(data.groups);
+			this.registerGroups(data.groups);
 			this.registerServerCommands(data.commands);
 		});
 		remotes.sync.start.fire();
@@ -53,37 +53,17 @@ export class ClientRegistry extends BaseRegistry {
 		return groupMap;
 	}
 
-	private registerServerGroups(sharedGroups: GroupOptions[]) {
-		const childMap = new Map<string, GroupOptions[]>();
-		for (const group of sharedGroups) {
-			if (group.root !== undefined) {
-				const childArray = childMap.get(group.root) ?? [];
-				childArray.push(group);
-				childMap.set(group.root, childArray);
-				continue;
-			}
+	protected updateCommandMap(key: string, command: BaseCommand): void {
+		super.updateCommandMap(key, command);
+		this.events.commandAdded.Fire(
+			key,
+			copyDeep(command.options as CommandOptions),
+		);
+	}
 
-			if (this.groups.has(group.name)) {
-				warn("Skipping duplicate server group:", group.name);
-				continue;
-			}
-
-			this.validatePath(group.name, false);
-			this.groups.set(group.name, this.createGroup(group));
-		}
-
-		for (const [root, children] of childMap) {
-			const rootGroup = this.groups.get(root);
-			assert(rootGroup !== undefined, `Parent group '${root}' does not exist`);
-
-			for (const child of children) {
-				if (rootGroup.hasGroup(child.name)) {
-					warn(`Skipping duplicate server group in ${root}: ${child}`);
-					continue;
-				}
-				rootGroup.addGroup(this.createGroup(child));
-			}
-		}
+	protected updateGroupMap(key: string, group: CommandGroup): void {
+		super.updateGroupMap(key, group);
+		this.events.groupAdded.Fire(key, copyDeep(group.options as GroupOptions));
 	}
 
 	private registerServerCommands(commands: Map<string, CommandOptions>) {
@@ -111,7 +91,10 @@ export class ClientRegistry extends BaseRegistry {
 
 			this.validatePath(path, true);
 			this.cachePath(commandPath);
-			this.commands.set(path, ServerCommand.create(this, commandPath, command));
+			this.updateCommandMap(
+				path,
+				ServerCommand.create(this, commandPath, command),
+			);
 		}
 	}
 }
