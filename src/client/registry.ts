@@ -19,10 +19,37 @@ export class ClientRegistry extends BaseRegistry {
 	}
 
 	async sync() {
+		const syncedCommands = new Set<string>();
+		const syncedGroups = new Set<string>();
+
+		const getGroupKey = (group: GroupOptions) => {
+			let groupName = group.name;
+			if (group.root !== undefined) {
+				groupName = `${group.root}/${groupName}`;
+			}
+			return groupName;
+		};
+
 		remotes.sync.dispatch.connect((data) => {
 			if (!this.initialSyncReceived) this.initialSyncReceived = true;
-			this.registerGroups(data.groups);
+
+			for (const [k] of data.commands) {
+				if (!syncedCommands.has(k)) continue;
+				data.commands.delete(k);
+			}
+
+			this.registerGroups(
+				data.groups.filter((group) => !syncedGroups.has(getGroupKey(group))),
+			);
 			this.registerServerCommands(data.commands);
+
+			for (const [k] of data.commands) {
+				syncedCommands.add(k);
+			}
+
+			for (const group of data.groups) {
+				syncedGroups.add(getGroupKey(group));
+			}
 		});
 		remotes.sync.start.fire();
 
