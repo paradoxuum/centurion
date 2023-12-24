@@ -1,4 +1,5 @@
-import Roact, { createContext, useEffect, useState } from "@rbxts/roact";
+import { useEventListener, useMountEffect } from "@rbxts/pretty-react-hooks";
+import Roact, { createContext, useState } from "@rbxts/roact";
 import { copyDeep } from "@rbxts/sift/out/Dictionary";
 import { CommandOptions, CommandPath, GroupOptions } from "../../../shared";
 import { DEFAULT_OPTIONS } from "../../options";
@@ -54,7 +55,7 @@ export function CommanderProvider({ value, children }: CommanderProviderProps) {
 	);
 	const [groups, setGroups] = useState<Map<string, GroupOptions>>(new Map());
 
-	useEffect(() => {
+	useMountEffect(() => {
 		setStaticData({
 			addHistoryEntry: value.addHistoryEntry,
 			execute: value.execute,
@@ -64,31 +65,23 @@ export function CommanderProvider({ value, children }: CommanderProviderProps) {
 		setHistory(value.initialData.history);
 		setCommands(value.initialData.commands);
 		setGroups(value.initialData.groups);
+	});
 
-		const historyConnection = value.events.historyUpdated.Connect((entries) => {
-			setHistory(copyDeep(entries));
-		});
+	useEventListener(value.events.historyUpdated, (entries) => {
+		setHistory(copyDeep(entries));
+	});
 
-		const commandConnection = value.events.commandAdded.Connect(
-			(key, command) => {
-				const newData = copyDeep(commands);
-				newData.set(key, command);
-				setCommands(commands);
-			},
-		);
+	useEventListener(value.events.commandAdded, (key, command) => {
+		const newData = copyDeep(commands);
+		newData.set(key, command);
+		setCommands(newData);
+	});
 
-		const groupConnection = value.events.groupAdded.Connect((key, group) => {
-			const newData = copyDeep(groups);
-			groups.set(key, group);
-			setGroups(newData);
-		});
-
-		return () => {
-			historyConnection.Disconnect();
-			commandConnection.Disconnect();
-			groupConnection.Disconnect();
-		};
-	}, []);
+	useEventListener(value.events.groupAdded, (key, group) => {
+		const newData = copyDeep(groups);
+		groups.set(key, group);
+		setGroups(newData);
+	});
 
 	return (
 		<CommanderContext.Provider
