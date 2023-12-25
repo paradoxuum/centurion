@@ -3,17 +3,34 @@ import { CommandOptions, CommandPath, GroupOptions } from "../shared";
 export interface ClientOptions {
 	historyLength?: number;
 	activationKeys?: Enum.KeyCode[];
-	app?: (data: AppData) => void;
+	app?: (data: AppContext) => void;
 }
 
-export interface AppData {
+export interface CommanderEvents {
+	historyUpdated: BindableEvent<(history: HistoryEntry[]) => void>;
+	commandAdded: BindableEvent<(key: string, command: CommandOptions) => void>;
+	groupAdded: BindableEvent<(key: string, group: GroupOptions) => void>;
+}
+
+export type CommanderEventCallbacks = {
+	[K in keyof CommanderEvents]: CommanderEvents[K] extends BindableEvent<
+		infer R
+	>
+		? RBXScriptSignal<R>
+		: never;
+};
+
+export type AppContext = {
 	options: ClientOptions;
 	execute: (path: CommandPath, text: string) => Promise<HistoryEntry>;
-	commands: Map<string, CommandOptions>;
-	groups: Map<string, GroupOptions>;
-	history: HistoryEntry[];
-	onHistoryUpdated: RBXScriptSignal<(entry: HistoryEntry) => void>;
-}
+	addHistoryEntry: (entry: HistoryEntry) => void;
+	initialData: {
+		commands: Map<string, CommandOptions>;
+		groups: Map<string, GroupOptions>;
+		history: HistoryEntry[];
+	};
+	events: CommanderEventCallbacks;
+};
 
 export interface HistoryEntry {
 	text: string;

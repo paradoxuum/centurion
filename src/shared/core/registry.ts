@@ -9,15 +9,13 @@ import {
 import { MetadataKey } from "./decorators";
 import { CommandPath, ImmutableCommandPath } from "./path";
 
-const ROOT_NAME_KEY = "__root__";
-
 export abstract class BaseRegistry {
+	protected static readonly ROOT_KEY = "__root__";
 	protected readonly commands = new Map<string, BaseCommand>();
 	protected readonly groups = new Map<string, CommandGroup>();
 	protected readonly types = new Map<string, TypeOptions<defined>>();
 	protected readonly registeredObjects = new Set<object>();
 	protected cachedPaths = new Map<string, CommandPath[]>();
-	protected frozen = false;
 
 	protected registerBuiltInTypes() {
 		const builtInTypes =
@@ -30,19 +28,11 @@ export abstract class BaseRegistry {
 	}
 
 	/**
-	 * Freezes the registry, preventing any further registration.
-	 */
-	freeze() {
-		this.frozen = true;
-	}
-
-	/**
 	 * Registers a type from a given {@link TypeOptions}.
 	 *
 	 * @param typeOptions The type to register
 	 */
 	registerType<T extends defined>(typeOptions: TypeOptions<T>) {
-		assert(!this.frozen, "Registry frozen");
 		this.types.set(typeOptions.name, typeOptions);
 	}
 
@@ -52,7 +42,6 @@ export abstract class BaseRegistry {
 	 * @param types The types to register
 	 */
 	registerTypes(...types: TypeOptions<defined>[]) {
-		assert(!this.frozen, "Registry frozen");
 		for (const options of types) {
 			this.registerType(options);
 		}
@@ -65,7 +54,6 @@ export abstract class BaseRegistry {
 	 * @param container The container containing {@link ModuleScript}s
 	 */
 	registerContainer(container: Instance) {
-		assert(!this.frozen, "Registry frozen");
 		for (const obj of container.GetChildren()) {
 			if (!obj.IsA("ModuleScript")) {
 				continue;
@@ -89,7 +77,6 @@ export abstract class BaseRegistry {
 	 * @param container The {@link Instance} containing commands
 	 */
 	registerCommandsIn(container: Instance) {
-		assert(!this.frozen, "Registry frozen");
 		for (const obj of container.GetChildren()) {
 			if (!obj.IsA("ModuleScript")) {
 				return;
@@ -158,15 +145,17 @@ export abstract class BaseRegistry {
 	 * @returns The paths that are children of the given path, or all paths
 	 */
 	getChildPaths(path?: CommandPath) {
-		return this.cachedPaths.get(path?.toString() ?? ROOT_NAME_KEY) ?? [];
+		return (
+			this.cachedPaths.get(path?.toString() ?? BaseRegistry.ROOT_KEY) ?? []
+		);
 	}
 
 	protected cachePath(path: CommandPath) {
-		let cacheKey: string;
+		let cacheKey = BaseRegistry.ROOT_KEY;
 		if (path.getSize() === 3) {
 			if (!this.cachedPaths.has(path.getRoot())) {
 				this.addCacheEntry(
-					ROOT_NAME_KEY,
+					BaseRegistry.ROOT_KEY,
 					CommandPath.fromString(path.getRoot()),
 				);
 			}
@@ -174,8 +163,6 @@ export abstract class BaseRegistry {
 			const childPath = path.slice(0, 1);
 			this.addCacheEntry(path.getRoot(), childPath);
 			cacheKey = childPath.toString();
-		} else {
-			cacheKey = ROOT_NAME_KEY;
 		}
 
 		this.addCacheEntry(cacheKey, path);
@@ -205,7 +192,7 @@ export abstract class BaseRegistry {
 			[...commandData.guards],
 		);
 
-		this.commands.set(path.toString(), command);
+		this.updateCommandMap(path.toString(), command);
 
 		if (group !== undefined) {
 			group.addCommand(command);
@@ -222,7 +209,7 @@ export abstract class BaseRegistry {
 		);
 		const globalGroups = holderOptions?.globalGroups ?? [];
 		if (holderOptions?.groups !== undefined) {
-			this.registerCommandGroups(holderOptions.groups);
+			this.registerGroups(holderOptions.groups);
 		}
 
 		for (const command of MetadataReflect.getOwnProperties(commandHolder)) {
@@ -248,7 +235,7 @@ export abstract class BaseRegistry {
 		}
 	}
 
-	protected registerCommandGroups(groups: GroupOptions[]) {
+	protected registerGroups(groups: GroupOptions[]) {
 		const childMap = new Map<string, GroupOptions[]>();
 		for (const group of groups) {
 			if (group.root !== undefined) {
@@ -258,9 +245,13 @@ export abstract class BaseRegistry {
 				continue;
 			}
 
+			if (this.groups.has(group.name)) {
+				warn("Skipping duplicate group:", group.name);
+				continue;
+			}
+
 			this.validatePath(group.name, false);
-			const groupObject = this.createGroup(group);
-			this.groups.set(groupObject.path.toString(), groupObject);
+			this.updateGroupMap(group.name, this.createGroup(group));
 		}
 
 		for (const [root, children] of childMap) {
@@ -268,9 +259,14 @@ export abstract class BaseRegistry {
 			assert(rootGroup !== undefined, `Parent group '${root}' does not exist'`);
 
 			for (const child of children) {
+				if (rootGroup.hasGroup(child.name)) {
+					warn(`Skipping duplicate child group in ${root}: ${child}`);
+					continue;
+				}
+
 				const childGroup = this.createGroup(child);
 				rootGroup.addGroup(childGroup);
-				this.groups.set(childGroup.path.toString(), childGroup);
+				this.updateGroupMap(childGroup.path.toString(), childGroup);
 			}
 		}
 	}
@@ -297,5 +293,13 @@ export abstract class BaseRegistry {
 			throw `A group already exists with the same name as this command: ${path}`;
 
 		if (hasGroup) throw `Duplicate group: ${path}`;
+	}
+
+	protected updateCommandMap(key: string, command: BaseCommand) {
+		this.commands.set(key, command);
+	}
+
+	protected updateGroupMap(key: string, group: CommandGroup) {
+		this.groups.set(key, group);
 	}
 }

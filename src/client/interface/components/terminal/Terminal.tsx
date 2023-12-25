@@ -4,7 +4,7 @@ import Roact, { useContext, useMemo } from "@rbxts/roact";
 import { GuiService, UserInputService } from "@rbxts/services";
 import { useRem } from "../../hooks/useRem";
 import { useStore } from "../../hooks/useStore";
-import { DataContext } from "../../providers/dataProvider";
+import { CommanderContext } from "../../providers/commanderProvider";
 import { selectVisible } from "../../store/app";
 import { Group } from "../interface/Group";
 import { TerminalWindow } from "./TerminalWindow";
@@ -12,7 +12,7 @@ import { SuggestionList } from "./suggestion";
 
 export default function Terminal() {
 	const rem = useRem();
-	const data = useContext(DataContext);
+	const data = useContext(CommanderContext);
 	const store = useStore();
 
 	const visible = useSelector(selectVisible);

@@ -1,33 +1,61 @@
 import { RunService } from "@rbxts/services";
 import { copyDeep } from "@rbxts/sift/out/Dictionary";
 import { CommandOptions, GroupOptions, ImmutableCommandPath } from "../shared";
-import { CommandGroup } from "../shared/core/command";
+import { BaseCommand, CommandGroup } from "../shared/core/command";
 import { BaseRegistry } from "../shared/core/registry";
 import { remotes } from "../shared/network";
 import { ServerCommand } from "./command";
+import { CommanderEvents } from "./types";
 
 export class ClientRegistry extends BaseRegistry {
+	private initialSyncReceived = false;
+
+	constructor(private readonly events: CommanderEvents) {
+		super();
+	}
+
 	init() {
 		this.registerBuiltInTypes();
 	}
 
 	async sync() {
-		let firstDispatch = false;
+		const syncedCommands = new Set<string>();
+		const syncedGroups = new Set<string>();
+
+		const getGroupKey = (group: GroupOptions) => {
+			let groupName = group.name;
+			if (group.root !== undefined) {
+				groupName = `${group.root}/${groupName}`;
+			}
+			return groupName;
+		};
+
 		remotes.sync.dispatch.connect((data) => {
-			if (!firstDispatch) {
-				firstDispatch = true;
+			if (!this.initialSyncReceived) this.initialSyncReceived = true;
+
+			for (const [k] of data.commands) {
+				if (!syncedCommands.has(k)) continue;
+				data.commands.delete(k);
 			}
 
-			this.registerServerGroups(data.groups);
+			this.registerGroups(
+				data.groups.filter((group) => !syncedGroups.has(getGroupKey(group))),
+			);
 			this.registerServerCommands(data.commands);
+
+			for (const [k] of data.commands) {
+				syncedCommands.add(k);
+			}
+
+			for (const group of data.groups) {
+				syncedGroups.add(getGroupKey(group));
+			}
 		});
 		remotes.sync.start.fire();
 
 		return new Promise((resolve) => {
 			// Wait until dispatch has been received
-			while (!firstDispatch) {
-				RunService.Heartbeat.Wait();
-			}
+			while (!this.initialSyncReceived) RunService.Heartbeat.Wait();
 			resolve(undefined);
 		})
 			.timeout(5)
@@ -46,43 +74,23 @@ export class ClientRegistry extends BaseRegistry {
 
 	getGroupOptions() {
 		const groupMap = new Map<string, GroupOptions>();
-		for (const [k, v] of this.commands) {
-			groupMap.set(k, copyDeep(v.options as CommandOptions));
+		for (const [k, v] of this.groups) {
+			groupMap.set(k, copyDeep(v.options as GroupOptions));
 		}
 		return groupMap;
 	}
 
-	private registerServerGroups(sharedGroups: GroupOptions[]) {
-		const childMap = new Map<string, GroupOptions[]>();
-		for (const group of sharedGroups) {
-			if (group.root !== undefined) {
-				const childArray = childMap.get(group.root) ?? [];
-				childArray.push(group);
-				childMap.set(group.root, childArray);
-				continue;
-			}
+	protected updateCommandMap(key: string, command: BaseCommand): void {
+		super.updateCommandMap(key, command);
+		this.events.commandAdded.Fire(
+			key,
+			copyDeep(command.options as CommandOptions),
+		);
+	}
 
-			if (this.groups.has(group.name)) {
-				warn("Skipping duplicate server group:", group.name);
-				continue;
-			}
-
-			this.validatePath(group.name, false);
-			this.groups.set(group.name, this.createGroup(group));
-		}
-
-		for (const [root, children] of childMap) {
-			const rootGroup = this.groups.get(root);
-			assert(rootGroup !== undefined, `Parent group '${root}' does not exist`);
-
-			for (const child of children) {
-				if (rootGroup.hasGroup(child.name)) {
-					warn(`Skipping duplicate server group in ${root}: ${child}`);
-					continue;
-				}
-				rootGroup.addGroup(this.createGroup(child));
-			}
-		}
+	protected updateGroupMap(key: string, group: CommandGroup): void {
+		super.updateGroupMap(key, group);
+		this.events.groupAdded.Fire(key, copyDeep(group.options as GroupOptions));
 	}
 
 	private registerServerCommands(commands: Map<string, CommandOptions>) {
@@ -110,7 +118,10 @@ export class ClientRegistry extends BaseRegistry {
 
 			this.validatePath(path, true);
 			this.cachePath(commandPath);
-			this.commands.set(path, ServerCommand.create(this, commandPath, command));
+			this.updateCommandMap(
+				path,
+				ServerCommand.create(this, commandPath, command),
+			);
 		}
 	}
 }

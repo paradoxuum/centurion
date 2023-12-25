@@ -3,11 +3,17 @@ import { mergeDeep } from "@rbxts/sift/out/Dictionary";
 import { ClientDispatcher } from "./dispatcher";
 import { DEFAULT_OPTIONS } from "./options";
 import { ClientRegistry } from "./registry";
+import { CommanderEvents } from "./types";
 
 export namespace CommanderClient {
 	let started = false;
-	const registryInstance = new ClientRegistry();
-	const dispatcherInstance = new ClientDispatcher(registryInstance);
+	const events: CommanderEvents = {
+		historyUpdated: new Instance("BindableEvent"),
+		commandAdded: new Instance("BindableEvent"),
+		groupAdded: new Instance("BindableEvent"),
+	};
+	const registryInstance = new ClientRegistry(events);
+	const dispatcherInstance = new ClientDispatcher(registryInstance, events);
 	let optionsObject = DEFAULT_OPTIONS;
 
 	const IS_CLIENT = RunService.IsClient();
@@ -34,18 +40,23 @@ export namespace CommanderClient {
 
 		callback(registryInstance);
 		await registryInstance.sync();
-
-		registryInstance.freeze();
 		started = true;
 
 		if (options.app !== undefined) {
 			options.app({
 				options: optionsObject,
 				execute: (path, text) => dispatcherInstance.run(path, text),
-				commands: registryInstance.getCommandOptions(),
-				groups: registryInstance.getGroupOptions(),
-				history: dispatcherInstance.getHistory(),
-				onHistoryUpdated: dispatcherInstance.getHistorySignal(),
+				addHistoryEntry: (entry) => dispatcherInstance.addHistoryEntry(entry),
+				initialData: {
+					commands: registryInstance.getCommandOptions(),
+					groups: registryInstance.getGroupOptions(),
+					history: dispatcherInstance.getHistory(),
+				},
+				events: {
+					historyUpdated: events.historyUpdated.Event,
+					commandAdded: events.commandAdded.Event,
+					groupAdded: events.groupAdded.Event,
+				},
 			});
 		}
 	}

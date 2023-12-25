@@ -21,7 +21,7 @@ import { fonts } from "../../constants/fonts";
 import { palette } from "../../constants/palette";
 import { useRem } from "../../hooks/useRem";
 import { useStore } from "../../hooks/useStore";
-import { DataContext } from "../../providers/dataProvider";
+import { CommanderContext } from "../../providers/commanderProvider";
 import { SuggestionContext } from "../../providers/suggestionProvider";
 import { selectVisible } from "../../store/app";
 import { getArgumentNames } from "../../util/argument";
@@ -47,7 +47,7 @@ export function TerminalTextField({
 }: TerminalTextFieldProps) {
 	const rem = useRem();
 	const ref = useRef<TextBox>();
-	const data = useContext(DataContext);
+	const data = useContext(CommanderContext);
 	const suggestion = useContext(SuggestionContext).suggestion;
 	const store = useStore();
 
@@ -143,6 +143,7 @@ export function TerminalTextField({
 			const suggestionTextParts = suggestionTextValue
 				.gsub("%s+", " ")[0]
 				.split(" ");
+
 			const nextCommand = data.commands.get(
 				formatPartsAsPath(suggestionTextParts),
 			);

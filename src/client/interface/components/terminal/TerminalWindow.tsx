@@ -1,24 +1,19 @@
-import { useEventListener, useMountEffect } from "@rbxts/pretty-react-hooks";
-import { useSelector } from "@rbxts/react-reflex";
 import Roact, { useContext, useEffect, useMemo, useState } from "@rbxts/roact";
 import { TextService } from "@rbxts/services";
 import { copy, pop, slice } from "@rbxts/sift/out/Array";
-import { copyDeep } from "@rbxts/sift/out/Dictionary";
 import { ImmutableCommandPath } from "../../../../shared";
 import {
 	endsWithSpace,
 	formatPartsAsPath,
 	splitStringBySpace,
 } from "../../../../shared/util/string";
-import { DEFAULT_HISTORY_LENGTH } from "../../../options";
 import { DEFAULT_FONT } from "../../constants/fonts";
 import { palette } from "../../constants/palette";
 import { useMotion } from "../../hooks/useMotion";
 import { useRem } from "../../hooks/useRem";
 import { useStore } from "../../hooks/useStore";
-import { DataContext } from "../../providers/dataProvider";
+import { CommanderContext } from "../../providers/commanderProvider";
 import { SuggestionContext } from "../../providers/suggestionProvider";
-import { selectHistory } from "../../store/app";
 import { HistoryLineData } from "../../types";
 import { Frame } from "../interface/Frame";
 import { Padding } from "../interface/Padding";
@@ -37,10 +32,9 @@ function getParentPath(parts: string[], atNextPart: boolean) {
 export function TerminalWindow() {
 	const rem = useRem();
 	const store = useStore();
-	const data = useContext(DataContext);
+	const data = useContext(CommanderContext);
 	const suggestionData = useContext(SuggestionContext);
 
-	const history = useSelector(selectHistory);
 	const [historyData, setHistoryData] = useState<HistoryData>({
 		lines: [],
 		height: 0,
@@ -61,26 +55,15 @@ export function TerminalWindow() {
 	}, [rem]);
 
 	// Handle history updates
-	useMountEffect(() => {
-		store.setHistory(copyDeep(data.history));
-	});
-
-	useEventListener(data.onHistoryUpdated, (entry) => {
-		store.addHistoryEntry(
-			entry,
-			data.options.historyLength ?? DEFAULT_HISTORY_LENGTH,
-		);
-	});
-
 	useEffect(() => {
-		const historySize = history.size();
+		const historySize = data.history.size();
 		let totalHeight =
 			historySize > 0 ? rem(0.5) + (historySize - 1) * rem(0.5) : 0;
 
 		textBoundsParams.Size = rem(1.5);
 
 		const historyLines: HistoryLineData[] = [];
-		for (const entry of history) {
+		for (const entry of data.history) {
 			textBoundsParams.Text = entry.text;
 			const textSize = TextService.GetTextBoundsAsync(textBoundsParams);
 			totalHeight += textSize.Y;
@@ -94,7 +77,7 @@ export function TerminalWindow() {
 			lines: historyLines,
 			height: totalHeight,
 		});
-	}, [history, rem]);
+	}, [data.history, rem]);
 
 	return (
 		<Frame
@@ -212,14 +195,11 @@ export function TerminalWindow() {
 					const storeState = store.getState();
 					const command = storeState.app.command;
 					if (command === undefined) {
-						store.addHistoryEntry(
-							{
-								success: false,
-								text: "Command not found.",
-								sentAt: os.time(),
-							},
-							data.options.historyLength ?? DEFAULT_HISTORY_LENGTH,
-						);
+						data.addHistoryEntry({
+							success: false,
+							text: "Command not found.",
+							sentAt: os.time(),
+						});
 						return;
 					}
 
