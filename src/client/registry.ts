@@ -14,10 +14,22 @@ export class ClientRegistry extends BaseRegistry {
 		super();
 	}
 
+	/**
+	 * Initialises the client registry.
+	 *
+	 * This will register any built-in types.
+	 * */
 	init() {
 		this.registerBuiltInTypes();
 	}
 
+	/**
+	 * Begins registry synchronisation to the server.
+	 *
+	 * @throws Throws an error if the server does not respond in time
+	 *
+	 * @returns A promise that will be resolved when the initial sync is received
+	 */
 	async sync() {
 		const syncedCommands = new Set<string>();
 		const syncedGroups = new Set<string>();
@@ -64,6 +76,11 @@ export class ClientRegistry extends BaseRegistry {
 			});
 	}
 
+	/**
+	 * Creates and returns a copy of the registry's command map.
+	 *
+	 * @returns A command map
+	 */
 	getCommandOptions() {
 		const commandMap = new Map<string, CommandOptions>();
 		for (const [k, v] of this.commands) {
@@ -72,6 +89,11 @@ export class ClientRegistry extends BaseRegistry {
 		return commandMap;
 	}
 
+	/**
+	 * Creates and returns a copy of the registry's group map.
+	 *
+	 * @returns A group map
+	 */
 	getGroupOptions() {
 		const groupMap = new Map<string, GroupOptions>();
 		for (const [k, v] of this.groups) {
