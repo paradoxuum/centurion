@@ -1,4 +1,4 @@
-import { useEventListener, useMountEffect } from "@rbxts/pretty-react-hooks";
+import { useEventListener } from "@rbxts/pretty-react-hooks";
 import Roact, { createContext, useState } from "@rbxts/roact";
 import { copyDeep } from "@rbxts/sift/out/Dictionary";
 import { CommandOptions, CommandPath, GroupOptions } from "../../../shared";
@@ -13,11 +13,6 @@ export interface CommanderContextData {
 	history: HistoryEntry[];
 	addHistoryEntry: (entry: HistoryEntry) => void;
 }
-
-type StaticContextData = Omit<
-	CommanderContextData,
-	"commands" | "groups" | "history"
->;
 
 const DEFAULT_EXECUTE_CALLBACK = async () => ({
 	text: "Command executed.",
@@ -43,29 +38,9 @@ export const CommanderContext = createContext<CommanderContextData>(
 );
 
 export function CommanderProvider({ value, children }: CommanderProviderProps) {
-	const [staticData, setStaticData] = useState<StaticContextData>({
-		addHistoryEntry: () => {},
-		execute: DEFAULT_EXECUTE_CALLBACK,
-		options: DEFAULT_OPTIONS,
-	});
-
-	const [history, setHistory] = useState<HistoryEntry[]>([]);
-	const [commands, setCommands] = useState<Map<string, CommandOptions>>(
-		new Map(),
-	);
-	const [groups, setGroups] = useState<Map<string, GroupOptions>>(new Map());
-
-	useMountEffect(() => {
-		setStaticData({
-			addHistoryEntry: value.addHistoryEntry,
-			execute: value.execute,
-			options: value.options,
-		});
-
-		setHistory(value.initialData.history);
-		setCommands(value.initialData.commands);
-		setGroups(value.initialData.groups);
-	});
+	const [history, setHistory] = useState(value.initialData.history);
+	const [commands, setCommands] = useState(value.initialData.commands);
+	const [groups, setGroups] = useState(value.initialData.groups);
 
 	useEventListener(value.events.historyUpdated, (entries) => {
 		setHistory(copyDeep(entries));
@@ -86,9 +61,9 @@ export function CommanderProvider({ value, children }: CommanderProviderProps) {
 	return (
 		<CommanderContext.Provider
 			value={{
-				addHistoryEntry: staticData.addHistoryEntry,
-				execute: staticData.execute,
-				options: staticData.options,
+				addHistoryEntry: value.addHistoryEntry,
+				execute: value.execute,
+				options: value.options,
 				history,
 				commands,
 				groups,
