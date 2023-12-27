@@ -66,14 +66,14 @@ export class ClientDispatcher extends BaseDispatcher {
 		return this.history;
 	}
 
- /**
-  * Adds a {@link HistoryEntry} to the history.
-  *
-  * If the number of history entries would exceed the limit if it were added,
-  * the oldest history entry will be removed.
-  * 
-  * @param entry - The history entry to add
-  */
+	/**
+	 * Adds a {@link HistoryEntry} to the history.
+	 *
+	 * If the number of history entries would exceed the limit if it were added,
+	 * the oldest history entry will be removed.
+	 *
+	 * @param entry - The history entry to add
+	 */
 	addHistoryEntry(entry: HistoryEntry) {
 		if (this.history.size() >= this.maxHistoryLength) {
 			this.history.remove(0);
