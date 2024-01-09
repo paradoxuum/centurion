@@ -14,31 +14,16 @@ import { useMotion } from "../../../hooks/useMotion";
 import { useRem } from "../../../hooks/useRem";
 import { SuggestionContext } from "../../../providers/suggestionProvider";
 import { selectText } from "../../../store/app";
-import { ArgumentSuggestion } from "../../../types";
-import { toHex } from "../../../util/color";
 import { Frame } from "../../interface/Frame";
 import { Group } from "../../interface/Group";
 import { Padding } from "../../interface/Padding";
 import { Text } from "../../interface/Text";
-import { Badge } from "./Badge";
+import { MainSuggestion } from "./MainSuggestion";
+import { SuggestionSizes } from "./types";
+import { highlightMatching } from "./util";
 
 export interface SuggestionListProps {
 	position?: UDim2;
-}
-
-const HIGHLIGHT_PREFIX = `<font color="${toHex(palette.blue)}">`;
-
-function highlight(text?: string, terminalText?: string) {
-	if (text === undefined) return "";
-	if (terminalText === undefined) return text;
-
-	const subText = text.sub(0, terminalText.size());
-	if (terminalText.lower() !== subText.lower()) {
-		return text;
-	}
-
-	const unhighlightedText = text.sub(terminalText.size() + 1);
-	return `${HIGHLIGHT_PREFIX}${subText}</font>${unhighlightedText}`;
 }
 
 export function SuggestionList({ position }: SuggestionListProps) {
@@ -62,14 +47,9 @@ export function SuggestionList({ position }: SuggestionListProps) {
 
 	// Suggestions
 	const suggestion = useContext(SuggestionContext).suggestion;
-	const isArgument = useMemo(
-		() => suggestion?.main.type === "argument",
-		[suggestion],
-	);
-
-	const [sizes, setSizes] = useBinding({
-		titleText: UDim2.fromOffset(rem(16), rem(2)),
-		descriptionText: UDim2.fromOffset(rem(16), rem(2)),
+	const [sizes, setSizes] = useBinding<SuggestionSizes>({
+		title: UDim2.fromOffset(rem(16), rem(2)),
+		description: UDim2.fromOffset(rem(16), rem(2)),
 		typeBadgeWidth: rem(6),
 	});
 
@@ -127,11 +107,8 @@ export function SuggestionList({ position }: SuggestionListProps) {
 		}
 
 		setSizes({
-			titleText: UDim2.fromOffset(titleBounds.X, titleBounds.Y),
-			descriptionText: UDim2.fromOffset(
-				descriptionBounds.X,
-				descriptionBounds.Y,
-			),
+			title: UDim2.fromOffset(titleBounds.X, titleBounds.Y),
+			description: UDim2.fromOffset(descriptionBounds.X, descriptionBounds.Y),
 			typeBadgeWidth:
 				typeBadgeBounds !== undefined
 					? typeBadgeBounds.X + rem(2)
@@ -179,87 +156,14 @@ export function SuggestionList({ position }: SuggestionListProps) {
 			clipsDescendants={true}
 			visible={suggestion !== undefined}
 		>
-			<Frame
-				key="top"
+			<MainSuggestion
+				key="main"
+				suggestion={suggestion}
+				argument={suggestion?.main.type === "argument"}
+				currentText={currentTextPart}
 				size={suggestionSize}
-				backgroundColor={palette.crust}
-				cornerRadius={new UDim(0, rem(0.5))}
-				clipsDescendants={true}
-			>
-				<Padding key="padding" all={new UDim(0, rem(1))} />
-
-				<Group
-					key="badges"
-					anchorPoint={new Vector2(1, 0)}
-					size={sizes.map((val) =>
-						UDim2.fromOffset(math.max(val.typeBadgeWidth, rem(7)), rem(4.5)),
-					)}
-					position={UDim2.fromScale(1, 0)}
-					visible={isArgument}
-				>
-					<Badge
-						key="optional-badge"
-						size={new UDim2(1, 0, 0, rem(2))}
-						color={
-							isArgument &&
-							suggestion !== undefined &&
-							(suggestion.main as ArgumentSuggestion).optional
-								? palette.blue
-								: palette.red
-						}
-						text={
-							isArgument &&
-							suggestion !== undefined &&
-							(suggestion.main as ArgumentSuggestion).optional
-								? "Optional"
-								: "Required"
-						}
-						textColor={palette.white}
-						textSize={rem(1.5)}
-					/>
-
-					<Badge
-						key="type-badge"
-						size={new UDim2(1, 0, 0, rem(2))}
-						position={UDim2.fromOffset(0, rem(2.5))}
-						color={palette.surface0}
-						text={
-							isArgument && suggestion !== undefined
-								? (suggestion.main as ArgumentSuggestion).dataType
-								: ""
-						}
-						textColor={palette.white}
-						textSize={rem(1.5)}
-					/>
-				</Group>
-
-				<Text
-					key="title"
-					size={sizes.map((val) => val.titleText)}
-					text={
-						isArgument
-							? suggestion?.main.title
-							: highlight(suggestion?.main.title, currentTextPart)
-					}
-					textSize={rem(2)}
-					textColor={palette.white}
-					textXAlignment="Left"
-					richText={true}
-					font={fonts.inter.bold}
-				/>
-
-				<Text
-					key="description"
-					size={sizes.map((val) => val.descriptionText)}
-					position={UDim2.fromOffset(0, rem(2))}
-					text={suggestion?.main.description ?? ""}
-					textSize={rem(1.5)}
-					textColor={palette.white}
-					textXAlignment="Left"
-					textWrapped={true}
-					richText={true}
-				/>
-			</Frame>
+				sizes={sizes}
+			/>
 
 			<Group key="other" size={otherSuggestionSize}>
 				<uilistlayout
@@ -282,7 +186,7 @@ export function SuggestionList({ position }: SuggestionListProps) {
 							<Text
 								key="text"
 								size={new UDim2(1, 0, 1, 0)}
-								text={highlight(name, currentTextPart)}
+								text={highlightMatching(name, currentTextPart)}
 								textColor={palette.white}
 								textSize={rem(1.6)}
 								textXAlignment="Left"
