@@ -2,6 +2,7 @@ import {
 	BindingOrValue,
 	getBindingValue,
 	useEventListener,
+	useMountEffect,
 } from "@rbxts/pretty-react-hooks";
 import { useSelector } from "@rbxts/react-reflex";
 import Roact, {
@@ -10,6 +11,7 @@ import Roact, {
 	useContext,
 	useEffect,
 	useRef,
+	useState,
 } from "@rbxts/roact";
 import { UserInputService } from "@rbxts/services";
 import {
@@ -23,7 +25,7 @@ import { useRem } from "../../hooks/useRem";
 import { useStore } from "../../hooks/useStore";
 import { CommanderContext } from "../../providers/commanderProvider";
 import { SuggestionContext } from "../../providers/suggestionProvider";
-import { selectVisible } from "../../store/app";
+import { selectCommand, selectErrorText, selectVisible } from "../../store/app";
 import { getArgumentNames } from "../../util/argument";
 import { Frame } from "../interface/Frame";
 import { Padding } from "../interface/Padding";
@@ -54,6 +56,7 @@ export function TerminalTextField({
 	const appVisible = useSelector(selectVisible);
 	const [text, setText] = useBinding("");
 	const [suggestionText, setSuggestionText] = useBinding("");
+	const [valid, setValid] = useState(false);
 
 	const traverseHistory = useCallback((up: boolean) => {
 		const history = store.getState().app.commandHistory;
@@ -87,6 +90,19 @@ export function TerminalTextField({
 			ref.current.ReleaseFocus();
 		}
 	}, [appVisible]);
+
+	useMountEffect(() => {
+		let errored = false;
+		store.subscribe(selectErrorText, (text) => {
+			errored = text !== undefined;
+			setValid(!errored);
+		});
+
+		store.subscribe(selectCommand, (command) => {
+			if (errored) return;
+			setValid(command !== undefined);
+		});
+	});
 
 	useEffect(() => {
 		if (suggestion === undefined) {
@@ -205,8 +221,8 @@ export function TerminalTextField({
 				size={UDim2.fromScale(1, 1)}
 				placeholderText="Enter command..."
 				text={text}
-				textColor={palette.white}
 				textSize={rem(2)}
+				textColor={valid ? palette.green : palette.red}
 				textXAlignment="Left"
 				clearTextOnFocus={false}
 				font={fonts.inter.medium}

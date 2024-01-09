@@ -16,6 +16,7 @@ export interface AppState {
 		parts: string[];
 		index: number;
 	};
+	errorText?: string;
 }
 
 export const initialAppState: AppState = {
@@ -86,4 +87,9 @@ export const appSlice = createProducer(initialAppState, {
 			},
 		};
 	},
+
+	setErrorText: (state, text?: string) => ({
+		...state,
+		errorText: text,
+	}),
 });

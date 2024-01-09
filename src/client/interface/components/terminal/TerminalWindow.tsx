@@ -1,7 +1,8 @@
+import { useLatestCallback } from "@rbxts/pretty-react-hooks";
 import Roact, { useContext, useEffect, useMemo, useState } from "@rbxts/roact";
 import { TextService } from "@rbxts/services";
 import { copy, pop, slice } from "@rbxts/sift/out/Array";
-import { ImmutableCommandPath } from "../../../../shared";
+import { CommandOptions, ImmutableCommandPath } from "../../../../shared";
 import {
 	endsWithSpace,
 	formatPartsAsPath,
@@ -53,6 +54,36 @@ export function TerminalWindow() {
 			return new UDim2(1, 0, 0, math.ceil(rem(5) + y));
 		});
 	}, [rem]);
+
+	const checkArgs = useLatestCallback(
+		(path: ImmutableCommandPath, command: CommandOptions) => {
+			if (command.arguments === undefined || command.arguments.isEmpty()) {
+				return undefined;
+			}
+
+			const storeState = store.getState();
+			const lastPartIndex =
+				storeState.app.text.parts.size() - path.getSize() - 1;
+			const missingArgs: string[] = [];
+
+			let index = 0;
+			for (const arg of command.arguments) {
+				if (arg.optional) break;
+				if (index > lastPartIndex) {
+					missingArgs.push(`<b>${arg.name}</b>`);
+				}
+				index++;
+			}
+
+			if (missingArgs.isEmpty()) return undefined;
+
+			let text = "Missing required argument";
+			if (missingArgs.size() !== 1) {
+				text += "s";
+			}
+			return `${text}: ${missingArgs.join(", ")}`;
+		},
+	);
 
 	// Handle history updates
 	useEffect(() => {
@@ -155,11 +186,23 @@ export function TerminalWindow() {
 							store.setCommand(new ImmutableCommandPath(copy(parts)));
 					}
 
-					if (!atCommand) {
+					if (atCommand) {
+						const commandPath = store.getState().app.command;
+						const command =
+							commandPath !== undefined
+								? data.commands.get(commandPath.toString())
+								: undefined;
+
+						if (commandPath !== undefined && command !== undefined) {
+							const argCheckMessage = checkArgs(commandPath, command);
+							store.setErrorText(argCheckMessage);
+						}
+					} else {
 						store.setCommand(undefined);
 						parentPath = getParentPath(parts, atNextPart);
 					}
 
+					// Update suggestions
 					const argCount =
 						showArgs && parentPath !== undefined
 							? data.commands.get(parentPath.toString())?.arguments?.size() ?? 0
@@ -193,8 +236,12 @@ export function TerminalWindow() {
 				}}
 				onSubmit={(text) => {
 					const storeState = store.getState();
-					const command = storeState.app.command;
-					if (command === undefined) {
+					const commandPath = storeState.app.command;
+					const command =
+						commandPath !== undefined
+							? data.commands.get(commandPath.toString())
+							: undefined;
+					if (commandPath === undefined || command === undefined) {
 						data.addHistoryEntry({
 							success: false,
 							text: "Command not found.",
@@ -203,7 +250,16 @@ export function TerminalWindow() {
 						return;
 					}
 
-					data.execute(command, text);
+					const argCheckMessage = checkArgs(commandPath, command);
+					if (argCheckMessage !== undefined) {
+						data.addHistoryEntry({
+							success: false,
+							text: argCheckMessage,
+							sentAt: os.time(),
+						});
+						return;
+					}
+					data.execute(commandPath, text);
 				}}
 			/>
 
