@@ -6,11 +6,13 @@ import { TransformationResult } from "../../types";
 import { TransformResult, TypeBuilder } from "../../util/type";
 
 const getPlayer = (text: string): TransformationResult<Player> => {
-	const player = Players.FindFirstChild(text);
-	if (player === undefined || !classIs(player, "Player")) {
-		return TransformResult.err("Player not found");
+	for (const player of Players.GetPlayers()) {
+		if (player.Name.lower() === text.lower()) {
+			return TransformResult.ok(player);
+		}
 	}
-	return TransformResult.ok(player);
+
+	return TransformResult.err("Player not found");
 };
 
 const isPlayer = t.instanceOf("Player");
