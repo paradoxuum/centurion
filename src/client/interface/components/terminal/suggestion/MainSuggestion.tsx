@@ -9,7 +9,7 @@ import { Group } from "../../interface/Group";
 import { Padding } from "../../interface/Padding";
 import { Text } from "../../interface/Text";
 import { Badge } from "./Badge";
-import { SuggestionSizes } from "./types";
+import { SuggestionTextBounds } from "./types";
 import { highlightMatching } from "./util";
 
 export interface MainSuggestionProps {
@@ -17,7 +17,7 @@ export interface MainSuggestionProps {
 	argument: BindingOrValue<boolean>;
 	currentText?: string;
 	size: BindingOrValue<UDim2>;
-	sizes: Binding<SuggestionSizes>;
+	sizes: Binding<SuggestionTextBounds>;
 }
 
 export function MainSuggestion({
@@ -108,6 +108,22 @@ export function MainSuggestion({
 				textXAlignment="Left"
 				textWrapped={true}
 				richText={true}
+			/>
+
+			<Text
+				key="error"
+				anchorPoint={new Vector2(0, 1)}
+				size={sizes.map((val) => new UDim2(1, 0, 0, val.errorTextHeight))}
+				position={UDim2.fromScale(0, 1)}
+				text={
+					argument && suggestion !== undefined
+						? (suggestion.main as ArgumentSuggestion).error ?? ""
+						: ""
+				}
+				textColor={palette.red}
+				textSize={rem(1.5)}
+				textWrapped={true}
+				textXAlignment="Left"
 			/>
 		</Frame>
 	);

@@ -25,7 +25,7 @@ import { useRem } from "../../hooks/useRem";
 import { useStore } from "../../hooks/useStore";
 import { CommanderContext } from "../../providers/commanderProvider";
 import { SuggestionContext } from "../../providers/suggestionProvider";
-import { selectCommand, selectErrorText, selectVisible } from "../../store/app";
+import { selectCommand, selectValid, selectVisible } from "../../store/app";
 import { getArgumentNames } from "../../util/argument";
 import { Frame } from "../interface/Frame";
 import { Padding } from "../interface/Padding";
@@ -92,14 +92,12 @@ export function TerminalTextField({
 	}, [appVisible]);
 
 	useMountEffect(() => {
-		let errored = false;
-		store.subscribe(selectErrorText, (text) => {
-			errored = text !== undefined;
-			setValid(!errored);
+		store.subscribe(selectValid, (valid) => {
+			setValid(valid);
 		});
 
 		store.subscribe(selectCommand, (command) => {
-			if (errored) return;
+			if (!store.getState().app.valid) return;
 			setValid(command !== undefined);
 		});
 	});

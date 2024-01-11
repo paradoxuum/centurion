@@ -18,6 +18,7 @@ export interface ArgumentSuggestion {
 	description?: string;
 	dataType: string;
 	optional: boolean;
+	error?: string;
 }
 
 export interface Suggestion {

@@ -16,7 +16,7 @@ export interface AppState {
 		parts: string[];
 		index: number;
 	};
-	errorText?: string;
+	valid: boolean;
 }
 
 export const initialAppState: AppState = {
@@ -28,10 +28,11 @@ export const initialAppState: AppState = {
 		parts: [],
 		index: -1,
 	},
+	valid: false,
 };
 
 /**
- * Limits an array by removing the first n (limit) elments if
+ * Limits an array by removing the first n (limit) elements if
  * the array's size exceeds the limit.
  *
  * @param array The array to limit
@@ -88,8 +89,8 @@ export const appSlice = createProducer(initialAppState, {
 		};
 	},
 
-	setErrorText: (state, text?: string) => ({
+	setValid: (state, valid: boolean) => ({
 		...state,
-		errorText: text,
+		valid,
 	}),
 });

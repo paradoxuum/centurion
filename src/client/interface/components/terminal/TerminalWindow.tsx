@@ -194,8 +194,7 @@ export function TerminalWindow() {
 								: undefined;
 
 						if (commandPath !== undefined && command !== undefined) {
-							const argCheckMessage = checkArgs(commandPath, command);
-							store.setErrorText(argCheckMessage);
+							store.setValid(checkArgs(commandPath, command) === undefined);
 						}
 					} else {
 						store.setCommand(undefined);

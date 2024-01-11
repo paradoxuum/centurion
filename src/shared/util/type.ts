@@ -23,6 +23,7 @@ export namespace TransformResult {
 }
 
 export class TypeBuilder<T extends defined> {
+	private expensive = false;
 	private validationFn?: t.check<T>;
 	private transformFn?: (text: string) => TransformationResult<T>;
 	private suggestionFn?: (text: string) => string[];
@@ -30,6 +31,8 @@ export class TypeBuilder<T extends defined> {
 	private constructor(private readonly name: string) {}
 
 	/**
+	 * Creates a {@link TypeBuilder}.
+	 *
 	 * @param name - The name of the type
 	 * @returns A type builder
 	 */
@@ -44,6 +47,7 @@ export class TypeBuilder<T extends defined> {
 	 */
 	static extend<T extends defined>(name: string, options: TypeOptions<T>) {
 		const builder = new TypeBuilder<T>(name);
+		builder.expensive = options.expensive;
 		builder.validationFn = options.validate;
 		builder.transformFn = options.transform;
 		builder.suggestionFn = options.suggestions;
@@ -64,11 +68,21 @@ export class TypeBuilder<T extends defined> {
 	/**
 	 * Sets the transformation function for this type.
 	 *
+	 * If the `expensive` parameter is set to true, it indicates that
+	 * the transform function will be expensive to compute. If the default
+	 * interface is being used in this case, it will disable real-time
+	 * checking while the user is typing the command.
+	 *
 	 * @param transformFn - The transformation function for this type
+	 * @param expensive - Whether the function is expensive to compute
 	 * @returns The type builder
 	 */
-	transform(transformFn: (text: string) => TransformationResult<T>) {
+	transform(
+		transformFn: (text: string) => TransformationResult<T>,
+		expensive = false,
+	) {
 		this.transformFn = transformFn;
+		this.expensive = expensive;
 		return this;
 	}
 
@@ -95,8 +109,10 @@ export class TypeBuilder<T extends defined> {
 	build(): TypeOptions<T> {
 		assert(this.validationFn !== undefined, "Validation function is required");
 		assert(this.transformFn !== undefined, "Transform function is required");
+
 		return {
 			name: this.name,
+			expensive: this.expensive,
 			validate: this.validationFn,
 			transform: this.transformFn,
 			suggestions: this.suggestionFn,
