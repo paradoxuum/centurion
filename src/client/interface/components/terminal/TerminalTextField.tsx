@@ -24,8 +24,10 @@ import { palette } from "../../constants/palette";
 import { useRem } from "../../hooks/useRem";
 import { useStore } from "../../hooks/useStore";
 import { CommanderContext } from "../../providers/commanderProvider";
-import { SuggestionContext } from "../../providers/suggestionProvider";
-import { selectCommand, selectValid, selectVisible } from "../../store/app";
+import { selectVisible } from "../../store/app";
+import { selectCommand } from "../../store/command";
+import { selectCurrentSuggestion } from "../../store/suggestion";
+import { selectValid } from "../../store/text";
 import { getArgumentNames } from "../../util/argument";
 import { Frame } from "../interface/Frame";
 import { Padding } from "../interface/Padding";
@@ -50,19 +52,19 @@ export function TerminalTextField({
 	const rem = useRem();
 	const ref = useRef<TextBox>();
 	const data = useContext(CommanderContext);
-	const suggestion = useContext(SuggestionContext).suggestion;
 	const store = useStore();
 
 	const appVisible = useSelector(selectVisible);
+	const currentSuggestion = useSelector(selectCurrentSuggestion);
 	const [text, setText] = useBinding("");
 	const [suggestionText, setSuggestionText] = useBinding("");
 	const [valid, setValid] = useState(false);
 
 	const traverseHistory = useCallback((up: boolean) => {
-		const history = store.getState().app.commandHistory;
+		const history = store.getState().history.commandHistory;
 		if (history.isEmpty()) return;
 
-		const historyIndex = store.getState().app.commandHistoryIndex;
+		const historyIndex = store.getState().history.commandHistoryIndex;
 		if ((up && historyIndex === 0) || (!up && historyIndex === -1)) return;
 
 		let newIndex: number;
@@ -97,25 +99,26 @@ export function TerminalTextField({
 		});
 
 		store.subscribe(selectCommand, (command) => {
-			if (!store.getState().app.valid) return;
+			if (!store.getState().text.valid) return;
 			setValid(command !== undefined);
 		});
 	});
 
 	useEffect(() => {
-		if (suggestion === undefined) {
+		if (currentSuggestion === undefined) {
 			setSuggestionText("");
 			return;
 		}
 
-		const parts = store.getState().app.text.parts;
-		const atNextPart = endsWithSpace(store.getState().app.text.value);
+		const state = store.getState();
+		const parts = state.text.parts;
+		const atNextPart = endsWithSpace(state.text.value);
 
 		let newText = getBindingValue(text);
-		const command = store.getState().app.command;
-		const argIndex = store.getState().app.argIndex;
+		const command = state.command.path;
+		const argIndex = state.command.argIndex;
 		if (
-			suggestion.main.type === "argument" &&
+			currentSuggestion.main.type === "argument" &&
 			command !== undefined &&
 			argIndex !== undefined
 		) {
@@ -129,14 +132,14 @@ export function TerminalTextField({
 
 				newText = `${newText}${argNames[i]} `;
 			}
-		} else if (suggestion.main.type === "command") {
+		} else if (currentSuggestion.main.type === "command") {
 			const suggestionStartIndex =
 				(!atNextPart ? parts[parts.size() - 1].size() : 0) + 1;
-			newText += suggestion.main.title.sub(suggestionStartIndex);
+			newText += currentSuggestion.main.title.sub(suggestionStartIndex);
 		}
 
 		setSuggestionText(newText);
-	}, [suggestion]);
+	}, [currentSuggestion]);
 
 	useEventListener(UserInputService.InputBegan, (input) => {
 		if (ref.current === undefined) return;
@@ -149,7 +152,8 @@ export function TerminalTextField({
 
 		if (input.KeyCode !== Enum.KeyCode.Tab) return;
 
-		const commandPath = store.getState().app.command;
+		const state = store.getState();
+		const commandPath = state.command.path;
 		const suggestionTextValue = getBindingValue(suggestionText);
 
 		// Handle command suggestions
@@ -179,21 +183,21 @@ export function TerminalTextField({
 		// Handle argument suggestions
 		if (
 			commandPath === undefined ||
-			suggestion === undefined ||
-			suggestion.others.isEmpty()
+			currentSuggestion === undefined ||
+			currentSuggestion.others.isEmpty()
 		)
 			return;
 
-		const argIndex = store.getState().app.argIndex;
+		const argIndex = state.command.argIndex;
 		const commandArgs = data.commands.get(commandPath.toString())?.arguments;
 		if (argIndex === undefined || commandArgs === undefined) return;
 
 		let newText = getBindingValue(text);
 		if (!endsWithSpace(newText)) {
-			const parts = store.getState().app.text.parts;
+			const parts = state.text.parts;
 			newText = newText.sub(0, newText.size() - parts[parts.size() - 1].size());
 		}
-		newText += suggestion.others[0];
+		newText += currentSuggestion.others[0];
 
 		if (argIndex < commandArgs.size() - 1) {
 			newText += " ";

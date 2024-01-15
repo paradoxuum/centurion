@@ -14,8 +14,11 @@ import { useMotion } from "../../hooks/useMotion";
 import { useRem } from "../../hooks/useRem";
 import { useStore } from "../../hooks/useStore";
 import { CommanderContext } from "../../providers/commanderProvider";
-import { SuggestionContext } from "../../providers/suggestionProvider";
-import { HistoryLineData } from "../../types";
+import { HistoryLineData, Suggestion } from "../../types";
+import {
+	getArgumentSuggestion,
+	getCommandSuggestion,
+} from "../../util/suggestion";
 import { Frame } from "../interface/Frame";
 import { Padding } from "../interface/Padding";
 import { Shadow } from "../interface/Shadow";
@@ -34,7 +37,6 @@ export function TerminalWindow() {
 	const rem = useRem();
 	const store = useStore();
 	const data = useContext(CommanderContext);
-	const suggestionData = useContext(SuggestionContext);
 
 	const [historyData, setHistoryData] = useState<HistoryData>({
 		lines: [],
@@ -55,15 +57,14 @@ export function TerminalWindow() {
 		});
 	}, [rem]);
 
-	const checkArgs = useLatestCallback(
+	const checkMissingArgs = useLatestCallback(
 		(path: ImmutableCommandPath, command: CommandOptions) => {
 			if (command.arguments === undefined || command.arguments.isEmpty()) {
 				return undefined;
 			}
 
 			const storeState = store.getState();
-			const lastPartIndex =
-				storeState.app.text.parts.size() - path.getSize() - 1;
+			const lastPartIndex = storeState.text.parts.size() - path.getSize() - 1;
 			const missingArgs: string[] = [];
 
 			let index = 0;
@@ -135,12 +136,12 @@ export function TerminalWindow() {
 					store.setText(text, parts);
 
 					if (parts.isEmpty()) {
-						suggestionData.updateSuggestion();
+						store.clearSuggestions();
 						store.setArgIndex(undefined);
 						return;
 					}
 
-					let parentPath = store.getState().app.command;
+					let parentPath = store.getState().command.path;
 					let atCommand = data.commands.has(formatPartsAsPath(parts));
 
 					// If the text ends in a space, we want to count that as having traversed
@@ -187,14 +188,16 @@ export function TerminalWindow() {
 					}
 
 					if (atCommand) {
-						const commandPath = store.getState().app.command;
+						const commandPath = store.getState().command.path;
 						const command =
 							commandPath !== undefined
 								? data.commands.get(commandPath.toString())
 								: undefined;
 
 						if (commandPath !== undefined && command !== undefined) {
-							store.setValid(checkArgs(commandPath, command) === undefined);
+							store.setTextValid(
+								checkMissingArgs(commandPath, command) === undefined,
+							);
 						}
 					} else {
 						store.setCommand(undefined);
@@ -210,32 +213,29 @@ export function TerminalWindow() {
 						? parts[parts.size() - 1]
 						: undefined;
 
+					let suggestion: Suggestion | undefined;
 					if (argCount === 0) {
-						suggestionData.updateSuggestion({
-							type: "command",
+						// Handle command suggestions
+						suggestion = getCommandSuggestion(parentPath, currentTextPart);
+					} else if (parentPath !== undefined) {
+						// Handle argument suggestions
+						const argIndex =
+							parts.size() - parentPath.getSize() - (atNextPart ? 0 : 1);
+						if (argIndex >= argCount) return;
+
+						store.setArgIndex(argIndex);
+						suggestion = getArgumentSuggestion(
 							parentPath,
-							text: currentTextPart,
-						});
-						return;
+							argIndex,
+							currentTextPart,
+						);
 					}
 
-					if (parentPath === undefined) return;
-
-					const argIndex =
-						parts.size() - parentPath.getSize() - (atNextPart ? 0 : 1);
-					if (argIndex >= argCount) return;
-
-					store.setArgIndex(argIndex);
-					suggestionData.updateSuggestion({
-						type: "argument",
-						commandPath: parentPath,
-						index: argIndex,
-						text: currentTextPart,
-					});
+					store.setSuggestion(parts.size() - 1, suggestion);
 				}}
 				onSubmit={(text) => {
 					const storeState = store.getState();
-					const commandPath = storeState.app.command;
+					const commandPath = storeState.command.path;
 					const command =
 						commandPath !== undefined
 							? data.commands.get(commandPath.toString())
@@ -249,7 +249,7 @@ export function TerminalWindow() {
 						return;
 					}
 
-					const argCheckMessage = checkArgs(commandPath, command);
+					const argCheckMessage = checkMissingArgs(commandPath, command);
 					if (argCheckMessage !== undefined) {
 						data.addHistoryEntry({
 							success: false,

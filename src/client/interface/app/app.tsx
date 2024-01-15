@@ -7,16 +7,6 @@ import { AppContext } from "../../types";
 import { Layer } from "../components/interface/Layer";
 import Terminal from "../components/terminal/Terminal";
 import { RootProvider } from "../providers/rootProvider";
-import { SuggestionQuery } from "../types";
-import { getArgumentSuggestion, getCommandSuggestion } from "./suggestion";
-
-function getSuggestion(query: SuggestionQuery) {
-	if (query.type === "argument") {
-		return getArgumentSuggestion(query.commandPath, query.index, query.text);
-	}
-
-	return getCommandSuggestion(query.parentPath, query.text);
-}
 
 export function CommanderApp(data: AppContext) {
 	const root = createRoot(new Instance("Folder"));
@@ -25,11 +15,7 @@ export function CommanderApp(data: AppContext) {
 	root.render(
 		createPortal(
 			<StrictMode>
-				<RootProvider
-					key="root-provider"
-					value={data}
-					getSuggestion={getSuggestion}
-				>
+				<RootProvider key="root-provider" value={data}>
 					<Layer key="terminal">
 						<Terminal key="terminal-layer" />
 					</Layer>

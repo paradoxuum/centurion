@@ -1,18 +1,13 @@
 import { useSelector } from "@rbxts/react-reflex";
-import Roact, {
-	useBinding,
-	useContext,
-	useEffect,
-	useMemo,
-} from "@rbxts/roact";
+import Roact, { useBinding, useEffect, useMemo } from "@rbxts/roact";
 import { TextService } from "@rbxts/services";
 import { DEFAULT_FONT } from "../../../constants/fonts";
 import { palette } from "../../../constants/palette";
 import { springs } from "../../../constants/springs";
 import { useMotion } from "../../../hooks/useMotion";
 import { useRem } from "../../../hooks/useRem";
-import { SuggestionContext } from "../../../providers/suggestionProvider";
-import { selectText } from "../../../store/app";
+import { selectCurrentSuggestion } from "../../../store/suggestion";
+import { selectText } from "../../../store/text";
 import { Frame } from "../../interface/Frame";
 import { Group } from "../../interface/Group";
 import { Padding } from "../../interface/Padding";
@@ -45,7 +40,7 @@ export function SuggestionList({ position }: SuggestionListProps) {
 	);
 
 	// Suggestions
-	const suggestion = useContext(SuggestionContext).suggestion;
+	const currentSuggestion = useSelector(selectCurrentSuggestion);
 	const [sizes, setSizes] = useBinding<SuggestionTextBounds>({
 		title: UDim2.fromOffset(rem(16), rem(2)),
 		description: UDim2.fromOffset(rem(16), rem(2)),
@@ -60,14 +55,14 @@ export function SuggestionList({ position }: SuggestionListProps) {
 
 	// Resize window based on suggestions
 	useEffect(() => {
-		if (suggestion === undefined) {
+		if (currentSuggestion === undefined) {
 			suggestionSizeMotion.spring(new UDim2());
 			otherSuggestionSizeMotion.spring(new UDim2());
 			return;
 		}
 
-		const mainSuggestion = suggestion.main;
-		const otherSuggestions = suggestion.others;
+		const mainSuggestion = currentSuggestion.main;
+		const otherSuggestions = currentSuggestion.others;
 		if (otherSuggestions.isEmpty()) {
 			otherSuggestionSizeMotion.spring(new UDim2());
 		}
@@ -134,19 +129,19 @@ export function SuggestionList({ position }: SuggestionListProps) {
 			UDim2.fromOffset(windowWidth, windowHeight),
 			springs.responsive,
 		);
-	}, [suggestion, rem]);
+	}, [currentSuggestion, rem]);
 
 	return (
 		<Group
 			size={new UDim2(1, 0, 0, rem(16))}
 			position={position}
 			clipsDescendants={true}
-			visible={suggestion !== undefined}
+			visible={currentSuggestion !== undefined}
 		>
 			<MainSuggestion
 				key="main"
-				suggestion={suggestion}
-				argument={suggestion?.main.type === "argument"}
+				suggestion={currentSuggestion}
+				argument={currentSuggestion?.main.type === "argument"}
 				currentText={currentTextPart}
 				size={suggestionSize}
 				sizes={sizes}
@@ -159,7 +154,7 @@ export function SuggestionList({ position }: SuggestionListProps) {
 					Padding={new UDim(0, rem(0.5))}
 				/>
 
-				{suggestion?.others?.map((name, i) => {
+				{currentSuggestion?.others?.map((name, i) => {
 					return (
 						<Frame
 							key={`${i}-${name}`}
