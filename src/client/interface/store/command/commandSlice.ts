@@ -11,7 +11,7 @@ export const initialCommandState: CommandState = {};
 export const commandSlice = createProducer(initialCommandState, {
 	setCommand: (state, path?: ImmutableCommandPath) => ({
 		...state,
-		command: path,
+		path,
 	}),
 
 	setArgIndex: (state, index?: number) => ({ ...state, argIndex: index }),
