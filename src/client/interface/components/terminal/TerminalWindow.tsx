@@ -141,6 +141,7 @@ export function TerminalWindow() {
 						return;
 					}
 
+					store.flush();
 					let parentPath = store.getState().command.path;
 					let atCommand = data.commands.has(formatPartsAsPath(parts));
 
@@ -183,11 +184,13 @@ export function TerminalWindow() {
 						}
 					} else {
 						parentPath = getParentPath(parts, atNextPart);
-						if (atCommand)
+						if (atCommand) {
 							store.setCommand(new ImmutableCommandPath(copy(parts)));
+						}
 					}
 
 					if (atCommand) {
+						store.flush();
 						const commandPath = store.getState().command.path;
 						const command =
 							commandPath !== undefined
@@ -231,7 +234,9 @@ export function TerminalWindow() {
 						);
 					}
 
-					store.setSuggestion(parts.size() - 1, suggestion);
+					const suggestionIndex = parts.size() - 1 + (atNextPart ? 1 : 0);
+					store.setSuggestion(suggestionIndex, suggestion);
+					store.setSuggestionIndex(suggestionIndex);
 				}}
 				onSubmit={(text) => {
 					const storeState = store.getState();
