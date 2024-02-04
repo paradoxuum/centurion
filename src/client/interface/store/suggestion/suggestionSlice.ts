@@ -1,5 +1,5 @@
 import { createProducer } from "@rbxts/reflex";
-import { removeIndex, set } from "@rbxts/sift/out/Array";
+import { append, removeIndex, set } from "@rbxts/sift/out/Array";
 import { Suggestion } from "../../types";
 
 export interface SuggestionState {
@@ -13,13 +13,25 @@ export const initialSuggestionState: SuggestionState = {
 };
 
 export const suggestionSlice = createProducer(initialSuggestionState, {
-	setSuggestion: (state, index: number, suggestion?: Suggestion) => ({
-		...state,
-		value:
-			suggestion !== undefined
-				? set(state.value, index + 1, suggestion)
-				: removeIndex(state.value, index + 1),
-	}),
+	setSuggestion: (state, index: number, suggestion?: Suggestion) => {
+		if (index < 0) return state;
+
+		let suggestions: Suggestion[];
+		if (index >= state.value.size()) {
+			if (suggestion === undefined) return state;
+			suggestions = append(state.value, suggestion);
+		} else {
+			suggestions =
+				suggestion !== undefined
+					? set(state.value, index, suggestion)
+					: removeIndex(state.value, index);
+		}
+
+		return {
+			...state,
+			value: suggestions,
+		};
+	},
 
 	setSuggestionIndex: (state, index: number) => ({
 		...state,
