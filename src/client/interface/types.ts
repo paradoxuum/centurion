@@ -1,4 +1,3 @@
-import { CommandPath } from "../../shared";
 import { HistoryEntry } from "../types";
 
 export interface HistoryLineData {
@@ -18,24 +17,10 @@ export interface ArgumentSuggestion {
 	description?: string;
 	dataType: string;
 	optional: boolean;
+	error?: string;
 }
 
 export interface Suggestion {
 	main: ArgumentSuggestion | CommandSuggestion;
 	others: string[];
 }
-
-export interface ArgumentSuggestionQuery {
-	type: "argument";
-	commandPath: CommandPath;
-	text?: string;
-	index: number;
-}
-
-export interface CommandSuggestionQuery {
-	type: "command";
-	parentPath?: CommandPath;
-	text?: string;
-}
-
-export type SuggestionQuery = ArgumentSuggestionQuery | CommandSuggestionQuery;

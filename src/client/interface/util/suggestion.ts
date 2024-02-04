@@ -29,6 +29,20 @@ export function getArgumentSuggestion(
 		);
 	}
 
+	// If the type is not marked as "expensive", transform the text into the type
+	// If the transformation fails, include the error message in the suggestion
+	let errorText: string | undefined;
+	try {
+		if (!typeObject.expensive) {
+			const transformResult = typeObject.transform(text ?? "");
+			if (transformResult.isErr()) {
+				errorText = transformResult.unwrapErr();
+			}
+		}
+	} catch {
+		errorText = "Failed to transform type";
+	}
+
 	return {
 		main: {
 			type: "argument",
@@ -36,6 +50,7 @@ export function getArgumentSuggestion(
 			description: arg.description,
 			dataType: typeObject.name,
 			optional: arg.optional ?? false,
+			error: errorText,
 		},
 		others: typeSuggestions,
 	};

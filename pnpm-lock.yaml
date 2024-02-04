@@ -30,14 +30,14 @@ dependencies:
     specifier: ^0.12.0
     version: 0.12.0
   '@rbxts/services':
-    specifier: ^1.5.1
-    version: 1.5.1
+    specifier: ^1.5.3
+    version: 1.5.3
   '@rbxts/sift':
     specifier: ^0.0.8
     version: 0.0.8
   '@rbxts/t':
-    specifier: ^3.1.0
-    version: 3.1.0
+    specifier: ^3.1.1
+    version: 3.1.1
 
 devDependencies:
   '@biomejs/biome':
@@ -50,8 +50,8 @@ devDependencies:
     specifier: ^0.1.3
     version: 0.1.3
   '@rbxts/types':
-    specifier: ^1.0.738
-    version: 1.0.738
+    specifier: ^1.0.747
+    version: 1.0.747
   roblox-ts:
     specifier: ^2.2.0
     version: 2.2.0
@@ -155,7 +155,7 @@ packages:
       '@rbxts/flipper': 2.0.1
       '@rbxts/react-roblox': 0.2.0
       '@rbxts/roact': /@rbxts/react-ts@1.0.1
-      '@rbxts/services': 1.5.1
+      '@rbxts/services': 1.5.3
       '@rbxts/set-timeout': 1.1.2
     dev: false
 
@@ -249,14 +249,14 @@ packages:
       '@rbxts/shared-internal': 0.2.1
     dev: false
 
-  /@rbxts/services@1.5.1:
-    resolution: {integrity: sha512-SRtfIjga0K4YYSXRpK+eH3kcTq7ZXo9OHOt0jszaOOoEOIJloMGlyuRPqesPHyhveh2AMXAZr3TYbRMSD+u+kQ==}
+  /@rbxts/services@1.5.3:
+    resolution: {integrity: sha512-0Lr1OJCfhCILu0Z2+W2Hhx4nIRWLW3llSvzPskozv9AlBR99qTWrhJlh/4dux1RciKPFbZiTYi1CP+/kCloIQw==}
     dev: false
 
   /@rbxts/set-timeout@1.1.2:
     resolution: {integrity: sha512-P/A0IiH9wuZdSJYr4Us0MDFm61nvIFR0acfKFHLkcOsgvIgELC90Up9ugiSsaMEHRIcIcO5UjE39LuS3xTzQHw==}
     dependencies:
-      '@rbxts/services': 1.5.1
+      '@rbxts/services': 1.5.3
     dev: false
 
   /@rbxts/shared-internal@0.2.1:
@@ -269,12 +269,12 @@ packages:
     resolution: {integrity: sha512-PCwc7MFbJwUgy4pCGz6HEW0NAhNuL87dELx/5WIRIn0G5xIQ3L/Ij1huv+zRYmnNr3+ludR6zhwKqh+irAY8+g==}
     dev: false
 
-  /@rbxts/t@3.1.0:
-    resolution: {integrity: sha512-ba/wfKYtAL6JWVhZNbhMnBZtzgGaTxttvfzxxpEcHDy0Qeaq0DF2Odo/zJ32Ajw961EMYkAMTnPXLLrLB/r+mw==}
+  /@rbxts/t@3.1.1:
+    resolution: {integrity: sha512-r+IvHHGLt9ZM8+cJAs5Q7ZyGaSlsbkXTaeat85FxRmjjozykHLbQ24rY/5utJbp63a5uCy3Wyl1fGv/Gk/GnIw==}
     dev: false
 
-  /@rbxts/types@1.0.738:
-    resolution: {integrity: sha512-3DXmizqp7sY+yQ0CUmifwEddngXjgQHM7k9CaYxeNvYzLa2XIhPVfs1DnmNf8dsv8I7UMTzV5QV/co3yeIVDTA==}
+  /@rbxts/types@1.0.747:
+    resolution: {integrity: sha512-B9Pa/b7oTvyjgWYIYB6xnsXd8PaFnIRM5xN1WpIMsqYZe2mLTmzlE5T9s2wn+dpSN1Ct9thPtA3oUFnZ7LOY9A==}
     dev: true
 
   /@roblox-ts/luau-ast@1.0.10:

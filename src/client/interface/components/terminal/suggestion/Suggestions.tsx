@@ -1,26 +1,20 @@
-import { getBindingValue } from "@rbxts/pretty-react-hooks";
 import { useSelector } from "@rbxts/react-reflex";
-import Roact, {
-	useBinding,
-	useContext,
-	useEffect,
-	useMemo,
-} from "@rbxts/roact";
+import Roact, { useBinding, useEffect, useMemo } from "@rbxts/roact";
 import { TextService } from "@rbxts/services";
-import { DEFAULT_FONT, fonts } from "../../../constants/fonts";
+import { DEFAULT_FONT } from "../../../constants/fonts";
 import { palette } from "../../../constants/palette";
 import { springs } from "../../../constants/springs";
 import { useMotion } from "../../../hooks/useMotion";
 import { useRem } from "../../../hooks/useRem";
-import { SuggestionContext } from "../../../providers/suggestionProvider";
-import { selectText } from "../../../store/app";
+import { selectCurrentSuggestion } from "../../../store/suggestion";
+import { selectText } from "../../../store/text";
 import { Frame } from "../../interface/Frame";
 import { Group } from "../../interface/Group";
 import { Padding } from "../../interface/Padding";
 import { Text } from "../../interface/Text";
 import { MainSuggestion } from "./MainSuggestion";
-import { SuggestionSizes } from "./types";
-import { highlightMatching } from "./util";
+import { SuggestionTextBounds } from "./types";
+import { getSuggestionTextBounds, highlightMatching } from "./util";
 
 export interface SuggestionListProps {
 	position?: UDim2;
@@ -46,10 +40,11 @@ export function SuggestionList({ position }: SuggestionListProps) {
 	);
 
 	// Suggestions
-	const suggestion = useContext(SuggestionContext).suggestion;
-	const [sizes, setSizes] = useBinding<SuggestionSizes>({
+	const currentSuggestion = useSelector(selectCurrentSuggestion);
+	const [sizes, setSizes] = useBinding<SuggestionTextBounds>({
 		title: UDim2.fromOffset(rem(16), rem(2)),
 		description: UDim2.fromOffset(rem(16), rem(2)),
+		errorTextHeight: 0,
 		typeBadgeWidth: rem(6),
 	});
 
@@ -60,60 +55,47 @@ export function SuggestionList({ position }: SuggestionListProps) {
 
 	// Resize window based on suggestions
 	useEffect(() => {
-		if (suggestion === undefined) {
+		if (currentSuggestion === undefined) {
 			suggestionSizeMotion.spring(new UDim2());
 			otherSuggestionSizeMotion.spring(new UDim2());
 			return;
 		}
 
-		const mainSuggestion = suggestion.main;
-		const otherSuggestions = suggestion.others;
+		const mainSuggestion = currentSuggestion.main;
+		const otherSuggestions = currentSuggestion.others;
 		if (otherSuggestions.isEmpty()) {
 			otherSuggestionSizeMotion.spring(new UDim2());
 		}
 
-		textBoundsParams.Text = mainSuggestion.title;
-		textBoundsParams.Font = fonts.inter.bold;
-		textBoundsParams.Size = rem(2);
-		textBoundsParams.Width = rem(16);
+		const textBounds = getSuggestionTextBounds(
+			mainSuggestion,
+			rem(2),
+			rem(1.5),
+			rem(16),
+			rem(8),
+		);
 
-		const titleBounds = TextService.GetTextBoundsAsync(textBoundsParams);
+		setSizes(textBounds);
 
-		let descriptionBounds: Vector2;
-		if (mainSuggestion.description !== undefined) {
-			textBoundsParams.Text = mainSuggestion.description;
-			textBoundsParams.Font = DEFAULT_FONT;
-			textBoundsParams.Size = rem(1.5);
-			descriptionBounds = TextService.GetTextBoundsAsync(textBoundsParams);
-		} else {
-			descriptionBounds = new Vector2();
-		}
+		let windowWidth =
+			math.max(textBounds.title.X.Offset, textBounds.description.X.Offset) +
+			textBounds.typeBadgeWidth +
+			rem(6);
 
-		let windowWidth = math.max(titleBounds.X, descriptionBounds.X) + rem(2);
-		let windowHeight = titleBounds.Y + descriptionBounds.Y + rem(2);
+		let windowHeight =
+			textBounds.title.Y.Offset +
+			textBounds.description.Y.Offset +
+			textBounds.errorTextHeight +
+			rem(2);
 
-		// If the suggestion is an argument, calculate the data type text bounds
-		// and add it to the size of the suggestion window
-		let typeBadgeBounds: Vector2 | undefined;
-		if (mainSuggestion.type === "argument") {
-			textBoundsParams.Text = mainSuggestion.dataType;
-			textBoundsParams.Font = DEFAULT_FONT;
-			textBoundsParams.Size = rem(1.5);
-			textBoundsParams.Width = rem(8);
-
-			typeBadgeBounds = TextService.GetTextBoundsAsync(textBoundsParams);
-			windowWidth += typeBadgeBounds.X + rem(4);
+		if (textBounds.typeBadgeWidth > 0) {
 			windowHeight += rem(1);
+			windowWidth += rem(0.5);
 		}
 
-		setSizes({
-			title: UDim2.fromOffset(titleBounds.X, titleBounds.Y),
-			description: UDim2.fromOffset(descriptionBounds.X, descriptionBounds.Y),
-			typeBadgeWidth:
-				typeBadgeBounds !== undefined
-					? typeBadgeBounds.X + rem(2)
-					: getBindingValue(sizes).typeBadgeWidth,
-		});
+		if (textBounds.errorTextHeight > 0) {
+			windowHeight += rem(0.5);
+		}
 
 		// Calculate other suggestion sizes
 		if (!otherSuggestions.isEmpty()) {
@@ -147,19 +129,19 @@ export function SuggestionList({ position }: SuggestionListProps) {
 			UDim2.fromOffset(windowWidth, windowHeight),
 			springs.responsive,
 		);
-	}, [suggestion, rem]);
+	}, [currentSuggestion, rem]);
 
 	return (
 		<Group
 			size={new UDim2(1, 0, 0, rem(16))}
 			position={position}
 			clipsDescendants={true}
-			visible={suggestion !== undefined}
+			visible={currentSuggestion !== undefined}
 		>
 			<MainSuggestion
 				key="main"
-				suggestion={suggestion}
-				argument={suggestion?.main.type === "argument"}
+				suggestion={currentSuggestion}
+				argument={currentSuggestion?.main.type === "argument"}
 				currentText={currentTextPart}
 				size={suggestionSize}
 				sizes={sizes}
@@ -172,7 +154,7 @@ export function SuggestionList({ position }: SuggestionListProps) {
 					Padding={new UDim(0, rem(0.5))}
 				/>
 
-				{suggestion?.others?.map((name, i) => {
+				{currentSuggestion?.others?.map((name, i) => {
 					return (
 						<Frame
 							key={`${i}-${name}`}
