@@ -23,8 +23,8 @@ export const suggestionSlice = createProducer(initialSuggestionState, {
 		} else {
 			suggestions =
 				suggestion !== undefined
-					? set(state.value, index, suggestion)
-					: removeIndex(state.value, index);
+					? set(state.value, index + 1, suggestion)
+					: removeIndex(state.value, index + 1);
 		}
 
 		return {
