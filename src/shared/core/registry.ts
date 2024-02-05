@@ -9,6 +9,11 @@ import {
 import { MetadataKey } from "./decorators";
 import { CommandPath, ImmutableCommandPath } from "./path";
 
+// Used to import packages
+const tsImpl = (_G as Map<unknown, unknown>).get(script) as {
+	import: (...modules: LuaSourceContainer[]) => unknown;
+};
+
 export abstract class BaseRegistry {
 	protected static readonly ROOT_KEY = "__root__";
 	protected readonly commands = new Map<string, BaseCommand>();
@@ -17,7 +22,7 @@ export abstract class BaseRegistry {
 	protected readonly registeredObjects = new Set<object>();
 	protected cachedPaths = new Map<string, CommandPath[]>();
 
-	protected registerBuiltInTypes() {
+	registerBuiltInTypes() {
 		const builtInTypes =
 			script.Parent?.Parent?.FindFirstChild("builtin")?.FindFirstChild("types");
 		assert(
@@ -59,12 +64,12 @@ export abstract class BaseRegistry {
 				continue;
 			}
 
-			const objValue = require(obj);
-			if (!typeIs(objValue, "function")) {
-				return;
+			const value = this.import(obj);
+			if (!typeIs(value, "function")) {
+				continue;
 			}
 
-			objValue(this);
+			value(this);
 		}
 	}
 
@@ -82,7 +87,7 @@ export abstract class BaseRegistry {
 				return;
 			}
 
-			require(obj);
+			this.import(obj);
 		}
 
 		for (const [commandHolder] of MetadataReflect.metadata) {
@@ -174,6 +179,16 @@ export abstract class BaseRegistry {
 		cache.sort((a, b) => a.getTail() < b.getTail());
 		this.cachedPaths.set(key, cache);
 		return cache;
+	}
+
+	private import(moduleScript: ModuleScript) {
+		const [success, value] = pcall(() => tsImpl.import(script, moduleScript));
+		if (!success) {
+			warn(`Failed to import ${moduleScript.GetFullName()}: ${value}`);
+			return;
+		}
+
+		return value;
 	}
 
 	protected registerCommand(commandData: CommandData, group?: CommandGroup) {
