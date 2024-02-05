@@ -256,6 +256,11 @@ export function TerminalTextField({
 							newText = newText.gsub("\t", "")[0];
 						}
 
+						// Reset command history index
+						if (store.getState().history.commandHistoryIndex !== -1) {
+							store.setCommandHistoryIndex(-1);
+						}
+
 						setText(newText);
 						onTextChange?.(newText);
 					},
