@@ -34,8 +34,6 @@ export namespace CommanderClient {
 		assert(!started, "Commander has already been started");
 
 		optionsObject = mergeDeep(DEFAULT_OPTIONS, options);
-
-		registryInstance.init();
 		dispatcherInstance.init(options);
 
 		callback?.(registryInstance);

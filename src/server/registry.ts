@@ -16,8 +16,6 @@ export class ServerRegistry extends BaseRegistry {
 		true;
 
 	init(options: ServerOptions) {
-		this.registerBuiltInTypes();
-
 		const filter = options.commandFilter;
 		if (filter !== undefined) {
 			this.commandFilter = filter;

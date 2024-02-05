@@ -15,15 +15,6 @@ export class ClientRegistry extends BaseRegistry {
 	}
 
 	/**
-	 * Initialises the client registry.
-	 *
-	 * This will register any built-in types.
-	 * */
-	init() {
-		this.registerBuiltInTypes();
-	}
-
-	/**
 	 * Begins registry synchronisation to the server.
 	 *
 	 * @throws Throws an error if the server does not respond in time
