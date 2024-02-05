@@ -29,7 +29,31 @@ export abstract class BaseRegistry {
 			builtInTypes !== undefined,
 			"Built-in type container does not exist",
 		);
-		this.registerContainer(builtInTypes);
+		this.load(builtInTypes);
+	}
+
+	/**
+	 * Loads all {@link ModuleScript}s in the given {@link Instance}.
+	 *
+	 * If the {@link ModuleScript} returns a function, it will be called with the registry
+	 * as an argument.
+	 *
+	 * If the {@link ModuleScript} contains command(s), you should use {@link registerCommands}
+	 * in order to register them.
+	 *
+	 * @param container The container containing {@link ModuleScript}s
+	 */
+	load(container: Instance) {
+		for (const obj of container.GetChildren()) {
+			if (!obj.IsA("ModuleScript")) {
+				continue;
+			}
+
+			const value = this.import(obj);
+			if (typeIs(value, "function")) {
+				value(this);
+			}
+		}
 	}
 
 	/**
@@ -53,27 +77,6 @@ export abstract class BaseRegistry {
 	}
 
 	/**
-	 * Requires all {@link ModuleScript}s in the given {@link Instance} and
-	 * passes this registry as an argument to the modules which export a function.
-	 *
-	 * @param container The container containing {@link ModuleScript}s
-	 */
-	registerContainer(container: Instance) {
-		for (const obj of container.GetChildren()) {
-			if (!obj.IsA("ModuleScript")) {
-				continue;
-			}
-
-			const value = this.import(obj);
-			if (!typeIs(value, "function")) {
-				continue;
-			}
-
-			value(this);
-		}
-	}
-
-	/**
 	 * Registers all commands in the given {@link Instance}.
 	 *
 	 * Only {@link ModuleScript}s which are direct children of the
@@ -81,15 +84,7 @@ export abstract class BaseRegistry {
 	 *
 	 * @param container The {@link Instance} containing commands
 	 */
-	registerCommandsIn(container: Instance) {
-		for (const obj of container.GetChildren()) {
-			if (!obj.IsA("ModuleScript")) {
-				return;
-			}
-
-			this.import(obj);
-		}
-
+	registerCommands() {
 		for (const [commandHolder] of MetadataReflect.metadata) {
 			if (this.registeredObjects.has(commandHolder)) {
 				continue;
