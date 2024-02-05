@@ -27,6 +27,13 @@ function limitArray<T extends defined>(array: T[], limit: number) {
 
 export const historySlice = createProducer(initialHistoryState, {
 	addCommandHistory: (state, command: string, limit: number) => {
+		if (
+			state.commandHistory.size() > 0 &&
+			state.commandHistory[state.commandHistory.size() - 1] === command
+		) {
+			return state;
+		}
+
 		const commandHistory = copy(state.commandHistory);
 		limitArray(commandHistory, limit);
 		commandHistory.push(command);
