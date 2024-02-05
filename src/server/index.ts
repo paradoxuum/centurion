@@ -21,7 +21,7 @@ export namespace CommanderServer {
 	 * @param options Server options
 	 */
 	export async function start(
-		callback: (run: ServerRegistry) => void,
+		callback?: (registry: ServerRegistry) => void,
 		options = DEFAULT_OPTIONS,
 	) {
 		assert(IS_SERVER, "CommanderServer can only be started from the server");
@@ -31,7 +31,7 @@ export namespace CommanderServer {
 
 		dispatcherInstance.init();
 		registryInstance.init(optionsObject);
-		callback(registryInstance);
+		callback?.(registryInstance);
 		started = true;
 	}
 

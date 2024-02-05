@@ -27,7 +27,7 @@ export namespace CommanderClient {
 	 * @param options Client options
 	 */
 	export async function start(
-		callback: (run: ClientRegistry) => void,
+		callback?: (registry: ClientRegistry) => void,
 		options = DEFAULT_OPTIONS,
 	) {
 		assert(IS_CLIENT, "CommanderClient can only be started from the client");
@@ -38,7 +38,7 @@ export namespace CommanderClient {
 		registryInstance.init();
 		dispatcherInstance.init(options);
 
-		callback(registryInstance);
+		callback?.(registryInstance);
 		await registryInstance.sync();
 		started = true;
 
