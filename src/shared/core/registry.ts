@@ -1,3 +1,4 @@
+import { Options } from "../options";
 import { CommanderOptions, GroupOptions, TypeOptions } from "../types";
 import { MetadataReflect } from "../util/reflect";
 import {
@@ -22,14 +23,18 @@ export abstract class BaseRegistry {
 	protected readonly registeredObjects = new Set<object>();
 	protected cachedPaths = new Map<string, CommandPath[]>();
 
-	registerBuiltInTypes() {
-		const builtInTypes =
-			script.Parent?.Parent?.FindFirstChild("builtin")?.FindFirstChild("types");
-		assert(
-			builtInTypes !== undefined,
-			"Built-in type container does not exist",
-		);
-		this.load(builtInTypes);
+	init(options: Options) {
+		if (options.registerBuiltInTypes) {
+			const builtInTypes =
+				script.Parent?.Parent?.FindFirstChild("builtin")?.FindFirstChild(
+					"types",
+				);
+			assert(
+				builtInTypes !== undefined,
+				"Built-in type container does not exist",
+			);
+			this.load(builtInTypes);
+		}
 	}
 
 	/**

@@ -1,9 +1,9 @@
 import { RunService } from "@rbxts/services";
 import { mergeDeep } from "@rbxts/sift/out/Dictionary";
 import { ClientDispatcher } from "./dispatcher";
-import { DEFAULT_OPTIONS } from "./options";
+import { DEFAULT_CLIENT_OPTIONS } from "./options";
 import { ClientRegistry } from "./registry";
-import { CommanderEvents } from "./types";
+import { ClientOptions, CommanderEvents } from "./types";
 
 export namespace CommanderClient {
 	let started = false;
@@ -14,7 +14,7 @@ export namespace CommanderClient {
 	};
 	const registryInstance = new ClientRegistry(events);
 	const dispatcherInstance = new ClientDispatcher(registryInstance, events);
-	let optionsObject = DEFAULT_OPTIONS;
+	let optionsObject = DEFAULT_CLIENT_OPTIONS;
 
 	const IS_CLIENT = RunService.IsClient();
 
@@ -28,13 +28,14 @@ export namespace CommanderClient {
 	 */
 	export async function start(
 		callback?: (registry: ClientRegistry) => void,
-		options = DEFAULT_OPTIONS,
+		options: Partial<ClientOptions> = {},
 	) {
 		assert(IS_CLIENT, "CommanderClient can only be started from the client");
 		assert(!started, "Commander has already been started");
 
-		optionsObject = mergeDeep(DEFAULT_OPTIONS, options);
-		dispatcherInstance.init(options);
+		optionsObject = mergeDeep(DEFAULT_CLIENT_OPTIONS, options);
+		dispatcherInstance.init(optionsObject);
+		registryInstance.init(optionsObject);
 
 		callback?.(registryInstance);
 		await registryInstance.sync();

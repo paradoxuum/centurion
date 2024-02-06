@@ -18,7 +18,7 @@ export default function Terminal() {
 	const visible = useSelector(selectVisible);
 
 	const validKeys = useMemo(() => {
-		return new Set(data.options.activationKeys ?? []);
+		return new Set(data.options.activationKeys);
 	}, [data]);
 
 	useEventListener(UserInputService.InputBegan, (input, gameProcessed) => {

@@ -1,12 +1,12 @@
 import { Players } from "@rbxts/services";
 import { BaseRegistry, CommandPath } from "../shared";
 import { BaseDispatcher } from "../shared/core/dispatcher";
-import { DEFAULT_HISTORY_LENGTH } from "./options";
+import { DEFAULT_CLIENT_OPTIONS } from "./options";
 import { ClientOptions, CommanderEvents, HistoryEntry } from "./types";
 
 export class ClientDispatcher extends BaseDispatcher {
 	private readonly history: HistoryEntry[] = [];
-	private maxHistoryLength = DEFAULT_HISTORY_LENGTH;
+	private maxHistoryLength = DEFAULT_CLIENT_OPTIONS.historyLength;
 
 	constructor(
 		registry: BaseRegistry,
@@ -21,7 +21,7 @@ export class ClientDispatcher extends BaseDispatcher {
 	 * @param options The client options provided when starting Commander
 	 */
 	init(options: ClientOptions) {
-		this.maxHistoryLength = options.historyLength ?? DEFAULT_HISTORY_LENGTH;
+		this.maxHistoryLength = options.historyLength;
 	}
 
 	/**

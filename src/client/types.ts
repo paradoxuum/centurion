@@ -1,8 +1,9 @@
 import { CommandOptions, CommandPath, GroupOptions } from "../shared";
+import { Options } from "../shared/options";
 
-export interface ClientOptions {
-	historyLength?: number;
-	activationKeys?: Enum.KeyCode[];
+export interface ClientOptions extends Options {
+	historyLength: number;
+	activationKeys: Enum.KeyCode[];
 	app?: (data: AppContext) => void;
 }
 

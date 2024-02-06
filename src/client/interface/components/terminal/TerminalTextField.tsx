@@ -18,7 +18,6 @@ import {
 	endsWithSpace,
 	formatPartsAsPath,
 } from "../../../../shared/util/string";
-import { DEFAULT_HISTORY_LENGTH } from "../../../options";
 import { fonts } from "../../constants/fonts";
 import { palette } from "../../constants/palette";
 import { useRem } from "../../hooks/useRem";
@@ -232,10 +231,7 @@ export function TerminalTextField({
 				event={{
 					FocusLost: (rbx, enterPressed) => {
 						if (!enterPressed) return;
-						store.addCommandHistory(
-							rbx.Text,
-							data.options.historyLength ?? DEFAULT_HISTORY_LENGTH,
-						);
+						store.addCommandHistory(rbx.Text, data.options.historyLength);
 						store.setCommandHistoryIndex(-1);
 						onSubmit?.(rbx.Text);
 						ref.current?.CaptureFocus();

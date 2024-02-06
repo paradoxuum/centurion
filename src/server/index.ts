@@ -1,8 +1,9 @@
 import { RunService } from "@rbxts/services";
 import { mergeDeep } from "@rbxts/sift/out/Dictionary";
 import { ServerDispatcher } from "./dispatcher";
-import { DEFAULT_OPTIONS } from "./options";
+import { DEFAULT_SERVER_OPTIONS } from "./options";
 import { ServerRegistry } from "./registry";
+import { ServerOptions } from "./types";
 
 const IS_SERVER = RunService.IsServer();
 
@@ -10,7 +11,7 @@ export namespace CommanderServer {
 	let started = false;
 	const registryInstance = new ServerRegistry();
 	const dispatcherInstance = new ServerDispatcher(registryInstance);
-	let optionsObject = DEFAULT_OPTIONS;
+	let optionsObject = DEFAULT_SERVER_OPTIONS;
 
 	/**
 	 * Starts {@link CommanderServer}.
@@ -22,12 +23,12 @@ export namespace CommanderServer {
 	 */
 	export async function start(
 		callback?: (registry: ServerRegistry) => void,
-		options = DEFAULT_OPTIONS,
+		options: Partial<ServerOptions> = {},
 	) {
 		assert(IS_SERVER, "CommanderServer can only be started from the server");
 		assert(!started, "Commander has already been started");
 
-		optionsObject = mergeDeep(DEFAULT_OPTIONS, options);
+		optionsObject = mergeDeep(DEFAULT_SERVER_OPTIONS, options);
 
 		dispatcherInstance.init();
 		registryInstance.init(optionsObject);
