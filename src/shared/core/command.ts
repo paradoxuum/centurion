@@ -224,7 +224,10 @@ export class CommandGroup {
 	private readonly groups = new Map<string, CommandGroup>();
 	readonly options: ReadonlyDeepObject<GroupOptions>;
 
-	constructor(readonly path: ImmutableCommandPath, options: GroupOptions) {
+	constructor(
+		readonly path: ImmutableCommandPath,
+		options: GroupOptions,
+	) {
 		this.options = options;
 	}
 

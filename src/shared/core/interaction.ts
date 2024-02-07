@@ -8,7 +8,10 @@ import { CommandInteractionData, CommandReply } from "../types";
 export class CommandInteraction {
 	private replyData?: CommandReply;
 
-	constructor(readonly executor: Player, readonly text: string) {}
+	constructor(
+		readonly executor: Player,
+		readonly text: string,
+	) {}
 
 	/**
 	 * Gets the command interaction's data.
