@@ -168,7 +168,7 @@ export function SuggestionList({ position }: SuggestionListProps) {
 								key="text"
 								size={new UDim2(1, 0, 1, 0)}
 								text={highlightMatching(name, currentTextPart)}
-								textColor={palette.white}
+								textColor={palette.text}
 								textSize={rem(1.6)}
 								textXAlignment="Left"
 								richText={true}

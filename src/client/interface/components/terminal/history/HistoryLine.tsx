@@ -32,13 +32,13 @@ export function HistoryLine({ data, size, position, order }: HistoryLineProps) {
 				key="date"
 				backgroundColor={palette.base}
 				size={UDim2.fromOffset(rem(6), rem(1.5))}
-				cornerRadius={new UDim(1, 0)}
+				cornerRadius={new UDim(0, rem(0.5))}
 			>
 				<Text
 					key="text"
 					size={UDim2.fromScale(1, 1)}
 					text={date}
-					textColor={palette.white}
+					textColor={palette.text}
 					textSize={rem(1.2)}
 					richText={true}
 				/>
@@ -49,7 +49,7 @@ export function HistoryLine({ data, size, position, order }: HistoryLineProps) {
 					innerTransparency={0.25}
 					innerColor={data.success ? palette.green : palette.red}
 					outerThickness={0}
-					cornerRadius={new UDim(1, 0)}
+					cornerRadius={new UDim(0, rem(0.5))}
 				/>
 			</Frame>
 
@@ -60,7 +60,7 @@ export function HistoryLine({ data, size, position, order }: HistoryLineProps) {
 				position={UDim2.fromScale(1, 0)}
 				text={data.text}
 				textSize={rem(1.5)}
-				textColor={data.success ? palette.white : palette.red}
+				textColor={data.success ? palette.text : palette.red}
 				textXAlignment="Left"
 				font={fonts.inter.medium}
 				richText={true}
