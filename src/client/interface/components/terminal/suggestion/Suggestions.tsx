@@ -80,7 +80,7 @@ export function SuggestionList({ position }: SuggestionListProps) {
 		let windowWidth =
 			math.max(textBounds.title.X.Offset, textBounds.description.X.Offset) +
 			textBounds.typeBadgeWidth +
-			rem(6);
+			rem(2);
 
 		let windowHeight =
 			textBounds.title.Y.Offset +
@@ -89,8 +89,7 @@ export function SuggestionList({ position }: SuggestionListProps) {
 			rem(2);
 
 		if (textBounds.typeBadgeWidth > 0) {
-			windowHeight += rem(1);
-			windowWidth += rem(0.5);
+			windowWidth += textBounds.typeBadgeWidth + rem(1);
 		}
 
 		if (textBounds.errorTextHeight > 0) {
