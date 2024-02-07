@@ -3,7 +3,6 @@ import Roact from "@rbxts/roact";
 import { fonts } from "../../../constants/fonts";
 import { useRem } from "../../../hooks/useRem";
 import { Frame } from "../../interface/Frame";
-import { Padding } from "../../interface/Padding";
 import { Text } from "../../interface/Text";
 
 interface BadgeProps {
@@ -14,6 +13,7 @@ interface BadgeProps {
 	text?: BindingOrValue<string>;
 	textColor?: BindingOrValue<Color3>;
 	textSize?: BindingOrValue<number>;
+	visible?: BindingOrValue<boolean>;
 }
 
 export function Badge({
@@ -24,6 +24,7 @@ export function Badge({
 	text,
 	textColor,
 	textSize,
+	visible,
 }: BadgeProps) {
 	const rem = useRem();
 
@@ -33,10 +34,9 @@ export function Badge({
 			size={size}
 			position={position}
 			backgroundColor={color}
-			cornerRadius={new UDim(1)}
+			cornerRadius={new UDim(0, rem(0.5))}
+			visible={visible}
 		>
-			<Padding key="padding" all={new UDim(0, rem(1))} />
-
 			<Text
 				key="text"
 				text={text}

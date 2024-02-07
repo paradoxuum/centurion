@@ -5,7 +5,6 @@ import { palette } from "../../../constants/palette";
 import { useRem } from "../../../hooks/useRem";
 import { ArgumentSuggestion, Suggestion } from "../../../types";
 import { Frame } from "../../interface/Frame";
-import { Group } from "../../interface/Group";
 import { Padding } from "../../interface/Padding";
 import { Text } from "../../interface/Text";
 import { Badge } from "./Badge";
@@ -38,50 +37,23 @@ export function MainSuggestion({
 		>
 			<Padding key="padding" all={new UDim(0, rem(1))} />
 
-			<Group
-				key="badges"
+			<Badge
+				key="type-badge"
 				anchorPoint={new Vector2(1, 0)}
 				size={sizes.map((val) =>
-					UDim2.fromOffset(math.max(val.typeBadgeWidth, rem(7)), rem(4.5)),
+					UDim2.fromOffset(val.typeBadgeWidth + rem(1), rem(2)),
 				)}
 				position={UDim2.fromScale(1, 0)}
+				color={palette.lavender}
+				text={
+					argument && suggestion !== undefined
+						? (suggestion.main as ArgumentSuggestion).dataType
+						: ""
+				}
+				textColor={palette.surface0}
+				textSize={rem(1.5)}
 				visible={argument}
-			>
-				<Badge
-					key="optional-badge"
-					size={new UDim2(1, 0, 0, rem(2))}
-					color={
-						argument &&
-						suggestion !== undefined &&
-						(suggestion.main as ArgumentSuggestion).optional
-							? palette.blue
-							: palette.red
-					}
-					text={
-						argument &&
-						suggestion !== undefined &&
-						(suggestion.main as ArgumentSuggestion).optional
-							? "Optional"
-							: "Required"
-					}
-					textColor={palette.white}
-					textSize={rem(1.5)}
-				/>
-
-				<Badge
-					key="type-badge"
-					size={new UDim2(1, 0, 0, rem(2))}
-					position={UDim2.fromOffset(0, rem(2.5))}
-					color={palette.surface0}
-					text={
-						argument && suggestion !== undefined
-							? (suggestion.main as ArgumentSuggestion).dataType
-							: ""
-					}
-					textColor={palette.white}
-					textSize={rem(1.5)}
-				/>
-			</Group>
+			/>
 
 			<Text
 				key="title"
@@ -92,7 +64,7 @@ export function MainSuggestion({
 						: highlightMatching(suggestion?.main.title, currentText)
 				}
 				textSize={rem(2)}
-				textColor={palette.white}
+				textColor={palette.text}
 				textXAlignment="Left"
 				richText={true}
 				font={fonts.inter.bold}
@@ -104,7 +76,7 @@ export function MainSuggestion({
 				position={UDim2.fromOffset(0, rem(2))}
 				text={suggestion?.main.description ?? ""}
 				textSize={rem(1.5)}
-				textColor={palette.white}
+				textColor={palette.subtext0}
 				textXAlignment="Left"
 				textWrapped={true}
 				richText={true}
