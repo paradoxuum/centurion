@@ -1,8 +1,8 @@
 import {
-	BuiltInTypes,
 	Command,
 	CommandInteraction,
 	Commander,
+	CommanderType,
 } from "@rbxts/commander";
 
 @Commander()
@@ -14,7 +14,7 @@ class KillCommand {
 			{
 				name: "player",
 				description: "Player to kill",
-				type: BuiltInTypes.Player,
+				type: CommanderType.Player,
 			},
 		],
 	})

@@ -1,8 +1,8 @@
 import {
-	BuiltInTypes,
 	Command,
 	CommandInteraction,
 	Commander,
+	CommanderType,
 	Group,
 } from "@rbxts/commander";
 
@@ -33,7 +33,7 @@ class InfoCommand {
 			{
 				name: "player",
 				description: "Player to view information for",
-				type: BuiltInTypes.Player,
+				type: CommanderType.Player,
 			},
 		],
 	})

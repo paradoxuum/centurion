@@ -1,8 +1,8 @@
 import {
-	BuiltInTypes,
 	Command,
 	CommandInteraction,
 	Commander,
+	CommanderType,
 } from "@rbxts/commander";
 
 @Commander()
@@ -14,12 +14,12 @@ class DamageCommand {
 			{
 				name: "player",
 				description: "Player to damage",
-				type: BuiltInTypes.Player,
+				type: CommanderType.Player,
 			},
 			{
 				name: "damage",
 				description: "Amount to damage player",
-				type: BuiltInTypes.Number,
+				type: CommanderType.Number,
 			},
 		],
 	})

@@ -1,5 +1,5 @@
 import { t } from "@rbxts/t";
-import { BuiltInTypes } from ".";
+import { CommanderType } from ".";
 import { BaseRegistry } from "../../core/registry";
 import { TransformResult, TypeBuilder } from "../../util/type";
 
@@ -25,24 +25,24 @@ const getNumTransformation =
 			: TransformResult.err<number>(errMsg);
 	};
 
-const stringType = TypeBuilder.create(BuiltInTypes.String)
+const stringType = TypeBuilder.create(CommanderType.String)
 	.validate(t.string)
 	.transform((text) => TransformResult.ok(text))
 	.build();
 
-const numberType = TypeBuilder.create(BuiltInTypes.Number)
+const numberType = TypeBuilder.create(CommanderType.Number)
 	.validate(t.number)
 	.transform(toNumberTransformation)
 	.build();
 
-const integerType = TypeBuilder.create(BuiltInTypes.Integer)
+const integerType = TypeBuilder.create(CommanderType.Integer)
 	.validate(t.integer)
 	.transform(getNumTransformation(t.integer, "Invalid integer"))
 	.build();
 
 const truthyValues = new Set<string>(["true", "yes", "y"]);
 const falsyValues = new Set<string>(["false", "no", "n"]);
-const booleanType = TypeBuilder.create(BuiltInTypes.Boolean)
+const booleanType = TypeBuilder.create(CommanderType.Boolean)
 	.validate(t.boolean)
 	.transform((text) => {
 		const textLower = text.lower();

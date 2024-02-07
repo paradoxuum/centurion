@@ -1,6 +1,6 @@
 import { Players } from "@rbxts/services";
 import { t } from "@rbxts/t";
-import { BuiltInTypes } from ".";
+import { CommanderType } from ".";
 import { BaseRegistry } from "../../core/registry";
 import { TransformationResult } from "../../types";
 import { TransformResult, TypeBuilder } from "../../util/type";
@@ -16,13 +16,13 @@ const getPlayer = (text: string): TransformationResult<Player> => {
 };
 
 const isPlayer = t.instanceOf("Player");
-const playerType = TypeBuilder.create<Player>(BuiltInTypes.Player)
+const playerType = TypeBuilder.create<Player>(CommanderType.Player)
 	.validate(isPlayer)
 	.transform(getPlayer)
 	.suggestions(() => Players.GetPlayers().map((player) => player.Name))
 	.build();
 
-const playersType = TypeBuilder.create(BuiltInTypes.Players)
+const playersType = TypeBuilder.create(CommanderType.Players)
 	.validate(t.array(isPlayer))
 	.transform((text) => {
 		const textLower = text.lower();

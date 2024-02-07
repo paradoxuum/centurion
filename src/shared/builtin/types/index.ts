@@ -1,4 +1,4 @@
-export const BuiltInTypes = {
+export const CommanderType = {
 	BrickColor: "brickColor",
 	HexColor: "hexColor",
 	String: "string",
@@ -8,6 +8,4 @@ export const BuiltInTypes = {
 	Player: "player",
 	Players: "players",
 	Team: "team",
-};
-
-export type BuiltInType = keyof typeof BuiltInTypes;
+} as const;
