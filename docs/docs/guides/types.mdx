@@ -6,7 +6,7 @@ description: Learn how to create and register types
 
 ## What are types?
 
-**Types** are used to define how an argument should treat text when executing a command.
+**Types** are used to specify how text for an argument should be treated when executing a command.
 
 The primary purpose of a type is to **transform** text into another value.
 For example, a `Number` type would transform the provided text (`string`) into a `number`.
@@ -40,21 +40,41 @@ const playerType = TypeBuilder.create<Player>("player")
 
 The string you provide to `TypeBuilder.create` will be the name of the type. It may be useful to store
 your type names in an enum or constant to make them more accessible -
-see [BuiltInTypes](https://github.com/paradoxuum/commander/blob/main/src/shared/builtin/types/index.ts)
+see [CommanderType](https://github.com/paradoxuum/commander/blob/main/src/shared/builtin/types/index.ts)
 for an example.
 
-The `validate` method requires a type guard. `@rbxts/t` is preferable for
-creating type guards as it's easy to use, but you can also define it manually if you want.
+The `validate` method requires a type guard. You can use `@rbxts/t` for this, or you can define them manually.
 
-The `transform` method must return a `Result`. To create a `Result`, you can use the
+The `transform` method must return a `TransformationResult`. To create one of these, you can use the
 `TransformResult.ok` and `TransformResult.err` functions.
 
 The `suggestions` method is optional and should return an array of strings.
 
+### "Expensive" types
+
+Occasionally, you may want to create a type where the transformation function might take a long time
+to execute. For example, a type that executes a web request to retrieve some data.
+
+In this case, you can use the second parameter of `transform` to indicate that the transformation is expensive.
+
+Not specifying a type as "expensive" for types that have slow transformation functions can cause the interface
+to lag. This is because a type's transformation function is executed each time a user types a command's argument,
+in order to verify the argument's validity.
+
+```ts showLineNumbers
+const expensiveType = TypeBuilder.create<string>("expensive")
+	.validate(t.string)
+	.transform((text) => {
+		task.wait(3);
+		return TransformResult.ok(text);
+	}, true)
+	.build();
+```
+
 ## Using types
 
 :::note
-Your type must be [registered](/docs/guides/registration#registering-types) in order to be used!
+Your type must be [registered](/docs/guides/registration#types) in order to be used!
 :::
 
 Types are primarily used when defining arguments - they specify what type the argument requires.
@@ -62,7 +82,7 @@ Types are primarily used when defining arguments - they specify what type the ar
 Let's say you have a `kill` command that requires a `Player` argument:
 
 ```ts showLineNumbers
-import { BuiltInTypes } from "@rbxts/commander";
+import { CommanderType } from "@rbxts/commander";
 
 @Commander()
 class KillCommand {
@@ -73,7 +93,7 @@ class KillCommand {
 			{
 				name: "player",
 				description: "Player to kill",
-				type: BuiltInTypes.Player,
+				type: CommanderType.Player,
 			},
 		],
 	})
@@ -90,18 +110,18 @@ class KillCommand {
 }
 ```
 
-`BuiltInTypes.Player` refers to
+`CommanderType.Player` refers to
 [the name of the type](https://github.com/paradoxuum/commander/blob/main/src/shared/builtin/types/index.ts).
 
 ## Registering types
 
 Types need to be registered to be used.
 
-See the [Registration](/guides/registration.mdx#registering-types) guide to learn how types are registered.
+See the [Registration](/guides/registration.mdx#types) guide to learn how types are registered.
 
 ## Summary
 
-- Types transform text into another value.
+- Types are used to transform text into another value and provide suggestions.
 - They can optionally provide suggestions.
-- They should be created using `TypeBuilder`.
-- They should be [registered](/guides/registration.mdx#registering-types) in order to be used.
+- They should be defined using `TypeBuilder`.
+- They should be [registered](/guides/registration.mdx#types) in order to be used.

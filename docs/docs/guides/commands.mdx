@@ -43,7 +43,7 @@ class EchoCommand {
             {
                 name: "text",
                 description: "The text to display",
-                type: BuiltInTypes.String,
+                type: CommanderType.String,
             },
         ],
     })
@@ -111,7 +111,7 @@ class ProfileCommand {
 			{
 				name: "player",
 				description: "The player",
-				type: BuiltInTypes.Player,
+				type: CommanderType.Player,
 			},
 		],
 	})
@@ -125,7 +125,7 @@ class ProfileCommand {
 			{
 				name: "player",
 				description: "The player",
-				type: BuiltInTypes.Player,
+				type: CommanderType.Player,
 			},
 		],
 	})
@@ -182,7 +182,7 @@ class InfoCommand {
 	@Command({
 		name: "view",
         description: "View information about a player",
-		arguments: [{ name: "player", description: "Player to view information for", type: BuiltInTypes.Player }],
+		arguments: [{ name: "player", description: "Player to view information for", type: CommanderType.Player }],
 	})
 	// If info was a global group, you could do @Group("user") here
     // highlight-next-line
@@ -198,11 +198,56 @@ class InfoCommand {
 }
 ```
 
+### Command guards
+
+A command guard is simply a function that can be used to determine if a command should be executed.
+You can use the `@Guard` decorator to assign guards to a command.
+
+A guard function is passed two parameters - `runNext` and `interaction`
+
+The `runNext` parameter is a function that, when called, will execute the next guard or the command, if
+it is the last guard.
+
+The `interaction` parameter is a `CommandInteraction`. You can reply to the executor using its `reply` or `error` methods,
+and you can retrieve the executor through its `executor` field.
+
+
+```ts showLineNumbers
+const isAdmin: CommandGuard = (runNext, interaction) => {
+    if (interaction.executor.UserId !== 1) {
+        interaction.error("Insufficient permission!");
+        return;
+    }
+
+    runNext();
+};
+
+@Commander()
+class KickCommand {
+    @Command({
+        name: "kick",
+        description: "Kick a player",
+        arguments: [
+            {
+                name: "player",
+                description: "Player to kick",
+                type: CommanderType.Player
+            }
+        ]
+    })
+    @Guard(isAdmin)
+    kick(interaction: CommandInteraction, player: Player) {
+		player.Kick("You have been kicked from the server.");
+        interaction.reply(`Successfully kicked ${player.Name}`);
+    }
+}
+```
+
 ## Registering commands
 
 Commands need to be registered to be used.
 
-See the [Registration](/docs/guides/registration.mdx#registering-commands) to learn how commands are registered.
+See the [Registration](/docs/guides/registration.mdx#commands) to learn how commands are registered.
 
 ## Type safety
 
@@ -223,7 +268,7 @@ For example, the following code would **not** be type-safe - the argument types 
             name: "text",
             description: "The text to display",
             // highlight-next-line
-            type: BuiltInTypes.String, // We're requiring a string for this argument...
+            type: CommanderType.String, // We're requiring a string for this argument...
         },
     ],
 })

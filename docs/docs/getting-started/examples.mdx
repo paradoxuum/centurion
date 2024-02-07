@@ -4,47 +4,52 @@ description: See examples for Commander
 
 # Examples
 
-These are some examples featuring Commander being used to define commands.
+## Kick Command
 
-## Ban Command
+This is an example of a command that uses [guards](/docs/guides/commands.mdx#command-guards).
 
-This is a simple command featuring one argument. Keep in mind that the class containing
-this command **must** be decorated with `@Commander` in order to be registered.
+A command guard is a function that can determine if a command should be executed.
+
 
 ```ts showLineNumbers
-import { BuiltInTypes, Command, CommandInteraction, Commander } from "@rbxts/commander";
+import { Command, CommandGuard, CommandInteraction, Commander, CommanderType } from "@rbxts/commander";
+
+const isAdmin: CommandGuard = (runNext, interaction) => {
+    if (interaction.executor.UserId !== 1) {
+        interaction.error("Insufficient permission!");
+        return;
+    }
+
+    runNext();
+};
 
 @Commander()
-class BanCommand {
+class KickCommand {
     @Command({
-        name: "ban",
-        description: "Ban a player",
+        name: "kick",
+        description: "Kick a player",
         arguments: [
             {
                 name: "player",
-                description: "Player to ban",
-                type: BuiltInTypes.Player
+                description: "Player to kick",
+                type: CommanderType.Player
             }
         ]
     })
-    ban(interaction: CommandInteraction, player: Player) {
-        if (player.UserId === 0) {
-            interaction.error("You cannot ban this player!");
-            return;
-        }
-
-        print(`${interaction.executor.Name} banned ${player.Name}!`);
-        interaction.reply(`Successfully banned ${player.Name}.`);
+    @Guard(isAdmin)
+    kick(interaction: CommandInteraction, player: Player) {
+		player.Kick("You have been kicked from the server.");
+        interaction.reply(`Successfully kicked ${player.Name}`);
     }
 }
 ```
 
 ## Info Command
 
-This is an example of a command that uses **groups**.
+This is an example of a command that uses [groups](/docs/guides/commands.mdx#command-groups).
 
 Groups are defined in the `@Commander` decorator. At the moment, only the root group may
-have children, but this may be changed in the future.
+have children, allowing for 2 layers of nesting - this may be changed in the future, however.
 
 A command can be assigned to a group using the `@Group` decorator.
 
@@ -79,7 +84,7 @@ class InfoCommand {
 			{
 				name: "player",
 				description: "Player to display information about",
-				type: BuiltInTypes.Player,
+				type: CommanderType.Player,
 			},
 		],
 	})

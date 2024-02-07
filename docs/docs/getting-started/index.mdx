@@ -14,7 +14,29 @@ and readable.
 
 ## Installation
 
-Commander is not yet available! A release will be coming soon.
+<Tabs>
+<TabItem value="npm" default>
+
+```bash title="Terminal"
+npm install @rbxts/commander
+```
+
+</TabItem>
+<TabItem value="Yarn">
+
+```bash title="Terminal"
+yarn add @rbxts/commander
+```
+
+</TabItem>
+<TabItem value="pnpm">
+
+```bash title="Terminal"
+pnpm add @rbxts/commander
+```
+
+</TabItem>
+</Tabs>
 
 ## Starting Commander
 
@@ -27,7 +49,7 @@ To start Commander on the client, you'll need to provide some extra options if y
 its user interface.
 
 ```ts showLineNumbers
-CommanderClient.run(
+CommanderClient.start(
     (registry) => {
         // Register commands or types here
     },
@@ -50,16 +72,16 @@ CommanderServer.start((registry) => {
 
 ## Registration
 
-The way commands or types are registered is the same on the server and client.
+The way commands and types are registered is the same on the server and client.
 
 ```ts showLineNumbers
 CommanderServer.start((registry) => {
     // Registering commands
     const commandContainer = script.Parent.commands;
-    registry.registerCommandsIn(commandContainer)
+    registry.load(commandContainer)
 
     // Registering types
-    // This method isn't limited to just types! This simply provides the regsitry
+    // This method isn't limited to just types! This simply provides the registry
     // object to any ModuleScripts in the container that return a function.
     const typesContainer = script.Parent.types;
     registry.registerContainer(typesContainer);

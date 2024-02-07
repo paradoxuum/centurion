@@ -6,43 +6,58 @@ description: Learn how to register commands and types
 
 [Commands](commands.mdx) and [Types](types.mdx) must be registered in order to be used.
 
-## Registering commands
+## Commands
 
-In order to register commands, you must use the `registerCommandsIn` method.
+In order to register commands, you must use the `register` method.
 
-This searches for all children that are a `ModuleScript` in the provided `Instance`. These will then be
-loaded and any methods that have the `@Command` decorator will be registered. Commands will only be registered
-if their parent class has the `@Commander` decorator.
+This will load any `ModuleScripts` in the provided `Instance`.
+
+Any methods that are decorated with `@Command` will be registered, as long as its
+parent class is decorated with `@Commander`.
+
 
 ```ts showLineNumbers
 CommanderServer.start((registry) => {
-    const commandContainer = script.Parent.commands;
-    registry.registerCommandsIn(commandContainer)
+    registry.register(script.Parent.commands)
 }).catch((err) => warn("Commander could not be started:", tostring(err)));
 ```
 
-## Registering types
+## Types
 
-Types should be registered using the `registerContainer` method.
-
-This searches for all children that are a `ModuleScript` and export a function in the provided `Instance`.
-
-If any ModuleScripts that export a function are found, the function will be called with the registry.
+To register types, you can use the `registerType` or `registerTypes` method.
 
 ```ts showLineNumbers
+// You can register a single type like this
+registry.registerType(someType)
+
+// You can also register multiple types at once!
+registry.registerTypes(someType, someOtherType)
+```
+
+You can also organise your types into ModuleScripts:
+
+```ts showLineNumbers title="types/other.ts"
+import { BaseRegistry } from "@rbxts/commander"
+
+// ...
+
 export = (registry: BaseRegistry) => {
-    registry.registerType(someType)
-
-    // You can also register multiple types at once
-    register.registerTypes(someOtherType, yetAnotherType)
-
-    // You can register commands here as well, if you want!
-    const commandContainer = script.Parent.commands;
-    register.registerCommandsIn(commandContainer)
+    registry.registerTypes(someType, someOtherType)
 }
+```
+
+Then register them the same way you would with commands:
+
+```ts showLineNumbers title="runtime.server.ts"
+CommanderServer.start((registry) => {
+    registry.register(script.Parent.types)
+}).catch((err) => warn("Commander could not be started:", tostring(err)));
 ```
 
 ## Summary
 
-- Commands are registered using `registerCommandsIn`
-- Types are registered using `registerContainer`
+- Commands are registered using `register`
+- Types are registered using `registerType` or `registerTypes`
+- Types can be organised into ModuleScripts by:
+    - Exporting a function that takes a `BaseRegistry` and registers types
+    - Using `register` to register each module in the given `Instance`
