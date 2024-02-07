@@ -33,7 +33,7 @@ export abstract class BaseRegistry {
 				builtInTypes !== undefined,
 				"Built-in type container does not exist",
 			);
-			this.load(builtInTypes);
+			this.register(builtInTypes);
 		}
 	}
 
@@ -43,12 +43,11 @@ export abstract class BaseRegistry {
 	 * If the {@link ModuleScript} returns a function, it will be called with the registry
 	 * as an argument.
 	 *
-	 * If the {@link ModuleScript} contains command(s), you should use {@link registerCommands}
-	 * in order to register them.
+	 * If the {@link ModuleScript} contains command(s), these commands will be registered.
 	 *
 	 * @param container The container containing {@link ModuleScript}s
 	 */
-	load(container: Instance) {
+	register(container: Instance) {
 		for (const obj of container.GetChildren()) {
 			if (!obj.IsA("ModuleScript")) {
 				continue;
@@ -59,10 +58,12 @@ export abstract class BaseRegistry {
 				value(this);
 			}
 		}
+
+		this.registerCommands();
 	}
 
 	/**
-	 * Registers a type from a given {@link TypeOptions}.
+	 * Registers a type from a {@link TypeOptions}.
 	 *
 	 * @param typeOptions The type to register
 	 */
@@ -78,25 +79,6 @@ export abstract class BaseRegistry {
 	registerTypes(...types: TypeOptions<defined>[]) {
 		for (const options of types) {
 			this.registerType(options);
-		}
-	}
-
-	/**
-	 * Registers all commands in the given {@link Instance}.
-	 *
-	 * Only {@link ModuleScript}s which are direct children of the
-	 * {@link Instance} will be loaded.
-	 *
-	 * @param container The {@link Instance} containing commands
-	 */
-	registerCommands() {
-		for (const [commandHolder] of MetadataReflect.metadata) {
-			if (this.registeredObjects.has(commandHolder)) {
-				continue;
-			}
-
-			this.registeredObjects.add(commandHolder);
-			this.registerCommandHolder(commandHolder);
 		}
 	}
 
@@ -189,6 +171,17 @@ export abstract class BaseRegistry {
 		}
 
 		return value;
+	}
+
+	private registerCommands() {
+		for (const [commandHolder] of MetadataReflect.metadata) {
+			if (this.registeredObjects.has(commandHolder)) {
+				continue;
+			}
+
+			this.registeredObjects.add(commandHolder);
+			this.registerCommandHolder(commandHolder);
+		}
 	}
 
 	protected registerCommand(commandData: CommandData, group?: CommandGroup) {
