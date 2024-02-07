@@ -63,6 +63,22 @@ export abstract class BaseRegistry {
 	}
 
 	/**
+	 * Registers all commands.
+	 *
+	 * If the command has already been registered, it will be skipped.
+	 */
+	registerCommands() {
+		for (const [commandHolder] of MetadataReflect.metadata) {
+			if (this.registeredObjects.has(commandHolder)) {
+				continue;
+			}
+
+			this.registeredObjects.add(commandHolder);
+			this.registerCommandHolder(commandHolder);
+		}
+	}
+
+	/**
 	 * Registers a type from a {@link TypeOptions}.
 	 *
 	 * @param typeOptions The type to register
@@ -171,17 +187,6 @@ export abstract class BaseRegistry {
 		}
 
 		return value;
-	}
-
-	private registerCommands() {
-		for (const [commandHolder] of MetadataReflect.metadata) {
-			if (this.registeredObjects.has(commandHolder)) {
-				continue;
-			}
-
-			this.registeredObjects.add(commandHolder);
-			this.registerCommandHolder(commandHolder);
-		}
 	}
 
 	protected registerCommand(commandData: CommandData, group?: CommandGroup) {
