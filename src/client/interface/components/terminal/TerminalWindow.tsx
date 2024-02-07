@@ -10,6 +10,7 @@ import {
 } from "../../../../shared/util/string";
 import { DEFAULT_FONT } from "../../constants/fonts";
 import { palette } from "../../constants/palette";
+import { springs } from "../../constants/springs";
 import { useMotion } from "../../hooks/useMotion";
 import { useRem } from "../../hooks/useRem";
 import { useStore } from "../../hooks/useStore";
@@ -104,7 +105,7 @@ export function TerminalWindow() {
 
 		const isClamped = totalHeight > rem(16);
 		const clampedHeight = isClamped ? rem(16) : totalHeight;
-		historyHeightMotion.spring(clampedHeight);
+		historyHeightMotion.spring(clampedHeight, springs.responsive);
 		setHistoryData({
 			lines: historyLines,
 			height: totalHeight,
