@@ -48,6 +48,7 @@ export abstract class BaseRegistry {
 	 * @param container The container containing {@link ModuleScript}s
 	 */
 	register(container: Instance) {
+		let registerCommands = false;
 		for (const obj of container.GetChildren()) {
 			if (!obj.IsA("ModuleScript")) {
 				continue;
@@ -56,10 +57,14 @@ export abstract class BaseRegistry {
 			const value = this.import(obj);
 			if (typeIs(value, "function")) {
 				value(this);
+			} else {
+				registerCommands = true;
 			}
 		}
 
-		this.registerCommands();
+		if (registerCommands) {
+			this.registerCommands();
+		}
 	}
 
 	/**
