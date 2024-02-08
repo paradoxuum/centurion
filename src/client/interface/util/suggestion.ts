@@ -26,9 +26,10 @@ export function getArgumentSuggestion(
 			? typeObject.suggestions(text ?? "")
 			: [];
 	if (!typeSuggestions.isEmpty()) {
-		typeSuggestions = getSortedIndices(
-			slice(typeSuggestions, 1, MAX_OTHER_SUGGESTIONS),
-			text,
+		typeSuggestions = slice(
+			getSortedIndices(typeSuggestions, text),
+			1,
+			MAX_OTHER_SUGGESTIONS,
 		).map((index) => typeSuggestions[index]);
 	}
 
