@@ -14,6 +14,8 @@ interface BadgeProps {
 	textColor?: BindingOrValue<Color3>;
 	textSize?: BindingOrValue<number>;
 	visible?: BindingOrValue<boolean>;
+
+	onTextBoundsChange?: (textBounds: Vector2) => void;
 }
 
 export function Badge({
@@ -25,6 +27,7 @@ export function Badge({
 	textColor,
 	textSize,
 	visible,
+	onTextBoundsChange,
 }: BadgeProps) {
 	const rem = useRem();
 
@@ -36,6 +39,7 @@ export function Badge({
 			backgroundColor={color}
 			cornerRadius={new UDim(0, rem(0.5))}
 			visible={visible}
+			clipsDescendants
 		>
 			<Text
 				key="text"
@@ -44,6 +48,9 @@ export function Badge({
 				textSize={textSize}
 				size={UDim2.fromScale(1, 1)}
 				font={fonts.inter.bold}
+				change={{
+					TextBounds: (rbx) => onTextBoundsChange?.(rbx.TextBounds),
+				}}
 			/>
 		</Frame>
 	);

@@ -2,6 +2,7 @@ import { BindingOrValue } from "@rbxts/pretty-react-hooks";
 import Roact, { Binding } from "@rbxts/roact";
 import { fonts } from "../../../constants/fonts";
 import { palette } from "../../../constants/palette";
+import { useMotion } from "../../../hooks/useMotion";
 import { useRem } from "../../../hooks/useRem";
 import { ArgumentSuggestion, Suggestion } from "../../../types";
 import { Frame } from "../../interface/Frame";
@@ -27,6 +28,7 @@ export function MainSuggestion({
 	argument,
 }: MainSuggestionProps) {
 	const rem = useRem();
+	const [badgeWidth, badgeWidthMotion] = useMotion(0);
 
 	return (
 		<Frame
@@ -40,8 +42,8 @@ export function MainSuggestion({
 			<Badge
 				key="type-badge"
 				anchorPoint={new Vector2(1, 0)}
-				size={sizes.map((val) =>
-					UDim2.fromOffset(val.typeBadgeWidth + rem(1), rem(2)),
+				size={badgeWidth.map((width) =>
+					UDim2.fromOffset(math.round(width), rem(2)),
 				)}
 				position={UDim2.fromScale(1, 0)}
 				color={palette.lavender}
@@ -53,6 +55,12 @@ export function MainSuggestion({
 				textColor={palette.surface0}
 				textSize={rem(1.5)}
 				visible={argument}
+				onTextBoundsChange={(textBounds) =>
+					badgeWidthMotion.spring(textBounds.X + rem(1), {
+						mass: 0.5,
+						tension: 400,
+					})
+				}
 			/>
 
 			<Text
