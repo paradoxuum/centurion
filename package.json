@@ -1,6 +1,6 @@
 {
 	"name": "@rbxts/commander",
-	"version": "1.0.0",
+	"version": "0.1.0",
 	"description": "A flexible command framework built for roblox-ts",
 	"private": true,
 	"main": "out/init.lua",
@@ -9,11 +9,7 @@
 		"watch": "rbxtsc -w --type=game -p test -i test/include",
 		"serve": "rojo serve test"
 	},
-	"keywords": [
-		"roblox-ts",
-		"rbxts",
-		"command"
-	],
+	"keywords": ["roblox-ts", "rbxts", "command"],
 	"author": "paradoxuum",
 	"license": "MIT",
 	"types": "out/index.d.ts",
@@ -24,10 +20,7 @@
 	"bugs": {
 		"url": "https://github.com/paradoxuum/commander/issues"
 	},
-	"files": [
-		"out",
-		"!**/*.tsbuildinfo"
-	],
+	"files": ["out", "!**/*.tsbuildinfo"],
 	"publishConfig": {
 		"access": "public"
 	},
