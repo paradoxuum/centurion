@@ -54,17 +54,34 @@ CommanderClient.start(
         // Register commands or types here
     },
     {
+        // The app that will be used to display the Commander UI
+        // Commander comes with a default app, but you can create your own
         app: CommanderApp,
-    },
+
+        // The default key is F2, but you can change it here
+        activationKeys: [Enum.KeyCode.F2]
+
+        // The maximum terminal and command history length, default length is 1000
+        historyLength: 1000
+
+        // If you don't want to register the built-in types, you can change this option
+        registerBuiltInTypes: true
+    }
 ).catch((err) => warn("Commander could not be started:", tostring(err)));
 ```
 </TabItem>
 
 <TabItem value="server" label="Server">
 ```ts showLineNumbers
-CommanderServer.start((registry) => {
-    // Register commands or types here
-}).catch((err) => warn("Commander could not be started:", tostring(err)));
+CommanderServer.start(
+    (registry) => {
+        // Register commands or types here
+    },
+    {
+        // If you don't want to register the built-in types, you can change this option
+        registerBuiltInTypes: true
+    }
+).catch((err) => warn("Commander could not be started:", tostring(err)));
 ```
 </TabItem>
 
