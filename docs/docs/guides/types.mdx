@@ -52,16 +52,24 @@ The `suggestions` method is optional and should return an array of strings.
 
 ### "Expensive" types
 
+:::warning
+
+Not specifying a type that has a slow transformation function as "expensive" may cause the interface to lag.
+
+:::
+
 Occasionally, you may want to create a type where the transformation function might take a long time
 to execute. For example, a type that executes a web request to retrieve some data.
 
-In this case, you can use the second parameter of `transform` to indicate that the transformation is expensive.
+In this case, you can use the second parameter of `TypeBuilder.transform` to indicate that the transformation is expensive.
 
-Not specifying a type as "expensive" for types that have slow transformation functions can cause the interface
-to lag. This is because a type's transformation function is executed each time a user types a command's argument,
-in order to verify the argument's validity.
+This will prevent the type's transform function from being executed in the interface. For non-expensive types,
+this is done each time the user types an argument, in order to indicate if the argument is valid.
+
 
 ```ts showLineNumbers
+// Expensive is set to "true" in the transform function, so the result
+// of this transformation will not be shown in the interface
 const expensiveType = TypeBuilder.create<string>("expensive")
 	.validate(t.string)
 	.transform((text) => {
