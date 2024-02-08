@@ -3,6 +3,8 @@ import { CommandPath } from "../../../shared";
 import { CommanderClient } from "../../core";
 import { Suggestion } from "../types";
 
+const MAX_OTHER_SUGGESTIONS = 3;
+
 export function getArgumentSuggestion(
 	path: CommandPath,
 	index: number,
@@ -24,9 +26,10 @@ export function getArgumentSuggestion(
 			? typeObject.suggestions(text ?? "")
 			: [];
 	if (!typeSuggestions.isEmpty()) {
-		typeSuggestions = getSortedIndices(typeSuggestions, text).map(
-			(index) => typeSuggestions[index],
-		);
+		typeSuggestions = getSortedIndices(
+			slice(typeSuggestions, 1, MAX_OTHER_SUGGESTIONS),
+			text,
+		).map((index) => typeSuggestions[index]);
 	}
 
 	// If the type is not marked as "expensive", transform the text into the type
@@ -75,7 +78,9 @@ export function getCommandSuggestion(
 
 	const otherNames =
 		indices.size() > 1
-			? slice(indices, 2, indices.size()).map((index) => pathNames[index])
+			? slice(indices, 2, MAX_OTHER_SUGGESTIONS + 1).map(
+					(index) => pathNames[index],
+			  )
 			: [];
 	return {
 		main: {
