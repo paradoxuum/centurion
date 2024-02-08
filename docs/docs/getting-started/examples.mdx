@@ -38,7 +38,7 @@ class KickCommand {
     })
     @Guard(isAdmin)
     kick(interaction: CommandInteraction, player: Player) {
-		player.Kick("You have been kicked from the server.");
+        player.Kick("You have been kicked from the server.");
         interaction.reply(`Successfully kicked ${player.Name}`);
     }
 }

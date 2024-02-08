@@ -18,7 +18,18 @@ parent class is decorated with `@Commander`.
 
 ```ts showLineNumbers
 CommanderServer.start((registry) => {
-    registry.register(script.Parent.commands)
+    registry.register(script.Parent.commands);
+}).catch((err) => warn("Commander could not be started:", tostring(err)));
+```
+
+If you're using another method to load commands (such as Flamework's `addPaths`), you can use
+`registerCommands` to register them instead.
+
+```ts showLineNumbers
+Flamework.addPaths("src/server/commands");
+
+CommanderServer.start((registry) => {
+    registry.registerCommands();
 }).catch((err) => warn("Commander could not be started:", tostring(err)));
 ```
 
@@ -28,22 +39,22 @@ To register types, you can use the `registerType` or `registerTypes` method.
 
 ```ts showLineNumbers
 // You can register a single type like this
-registry.registerType(someType)
+registry.registerType(someType);
 
 // You can also register multiple types at once!
-registry.registerTypes(someType, someOtherType)
+registry.registerTypes(someType, someOtherType);
 ```
 
 You can also organise your types into ModuleScripts:
 
 ```ts showLineNumbers title="types/other.ts"
-import { BaseRegistry } from "@rbxts/commander"
+import { BaseRegistry } from "@rbxts/commander";
 
 // ...
 
 export = (registry: BaseRegistry) => {
-    registry.registerTypes(someType, someOtherType)
-}
+    registry.registerTypes(someType, someOtherType);
+};
 ```
 
 Then register them the same way you would with commands:

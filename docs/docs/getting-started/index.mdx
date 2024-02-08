@@ -76,15 +76,21 @@ The way commands and types are registered is the same on the server and client.
 
 ```ts showLineNumbers
 CommanderServer.start((registry) => {
-    // Registering commands
+    // Register commands by loading all command ModuleScripts under an Instance
+    // You can also use this for types: ModuleScripts that export a function
+    // will be called with the registry object, allowing you to do any
+    // registration there.
     const commandContainer = script.Parent.commands;
-    registry.load(commandContainer)
+    registry.register(commandContainer);
 
-    // Registering types
-    // This method isn't limited to just types! This simply provides the registry
-    // object to any ModuleScripts in the container that return a function.
-    const typesContainer = script.Parent.types;
-    registry.registerContainer(typesContainer);
+    // If you've already loaded the command ModuleScripts
+    // (e.g. through Flamework.addPaths) you can register
+    // them like this:
+    registry.registerCommands();
+
+    // Type objects are registered like this:
+    registry.registerType(someType);
+    registry.registerTypes(someOtherType, anotherType);
 }).catch((err) => warn("Commander could not be started:", tostring(err)));
 ```
 
