@@ -22,8 +22,6 @@ Commander is a command framework built for roblox-ts.
 - Custom argument types can be created, allowing for a great deal of flexibility for your commands.
 - Comes with an optional user interface which can easily be swapped out for a custom one.
 
-**Note**: This library isn't production ready yet. You will likely encounter bugs and breaking changes.
-
 ## Attributions
 
 -   [Cmdr](https://github.com/evaera/Cmdr): String utilities ([see usage](src/shared/util/string.ts))
