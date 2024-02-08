@@ -2,7 +2,6 @@
 	"name": "@rbxts/commander",
 	"version": "0.1.0",
 	"description": "A flexible command framework built for roblox-ts",
-	"private": true,
 	"main": "out/init.lua",
 	"scripts": {
 		"compile": "rbxtsc --verbose",
