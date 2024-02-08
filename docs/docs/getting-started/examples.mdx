@@ -12,7 +12,7 @@ A command guard is a function that can determine if a command should be executed
 
 
 ```ts showLineNumbers
-import { Command, CommandGuard, CommandInteraction, Commander, CommanderType } from "@rbxts/commander";
+import { Command, CommandGuard, CommandInteraction, Commander, CommanderType, Guard } from "@rbxts/commander";
 
 const isAdmin: CommandGuard = (runNext, interaction) => {
     if (interaction.executor.UserId !== 1) {
