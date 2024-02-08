@@ -48,6 +48,7 @@ export function SuggestionList({ position }: SuggestionListProps) {
 		typeBadgeWidth: rem(6),
 	});
 
+	const [containerSize, setContainerSize] = useBinding(new UDim2());
 	const [suggestionSize, suggestionSizeMotion] = useMotion(new UDim2());
 	const [otherSuggestionSize, otherSuggestionSizeMotion] = useMotion(
 		new UDim2(),
@@ -97,6 +98,7 @@ export function SuggestionList({ position }: SuggestionListProps) {
 		}
 
 		// Calculate other suggestion sizes
+		let otherHeight = 0;
 		if (!otherSuggestions.isEmpty()) {
 			let maxSuggestionWidth = 0;
 
@@ -113,10 +115,10 @@ export function SuggestionList({ position }: SuggestionListProps) {
 				}
 			}
 
-			const otherHeight =
+			otherHeight =
 				otherSuggestions.size() * rem(2) +
-				rem(1) +
-				(otherSuggestions.size() - 1) * rem(0.5);
+				(otherSuggestions.size() - 1) * rem(0.5) +
+				rem(1);
 			windowWidth = math.max(windowWidth, maxSuggestionWidth);
 			otherSuggestionSizeMotion.spring(
 				UDim2.fromOffset(windowWidth, otherHeight),
@@ -124,6 +126,7 @@ export function SuggestionList({ position }: SuggestionListProps) {
 			);
 		}
 
+		setContainerSize(new UDim2(1, 0, 0, windowHeight + otherHeight));
 		suggestionSizeMotion.spring(
 			UDim2.fromOffset(windowWidth, windowHeight),
 			springs.responsive,
@@ -132,7 +135,7 @@ export function SuggestionList({ position }: SuggestionListProps) {
 
 	return (
 		<Group
-			size={new UDim2(1, 0, 0, rem(16))}
+			size={containerSize}
 			position={position}
 			clipsDescendants={true}
 			visible={currentSuggestion !== undefined}
