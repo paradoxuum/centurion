@@ -48,7 +48,6 @@ export function SuggestionList({ position }: SuggestionListProps) {
 		typeBadgeWidth: rem(6),
 	});
 
-	const [containerSize, setContainerSize] = useBinding(new UDim2());
 	const [suggestionSize, suggestionSizeMotion] = useMotion(new UDim2());
 	const [otherSuggestionSize, otherSuggestionSizeMotion] = useMotion(
 		new UDim2(),
@@ -126,7 +125,6 @@ export function SuggestionList({ position }: SuggestionListProps) {
 			);
 		}
 
-		setContainerSize(new UDim2(1, 0, 0, windowHeight + otherHeight));
 		suggestionSizeMotion.spring(
 			UDim2.fromOffset(windowWidth, windowHeight),
 			springs.responsive,
@@ -135,7 +133,7 @@ export function SuggestionList({ position }: SuggestionListProps) {
 
 	return (
 		<Group
-			size={containerSize}
+			size={new UDim2(1, 0, 0, rem(18))}
 			position={position}
 			clipsDescendants={true}
 			visible={currentSuggestion !== undefined}
