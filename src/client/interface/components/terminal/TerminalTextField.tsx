@@ -131,7 +131,7 @@ export function TerminalTextField({
 
 				newText = `${newText}${argNames[i]} `;
 			}
-		} else if (currentSuggestion.main.type === "command") {
+		} else if (currentSuggestion.main.type === "command" && !parts.isEmpty()) {
 			const suggestionStartIndex =
 				(!atNextPart ? parts[parts.size() - 1].size() : 0) + 1;
 			newText += currentSuggestion.main.title.sub(suggestionStartIndex);
