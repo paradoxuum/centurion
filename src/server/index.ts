@@ -1,5 +1,4 @@
 import { RunService } from "@rbxts/services";
-import { mergeDeep } from "@rbxts/sift/out/Dictionary";
 import { ServerDispatcher } from "./dispatcher";
 import { DEFAULT_SERVER_OPTIONS } from "./options";
 import { ServerRegistry } from "./registry";
@@ -28,7 +27,10 @@ export namespace CommanderServer {
 		assert(IS_SERVER, "CommanderServer can only be started from the server");
 		assert(!started, "Commander has already been started");
 
-		optionsObject = mergeDeep(DEFAULT_SERVER_OPTIONS, options);
+		optionsObject = {
+			...DEFAULT_SERVER_OPTIONS,
+			...options,
+		};
 
 		dispatcherInstance.init();
 		registryInstance.init(optionsObject);

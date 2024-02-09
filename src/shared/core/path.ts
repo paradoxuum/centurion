@@ -1,10 +1,4 @@
-import {
-	append,
-	copy,
-	equals,
-	removeIndex,
-	slice,
-} from "@rbxts/sift/out/Array";
+import { ArrayUtil } from "../util/data";
 
 /**
  * A representation of a command or command group's path
@@ -28,7 +22,7 @@ export class CommandPath {
 	 * Returns a copy of the {@link CommandPath}'s parts
 	 */
 	getParts() {
-		return copy(this.parts);
+		return [...this.parts];
 	}
 
 	/**
@@ -97,13 +91,11 @@ export class CommandPath {
 	 * @returns The subcommand path, or undefined if the path has 1 part
 	 */
 	getSubcommandPath() {
-		if (this.isCommand()) {
-			return;
-		}
+		if (this.isCommand()) return;
 
-		// Remove the first element - Sift is a Luau library,
-		// so these functions have indices starting from 1
-		return removeIndex(this.parts, 1);
+		const parts = [...this.parts];
+		parts.remove(0);
+		return new CommandPath(parts);
 	}
 
 	/**
@@ -167,11 +159,7 @@ export class CommandPath {
 	 */
 	slice(from: number, to?: number) {
 		return new CommandPath(
-			slice(
-				this.parts,
-				from + 1,
-				to !== undefined ? to + 1 : this.parts.size(),
-			),
+			ArrayUtil.slice(this.parts, from, to !== undefined ? to + 1 : undefined),
 		);
 	}
 
@@ -182,7 +170,7 @@ export class CommandPath {
 	 * @returns True if the paths are equal, false if not
 	 */
 	equals(other: CommandPath) {
-		return equals(this.parts, other.parts);
+		return ArrayUtil.equals(this.parts, other.parts);
 	}
 
 	/**
@@ -266,11 +254,7 @@ export class ImmutableCommandPath extends CommandPath {
 
 	slice(from: number, to?: number) {
 		return new ImmutableCommandPath(
-			slice(
-				this.parts,
-				from + 1,
-				to !== undefined ? to + 1 : this.parts.size(),
-			),
+			ArrayUtil.slice(this.parts, from, to !== undefined ? to + 1 : undefined),
 		);
 	}
 
@@ -281,7 +265,7 @@ export class ImmutableCommandPath extends CommandPath {
 	 * @returns A new {@link ImmutableCommandPath} with the given parts appended
 	 */
 	append(...parts: string[]) {
-		return new ImmutableCommandPath(append(this.parts, ...parts));
+		return new ImmutableCommandPath([...this.parts, ...parts]);
 	}
 
 	/**
@@ -293,7 +277,10 @@ export class ImmutableCommandPath extends CommandPath {
 	 */
 	remove(index: number) {
 		assert(index > -1 && index < this.parts.size(), "Index out of bounds");
-		return new ImmutableCommandPath(removeIndex(this.parts, index + 1));
+
+		const parts = [...this.parts];
+		parts.remove(index);
+		return new ImmutableCommandPath(parts);
 	}
 
 	/**

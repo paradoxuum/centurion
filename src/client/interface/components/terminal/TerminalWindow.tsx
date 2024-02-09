@@ -1,8 +1,8 @@
 import { useLatestCallback } from "@rbxts/pretty-react-hooks";
 import Roact, { useContext, useEffect, useMemo, useState } from "@rbxts/roact";
 import { TextService } from "@rbxts/services";
-import { copy, pop, slice } from "@rbxts/sift/out/Array";
 import { CommandOptions, ImmutableCommandPath } from "../../../../shared";
+import { ArrayUtil } from "../../../../shared/util/data";
 import {
 	endsWithSpace,
 	formatPartsAsPath,
@@ -30,7 +30,11 @@ function getParentPath(parts: string[], atNextPart: boolean) {
 		return;
 	}
 
-	return new ImmutableCommandPath(atNextPart ? copy(parts) : pop(parts));
+	const result = [...parts];
+	if (!atNextPart) {
+		result.pop();
+	}
+	return new ImmutableCommandPath(result);
 }
 
 export function TerminalWindow() {
@@ -157,8 +161,9 @@ export function TerminalWindow() {
 
 					if (parentPath !== undefined) {
 						if (
-							formatPartsAsPath(slice(parts, 1, parentPath.getSize())) ===
-							parentPath.toString()
+							formatPartsAsPath(
+								ArrayUtil.slice(parts, 0, parentPath.getSize()),
+							) === parentPath.toString()
 						) {
 							// The current path still leads to the command, so it's valid
 							atCommand = true;
@@ -175,7 +180,10 @@ export function TerminalWindow() {
 							// This could be the case if the text is selected and a valid command is pasted into
 							// the text box, meaning the command path will still point to the previous command.
 							for (const i of $range(0, parts.size() - 1)) {
-								const pathSlice = formatPartsAsPath(slice(parts, 1, i + 1));
+								const pathSlice = formatPartsAsPath(
+									ArrayUtil.slice(parts, 0, i + 1),
+								);
+
 								if (data.commands.has(pathSlice)) {
 									atCommand = true;
 
@@ -189,7 +197,7 @@ export function TerminalWindow() {
 					} else {
 						parentPath = getParentPath(parts, atNextPart);
 						if (atCommand) {
-							store.setCommand(new ImmutableCommandPath(copy(parts)));
+							store.setCommand(new ImmutableCommandPath([...parts]));
 						}
 					}
 
@@ -222,7 +230,6 @@ export function TerminalWindow() {
 
 					let suggestion: Suggestion | undefined;
 					if (argCount === 0) {
-						// Handle command suggestions
 						suggestion = getCommandSuggestion(parentPath, currentTextPart);
 					} else if (parentPath !== undefined) {
 						// Handle argument suggestions

@@ -1,6 +1,5 @@
 import { useEventListener } from "@rbxts/pretty-react-hooks";
 import Roact, { createContext, useState } from "@rbxts/roact";
-import { copyDeep } from "@rbxts/sift/out/Dictionary";
 import { CommandOptions, CommandPath, GroupOptions } from "../../../shared";
 import { DEFAULT_CLIENT_OPTIONS } from "../../options";
 import { AppContext, ClientOptions, HistoryEntry } from "../../types";
@@ -43,17 +42,17 @@ export function CommanderProvider({ value, children }: CommanderProviderProps) {
 	const [groups, setGroups] = useState(value.initialData.groups);
 
 	useEventListener(value.events.historyUpdated, (entries) => {
-		setHistory(copyDeep(entries));
+		setHistory([...entries]);
 	});
 
 	useEventListener(value.events.commandAdded, (key, command) => {
-		const newData = copyDeep(commands);
+		const newData = new Map([...commands]);
 		newData.set(key, command);
 		setCommands(newData);
 	});
 
 	useEventListener(value.events.groupAdded, (key, group) => {
-		const newData = copyDeep(groups);
+		const newData = new Map([...groups]);
 		groups.set(key, group);
 		setGroups(newData);
 	});

@@ -1,5 +1,5 @@
-import { slice } from "@rbxts/sift/out/Array";
 import { CommandPath } from "../../../shared";
+import { ArrayUtil } from "../../../shared/util/data";
 import { CommanderClient } from "../../core";
 import { Suggestion } from "../types";
 
@@ -26,9 +26,9 @@ export function getArgumentSuggestion(
 			? typeObject.suggestions(text ?? "")
 			: [];
 	if (!typeSuggestions.isEmpty()) {
-		typeSuggestions = slice(
+		typeSuggestions = ArrayUtil.slice(
 			getSortedIndices(typeSuggestions, text),
-			1,
+			0,
 			MAX_OTHER_SUGGESTIONS,
 		).map((index) => typeSuggestions[index]);
 	}
@@ -79,7 +79,7 @@ export function getCommandSuggestion(
 
 	const otherNames =
 		indices.size() > 1
-			? slice(indices, 2, MAX_OTHER_SUGGESTIONS + 1).map(
+			? ArrayUtil.slice(indices, 1, MAX_OTHER_SUGGESTIONS + 1).map(
 					(index) => pathNames[index],
 			  )
 			: [];

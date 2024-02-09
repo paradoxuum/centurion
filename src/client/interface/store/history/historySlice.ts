@@ -1,5 +1,4 @@
 import { createProducer } from "@rbxts/reflex";
-import { copy } from "@rbxts/sift/out/Array";
 
 export interface HistoryState {
 	commandHistory: string[];
@@ -34,7 +33,7 @@ export const historySlice = createProducer(initialHistoryState, {
 			return state;
 		}
 
-		const commandHistory = copy(state.commandHistory);
+		const commandHistory = [...state.commandHistory];
 		limitArray(commandHistory, limit);
 		commandHistory.push(command);
 

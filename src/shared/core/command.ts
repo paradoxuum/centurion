@@ -1,10 +1,4 @@
 import { Result } from "@rbxts/rust-classes";
-import { freeze as freezeArray } from "@rbxts/sift/out/Array";
-import {
-	copyDeep as copyObjectDeep,
-	freezeDeep as freezeObjectDeep,
-} from "@rbxts/sift/out/Dictionary";
-import { ReadonlyDeepObject } from "@rbxts/sift/out/Util";
 import {
 	CommandGuard,
 	CommandMetadata,
@@ -12,6 +6,7 @@ import {
 	GroupOptions,
 	TypeOptions,
 } from "../types";
+import { ObjectUtil, ReadonlyDeepObject } from "../util/data";
 import { MetadataReflect } from "../util/reflect";
 import { MetadataKey } from "./decorators";
 import { CommandInteraction } from "./interaction";
@@ -65,7 +60,7 @@ export abstract class BaseCommand {
 		options: CommandOptions,
 	) {
 		this.path = path;
-		this.options = freezeObjectDeep(copyObjectDeep(options));
+		this.options = ObjectUtil.freezeDeep(ObjectUtil.copyDeep(options));
 
 		if (options.arguments === undefined) {
 			return;
@@ -118,7 +113,7 @@ export class ExecutableCommand extends BaseCommand {
 		super(registry, path, options);
 		this.commandClass = commandClass;
 		this.func = func;
-		this.guards = freezeArray(guards);
+		this.guards = table.freeze(guards);
 	}
 
 	static create(

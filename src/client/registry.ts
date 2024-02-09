@@ -1,9 +1,9 @@
 import { RunService } from "@rbxts/services";
-import { copyDeep } from "@rbxts/sift/out/Dictionary";
 import { CommandOptions, GroupOptions, ImmutableCommandPath } from "../shared";
 import { BaseCommand, CommandGroup } from "../shared/core/command";
 import { BaseRegistry } from "../shared/core/registry";
 import { Remotes } from "../shared/network";
+import { ObjectUtil } from "../shared/util/data";
 import { ServerCommand } from "./command";
 import { CommanderEvents } from "./types";
 
@@ -76,7 +76,7 @@ export class ClientRegistry extends BaseRegistry {
 	getCommandOptions() {
 		const commandMap = new Map<string, CommandOptions>();
 		for (const [k, v] of this.commands) {
-			commandMap.set(k, copyDeep(v.options as CommandOptions));
+			commandMap.set(k, ObjectUtil.copyDeep(v.options as CommandOptions));
 		}
 		return commandMap;
 	}
@@ -89,7 +89,7 @@ export class ClientRegistry extends BaseRegistry {
 	getGroupOptions() {
 		const groupMap = new Map<string, GroupOptions>();
 		for (const [k, v] of this.groups) {
-			groupMap.set(k, copyDeep(v.options as GroupOptions));
+			groupMap.set(k, ObjectUtil.copyDeep(v.options as GroupOptions));
 		}
 		return groupMap;
 	}
@@ -98,13 +98,16 @@ export class ClientRegistry extends BaseRegistry {
 		super.updateCommandMap(key, command);
 		this.events.commandAdded.Fire(
 			key,
-			copyDeep(command.options as CommandOptions),
+			ObjectUtil.copyDeep(command.options as CommandOptions),
 		);
 	}
 
 	protected updateGroupMap(key: string, group: CommandGroup): void {
 		super.updateGroupMap(key, group);
-		this.events.groupAdded.Fire(key, copyDeep(group.options as GroupOptions));
+		this.events.groupAdded.Fire(
+			key,
+			ObjectUtil.copyDeep(group.options as GroupOptions),
+		);
 	}
 
 	private registerServerCommands(commands: Map<string, CommandOptions>) {
