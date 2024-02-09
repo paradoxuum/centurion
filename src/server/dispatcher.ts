@@ -15,17 +15,20 @@ export class ServerDispatcher extends BaseDispatcher {
 	 * required in order to handle server command execution from clients.
 	 */
 	init() {
-		Remotes.Execute.OnServerInvoke = async (player, path, text) => {
+		Remotes.Execute.OnServerInvoke = (player, path, text) => {
 			if (!t.string(path) || !t.string(text)) return;
 
 			const commandPath = CommandPath.fromString(path);
 
+			const [success, data] = this.run(commandPath, player, text)
+				.timeout(5)
+				.await();
+
 			let interactionData: CommandInteractionData;
-			try {
-				const interaction = await this.run(commandPath, player, text);
-				interactionData = interaction.getData();
-			} catch (err) {
-				this.handleError(player, text, err);
+			if (success) {
+				interactionData = data.getData();
+			} else {
+				this.handleError(player, text, data);
 				interactionData = {
 					executor: player,
 					text,
@@ -36,6 +39,7 @@ export class ServerDispatcher extends BaseDispatcher {
 					},
 				};
 			}
+
 			return interactionData;
 		};
 	}
