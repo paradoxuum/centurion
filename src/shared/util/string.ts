@@ -14,17 +14,17 @@ function parseEscapeSequences(text: string): string {
 
 function encodeControlChars(text: string) {
 	return text
-		.gsub("\\\\", "___!CMDR_ESCAPE!___")[0]
-		.gsub('\\"', "___!CMDR_QUOTE!___")[0]
-		.gsub("\\'", "___!CMDR_SQUOTE!___")[0]
-		.gsub("\\\n", "___!CMDR_NL!___")[0];
+		.gsub("\\\\", "___!ESCAPE!___")[0]
+		.gsub('\\"', "___!QUOTE!___")[0]
+		.gsub("\\'", "___!SQUOTE!___")[0]
+		.gsub("\\\n", "___!NL!___")[0];
 }
 
 function decodeControlChars(text: string) {
 	return text
-		.gsub("___!CMDR_ESCAPE!___", "\\")[0]
-		.gsub("___!CMDR_QUOTE!___", '"')[0]
-		.gsub("___!CMDR_NL!___", "\n")[0];
+		.gsub("___!ESCAPE!___", "\\")[0]
+		.gsub("___!QUOTE!___", '"')[0]
+		.gsub("___!NL!___", "\n")[0];
 }
 
 const START_QUOTE_PATTERN = `^(['"])`;
