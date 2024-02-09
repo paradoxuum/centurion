@@ -29,9 +29,6 @@ dependencies:
   '@rbxts/services':
     specifier: ^1.5.3
     version: 1.5.3
-  '@rbxts/sift':
-    specifier: ^0.0.8
-    version: 0.0.8
   '@rbxts/t':
     specifier: ^3.1.1
     version: 3.1.1
@@ -276,10 +273,6 @@ packages:
     resolution: {integrity: sha512-HWLFesx5u8NTyDMTNXEkskGT6nE5VLaEnnnq852ixiBtdfIdN/sGCgNnkwbHAq9P9cgX52V3EB5GdVeWcwJzkA==}
     dependencies:
       '@rbxts/luau-polyfill-internal': 1.2.3-ts.0
-    dev: false
-
-  /@rbxts/sift@0.0.8:
-    resolution: {integrity: sha512-PCwc7MFbJwUgy4pCGz6HEW0NAhNuL87dELx/5WIRIn0G5xIQ3L/Ij1huv+zRYmnNr3+ludR6zhwKqh+irAY8+g==}
     dev: false
 
   /@rbxts/t@3.1.1:
