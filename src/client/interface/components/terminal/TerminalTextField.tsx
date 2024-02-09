@@ -78,8 +78,9 @@ export function TerminalTextField({
 		setSuggestionText("");
 		store.setCommandHistoryIndex(newIndex);
 
-		if (ref.current !== undefined)
+		if (ref.current !== undefined) {
 			ref.current.CursorPosition = newText.size() + 1;
+		}
 	}, []);
 
 	useEffect(() => {
@@ -141,7 +142,7 @@ export function TerminalTextField({
 	}, [currentSuggestion]);
 
 	useEventListener(UserInputService.InputBegan, (input) => {
-		if (ref.current === undefined) return;
+		if (ref.current === undefined || !ref.current.IsFocused()) return;
 
 		if (input.KeyCode === Enum.KeyCode.Up) {
 			traverseHistory(true);
@@ -184,20 +185,22 @@ export function TerminalTextField({
 			commandPath === undefined ||
 			currentSuggestion === undefined ||
 			currentSuggestion.others.isEmpty()
-		)
+		) {
 			return;
+		}
 
 		const argIndex = state.command.argIndex;
 		const commandArgs = data.commands.get(commandPath.toString())?.arguments;
 		if (argIndex === undefined || commandArgs === undefined) return;
 
 		let newText = getBindingValue(text);
-		if (!endsWithSpace(newText)) {
-			const parts = state.text.parts;
+
+		const parts = state.text.parts;
+		if (!endsWithSpace(newText) && !parts.isEmpty()) {
 			newText = newText.sub(0, newText.size() - parts[parts.size() - 1].size());
 		}
-		newText += currentSuggestion.others[0];
 
+		newText += currentSuggestion.others[0];
 		if (argIndex < commandArgs.size() - 1) {
 			newText += " ";
 		}
