@@ -3,7 +3,7 @@ import { copyDeep } from "@rbxts/sift/out/Dictionary";
 import { CommandOptions, GroupOptions, ImmutableCommandPath } from "../shared";
 import { BaseCommand, CommandGroup } from "../shared/core/command";
 import { BaseRegistry } from "../shared/core/registry";
-import { remotes } from "../shared/network";
+import { Remotes } from "../shared/network";
 import { ServerCommand } from "./command";
 import { CommanderEvents } from "./types";
 
@@ -33,7 +33,7 @@ export class ClientRegistry extends BaseRegistry {
 			return groupName;
 		};
 
-		remotes.sync.dispatch.connect((data) => {
+		Remotes.SyncDispatch.OnClientEvent.Connect((data) => {
 			if (!this.initialSyncReceived) this.initialSyncReceived = true;
 
 			for (const [k] of data.commands) {
@@ -54,7 +54,8 @@ export class ClientRegistry extends BaseRegistry {
 				syncedGroups.add(getGroupKey(group));
 			}
 		});
-		remotes.sync.start.fire();
+
+		Remotes.SyncStart.FireServer();
 
 		return new Promise((resolve) => {
 			// Wait until dispatch has been received

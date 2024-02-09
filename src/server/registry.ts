@@ -7,7 +7,7 @@ import {
 } from "../shared";
 import { CommandData, CommandGroup } from "../shared/core/command";
 import { BaseRegistry } from "../shared/core/registry";
-import { SyncData, remotes } from "../shared/network";
+import { Remotes, SyncData } from "../shared/network";
 import { ServerOptions } from "./types";
 
 export class ServerRegistry extends BaseRegistry {
@@ -23,7 +23,7 @@ export class ServerRegistry extends BaseRegistry {
 			this.commandFilter = filter;
 		}
 
-		remotes.sync.start.connect((player) => {
+		Remotes.SyncStart.OnServerEvent.Connect((player) => {
 			const pathArray: CommandPath[] = [];
 			for (const [_, command] of this.commands) {
 				if (!this.commandFilter(command.getPath(), player)) continue;
@@ -31,7 +31,7 @@ export class ServerRegistry extends BaseRegistry {
 			}
 			this.syncMap.set(player, pathArray);
 
-			remotes.sync.dispatch.fire(player, this.getSyncData(player));
+			Remotes.SyncDispatch.FireClient(player, this.getSyncData(player));
 		});
 
 		Players.PlayerRemoving.Connect((player) => {
@@ -52,7 +52,7 @@ export class ServerRegistry extends BaseRegistry {
 			pathArray.push(path);
 			this.syncMap.set(player, pathArray);
 
-			remotes.sync.dispatch.fire(player, this.getSyncData(player));
+			Remotes.SyncDispatch.FireClient(player, this.getSyncData(player));
 		}
 
 		return command;

@@ -1,10 +1,11 @@
+import { t } from "@rbxts/t";
 import {
 	CommandInteraction,
 	CommandInteractionData,
 	CommandPath,
 } from "../shared";
 import { BaseDispatcher } from "../shared/core/dispatcher";
-import { remotes } from "../shared/network";
+import { Remotes } from "../shared/network";
 
 export class ServerDispatcher extends BaseDispatcher {
 	/**
@@ -14,7 +15,9 @@ export class ServerDispatcher extends BaseDispatcher {
 	 * required in order to handle server command execution from clients.
 	 */
 	init() {
-		remotes.executeCommand.onRequest(async (player, path, text) => {
+		Remotes.Execute.OnServerInvoke = async (player, path, text) => {
+			if (!t.string(path) || !t.string(text)) return;
+
 			const commandPath = CommandPath.fromString(path);
 
 			let interactionData: CommandInteractionData;
@@ -34,7 +37,7 @@ export class ServerDispatcher extends BaseDispatcher {
 				};
 			}
 			return interactionData;
-		});
+		};
 	}
 
 	/**

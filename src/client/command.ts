@@ -7,7 +7,7 @@ import {
 } from "../shared";
 import { BaseCommand, ExecutableCommand } from "../shared/core/command";
 import { BaseRegistry } from "../shared/core/registry";
-import { remotes } from "../shared/network";
+import { Remotes } from "../shared/network";
 
 export class SharedCommand extends ExecutableCommand {
 	static create(
@@ -46,9 +46,9 @@ export class ServerCommand extends BaseCommand {
 	}
 
 	execute(interaction: CommandInteraction, args: string[]) {
-		const [success, data] = remotes.executeCommand
-			.request(this.path.toString(), args.join(" "))
-			.await();
+		const [success, data] = pcall(() =>
+			Remotes.Execute.InvokeServer(this.path.toString(), args.join(" ")),
+		);
 		if (!success) {
 			interaction.error("An error occurred.");
 			return;
