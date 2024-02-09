@@ -27,10 +27,6 @@ export class SharedCommand extends ExecutableCommand {
 		);
 	}
 
-	execute(interaction: CommandInteraction, args: string[]) {
-		return this.getCommandCallback(interaction, args)();
-	}
-
 	toString() {
 		return `SharedCommand{path=${this.path}}`;
 	}
@@ -49,6 +45,7 @@ export class ServerCommand extends BaseCommand {
 		const [success, data] = pcall(() =>
 			Remotes.Execute.InvokeServer(this.path.toString(), args.join(" ")),
 		);
+
 		if (!success) {
 			interaction.error("An error occurred.");
 			return;

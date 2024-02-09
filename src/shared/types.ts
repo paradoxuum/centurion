@@ -2,10 +2,7 @@ import { Result } from "@rbxts/rust-classes";
 import { t } from "@rbxts/t";
 import { CommandInteraction } from "./core/interaction";
 
-export type CommandGuard = (
-	runNext: () => void,
-	interaction: CommandInteraction,
-) => void;
+export type CommandGuard = (interaction: CommandInteraction) => boolean;
 
 export interface CommanderOptions {
 	groups?: GroupOptions[];

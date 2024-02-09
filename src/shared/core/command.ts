@@ -134,7 +134,23 @@ export class ExecutableCommand extends BaseCommand {
 	}
 
 	execute(interaction: CommandInteraction, args: string[]) {
-		return this.getCommandCallback(interaction, args)();
+		for (const guard of this.guards) {
+			if (!guard(interaction)) return;
+		}
+
+		if (interaction.isReplyReceived()) return;
+
+		const transformedArgs = this.transformArgs(args);
+		if (transformedArgs.isErr()) {
+			interaction.error(transformedArgs.unwrapErr());
+			return;
+		}
+
+		return this.func(
+			this.commandClass,
+			interaction,
+			...transformedArgs.unwrap(),
+		);
 	}
 
 	transformArgs(args: string[]): Result<unknown[], string> {
@@ -181,36 +197,6 @@ export class ExecutableCommand extends BaseCommand {
 
 	toString() {
 		return `ExecutableCommand{path=${this.path}}`;
-	}
-
-	protected getCommandCallback(
-		interaction: CommandInteraction,
-		args: string[],
-	) {
-		const guardCount = this.guards.size();
-		let nextIndex = 0;
-		const runNext = () => {
-			if (nextIndex < guardCount) {
-				this.guards[nextIndex++](runNext, interaction);
-				return;
-			}
-
-			if (interaction.isReplyReceived()) return;
-
-			const transformedArgs = this.transformArgs(args);
-			if (transformedArgs.isErr()) {
-				interaction.error(transformedArgs.unwrapErr());
-				return;
-			}
-
-			return this.func(
-				this.commandClass,
-				interaction,
-				...transformedArgs.unwrap(),
-			);
-		};
-
-		return runNext;
 	}
 }
 

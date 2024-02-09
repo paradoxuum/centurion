@@ -4,7 +4,6 @@ import { CommandPath } from "./path";
 import { BaseRegistry } from "./registry";
 
 const DEFAULT_REPLY_TEXT = "Command executed.";
-const ERROR_TEXT = "An error occurred.";
 
 export abstract class BaseDispatcher {
 	constructor(private readonly registry: BaseRegistry) {}
@@ -25,7 +24,10 @@ export abstract class BaseDispatcher {
 		const args = splitStringBySpace(text);
 
 		command.execute(interaction, args);
-		if (!interaction.isReplyReceived()) interaction.reply(DEFAULT_REPLY_TEXT);
+		if (!interaction.isReplyReceived()) {
+			interaction.reply(DEFAULT_REPLY_TEXT);
+		}
+
 		return interaction;
 	}
 }
