@@ -24,7 +24,6 @@ export class CommandInteraction {
 	 */
 	getData(): CommandInteractionData {
 		return {
-			path: this.path,
 			executor: this.executor,
 			text: this.text,
 			reply: this.replyData,

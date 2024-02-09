@@ -27,7 +27,6 @@ export class ServerDispatcher extends BaseDispatcher {
 			} catch (err) {
 				this.handleError(player, text, err);
 				interactionData = {
-					path: commandPath,
 					executor: player,
 					text,
 					reply: {

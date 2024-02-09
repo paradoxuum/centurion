@@ -1,7 +1,6 @@
 import { Result } from "@rbxts/rust-classes";
 import { t } from "@rbxts/t";
 import { CommandInteraction } from "./core/interaction";
-import { CommandPath } from "./core/path";
 
 export type CommandGuard = (
 	runNext: () => void,
@@ -54,7 +53,6 @@ export interface CommandReply {
 }
 
 export interface CommandInteractionData {
-	path: CommandPath;
 	executor: Player;
 	text: string;
 	reply?: CommandReply;
