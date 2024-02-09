@@ -15,7 +15,7 @@ export function getArgumentSuggestion(
 
 	const args = command.options.arguments;
 	if (args === undefined || args.isEmpty()) return;
-	if (index < 0 || index > args.size()) return;
+	if (index < 0 || index >= args.size()) return;
 
 	const arg = args[index];
 	const typeObject = CommanderClient.registry().getType(arg.type);
