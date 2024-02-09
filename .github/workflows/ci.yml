@@ -11,19 +11,8 @@ jobs:
             - name: Checkout
               uses: actions/checkout@v3
 
-            - name: Install pnpm
-              uses: pnpm/action-setup@v2
-              with:
-                  version: 8
-
-            - name: Install Node.js
-              uses: actions/setup-node@v3
-              with:
-                  node-version: 18
-                  cache: pnpm
-
-            - name: Install dependencies
-              run: pnpm install
+            - name: Install npm dependencies
+              uses: bahmutov/npm-install@v1
 
             - name: Setup Aftman
               uses: ok-nick/setup-aftman@v0.4.2
@@ -31,7 +20,7 @@ jobs:
                   token: ${{ secrets.GITHUB_TOKEN }}
 
             - name: Run Biome
-              run: pnpm biome ci .
+              run: npm exec biome ci .
 
             - name: Compile
-              run: pnpm compile --verbose
+              run: npm run compile --verbose
