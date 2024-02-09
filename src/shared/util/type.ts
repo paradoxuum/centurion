@@ -2,6 +2,9 @@ import { Result } from "@rbxts/rust-classes";
 import { t } from "@rbxts/t";
 import { TransformationResult, TypeOptions } from "../types";
 
+type TransformFn<T extends defined> = TypeOptions<T>["transform"];
+type SuggestionFn<T extends defined> = TypeOptions<T>["suggestions"];
+
 export namespace TransformResult {
 	/**
 	 * Produces a successful `Result`, indicating that a transformation was successful.
@@ -25,8 +28,8 @@ export namespace TransformResult {
 export class TypeBuilder<T extends defined> {
 	private expensive = false;
 	private validationFn?: t.check<T>;
-	private transformFn?: (text: string) => TransformationResult<T>;
-	private suggestionFn?: (text: string) => string[];
+	private transformFn?: TransformFn<T>;
+	private suggestionFn?: SuggestionFn<T>;
 
 	private constructor(private readonly name: string) {}
 
@@ -77,10 +80,7 @@ export class TypeBuilder<T extends defined> {
 	 * @param expensive - Whether the function is expensive to compute
 	 * @returns The type builder
 	 */
-	transform(
-		transformFn: (text: string) => TransformationResult<T>,
-		expensive = false,
-	) {
+	transform(transformFn: TransformFn<T>, expensive = false) {
 		this.transformFn = transformFn;
 		this.expensive = expensive;
 		return this;
@@ -94,7 +94,7 @@ export class TypeBuilder<T extends defined> {
 	 * @param suggestionFn - The suggestion function for this type
 	 * @returns The type builder
 	 */
-	suggestions(suggestionFn: () => string[]) {
+	suggestions(suggestionFn: SuggestionFn<T>) {
 		this.suggestionFn = suggestionFn;
 		return this;
 	}

@@ -15,8 +15,8 @@ export interface TypeOptions<T extends defined> {
 	name: string;
 	expensive: boolean;
 	validate: t.check<T>;
-	transform: (text: string) => TransformationResult<T>;
-	suggestions?: (text: string) => string[];
+	transform: (text: string, executor: Player) => TransformationResult<T>;
+	suggestions?: (text: string, executor: Player) => string[];
 }
 
 export interface ArgumentOptions {

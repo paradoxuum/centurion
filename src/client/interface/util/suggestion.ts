@@ -1,3 +1,4 @@
+import { Players } from "@rbxts/services";
 import { CommandPath } from "../../../shared";
 import { ArrayUtil } from "../../../shared/util/data";
 import { CommanderClient } from "../../core";
@@ -23,7 +24,7 @@ export function getArgumentSuggestion(
 
 	let typeSuggestions =
 		typeObject.suggestions !== undefined
-			? typeObject.suggestions(text ?? "")
+			? typeObject.suggestions(text ?? "", Players.LocalPlayer)
 			: [];
 	if (!typeSuggestions.isEmpty()) {
 		typeSuggestions = ArrayUtil.slice(
@@ -38,7 +39,11 @@ export function getArgumentSuggestion(
 	let errorText: string | undefined;
 	try {
 		if (!typeObject.expensive) {
-			const transformResult = typeObject.transform(text ?? "");
+			const transformResult = typeObject.transform(
+				text ?? "",
+				Players.LocalPlayer,
+			);
+
 			if (transformResult.isErr()) {
 				errorText = transformResult.unwrapErr();
 			}

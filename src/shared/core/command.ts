@@ -140,7 +140,7 @@ export class ExecutableCommand extends BaseCommand {
 
 		if (interaction.isReplyReceived()) return;
 
-		const transformedArgs = this.transformArgs(args);
+		const transformedArgs = this.transformArgs(args, interaction);
 		if (transformedArgs.isErr()) {
 			interaction.error(transformedArgs.unwrapErr());
 			return;
@@ -153,7 +153,10 @@ export class ExecutableCommand extends BaseCommand {
 		);
 	}
 
-	transformArgs(args: string[]): Result<unknown[], string> {
+	transformArgs(
+		args: string[],
+		interaction: CommandInteraction,
+	): Result<unknown[], string> {
 		const argOptions = this.options.arguments;
 		if (argOptions === undefined || argOptions.isEmpty()) {
 			return Result.ok([]);
@@ -173,26 +176,15 @@ export class ExecutableCommand extends BaseCommand {
 				return Result.err(`Missing required argument: <b>${argData.name}</b>`);
 			}
 
-			const transformedArg = argType.transform(args[startIndex + i]);
+			const transformedArg = argType.transform(
+				args[startIndex + i],
+				interaction.executor,
+			);
 			if (transformedArg.isErr()) return Result.err(transformedArg.unwrapErr());
 			transformedArgs[i] = transformedArg.unwrap();
 		}
 
 		return Result.ok(transformedArgs);
-	}
-
-	transformArg(index: number, text: string): Result<defined, string> {
-		if (index < 0 && index >= this.argTypes.size()) {
-			throw "Argument index out of bounds";
-		}
-
-		const argType = this.argTypes[index];
-
-		try {
-			return Result.ok(argType.transform(text));
-		} catch (err) {
-			return Result.err(tostring(err));
-		}
 	}
 
 	toString() {
