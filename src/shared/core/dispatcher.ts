@@ -15,7 +15,7 @@ export abstract class BaseDispatcher {
 		text: string,
 	) {
 		const command = this.registry.getCommand(path);
-		const interaction = new CommandInteraction(executor, text);
+		const interaction = new CommandInteraction(path, executor, text);
 
 		if (command === undefined) {
 			interaction.error("Command not found.");
