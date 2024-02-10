@@ -2,6 +2,7 @@ import { CommandOptions, CommandPath, GroupOptions } from "../shared";
 import { Options } from "../shared/options";
 
 export interface ClientOptions extends Options {
+	hideOnLostFocus: boolean;
 	historyLength: number;
 	activationKeys: Enum.KeyCode[];
 	app?: (data: AppContext) => void;

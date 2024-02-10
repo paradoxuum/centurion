@@ -1,6 +1,6 @@
 import { useEventListener } from "@rbxts/pretty-react-hooks";
 import { useSelector } from "@rbxts/react-reflex";
-import Roact, { useContext, useMemo } from "@rbxts/roact";
+import Roact, { useContext, useMemo, useState } from "@rbxts/roact";
 import { GuiService, UserInputService } from "@rbxts/services";
 import { useRem } from "../../hooks/useRem";
 import { useStore } from "../../hooks/useStore";
@@ -17,13 +17,26 @@ export default function Terminal() {
 
 	const visible = useSelector(selectVisible);
 
+	const [isMouseOnGUI, setIsMouseOnGUI] = useState(false);
+
 	const validKeys = useMemo(() => {
 		return new Set(data.options.activationKeys);
 	}, [data]);
 
+	const mouseInputTypes = useMemo(() => {
+		return new Set<Enum.UserInputType>([
+			Enum.UserInputType.MouseButton1,
+			Enum.UserInputType.MouseButton2,
+			Enum.UserInputType.Touch,
+		])
+	}, [])
+
 	useEventListener(UserInputService.InputBegan, (input, gameProcessed) => {
-		if (gameProcessed || !validKeys.has(input.KeyCode)) return;
-		store.setVisible(!visible);
+		if (validKeys.has(input.KeyCode) && !gameProcessed) {
+			store.setVisible(!visible);
+		} else if (data.options.hideOnLostFocus && mouseInputTypes.has(input.UserInputType) && !isMouseOnGUI) {
+			store.setVisible(false)
+		}
 	});
 
 	return (
@@ -33,6 +46,10 @@ export default function Terminal() {
 			size={new UDim2(1, -rem(4), 0, rem(32))}
 			position={new UDim2(0.5, 0, 0, rem(2) + GuiService.GetGuiInset()[0].Y)}
 			visible={visible}
+			event={{
+				MouseEnter: () => setIsMouseOnGUI(true),
+				MouseLeave: () => setIsMouseOnGUI(false),
+			}}
 		>
 			<TerminalWindow key="window" />
 			<SuggestionList key="suggestions" position={new UDim2(0, 0, 0, rem(6))} />
