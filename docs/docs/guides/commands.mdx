@@ -200,26 +200,29 @@ class InfoCommand {
 
 ## Command guards
 
+:::note
+
+If a reply is sent in a guard (through `reply` or `error`), the command will not be executed.
+
+:::
+
 A command guard is simply a function that can be used to determine if a command should be executed.
 You can use the `@Guard` decorator to assign guards to a command.
 
-A guard function is passed two parameters - `runNext` and `interaction`
+A guard function is passed the same `CommandInteraction` that will be passed to the command. You can use this to access
+data such as the command path or executor and you can send a reply using its `reply` and `error` methods.
 
-The `runNext` parameter is a function that, when called, will execute the next guard or the command, if
-it is the last guard.
-
-The `interaction` parameter is a `CommandInteraction`. You can reply to the executor using its `reply` or `error` methods,
-and you can retrieve the executor through its `executor` field.
+A guard function should also return a `boolean` - `true` if the command should be executed, `false` if not.
 
 
 ```ts showLineNumbers
-const isAdmin: CommandGuard = (runNext, interaction) => {
+const isAdmin: CommandGuard = (interaction) => {
     if (interaction.executor.UserId !== 1) {
         interaction.error("Insufficient permission!");
-        return;
+        return false;
     }
 
-    runNext();
+    return true;
 };
 
 @Commander()

@@ -27,7 +27,11 @@ import { t } from "@rbxts/t";
 
 const playerType = TypeBuilder.create<Player>("player")
 	.validate(t.instanceOf("Player"))
-	.transform((text) => {
+	.transform((text, executor) => {
+		if (text === "@me") {
+			return TransformResult.ok(executor);
+		}
+
 		const player = Players.FindFirstChild(text);
 		if (player === undefined || !classIs(player, "Player")) {
 			return TransformResult.err("Player not found");

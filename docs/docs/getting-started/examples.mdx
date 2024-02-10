@@ -14,13 +14,13 @@ A command guard is a function that can determine if a command should be executed
 ```ts showLineNumbers
 import { Command, CommandGuard, CommandInteraction, Commander, CommanderType, Guard } from "@rbxts/commander";
 
-const isAdmin: CommandGuard = (runNext, interaction) => {
+const isAdmin: CommandGuard = (interaction) => {
     if (interaction.executor.UserId !== 1) {
         interaction.error("Insufficient permission!");
-        return;
+        return false;
     }
 
-    runNext();
+    return true;
 };
 
 @Commander()
