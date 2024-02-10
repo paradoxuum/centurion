@@ -4,8 +4,9 @@
 	"description": "A flexible command framework built for roblox-ts",
 	"main": "out/init.lua",
 	"scripts": {
+		"prepare": "npm run compile",
 		"compile": "rm -rf out && rbxtsc --verbose",
-		"postcompile": "rm -rf out/**/*.test.* && > out/client/interface/app/config.lua",
+		"postcompile": "rm -rf out/**/*.test.* && truncate -s 0 out/client/interface/app/config.lua",
 		"watch": "rbxtsc -w --type=game -p test -i test/include",
 		"serve": "rojo serve test"
 	},
