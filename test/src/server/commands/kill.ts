@@ -9,23 +9,29 @@ import {
 class KillCommand {
 	@Command({
 		name: "kill",
-		description: "Kills a player",
+		description: "Kill players",
 		arguments: [
 			{
-				name: "player",
-				description: "Player to kill",
-				type: CommanderType.Player,
+				name: "players",
+				description: "Players to kill",
+				type: CommanderType.Players,
 			},
 		],
 	})
-	kill(interaction: CommandInteraction, player: Player) {
+	kill(interaction: CommandInteraction, players: Player[]) {
+		for (const player of players) {
+			this.killPlayer(player);
+		}
+
+		interaction.reply(`Successfully killed ${players.size()} player(s)`);
+	}
+
+	private killPlayer(player: Player) {
 		const humanoid = player.Character?.FindFirstChildOfClass("Humanoid");
 		if (humanoid === undefined) {
-			interaction.error(`${player.Name} does not have a Humanoid`);
 			return;
 		}
 
 		humanoid.Health = 0;
-		interaction.reply(`Successfully killed ${player.Name}`);
 	}
 }
