@@ -4,5 +4,4 @@ import { ClientOptions } from "./types";
 export const DEFAULT_CLIENT_OPTIONS: ClientOptions = {
 	...DEFAULT_OPTIONS,
 	historyLength: 1000,
-	activationKeys: [Enum.KeyCode.F2],
 };

@@ -1,32 +1,37 @@
 import "./config";
 
+import { useEventListener } from "@rbxts/pretty-react-hooks";
+import { useSelector } from "@rbxts/react-reflex";
 import { createPortal, createRoot } from "@rbxts/react-roblox";
-import Roact, { StrictMode, useMemo } from "@rbxts/roact";
-import { Players } from "@rbxts/services";
+import Roact, { StrictMode, useContext, useMemo } from "@rbxts/roact";
+import { Players, UserInputService } from "@rbxts/services";
 import { InterfaceContext } from "../../types";
 import { Layer } from "../components/interface/Layer";
 import Terminal from "../components/terminal/Terminal";
 import { DEFAULT_INTERFACE_OPTIONS } from "../constants/options";
+import { OptionsContext } from "../providers/optionsProvider";
 import { RootProvider } from "../providers/rootProvider";
+import { store } from "../store";
+import { selectVisible } from "../store/app";
 import { InterfaceOptions } from "../types";
 
-interface TerminalAppProps {
-	context: InterfaceContext;
-	options: Partial<InterfaceOptions>;
-}
+function TerminalApp() {
+	const options = useContext(OptionsContext);
+	const visible = useSelector(selectVisible);
 
-function TerminalApp({ context, options = {} }: TerminalAppProps) {
-	const optionsValue = useMemo(
-		() => ({ ...DEFAULT_INTERFACE_OPTIONS, ...options }),
-		[options],
-	);
+	const validKeys = useMemo(() => {
+		return new Set(options.activationKeys);
+	}, [options]);
+
+	useEventListener(UserInputService.InputBegan, (input, gameProcessed) => {
+		if (gameProcessed || !validKeys.has(input.KeyCode)) return;
+		store.setVisible(!visible);
+	});
 
 	return (
-		<RootProvider key="root-provider" context={context} options={optionsValue}>
-			<Layer key="terminal" displayOrder={optionsValue.displayOrder}>
-				<Terminal key="terminal-layer" />
-			</Layer>
-		</RootProvider>
+		<Layer key="terminal" displayOrder={options.displayOrder} visible={visible}>
+			<Terminal key="terminal-layer" />
+		</Layer>
 	);
 }
 
@@ -39,7 +44,13 @@ export const CommanderInterface =
 		root.render(
 			createPortal(
 				<StrictMode>
-					<TerminalApp key="terminal" context={context} options={options} />
+					<RootProvider
+						key="root-provider"
+						context={context}
+						options={{ ...DEFAULT_INTERFACE_OPTIONS, ...options }}
+					>
+						<TerminalApp key="terminal" />
+					</RootProvider>
 				</StrictMode>,
 				target,
 			),

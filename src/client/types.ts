@@ -3,7 +3,6 @@ import { Options } from "../shared/options";
 
 export interface ClientOptions extends Options {
 	historyLength: number;
-	activationKeys: Enum.KeyCode[];
 	interface?: (data: InterfaceContext) => void;
 }
 
