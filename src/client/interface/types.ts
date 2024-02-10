@@ -1,6 +1,6 @@
 import { HistoryEntry } from "../types";
 
-export interface AppOptions {
+export interface InterfaceOptions {
 	anchorPoint?: Vector2;
 	size?: UDim2;
 	position?: UDim2;

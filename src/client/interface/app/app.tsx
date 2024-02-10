@@ -3,25 +3,24 @@ import "./config";
 import { createPortal, createRoot } from "@rbxts/react-roblox";
 import Roact, { StrictMode, useMemo } from "@rbxts/roact";
 import { Players } from "@rbxts/services";
-import { AppContext } from "../../types";
+import { InterfaceContext } from "../../types";
 import { Layer } from "../components/interface/Layer";
 import Terminal from "../components/terminal/Terminal";
-import { DEFAULT_APP_OPTIONS } from "../constants/options";
+import { DEFAULT_INTERFACE_OPTIONS } from "../constants/options";
 import { RootProvider } from "../providers/rootProvider";
-import { AppOptions } from "../types";
+import { InterfaceOptions } from "../types";
 
 interface TerminalAppProps {
-	context: AppContext;
-	options: Partial<AppOptions>;
+	context: InterfaceContext;
+	options: Partial<InterfaceOptions>;
 }
 
 function TerminalApp({ context, options = {} }: TerminalAppProps) {
 	const optionsValue = useMemo(
-		() => ({ ...DEFAULT_APP_OPTIONS, ...options }),
+		() => ({ ...DEFAULT_INTERFACE_OPTIONS, ...options }),
 		[options],
 	);
 
-	print(optionsValue);
 	return (
 		<RootProvider key="root-provider" context={context} options={optionsValue}>
 			<Layer key="terminal" displayOrder={optionsValue.displayOrder}>
@@ -31,9 +30,9 @@ function TerminalApp({ context, options = {} }: TerminalAppProps) {
 	);
 }
 
-export const CommanderApp =
-	(options: Partial<AppOptions> = {}) =>
-	(context: AppContext) => {
+export const CommanderInterface =
+	(options: Partial<InterfaceOptions> = {}) =>
+	(context: InterfaceContext) => {
 		const root = createRoot(new Instance("Folder"));
 		const target = Players.LocalPlayer.WaitForChild("PlayerGui");
 

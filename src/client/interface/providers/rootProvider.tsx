@@ -1,15 +1,15 @@
 import { ReflexProvider } from "@rbxts/react-reflex";
 import Roact from "@rbxts/roact";
-import { AppContext } from "../../types";
+import { InterfaceContext } from "../../types";
 import { store } from "../store";
-import { AppOptions } from "../types";
+import { InterfaceOptions } from "../types";
 import { CommanderProvider } from "./commanderProvider";
 import { OptionsProvider } from "./optionsProvider";
 import { RemProvider, RemProviderProps } from "./remProvider";
 
 interface RootProviderProps extends RemProviderProps {
-	context: AppContext;
-	options: AppOptions;
+	context: InterfaceContext;
+	options: InterfaceOptions;
 }
 
 export function RootProvider({

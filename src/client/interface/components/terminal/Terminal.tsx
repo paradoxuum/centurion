@@ -28,8 +28,6 @@ export default function Terminal() {
 		store.setVisible(!visible);
 	});
 
-	print(options);
-
 	return (
 		<Group
 			key="terminal"

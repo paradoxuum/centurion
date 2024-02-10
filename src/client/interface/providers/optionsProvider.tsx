@@ -1,11 +1,13 @@
 import Roact, { createContext } from "@rbxts/roact";
-import { DEFAULT_APP_OPTIONS } from "../constants/options";
-import { AppOptions } from "../types";
+import { DEFAULT_INTERFACE_OPTIONS } from "../constants/options";
+import { InterfaceOptions } from "../types";
 
-export const OptionsContext = createContext<AppOptions>(DEFAULT_APP_OPTIONS);
+export const OptionsContext = createContext<InterfaceOptions>(
+	DEFAULT_INTERFACE_OPTIONS,
+);
 
 export interface OptionsProviderProps extends Roact.PropsWithChildren {
-	value: AppOptions;
+	value: InterfaceOptions;
 }
 
 export function OptionsProvider({ value, children }: OptionsProviderProps) {

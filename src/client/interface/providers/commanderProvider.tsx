@@ -2,7 +2,7 @@ import { useEventListener } from "@rbxts/pretty-react-hooks";
 import Roact, { createContext, useState } from "@rbxts/roact";
 import { CommandOptions, CommandPath, GroupOptions } from "../../../shared";
 import { DEFAULT_CLIENT_OPTIONS } from "../../options";
-import { AppContext, ClientOptions, HistoryEntry } from "../../types";
+import { ClientOptions, HistoryEntry, InterfaceContext } from "../../types";
 
 export interface CommanderContextData {
 	options: ClientOptions;
@@ -29,7 +29,7 @@ export const DEFAULT_COMMANDER_CONTEXT: CommanderContextData = {
 };
 
 export interface CommanderProviderProps extends Roact.PropsWithChildren {
-	value: AppContext;
+	value: InterfaceContext;
 }
 
 export const CommanderContext = createContext<CommanderContextData>(
