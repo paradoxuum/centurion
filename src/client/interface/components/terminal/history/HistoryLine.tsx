@@ -8,6 +8,7 @@ import { Frame } from "../../interface/Frame";
 import { Group } from "../../interface/Group";
 import { Outline } from "../../interface/Outline";
 import { Text } from "../../interface/Text";
+import { TextField } from "../../interface/TextField";
 
 interface HistoryLineProps {
 	data: HistoryEntry;
@@ -53,7 +54,7 @@ export function HistoryLine({ data, size, position, order }: HistoryLineProps) {
 				/>
 			</Frame>
 
-			<Text
+			<TextField
 				key="entry-text"
 				anchorPoint={new Vector2(1, 0)}
 				size={new UDim2(1, -rem(6.5), 1, 0)}
@@ -61,9 +62,11 @@ export function HistoryLine({ data, size, position, order }: HistoryLineProps) {
 				text={data.text}
 				textSize={rem(1.5)}
 				textColor={data.success ? palette.text : palette.red}
+				textEditable={false}
 				textXAlignment="Left"
+				clearTextOnFocus={false}
 				font={fonts.inter.medium}
-				richText={true}
+				richText
 			/>
 		</Group>
 	);

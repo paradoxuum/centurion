@@ -4,12 +4,6 @@ import { BindingOrValue } from "@rbxts/pretty-react-hooks";
 import { DEFAULT_FONT } from "../../constants/fonts";
 import { TextProps } from "./Text";
 
-const GRADIENT = new NumberSequence([
-	new NumberSequenceKeypoint(0, 0),
-	new NumberSequenceKeypoint(0.75, 0),
-	new NumberSequenceKeypoint(1, 1),
-]);
-
 interface TextFieldProps extends TextProps<TextBox> {
 	text?: BindingOrValue<string>;
 	placeholderText?: BindingOrValue<string>;
@@ -40,6 +34,7 @@ export const TextField = forwardRef(
 				TextXAlignment={props.textXAlignment}
 				TextYAlignment={props.textYAlignment}
 				TextScaled={props.textScaled}
+				RichText={props.richText}
 				AutomaticSize={props.textAutoResize}
 				Size={props.size}
 				Position={props.position}
