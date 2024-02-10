@@ -5,6 +5,7 @@ export interface InterfaceOptions {
 	size?: UDim2;
 	position?: UDim2;
 	displayOrder?: number;
+	hideOnLostFocus: boolean;
 	activationKeys: Enum.KeyCode[];
 }
 

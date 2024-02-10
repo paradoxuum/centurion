@@ -14,6 +14,7 @@ import { useMotion } from "../../hooks/useMotion";
 import { useRem } from "../../hooks/useRem";
 import { useStore } from "../../hooks/useStore";
 import { CommanderContext } from "../../providers/commanderProvider";
+import { OptionsContext } from "../../providers/optionsProvider";
 import { HistoryLineData, Suggestion } from "../../types";
 import {
 	getArgumentSuggestion,
@@ -41,6 +42,7 @@ export function TerminalWindow() {
 	const rem = useRem();
 	const store = useStore();
 	const data = useContext(CommanderContext);
+	const options = useContext(OptionsContext);
 
 	const [historyData, setHistoryData] = useState<HistoryData>({
 		lines: [],
@@ -124,6 +126,10 @@ export function TerminalWindow() {
 			size={windowHeightBinding}
 			backgroundColor={palette.crust}
 			cornerRadius={new UDim(0, rem(0.5))}
+			event={{
+				MouseEnter: () => options.setMouseOnGUI(true),
+				MouseLeave: () => options.setMouseOnGUI(false),
+			}}
 		>
 			<Padding key="padding" all={new UDim(0, rem(0.5))} />
 

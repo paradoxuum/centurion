@@ -23,9 +23,24 @@ function TerminalApp() {
 		return new Set(options.activationKeys);
 	}, [options]);
 
+	const mouseInputTypes = useMemo(() => {
+		return new Set<Enum.UserInputType>([
+			Enum.UserInputType.MouseButton1,
+			Enum.UserInputType.MouseButton2,
+			Enum.UserInputType.Touch,
+		]);
+	}, []);
+
 	useEventListener(UserInputService.InputBegan, (input, gameProcessed) => {
-		if (gameProcessed || !validKeys.has(input.KeyCode)) return;
-		store.setVisible(!visible);
+		if (validKeys.has(input.KeyCode) && !gameProcessed) {
+			store.setVisible(!visible);
+		} else if (
+			options.hideOnLostFocus &&
+			mouseInputTypes.has(input.UserInputType) &&
+			!options.isMouseOnGUI
+		) {
+			store.setVisible(false);
+		}
 	});
 
 	return (

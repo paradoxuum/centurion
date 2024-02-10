@@ -1,11 +1,17 @@
 import { useSelector } from "@rbxts/react-reflex";
-import Roact, { useBinding, useEffect, useMemo } from "@rbxts/roact";
+import Roact, {
+	useBinding,
+	useContext,
+	useEffect,
+	useMemo,
+} from "@rbxts/roact";
 import { TextService } from "@rbxts/services";
 import { DEFAULT_FONT } from "../../../constants/fonts";
 import { palette } from "../../../constants/palette";
 import { springs } from "../../../constants/springs";
 import { useMotion } from "../../../hooks/useMotion";
 import { useRem } from "../../../hooks/useRem";
+import { OptionsContext } from "../../../providers/optionsProvider";
 import { selectCurrentSuggestion } from "../../../store/suggestion";
 import { selectText } from "../../../store/text";
 import { Frame } from "../../interface/Frame";
@@ -22,6 +28,7 @@ export interface SuggestionListProps {
 
 export function SuggestionList({ position }: SuggestionListProps) {
 	const rem = useRem();
+	const options = useContext(OptionsContext);
 
 	const terminalText = useSelector(selectText);
 	const currentTextPart = useMemo(() => {
@@ -147,7 +154,14 @@ export function SuggestionList({ position }: SuggestionListProps) {
 				sizes={sizes}
 			/>
 
-			<Group key="other" size={otherSuggestionSize}>
+			<Group
+				key="other"
+				size={otherSuggestionSize}
+				event={{
+					MouseEnter: () => options.setMouseOnGUI(true),
+					MouseLeave: () => options.setMouseOnGUI(false),
+				}}
+			>
 				<uilistlayout
 					key="layout"
 					SortOrder="LayoutOrder"
