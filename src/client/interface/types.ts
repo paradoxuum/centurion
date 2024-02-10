@@ -1,5 +1,14 @@
 import { HistoryEntry } from "../types";
 
+export interface InterfaceOptions {
+	anchorPoint?: Vector2;
+	size?: UDim2;
+	position?: UDim2;
+	displayOrder?: number;
+	hideOnLostFocus: boolean;
+	activationKeys: Enum.KeyCode[];
+}
+
 export interface HistoryLineData {
 	entry: HistoryEntry;
 	height: number;

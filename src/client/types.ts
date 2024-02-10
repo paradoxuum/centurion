@@ -2,10 +2,14 @@ import { CommandOptions, CommandPath, GroupOptions } from "../shared";
 import { Options } from "../shared/options";
 
 export interface ClientOptions extends Options {
-	hideOnLostFocus: boolean;
 	historyLength: number;
-	activationKeys: Enum.KeyCode[];
-	app?: (data: AppContext) => void;
+	interface?: (data: InterfaceContext) => void;
+}
+
+export interface HistoryEntry {
+	text: string;
+	success: boolean;
+	sentAt: number;
 }
 
 export interface CommanderEvents {
@@ -22,20 +26,14 @@ export type CommanderEventCallbacks = {
 		: never;
 };
 
-export type AppContext = {
+export type InterfaceContext = {
 	options: ClientOptions;
-	execute: (path: CommandPath, text: string) => Promise<HistoryEntry>;
-	addHistoryEntry: (entry: HistoryEntry) => void;
 	initialData: {
 		commands: Map<string, CommandOptions>;
 		groups: Map<string, GroupOptions>;
 		history: HistoryEntry[];
 	};
 	events: CommanderEventCallbacks;
+	execute: (path: CommandPath, text: string) => Promise<HistoryEntry>;
+	addHistoryEntry: (entry: HistoryEntry) => void;
 };
-
-export interface HistoryEntry {
-	text: string;
-	success: boolean;
-	sentAt: number;
-}

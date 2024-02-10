@@ -59,6 +59,13 @@ Commander needs to be started **once** on the client and server.
 <Tabs>
 
 <TabItem value="client" label="Client" default>
+:::warning
+
+When using React in development mode (`_G.__DEV__` set to true), you **must** set
+`_G.__DEV__` to true **before importing** Commander.
+
+:::
+
 To start Commander on the client, you'll need to provide some extra options if you want to use
 its user interface.
 
@@ -68,9 +75,18 @@ CommanderClient.start(
         // Register commands or types here
     },
     {
-        // The app that will be used to display the Commander UI
-        // Commander comes with a default app, but you can create your own
-        app: CommanderApp,
+        // The interface that will be used to interact with Commander
+        // Commander comes with a default interface, but you can create your own
+        interface: CommanderInterface(),
+
+        // You can also customize the interface by providing options
+        interface: CommanderInterface({
+            position: new UDim2(),
+            size: new UDim2(),
+            ...
+        })
+
+        // The options below are optional
 
         // The default key is F2, but you can change it here
         activationKeys: [Enum.KeyCode.F2],
@@ -79,7 +95,7 @@ CommanderClient.start(
         historyLength: 1000,
 
         // If you don't want to register built-in types, you can change this option
-        // This is set to true by default.
+        // This is set to true by default
         registerBuiltInTypes: true,
     },
 ).catch((err) => warn("Commander could not be started:", tostring(err)));

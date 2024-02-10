@@ -43,8 +43,8 @@ export namespace CommanderClient {
 		await registryInstance.sync();
 		started = true;
 
-		if (options.app !== undefined) {
-			options.app({
+		if (options.interface !== undefined) {
+			options.interface({
 				options: optionsObject,
 				execute: (path, text) => dispatcherInstance.run(path, text),
 				addHistoryEntry: (entry) => dispatcherInstance.addHistoryEntry(entry),

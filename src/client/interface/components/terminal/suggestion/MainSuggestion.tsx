@@ -1,9 +1,10 @@
 import { BindingOrValue } from "@rbxts/pretty-react-hooks";
-import Roact, { Binding } from "@rbxts/roact";
+import Roact, { Binding, useContext } from "@rbxts/roact";
 import { fonts } from "../../../constants/fonts";
 import { palette } from "../../../constants/palette";
 import { useMotion } from "../../../hooks/useMotion";
 import { useRem } from "../../../hooks/useRem";
+import { OptionsContext } from "../../../providers/optionsProvider";
 import { ArgumentSuggestion, Suggestion } from "../../../types";
 import { Frame } from "../../interface/Frame";
 import { Padding } from "../../interface/Padding";
@@ -28,6 +29,8 @@ export function MainSuggestion({
 	argument,
 }: MainSuggestionProps) {
 	const rem = useRem();
+	const options = useContext(OptionsContext);
+
 	const [badgeWidth, badgeWidthMotion] = useMotion(0);
 
 	return (
@@ -36,6 +39,10 @@ export function MainSuggestion({
 			backgroundColor={palette.crust}
 			cornerRadius={new UDim(0, rem(0.5))}
 			clipsDescendants={true}
+			event={{
+				MouseEnter: () => options.setMouseOnGUI(true),
+				MouseLeave: () => options.setMouseOnGUI(false),
+			}}
 		>
 			<Padding key="padding" all={new UDim(0, rem(1))} />
 
