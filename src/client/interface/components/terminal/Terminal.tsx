@@ -28,14 +28,18 @@ export default function Terminal() {
 			Enum.UserInputType.MouseButton1,
 			Enum.UserInputType.MouseButton2,
 			Enum.UserInputType.Touch,
-		])
-	}, [])
+		]);
+	}, []);
 
 	useEventListener(UserInputService.InputBegan, (input, gameProcessed) => {
 		if (validKeys.has(input.KeyCode) && !gameProcessed) {
 			store.setVisible(!visible);
-		} else if (data.options.hideOnLostFocus && mouseInputTypes.has(input.UserInputType) && !isMouseOnGUI) {
-			store.setVisible(false)
+		} else if (
+			data.options.hideOnLostFocus &&
+			mouseInputTypes.has(input.UserInputType) &&
+			!isMouseOnGUI
+		) {
+			store.setVisible(false);
 		}
 	});
 
