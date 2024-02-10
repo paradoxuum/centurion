@@ -59,6 +59,13 @@ Commander needs to be started **once** on the client and server.
 <Tabs>
 
 <TabItem value="client" label="Client" default>
+:::warning
+
+When using React in development mode (`_G.__DEV__` set to true), you **must** set
+`_G.__DEV__` to true **before importing** Commander.
+
+:::
+
 To start Commander on the client, you'll need to provide some extra options if you want to use
 its user interface.
 
