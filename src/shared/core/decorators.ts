@@ -19,10 +19,13 @@ export function Commander(options?: CommanderOptions): ClassDecorator {
 	};
 }
 
-export function Command(options: CommandOptions): MethodDecorator {
+export function Command(options?: Partial<CommandOptions>): MethodDecorator {
 	return (target, key) => {
 		const commandData: CommandMetadata = {
-			options,
+			options: {
+				name: key,
+				...options,
+			},
 			func: target[key],
 		};
 		MetadataReflect.defineMetadata(
