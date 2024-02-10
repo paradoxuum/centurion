@@ -1,5 +1,12 @@
 import { HistoryEntry } from "../types";
 
+export interface AppOptions {
+	anchorPoint?: Vector2;
+	size?: UDim2;
+	position?: UDim2;
+	displayOrder?: number;
+}
+
 export interface HistoryLineData {
 	entry: HistoryEntry;
 	height: number;

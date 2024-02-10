@@ -5,6 +5,7 @@ import { GuiService, UserInputService } from "@rbxts/services";
 import { useRem } from "../../hooks/useRem";
 import { useStore } from "../../hooks/useStore";
 import { CommanderContext } from "../../providers/commanderProvider";
+import { OptionsContext } from "../../providers/optionsProvider";
 import { selectVisible } from "../../store/app";
 import { Group } from "../interface/Group";
 import { TerminalWindow } from "./TerminalWindow";
@@ -13,6 +14,7 @@ import { SuggestionList } from "./suggestion";
 export default function Terminal() {
 	const rem = useRem();
 	const data = useContext(CommanderContext);
+	const options = useContext(OptionsContext);
 	const store = useStore();
 
 	const visible = useSelector(selectVisible);
@@ -26,12 +28,17 @@ export default function Terminal() {
 		store.setVisible(!visible);
 	});
 
+	print(options);
+
 	return (
 		<Group
 			key="terminal"
-			anchorPoint={new Vector2(0.5)}
-			size={new UDim2(1, -rem(4), 0, rem(32))}
-			position={new UDim2(0.5, 0, 0, rem(2) + GuiService.GetGuiInset()[0].Y)}
+			anchorPoint={options.anchorPoint ?? new Vector2(0.5)}
+			size={options.size ?? new UDim2(1, -rem(4), 0, rem(32))}
+			position={
+				options.position ??
+				new UDim2(0.5, 0, 0, rem(2) + GuiService.GetGuiInset()[0].Y)
+			}
 			visible={visible}
 		>
 			<TerminalWindow key="window" />

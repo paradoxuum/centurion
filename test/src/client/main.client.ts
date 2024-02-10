@@ -7,7 +7,7 @@ CommanderClient.start(
 		registry.register(commandContainer);
 	},
 	{
-		app: CommanderApp,
+		app: CommanderApp(),
 	},
 ).catch((err) => {
 	warn(`An error occurred and Commander could not be started: ${err}`);
