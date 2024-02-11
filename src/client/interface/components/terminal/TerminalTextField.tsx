@@ -200,7 +200,13 @@ export function TerminalTextField({
 			newText = newText.sub(0, newText.size() - parts[parts.size() - 1].size());
 		}
 
-		newText += currentSuggestion.others[0];
+		let suggestion = currentSuggestion.others[0];
+
+		if (string.match(suggestion, "%s")[0] !== undefined) {
+			suggestion = `"${suggestion}"`;
+		}
+
+		newText += suggestion;
 		if (argIndex < commandArgs.size() - 1) {
 			newText += " ";
 		}
