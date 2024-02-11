@@ -1,6 +1,6 @@
 {
 	"name": "@rbxts/commander",
-	"version": "0.2.0",
+	"version": "0.2.1",
 	"description": "A flexible command framework built for roblox-ts",
 	"main": "out/init.lua",
 	"scripts": {
