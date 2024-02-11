@@ -41,9 +41,9 @@ export class ServerCommand extends BaseCommand {
 		return new ServerCommand(registry, path, options);
 	}
 
-	execute(interaction: CommandInteraction, args: string[]) {
+	execute(interaction: CommandInteraction, text: string) {
 		const [success, data] = pcall(() =>
-			Remotes.Execute.InvokeServer(this.path.toString(), args.join(" ")),
+			Remotes.Execute.InvokeServer(this.path.toString(), text),
 		);
 
 		if (!success) {
