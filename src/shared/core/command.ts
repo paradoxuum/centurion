@@ -8,6 +8,7 @@ import {
 } from "../types";
 import { ObjectUtil, ReadonlyDeepObject } from "../util/data";
 import { MetadataReflect } from "../util/reflect";
+import { splitStringBySpace } from "../util/string";
 import { MetadataKey } from "./decorators";
 import { CommandInteraction } from "./interaction";
 import { ImmutableCommandPath } from "./path";
@@ -86,7 +87,7 @@ export abstract class BaseCommand {
 		}
 	}
 
-	abstract execute(interaction: CommandInteraction, args: string[]): unknown;
+	abstract execute(interaction: CommandInteraction, text: string): unknown;
 
 	getPath() {
 		return this.path;
@@ -133,14 +134,14 @@ export class ExecutableCommand extends BaseCommand {
 		);
 	}
 
-	execute(interaction: CommandInteraction, args: string[]) {
+	execute(interaction: CommandInteraction, text: string) {
 		for (const guard of this.guards) {
 			if (!guard(interaction)) return;
 		}
 
 		if (interaction.isReplyReceived()) return;
 
-		const transformedArgs = this.transformArgs(args, interaction);
+		const transformedArgs = this.transformArgs(text, interaction);
 		if (transformedArgs.isErr()) {
 			interaction.error(transformedArgs.unwrapErr());
 			return;
@@ -154,9 +155,11 @@ export class ExecutableCommand extends BaseCommand {
 	}
 
 	transformArgs(
-		args: string[],
+		text: string,
 		interaction: CommandInteraction,
 	): Result<unknown[], string> {
+		const args = splitStringBySpace(text);
+
 		const argOptions = this.options.arguments;
 		if (argOptions === undefined || argOptions.isEmpty()) {
 			return Result.ok([]);

@@ -21,9 +21,7 @@ export abstract class BaseDispatcher {
 			return interaction;
 		}
 
-		const args = splitStringBySpace(text);
-
-		command.execute(interaction, args);
+		command.execute(interaction, text);
 		if (!interaction.isReplyReceived()) {
 			interaction.reply(DEFAULT_REPLY_TEXT);
 		}
