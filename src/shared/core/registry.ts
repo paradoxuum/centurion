@@ -124,6 +124,19 @@ export abstract class BaseRegistry {
 	}
 
 	/**
+	 * Gets all registered commands.
+	 *
+	 * @returns An array of all registered commands
+	 */
+	getCommands() {
+		const commands: BaseCommand[] = [];
+		for (const [_, v] of this.commands) {
+			commands.push(v);
+		}
+		return commands;
+	}
+
+	/**
 	 * Gets a registered {@link GroupOptions} from a given {@link CommandPath}.
 	 *
 	 * @param path The path of the group
@@ -144,18 +157,38 @@ export abstract class BaseRegistry {
 	}
 
 	/**
-	 * Gets all paths that are children of the given {@link CommandPath},
-	 * or gets every root path if no {@link CommandPath} is given.
+	 * Gets all registered groups.
 	 *
-	 * A root path is a path which contains only one part.
-	 *
-	 * @param path The path to get the children of, or `undefined` to list all root paths
-	 * @returns The paths that are children of the given path, or all paths
+	 * @returns An array of all registered groups
 	 */
-	getChildPaths(path?: CommandPath) {
-		return (
-			this.cachedPaths.get(path?.toString() ?? BaseRegistry.ROOT_KEY) ?? []
-		);
+	getGroups() {
+		const groups: CommandGroup[] = [];
+		for (const path of this.getPaths()) {
+			const group = this.getGroup(path);
+			if (group !== undefined) {
+				groups.push(group);
+			}
+		}
+		return groups;
+	}
+
+	/**
+	 * Gets all command paths.
+	 *
+	 * @returns An array of all command paths
+	 */
+	getPaths() {
+		return this.cachedPaths.get(BaseRegistry.ROOT_KEY) ?? [];
+	}
+
+	/**
+	 * Gets all paths that are children of the given {@link CommandPath}.
+	 *
+	 * @param path The path to get the children of
+	 * @returns The paths that are children of the given path
+	 */
+	getChildPaths(path: CommandPath) {
+		return this.cachedPaths.get(path.toString()) ?? [];
 	}
 
 	protected cachePath(path: CommandPath) {

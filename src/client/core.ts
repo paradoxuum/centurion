@@ -1,4 +1,6 @@
 import { RunService } from "@rbxts/services";
+import { CommandOptions, GroupOptions } from "../shared";
+import { ObjectUtil } from "../shared/util/data";
 import { ClientDispatcher } from "./dispatcher";
 import { DEFAULT_CLIENT_OPTIONS } from "./options";
 import { ClientRegistry } from "./registry";
@@ -44,13 +46,30 @@ export namespace CommanderClient {
 		started = true;
 
 		if (options.interface !== undefined) {
+			const commands = new Map<string, CommandOptions>();
+			const groups = new Map<string, GroupOptions>();
+
+			for (const command of registryInstance.getCommands()) {
+				commands.set(
+					command.getPath().toString(),
+					ObjectUtil.copyDeep(command.options) as CommandOptions,
+				);
+			}
+
+			for (const group of registryInstance.getGroups()) {
+				groups.set(
+					group.getPath().toString(),
+					ObjectUtil.copyDeep(group.options) as GroupOptions,
+				);
+			}
+
 			options.interface({
 				options: optionsObject,
 				execute: (path, text) => dispatcherInstance.run(path, text),
 				addHistoryEntry: (entry) => dispatcherInstance.addHistoryEntry(entry),
 				initialData: {
-					commands: registryInstance.getCommandOptions(),
-					groups: registryInstance.getGroupOptions(),
+					commands,
+					groups,
 					history: dispatcherInstance.getHistory(),
 				},
 				events: {

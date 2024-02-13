@@ -1,10 +1,5 @@
 import { Players } from "@rbxts/services";
-import {
-	ArgumentOptions,
-	CommandOptions,
-	CommandPath,
-	GroupOptions,
-} from "../shared";
+import { ArgumentOptions, CommandOptions, CommandPath } from "../shared";
 import { CommandData, CommandGroup } from "../shared/core/command";
 import { BaseRegistry } from "../shared/core/registry";
 import { Remotes, SyncData } from "../shared/network";
@@ -98,24 +93,7 @@ export class ServerRegistry extends BaseRegistry {
 
 		return {
 			commands: syncedCommands,
-			groups: this.getGroups(rootGroups),
+			groups: this.getGroups().map((group) => group.options),
 		};
-	}
-
-	private getGroups(commandGroups: CommandGroup[]) {
-		const groups: GroupOptions[] = [];
-
-		for (const group of commandGroups) {
-			groups.push(group.options);
-
-			const childGroups = group.getGroups();
-			if (childGroups.size() > 0) {
-				for (const childGroup of this.getGroups(childGroups)) {
-					groups.push(childGroup);
-				}
-			}
-		}
-
-		return groups;
 	}
 }

@@ -68,32 +68,6 @@ export class ClientRegistry extends BaseRegistry {
 			});
 	}
 
-	/**
-	 * Creates and returns a copy of the registry's command map.
-	 *
-	 * @returns A command map
-	 */
-	getCommandOptions() {
-		const commandMap = new Map<string, CommandOptions>();
-		for (const [k, v] of this.commands) {
-			commandMap.set(k, ObjectUtil.copyDeep(v.options as CommandOptions));
-		}
-		return commandMap;
-	}
-
-	/**
-	 * Creates and returns a copy of the registry's group map.
-	 *
-	 * @returns A group map
-	 */
-	getGroupOptions() {
-		const groupMap = new Map<string, GroupOptions>();
-		for (const [k, v] of this.groups) {
-			groupMap.set(k, ObjectUtil.copyDeep(v.options as GroupOptions));
-		}
-		return groupMap;
-	}
-
 	protected updateCommandMap(key: string, command: BaseCommand): void {
 		super.updateCommandMap(key, command);
 		this.events.commandAdded.Fire(

@@ -69,14 +69,17 @@ export function getCommandSuggestion(
 	parentPath?: CommandPath,
 	text?: string,
 ): Suggestion | undefined {
-	const childPaths = CommanderClient.registry().getChildPaths(parentPath);
-	if (childPaths.isEmpty()) return;
+	const paths =
+		parentPath !== undefined
+			? CommanderClient.registry().getChildPaths(parentPath)
+			: CommanderClient.registry().getPaths();
+	if (paths.isEmpty()) return;
 
-	const pathNames = childPaths.map((path) => path.getTail());
+	const pathNames = paths.map((path) => path.getTail());
 	const indices = getSortedIndices(pathNames, text);
 	if (indices.isEmpty()) return;
 
-	const firstPath = childPaths[indices[0]];
+	const firstPath = paths[indices[0]];
 	const mainData =
 		CommanderClient.registry().getCommand(firstPath)?.options ??
 		CommanderClient.registry().getGroup(firstPath)?.options;
