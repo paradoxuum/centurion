@@ -1,53 +1,21 @@
 import { Result } from "@rbxts/rust-classes";
 import {
 	CommandGuard,
-	CommandMetadata,
 	CommandOptions,
 	GroupOptions,
 	TypeOptions,
 } from "../types";
 import { ObjectUtil, ReadonlyDeepObject } from "../util/data";
-import { MetadataReflect } from "../util/reflect";
 import { splitStringBySpace } from "../util/string";
-import { MetadataKey } from "./decorators";
 import { CommandInteraction } from "./interaction";
 import { ImmutableCommandPath } from "./path";
 import { BaseRegistry } from "./registry";
 
-export class CommandData {
-	private constructor(
-		readonly commandClass: defined,
-		readonly metadata: Readonly<CommandMetadata>,
-		readonly group: ReadonlyArray<string>,
-		readonly guards: ReadonlyArray<CommandGuard>,
-	) {}
-
-	static fromHolder(commandHolder: object, commandName: string) {
-		const commandClass = new (commandHolder as new () => defined)();
-
-		const metadata = MetadataReflect.getOwnMetadata<CommandMetadata>(
-			commandHolder,
-			MetadataKey.Command,
-			commandName,
-		);
-		assert(
-			metadata !== undefined,
-			`Command metadata not found: ${commandHolder}/${commandName}`,
-		);
-
-		const group = MetadataReflect.getOwnMetadata<string[]>(
-			commandHolder,
-			MetadataKey.Group,
-			commandName,
-		);
-		const guards = MetadataReflect.getOwnMetadata<CommandGuard[]>(
-			commandHolder,
-			MetadataKey.Guard,
-			commandName,
-		);
-
-		return new CommandData(commandClass, metadata, group ?? [], guards ?? []);
-	}
+export interface RegistrationData {
+	class: defined;
+	callback: (...args: unknown[]) => unknown;
+	options: CommandOptions;
+	guards: CommandGuard[];
 }
 
 export abstract class BaseCommand {
@@ -100,7 +68,7 @@ export abstract class BaseCommand {
 
 export class ExecutableCommand extends BaseCommand {
 	private readonly commandClass: defined;
-	private readonly func: (...args: unknown[]) => unknown;
+	private readonly callback: (...args: unknown[]) => unknown;
 	private readonly guards: ReadonlyArray<CommandGuard>;
 
 	constructor(
@@ -108,30 +76,13 @@ export class ExecutableCommand extends BaseCommand {
 		path: ImmutableCommandPath,
 		commandClass: defined,
 		options: CommandOptions,
-		func: (...args: unknown[]) => unknown,
+		callback: (...args: unknown[]) => unknown,
 		guards: CommandGuard[],
 	) {
 		super(registry, path, options);
 		this.commandClass = commandClass;
-		this.func = func;
+		this.callback = callback;
 		this.guards = table.freeze(guards);
-	}
-
-	static create(
-		registry: BaseRegistry,
-		path: ImmutableCommandPath,
-		commandClass: defined,
-		data: CommandMetadata,
-		guards?: CommandGuard[],
-	) {
-		return new ExecutableCommand(
-			registry,
-			path,
-			commandClass,
-			data.options,
-			data.func,
-			guards ?? [],
-		);
 	}
 
 	execute(interaction: CommandInteraction, text: string) {
@@ -147,7 +98,7 @@ export class ExecutableCommand extends BaseCommand {
 			return;
 		}
 
-		return this.func(
+		return this.callback(
 			this.commandClass,
 			interaction,
 			...transformedArgs.unwrap(),

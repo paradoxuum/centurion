@@ -7,7 +7,7 @@ import {
 import { MetadataReflect } from "../util/reflect";
 
 export enum MetadataKey {
-	CommandHolder = "holder",
+	CommandClass = "class",
 	Command = "command",
 	Group = "group",
 	Guard = "guard",
@@ -15,7 +15,7 @@ export enum MetadataKey {
 
 export function Commander(options?: CommanderOptions): ClassDecorator {
 	return (target) => {
-		MetadataReflect.defineMetadata(target, MetadataKey.CommandHolder, options);
+		MetadataReflect.defineMetadata(target, MetadataKey.CommandClass, options);
 	};
 }
 

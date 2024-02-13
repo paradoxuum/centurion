@@ -1,11 +1,17 @@
 import { Options } from "../options";
-import { CommanderOptions, GroupOptions, TypeOptions } from "../types";
+import {
+	CommandGuard,
+	CommandMetadata,
+	CommanderOptions,
+	GroupOptions,
+	TypeOptions,
+} from "../types";
 import { MetadataReflect } from "../util/reflect";
 import {
 	BaseCommand,
-	CommandData,
 	CommandGroup,
 	ExecutableCommand,
+	RegistrationData,
 } from "./command";
 import { MetadataKey } from "./decorators";
 import { CommandPath, ImmutableCommandPath } from "./path";
@@ -73,13 +79,13 @@ export abstract class BaseRegistry {
 	 * If the command has already been registered, it will be skipped.
 	 */
 	registerCommands() {
-		for (const [commandHolder] of MetadataReflect.metadata) {
-			if (this.registeredObjects.has(commandHolder)) {
+		for (const [commandClass] of MetadataReflect.metadata) {
+			if (this.registeredObjects.has(commandClass)) {
 				continue;
 			}
 
-			this.registeredObjects.add(commandHolder);
-			this.registerCommandHolder(commandHolder);
+			this.registeredObjects.add(commandClass);
+			this.registerCommandClass(commandClass);
 		}
 	}
 
@@ -227,20 +233,21 @@ export abstract class BaseRegistry {
 		return value;
 	}
 
-	protected registerCommand(commandData: CommandData, group?: CommandGroup) {
-		const options = commandData.metadata.options;
+	protected registerCommand(data: RegistrationData, group?: CommandGroup) {
+		const options = data.options;
 		const path =
 			group !== undefined
 				? group.getPath().append(options.name)
 				: new ImmutableCommandPath([options.name]);
 
 		this.validatePath(path.toString(), true);
-		const command = ExecutableCommand.create(
+		const command = new ExecutableCommand(
 			this,
 			ImmutableCommandPath.fromPath(path),
-			commandData.commandClass,
-			commandData.metadata,
-			[...commandData.guards],
+			data.class,
+			data.options,
+			data.callback,
+			[...data.guards],
 		);
 
 		this.updateCommandMap(path.toString(), command);
@@ -253,36 +260,67 @@ export abstract class BaseRegistry {
 		return command;
 	}
 
-	private registerCommandHolder(commandHolder: object) {
-		const holderOptions = MetadataReflect.getOwnMetadata<CommanderOptions>(
-			commandHolder,
-			MetadataKey.CommandHolder,
+	private registerCommandClass(commandClass: object) {
+		const classOptions = MetadataReflect.getOwnMetadata<CommanderOptions>(
+			commandClass,
+			MetadataKey.CommandClass,
 		);
-		const globalGroups = holderOptions?.globalGroups ?? [];
-		if (holderOptions?.groups !== undefined) {
-			this.registerGroups(holderOptions.groups);
+		const globalGroups = classOptions?.globalGroups ?? [];
+
+		// Register command groups
+		if (classOptions?.groups !== undefined) {
+			this.registerGroups(classOptions.groups);
 		}
 
-		for (const command of MetadataReflect.getOwnProperties(commandHolder)) {
-			const data = CommandData.fromHolder(commandHolder, command);
+		for (const name of MetadataReflect.getOwnProperties(commandClass)) {
+			// Get decorator data
+			const metadata = MetadataReflect.getOwnMetadata<CommandMetadata>(
+				commandClass,
+				MetadataKey.Command,
+				name,
+			);
+			assert(
+				metadata !== undefined,
+				`Command metadata not found: ${commandClass}/${name}`,
+			);
+
+			const group = MetadataReflect.getOwnMetadata<string[]>(
+				commandClass,
+				MetadataKey.Guard,
+				name,
+			);
+
+			const guards = MetadataReflect.getOwnMetadata<CommandGuard[]>(
+				commandClass,
+				MetadataKey.Guard,
+				name,
+			);
 
 			// Get registered command group
 			let commandGroup: CommandGroup | undefined;
-			if (data.group.size() > 0) {
-				const groupPath = new CommandPath([...globalGroups, ...data.group]);
+			if (group !== undefined && !group.isEmpty()) {
+				const groupPath = new CommandPath([...globalGroups, ...group]);
 
 				if (groupPath.getSize() > 2) {
-					throw `Invalid group for command '${command}': a command can only have 2 groups, found ${groupPath.getSize()}`;
+					throw `Invalid group for command '${name}': a command can only have 2 groups, found ${groupPath.getSize()}`;
 				}
 
 				commandGroup = this.getGroup(groupPath);
 				assert(
 					commandGroup !== undefined,
-					`The group '${groupPath}' assigned to command '${command}' is invalid`,
+					`The group '${groupPath}' assigned to command '${name}' is invalid`,
 				);
 			}
 
-			this.registerCommand(data, commandGroup);
+			this.registerCommand(
+				{
+					class: commandClass,
+					callback: metadata.func,
+					options: metadata.options,
+					guards: guards ?? [],
+				},
+				commandGroup,
+			);
 		}
 	}
 

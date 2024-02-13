@@ -1,6 +1,6 @@
 import { Players } from "@rbxts/services";
 import { ArgumentOptions, CommandOptions, CommandPath } from "../shared";
-import { CommandData, CommandGroup } from "../shared/core/command";
+import { CommandGroup, RegistrationData } from "../shared/core/command";
 import { BaseRegistry } from "../shared/core/registry";
 import { Remotes, SyncData } from "../shared/network";
 import { ServerOptions } from "./types";
@@ -35,10 +35,10 @@ export class ServerRegistry extends BaseRegistry {
 	}
 
 	protected registerCommand(
-		commandData: CommandData,
+		data: RegistrationData,
 		group?: CommandGroup | undefined,
 	) {
-		const command = super.registerCommand(commandData, group);
+		const command = super.registerCommand(data, group);
 
 		const path = command.getPath();
 		for (const player of Players.GetPlayers()) {
