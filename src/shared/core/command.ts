@@ -82,7 +82,7 @@ export class ExecutableCommand extends BaseCommand {
 		super(registry, path, options);
 		this.commandClass = commandClass;
 		this.callback = callback;
-		this.guards = table.freeze(guards);
+		this.guards = table.freeze([...registry.getGuards(), ...guards]);
 	}
 
 	execute(interaction: CommandInteraction, text: string) {

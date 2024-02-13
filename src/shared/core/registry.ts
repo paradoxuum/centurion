@@ -25,6 +25,7 @@ export abstract class BaseRegistry {
 	protected static readonly ROOT_KEY = "__root__";
 	protected readonly commands = new Map<string, BaseCommand>();
 	protected readonly groups = new Map<string, CommandGroup>();
+	protected readonly guards: CommandGuard[] = [];
 	protected readonly types = new Map<string, TypeOptions<defined>>();
 	protected readonly registeredObjects = new Set<object>();
 	protected cachedPaths = new Map<string, CommandPath[]>();
@@ -110,6 +111,15 @@ export abstract class BaseRegistry {
 	}
 
 	/**
+	 * Register a list of guards. These will be used on all commands.
+	 *
+	 * @param guards The guards to register
+	 */
+	registerGuards(...guards: CommandGuard[]) {
+		this.guards.push(...guards);
+	}
+
+	/**
 	 * Gets a registered type.
 	 *
 	 * @param name The name of the type
@@ -176,6 +186,15 @@ export abstract class BaseRegistry {
 			}
 		}
 		return groups;
+	}
+
+	/**
+	 * Gets all registered guards.
+	 *
+	 * @returns An array of all registered guards
+	 */
+	getGuards() {
+		return [...this.guards];
 	}
 
 	/**
