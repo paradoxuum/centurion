@@ -116,7 +116,9 @@ export abstract class BaseRegistry {
 	 * @param guards The guards to register
 	 */
 	registerGuards(...guards: CommandGuard[]) {
-		this.guards.push(...guards);
+		for (const guard of guards) {
+			this.guards.push(guard);
+		}
 	}
 
 	/**
