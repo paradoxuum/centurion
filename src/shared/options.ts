@@ -1,7 +1,7 @@
-export interface Options {
+export interface SharedOptions {
 	registerBuiltInTypes: boolean;
 }
 
-export const DEFAULT_OPTIONS: Options = {
+export const DEFAULT_SHARED_OPTIONS: SharedOptions = {
 	registerBuiltInTypes: true,
 };

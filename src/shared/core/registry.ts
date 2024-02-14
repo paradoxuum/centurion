@@ -1,4 +1,4 @@
-import { Options } from "../options";
+import { SharedOptions } from "../options";
 import {
 	CommandGuard,
 	CommandMetadata,
@@ -30,7 +30,7 @@ export abstract class BaseRegistry {
 	protected readonly registeredObjects = new Set<object>();
 	protected cachedPaths = new Map<string, Path[]>();
 
-	init(options: Options) {
+	init(options: SharedOptions) {
 		if (options.registerBuiltInTypes) {
 			const builtInTypes =
 				script.Parent?.Parent?.FindFirstChild("builtin")?.FindFirstChild(

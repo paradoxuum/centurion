@@ -1,7 +1,7 @@
 import { CommandOptions, GroupOptions, Path } from "../shared";
-import { Options } from "../shared/options";
+import { SharedOptions } from "../shared/options";
 
-export interface ClientOptions extends Options {
+export interface ClientOptions extends SharedOptions {
 	historyLength: number;
 	interface?: (data: InterfaceContext) => void;
 }

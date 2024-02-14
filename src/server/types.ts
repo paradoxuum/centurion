@@ -1,6 +1,6 @@
 import { Path } from "../shared";
-import { Options } from "../shared/options";
+import { SharedOptions } from "../shared/options";
 
-export interface ServerOptions extends Options {
+export interface ServerOptions extends SharedOptions {
 	commandFilter?: (command: Path, player: Player) => boolean;
 }
