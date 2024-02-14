@@ -256,12 +256,11 @@ export abstract class BaseRegistry {
 
 	protected registerCommand(data: RegistrationData, group?: CommandGroup) {
 		const options = data.options;
-		const path =
-			group !== undefined
-				? group.getPath().append(options.name)
-				: new ImmutableCommandPath([options.name]);
 
-		this.validatePath(path.toString(), true);
+		const parentPath =
+			group !== undefined ? group.getPath() : new ImmutableCommandPath([]);
+		const path = parentPath.append(options.name);
+
 		const command = new ExecutableCommand(
 			this,
 			ImmutableCommandPath.fromPath(path),
@@ -271,13 +270,18 @@ export abstract class BaseRegistry {
 			[...data.guards],
 		);
 
-		this.updateCommandMap(path.toString(), command);
+		const aliases = options.aliases ?? [];
+		const paths = [path, ...aliases.map((a) => parentPath.append(a))];
+		for (const path of paths) {
+			this.validatePath(path.toString(), true);
+			this.cachePath(path);
+			this.updateCommandMap(path.toString(), command);
+		}
 
 		if (group !== undefined) {
 			group.addCommand(command);
 		}
 
-		this.cachePath(path);
 		return command;
 	}
 
@@ -307,7 +311,7 @@ export abstract class BaseRegistry {
 
 			const group = MetadataReflect.getOwnMetadata<string[]>(
 				commandClass,
-				MetadataKey.Guard,
+				MetadataKey.Group,
 				name,
 			);
 

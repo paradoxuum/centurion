@@ -28,6 +28,7 @@ export interface ArgumentOptions {
 
 export interface CommandOptions {
 	name: string;
+	aliases?: string[];
 	description?: string;
 	arguments?: ArgumentOptions[];
 }

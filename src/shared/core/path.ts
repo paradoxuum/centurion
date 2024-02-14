@@ -68,34 +68,20 @@ export class CommandPath {
 	}
 
 	/**
-	 * Gets the path of the category the command is in.
+	 * Gets the parent path of this path.
 	 *
-	 * This returns `undefined` if the path represents a root command's path.
+	 * If the path is a command, this returns an empty path.
 	 *
-	 * @returns The command category's path
+	 * @returns The parent path
 	 */
-	getCategoryPath() {
+	getParent() {
 		if (this.isCommand()) {
-			return;
+			return new CommandPath([]);
 		}
 
-		return this.parts[this.parts.size() - 2];
-	}
-
-	/**
-	 * Returns the subcommand path of this path if the path has
-	 * more than one part.
-	 *
-	 * This simply drops the command parent's name.
-	 *
-	 * @returns The subcommand path, or undefined if the path has 1 part
-	 */
-	getSubcommandPath() {
-		if (this.isCommand()) return;
-
-		const parts = [...this.parts];
-		parts.remove(0);
-		return new CommandPath(parts);
+		return new CommandPath(
+			ArrayUtil.slice(this.parts, 0, this.parts.size() - 1),
+		);
 	}
 
 	/**
@@ -250,6 +236,14 @@ export class ImmutableCommandPath extends CommandPath {
 
 	static empty() {
 		return new ImmutableCommandPath([]);
+	}
+
+	getParent() {
+		if (this.isCommand()) {
+			return new ImmutableCommandPath([]);
+		}
+
+		return this.slice(0, this.parts.size() - 1);
 	}
 
 	slice(from: number, to?: number) {
