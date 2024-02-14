@@ -1,9 +1,9 @@
 import { ArrayUtil } from "../util/data";
 
 /**
- * A representation of a command or command group's path
+ * A representation of a command or group's path
  */
-export class CommandPath {
+export class Path {
 	private pathString: string;
 
 	constructor(protected readonly parts: string[]) {
@@ -11,15 +11,15 @@ export class CommandPath {
 	}
 
 	static fromString(path: string) {
-		return new CommandPath(path.split("/"));
+		return new Path(path.split("/"));
 	}
 
 	static empty() {
-		return new CommandPath([]);
+		return new Path([]);
 	}
 
 	/**
-	 * Returns a copy of the {@link CommandPath}'s parts
+	 * Returns a copy of the {@link Path}'s parts
 	 */
 	getParts() {
 		return [...this.parts];
@@ -76,12 +76,10 @@ export class CommandPath {
 	 */
 	getParent() {
 		if (this.isCommand()) {
-			return new CommandPath([]);
+			return new Path([]);
 		}
 
-		return new CommandPath(
-			ArrayUtil.slice(this.parts, 0, this.parts.size() - 1),
-		);
+		return new Path(ArrayUtil.slice(this.parts, 0, this.parts.size() - 1));
 	}
 
 	/**
@@ -100,7 +98,7 @@ export class CommandPath {
 	 * @param other Path to test against
 	 * @returns True if this path is the child of the given path, false if not
 	 */
-	isChildOf(other: CommandPath) {
+	isChildOf(other: Path) {
 		const otherSize = other.getSize();
 		if (otherSize !== this.parts.size() - 1) {
 			return false;
@@ -121,7 +119,7 @@ export class CommandPath {
 	 * @param other Path to test against
 	 * @returns True if this path is the descendant of the given path, false if not
 	 */
-	isDescendantOf(other: CommandPath) {
+	isDescendantOf(other: Path) {
 		const otherSize = other.getSize();
 		if (this.parts.size() < otherSize) {
 			return false;
@@ -137,25 +135,25 @@ export class CommandPath {
 	}
 
 	/**
-	 * Returns a new {@link CommandPath} from a slice of this path.
+	 * Returns a new {@link Path} from a slice of this path.
 	 *
 	 * @param from The start index
 	 * @param to The end index
 	 * @returns A new path containing a slice of this path
 	 */
 	slice(from: number, to?: number) {
-		return new CommandPath(
+		return new Path(
 			ArrayUtil.slice(this.parts, from, to !== undefined ? to + 1 : undefined),
 		);
 	}
 
 	/**
-	 * Determines if this path equals the given {@link CommandPath}.
+	 * Determines if this path equals the given {@link Path}.
 	 *
 	 * @param other The path to compare against
 	 * @returns True if the paths are equal, false if not
 	 */
-	equals(other: CommandPath) {
+	equals(other: Path) {
 		return ArrayUtil.equals(this.parts, other.parts);
 	}
 
@@ -169,7 +167,7 @@ export class CommandPath {
 	}
 
 	/**
-	 * Adds the given parts to the command path.
+	 * Adds the given parts to the path.
 	 *
 	 * @param parts The parts to append
 	 */
@@ -214,75 +212,75 @@ export class CommandPath {
 }
 
 /**
- * An immutable version of a {@link CommandPath}.
+ * An immutable version of a {@link Path}.
  *
  * Operations that would mutate the path such as `append` or `remove` now
- * return a new {@link ImmutableCommandPath} with the changes made.
+ * return a new {@link ImmutablePath} with the changes made.
  */
-export class ImmutableCommandPath extends CommandPath {
+export class ImmutablePath extends Path {
 	/**
-	 * Returns a new {@link ImmutableCommandPath} from a given {@link CommandPath}.
+	 * Returns a new {@link ImmutablePath} from a given {@link Path}.
 	 *
-	 * @param path The {@link CommandPath}
-	 * @returns A new {@link ImmutableCommandPath}
+	 * @param path The {@link Path}
+	 * @returns A new {@link ImmutablePath}
 	 */
-	static fromPath(path: CommandPath) {
-		return new ImmutableCommandPath(path.getParts());
+	static fromPath(path: Path) {
+		return new ImmutablePath(path.getParts());
 	}
 
 	static fromString(path: string) {
-		return new ImmutableCommandPath(path.split("/"));
+		return new ImmutablePath(path.split("/"));
 	}
 
 	static empty() {
-		return new ImmutableCommandPath([]);
+		return new ImmutablePath([]);
 	}
 
 	getParent() {
 		if (this.isCommand()) {
-			return new ImmutableCommandPath([]);
+			return new ImmutablePath([]);
 		}
 
 		return this.slice(0, this.parts.size() - 1);
 	}
 
 	slice(from: number, to?: number) {
-		return new ImmutableCommandPath(
+		return new ImmutablePath(
 			ArrayUtil.slice(this.parts, from, to !== undefined ? to + 1 : undefined),
 		);
 	}
 
 	/**
-	 * Returns a new {@link ImmutableCommandPath} with the given parts appended.
+	 * Returns a new {@link ImmutablePath} with the given parts appended.
 	 *
 	 * @param parts The parts to append
-	 * @returns A new {@link ImmutableCommandPath} with the given parts appended
+	 * @returns A new {@link ImmutablePath} with the given parts appended
 	 */
 	append(...parts: string[]) {
-		return new ImmutableCommandPath([...this.parts, ...parts]);
+		return new ImmutablePath([...this.parts, ...parts]);
 	}
 
 	/**
-	 * Returns a new {@link ImmutableCommandPath} with the part at the given index
+	 * Returns a new {@link ImmutablePath} with the part at the given index
 	 * removed.
 	 *
 	 * @param index The index of the part to remove
-	 * @returns A command path with the part removed
+	 * @returns A path with the part removed
 	 */
 	remove(index: number) {
 		assert(index > -1 && index < this.parts.size(), "Index out of bounds");
 
 		const parts = [...this.parts];
 		parts.remove(index);
-		return new ImmutableCommandPath(parts);
+		return new ImmutablePath(parts);
 	}
 
 	/**
-	 * Creates a new empty {@link ImmutableCommandPath}.
+	 * Creates a new empty {@link ImmutablePath}.
 	 *
-	 * @returns An empty command path
+	 * @returns An empty path
 	 */
 	clear() {
-		return new ImmutableCommandPath([]);
+		return new ImmutablePath([]);
 	}
 }

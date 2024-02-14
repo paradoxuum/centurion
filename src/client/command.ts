@@ -3,7 +3,7 @@ import {
 	CommandInteraction,
 	CommandMetadata,
 	CommandOptions,
-	ImmutableCommandPath,
+	ImmutablePath,
 } from "../shared";
 import { BaseCommand, ExecutableCommand } from "../shared/core/command";
 import { BaseRegistry } from "../shared/core/registry";
@@ -12,7 +12,7 @@ import { Remotes } from "../shared/network";
 export class SharedCommand extends ExecutableCommand {
 	static create(
 		registry: BaseRegistry,
-		path: ImmutableCommandPath,
+		path: ImmutablePath,
 		commandClass: defined,
 		data: CommandMetadata,
 		guards?: CommandGuard[] | undefined,
@@ -35,7 +35,7 @@ export class SharedCommand extends ExecutableCommand {
 export class ServerCommand extends BaseCommand {
 	static create(
 		registry: BaseRegistry,
-		path: ImmutableCommandPath,
+		path: ImmutablePath,
 		options: CommandOptions,
 	) {
 		return new ServerCommand(registry, path, options);

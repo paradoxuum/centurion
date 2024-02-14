@@ -1,5 +1,5 @@
 import { Players } from "@rbxts/services";
-import { BaseRegistry, CommandPath } from "../shared";
+import { BaseRegistry, Path } from "../shared";
 import { BaseDispatcher } from "../shared/core/dispatcher";
 import { DEFAULT_CLIENT_OPTIONS } from "./options";
 import { ClientOptions, CommanderEvents, HistoryEntry } from "./types";
@@ -31,7 +31,7 @@ export class ClientDispatcher extends BaseDispatcher {
 	 * @param text The text input used to execute the command
 	 * @returns A {@link HistoryEntry} containing the command's response
 	 */
-	async run(path: CommandPath, text = "") {
+	async run(path: Path, text = "") {
 		const [success, interaction] = this.executeCommand(
 			path,
 			Players.LocalPlayer,

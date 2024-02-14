@@ -1,7 +1,7 @@
 import { useLatestCallback } from "@rbxts/pretty-react-hooks";
 import Roact, { useContext, useEffect, useMemo, useState } from "@rbxts/roact";
 import { TextService } from "@rbxts/services";
-import { CommandOptions, ImmutableCommandPath } from "../../../../shared";
+import { CommandOptions, ImmutablePath } from "../../../../shared";
 import { ArrayUtil } from "../../../../shared/util/data";
 import {
 	endsWithSpace,
@@ -35,7 +35,7 @@ function getParentPath(parts: string[], atNextPart: boolean) {
 	if (!atNextPart) {
 		result.pop();
 	}
-	return new ImmutableCommandPath(result);
+	return new ImmutablePath(result);
 }
 
 export function TerminalWindow() {
@@ -64,7 +64,7 @@ export function TerminalWindow() {
 	}, [rem]);
 
 	const checkMissingArgs = useLatestCallback(
-		(path: ImmutableCommandPath, command: CommandOptions) => {
+		(path: ImmutablePath, command: CommandOptions) => {
 			if (command.arguments === undefined || command.arguments.isEmpty()) {
 				return undefined;
 			}
@@ -194,7 +194,7 @@ export function TerminalWindow() {
 									atCommand = true;
 
 									// Since the command has possibly changed, we also need to update the path
-									parentPath = ImmutableCommandPath.fromString(pathSlice);
+									parentPath = ImmutablePath.fromString(pathSlice);
 									store.setCommand(parentPath);
 									break;
 								}
@@ -203,7 +203,7 @@ export function TerminalWindow() {
 					} else {
 						parentPath = getParentPath(parts, atNextPart);
 						if (atCommand) {
-							store.setCommand(new ImmutableCommandPath([...parts]));
+							store.setCommand(new ImmutablePath([...parts]));
 						}
 					}
 

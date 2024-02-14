@@ -1,12 +1,12 @@
 import { useEventListener } from "@rbxts/pretty-react-hooks";
 import Roact, { createContext, useState } from "@rbxts/roact";
-import { CommandOptions, CommandPath, GroupOptions } from "../../../shared";
+import { CommandOptions, GroupOptions, Path } from "../../../shared";
 import { DEFAULT_CLIENT_OPTIONS } from "../../options";
 import { ClientOptions, HistoryEntry, InterfaceContext } from "../../types";
 
 export interface CommanderContextData {
 	options: ClientOptions;
-	execute: (path: CommandPath, text: string) => Promise<HistoryEntry>;
+	execute: (path: Path, text: string) => Promise<HistoryEntry>;
 	commands: Map<string, CommandOptions>;
 	groups: Map<string, GroupOptions>;
 	history: HistoryEntry[];

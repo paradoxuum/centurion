@@ -1,4 +1,4 @@
-import { CommandOptions, CommandPath, GroupOptions } from "../shared";
+import { CommandOptions, GroupOptions, Path } from "../shared";
 import { Options } from "../shared/options";
 
 export interface ClientOptions extends Options {
@@ -34,6 +34,6 @@ export type InterfaceContext = {
 		history: HistoryEntry[];
 	};
 	events: CommanderEventCallbacks;
-	execute: (path: CommandPath, text: string) => Promise<HistoryEntry>;
+	execute: (path: Path, text: string) => Promise<HistoryEntry>;
 	addHistoryEntry: (entry: HistoryEntry) => void;
 };

@@ -1,5 +1,5 @@
 import { RunService } from "@rbxts/services";
-import { CommandOptions, GroupOptions, ImmutableCommandPath } from "../shared";
+import { CommandOptions, GroupOptions, ImmutablePath } from "../shared";
 import { BaseCommand, CommandGroup } from "../shared/core/command";
 import { BaseRegistry } from "../shared/core/registry";
 import { Remotes } from "../shared/network";
@@ -86,7 +86,7 @@ export class ClientRegistry extends BaseRegistry {
 
 	private registerServerCommands(commands: Map<string, CommandOptions>) {
 		for (const [path, command] of commands) {
-			const commandPath = ImmutableCommandPath.fromString(path);
+			const commandPath = ImmutablePath.fromString(path);
 			let group: CommandGroup | undefined;
 			if (commandPath.getSize() > 1) {
 				const groupPath = commandPath.remove(commandPath.getSize() - 1);

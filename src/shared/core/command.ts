@@ -8,7 +8,7 @@ import {
 import { ObjectUtil, ReadonlyDeepObject } from "../util/data";
 import { splitStringBySpace } from "../util/string";
 import { CommandInteraction } from "./interaction";
-import { ImmutableCommandPath } from "./path";
+import { ImmutablePath } from "./path";
 import { BaseRegistry } from "./registry";
 
 export interface RegistrationData {
@@ -20,12 +20,12 @@ export interface RegistrationData {
 
 export abstract class BaseCommand {
 	protected readonly argTypes: TypeOptions<defined>[] = [];
-	protected readonly path: ImmutableCommandPath;
+	protected readonly path: ImmutablePath;
 	readonly options: ReadonlyDeepObject<CommandOptions>;
 
 	constructor(
 		registry: BaseRegistry,
-		path: ImmutableCommandPath,
+		path: ImmutablePath,
 		options: CommandOptions,
 	) {
 		this.path = path;
@@ -73,7 +73,7 @@ export class ExecutableCommand extends BaseCommand {
 
 	constructor(
 		registry: BaseRegistry,
-		path: ImmutableCommandPath,
+		path: ImmutablePath,
 		commandClass: defined,
 		options: CommandOptions,
 		callback: (...args: unknown[]) => unknown,
@@ -152,7 +152,7 @@ export class CommandGroup {
 	readonly options: ReadonlyDeepObject<GroupOptions>;
 
 	constructor(
-		readonly path: ImmutableCommandPath,
+		readonly path: ImmutablePath,
 		options: GroupOptions,
 	) {
 		this.options = options;

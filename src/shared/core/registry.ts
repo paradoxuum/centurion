@@ -14,7 +14,7 @@ import {
 	RegistrationData,
 } from "./command";
 import { MetadataKey } from "./decorators";
-import { CommandPath, ImmutableCommandPath } from "./path";
+import { ImmutablePath, Path } from "./path";
 
 // Used to import packages
 const tsImpl = (_G as Map<unknown, unknown>).get(script) as {
@@ -28,7 +28,7 @@ export abstract class BaseRegistry {
 	protected readonly guards: CommandGuard[] = [];
 	protected readonly types = new Map<string, TypeOptions<defined>>();
 	protected readonly registeredObjects = new Set<object>();
-	protected cachedPaths = new Map<string, CommandPath[]>();
+	protected cachedPaths = new Map<string, Path[]>();
 
 	init(options: Options) {
 		if (options.registerBuiltInTypes) {
@@ -137,7 +137,7 @@ export abstract class BaseRegistry {
 	 * @param path The path of the command
 	 * @returns A {@link BaseCommand} or `undefined` if no command with the given path is registered
 	 */
-	getCommand(path: CommandPath) {
+	getCommand(path: Path) {
 		return this.commands.get(path.toString());
 	}
 
@@ -155,12 +155,12 @@ export abstract class BaseRegistry {
 	}
 
 	/**
-	 * Gets a registered {@link GroupOptions} from a given {@link CommandPath}.
+	 * Gets a registered {@link GroupOptions} from a given {@link Path}.
 	 *
 	 * @param path The path of the group
 	 * @returns A {@link GroupOptions} or `undefined` if none exists at the given path
 	 */
-	getGroup(path: CommandPath) {
+	getGroup(path: Path) {
 		assert(
 			path.getSize() < 3,
 			`Invalid group path '${path}', a group path has a maximum of 2 parts`,
@@ -200,31 +200,31 @@ export abstract class BaseRegistry {
 	}
 
 	/**
-	 * Gets all command paths.
+	 * Gets the paths of all registered commands and groups.
 	 *
-	 * @returns An array of all command paths
+	 * @returns An array of all paths
 	 */
 	getPaths() {
 		return this.cachedPaths.get(BaseRegistry.ROOT_KEY) ?? [];
 	}
 
 	/**
-	 * Gets all paths that are children of the given {@link CommandPath}.
+	 * Gets all paths that are children of the given {@link Path}.
 	 *
 	 * @param path The path to get the children of
 	 * @returns The paths that are children of the given path
 	 */
-	getChildPaths(path: CommandPath) {
+	getChildPaths(path: Path) {
 		return this.cachedPaths.get(path.toString()) ?? [];
 	}
 
-	protected cachePath(path: CommandPath) {
+	protected cachePath(path: Path) {
 		let cacheKey = BaseRegistry.ROOT_KEY;
 		if (path.getSize() === 3) {
 			if (!this.cachedPaths.has(path.getRoot())) {
 				this.addCacheEntry(
 					BaseRegistry.ROOT_KEY,
-					CommandPath.fromString(path.getRoot()),
+					Path.fromString(path.getRoot()),
 				);
 			}
 
@@ -236,7 +236,7 @@ export abstract class BaseRegistry {
 		this.addCacheEntry(cacheKey, path);
 	}
 
-	private addCacheEntry(key: string, path: CommandPath) {
+	private addCacheEntry(key: string, path: Path) {
 		const cache = this.cachedPaths.get(key) ?? [];
 		cache.push(path);
 		cache.sort((a, b) => a.getTail() < b.getTail());
@@ -258,12 +258,12 @@ export abstract class BaseRegistry {
 		const options = data.options;
 
 		const parentPath =
-			group !== undefined ? group.getPath() : new ImmutableCommandPath([]);
+			group !== undefined ? group.getPath() : new ImmutablePath([]);
 		const path = parentPath.append(options.name);
 
 		const command = new ExecutableCommand(
 			this,
-			ImmutableCommandPath.fromPath(path),
+			ImmutablePath.fromPath(path),
 			data.class,
 			data.options,
 			data.callback,
@@ -324,7 +324,7 @@ export abstract class BaseRegistry {
 			// Get registered command group
 			let commandGroup: CommandGroup | undefined;
 			if (group !== undefined && !group.isEmpty()) {
-				const groupPath = new CommandPath([...globalGroups, ...group]);
+				const groupPath = new Path([...globalGroups, ...group]);
 
 				if (groupPath.getSize() > 2) {
 					throw `Invalid group for command '${name}': a command can only have 2 groups, found ${groupPath.getSize()}`;
@@ -392,7 +392,7 @@ export abstract class BaseRegistry {
 		}
 
 		groupParts.push(group.name);
-		return new CommandGroup(new ImmutableCommandPath(groupParts), group);
+		return new CommandGroup(new ImmutablePath(groupParts), group);
 	}
 
 	protected validatePath(path: string, isCommand: boolean) {

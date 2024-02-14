@@ -1,9 +1,5 @@
 import { t } from "@rbxts/t";
-import {
-	CommandInteraction,
-	CommandInteractionData,
-	CommandPath,
-} from "../shared";
+import { CommandInteraction, CommandInteractionData, Path } from "../shared";
 import { BaseDispatcher } from "../shared/core/dispatcher";
 import { Remotes } from "../shared/network";
 
@@ -18,7 +14,7 @@ export class ServerDispatcher extends BaseDispatcher {
 		Remotes.Execute.OnServerInvoke = (player, path, text) => {
 			if (!t.string(path) || !t.string(text)) return;
 
-			const commandPath = CommandPath.fromString(path);
+			const commandPath = Path.fromString(path);
 
 			const [success, data] = this.run(commandPath, player, text)
 				.timeout(5)
@@ -52,7 +48,7 @@ export class ServerDispatcher extends BaseDispatcher {
 	 * @param text The text input used to execute the command
 	 * @returns A {@link CommandInteraction} determining the result of execution
 	 */
-	async run(path: CommandPath, executor: Player, text = "") {
+	async run(path: Path, executor: Player, text = "") {
 		return this.executeCommand(path, executor, text).catch((err) => {
 			this.handleError(executor, text, err);
 
