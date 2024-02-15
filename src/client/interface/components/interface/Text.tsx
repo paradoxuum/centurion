@@ -1,7 +1,7 @@
 import { BindingOrValue } from "@rbxts/pretty-react-hooks";
 import Roact, { Ref, forwardRef } from "@rbxts/roact";
 import { DEFAULT_FONT } from "../../constants/fonts";
-import { useRem } from "../../hooks/useRem";
+import { usePx } from "../../hooks/usePx";
 import { FrameProps } from "./Frame";
 
 export interface TextProps<T extends Instance = TextLabel>
@@ -23,7 +23,7 @@ export interface TextProps<T extends Instance = TextLabel>
 }
 
 export const Text = forwardRef((props: TextProps, ref: Ref<TextLabel>) => {
-	const rem = useRem();
+	const px = usePx();
 
 	return (
 		<textlabel
@@ -32,7 +32,7 @@ export const Text = forwardRef((props: TextProps, ref: Ref<TextLabel>) => {
 			FontFace={props.font || DEFAULT_FONT}
 			Text={props.text}
 			TextColor3={props.textColor}
-			TextSize={props.textSize ?? rem(1)}
+			TextSize={props.textSize ?? px(16)}
 			TextTransparency={props.textTransparency}
 			TextWrapped={props.textWrapped}
 			TextXAlignment={props.textXAlignment}

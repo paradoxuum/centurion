@@ -3,7 +3,7 @@ import Roact, { useMemo } from "@rbxts/roact";
 import { HistoryEntry } from "../../../../types";
 import { fonts } from "../../../constants/fonts";
 import { palette } from "../../../constants/palette";
-import { useRem } from "../../../hooks/useRem";
+import { usePx } from "../../../hooks/usePx";
 import { Frame } from "../../interface/Frame";
 import { Group } from "../../interface/Group";
 import { Outline } from "../../interface/Outline";
@@ -18,7 +18,7 @@ interface HistoryLineProps {
 }
 
 export function HistoryLine({ data, size, position, order }: HistoryLineProps) {
-	const rem = useRem();
+	const px = usePx();
 	const date = useMemo(() => {
 		const dateTime = DateTime.fromUnixTimestamp(data.sentAt).FormatLocalTime(
 			"LT",
@@ -33,35 +33,35 @@ export function HistoryLine({ data, size, position, order }: HistoryLineProps) {
 			<Frame
 				key="date"
 				backgroundColor={palette.base}
-				size={UDim2.fromOffset(rem(6), rem(1.5))}
-				cornerRadius={new UDim(0, rem(0.5))}
+				size={UDim2.fromOffset(px(96), px(24))}
+				cornerRadius={new UDim(0, px(8))}
 			>
 				<Text
 					key="text"
 					size={UDim2.fromScale(1, 1)}
 					text={date}
 					textColor={palette.text}
-					textSize={rem(1.2)}
+					textSize={px(18)}
 					richText={true}
 				/>
 
 				<Outline
 					key="outline"
-					innerThickness={rem(2, "pixel")}
+					innerThickness={px(2)}
 					innerTransparency={0.25}
 					innerColor={data.success ? palette.green : palette.red}
 					outerThickness={0}
-					cornerRadius={new UDim(0, rem(0.5))}
+					cornerRadius={new UDim(0, px(8))}
 				/>
 			</Frame>
 
 			<TextField
 				key="entry-text"
 				anchorPoint={new Vector2(1, 0)}
-				size={new UDim2(1, -rem(6.5), 1, 0)}
+				size={new UDim2(1, -px(104), 1, 0)}
 				position={UDim2.fromScale(1, 0)}
 				text={data.text}
-				textSize={rem(1.5)}
+				textSize={px(24)}
 				textColor={data.success ? palette.text : palette.red}
 				textEditable={false}
 				textXAlignment="Left"

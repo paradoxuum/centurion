@@ -1,7 +1,7 @@
 import { BindingOrValue } from "@rbxts/pretty-react-hooks";
 import Roact from "@rbxts/roact";
 import { fonts } from "../../../constants/fonts";
-import { useRem } from "../../../hooks/useRem";
+import { usePx } from "../../../hooks/usePx";
 import { Frame } from "../../interface/Frame";
 import { Text } from "../../interface/Text";
 
@@ -29,7 +29,7 @@ export function Badge({
 	visible,
 	onTextBoundsChange,
 }: BadgeProps) {
-	const rem = useRem();
+	const px = usePx();
 
 	return (
 		<Frame
@@ -37,7 +37,7 @@ export function Badge({
 			size={size}
 			position={position}
 			backgroundColor={color}
-			cornerRadius={new UDim(0, rem(0.5))}
+			cornerRadius={new UDim(0, px(8))}
 			visible={visible}
 			clipsDescendants
 		>

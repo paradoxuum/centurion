@@ -20,7 +20,7 @@ import {
 } from "../../../../shared/util/string";
 import { fonts } from "../../constants/fonts";
 import { palette } from "../../constants/palette";
-import { useRem } from "../../hooks/useRem";
+import { usePx } from "../../hooks/usePx";
 import { useStore } from "../../hooks/useStore";
 import { CommanderContext } from "../../providers/commanderProvider";
 import { selectVisible } from "../../store/app";
@@ -48,7 +48,7 @@ export function TerminalTextField({
 	onTextChange,
 	onSubmit,
 }: TerminalTextFieldProps) {
-	const rem = useRem();
+	const px = usePx();
 	const ref = useRef<TextBox>();
 	const data = useContext(CommanderContext);
 	const store = useStore();
@@ -222,16 +222,16 @@ export function TerminalTextField({
 			size={size}
 			position={position}
 			backgroundColor={palette.mantle}
-			cornerRadius={new UDim(0, rem(0.5))}
+			cornerRadius={new UDim(0, px(8))}
 		>
-			<Padding key="padding" all={new UDim(0, rem(1))} />
+			<Padding key="padding" all={new UDim(0, px(16))} />
 
 			<TextField
 				key="textbox"
 				size={UDim2.fromScale(1, 1)}
 				placeholderText="Enter command..."
 				text={text}
-				textSize={rem(2)}
+				textSize={px(32)}
 				textColor={valid ? palette.green : palette.red}
 				textXAlignment="Left"
 				clearTextOnFocus={false}
@@ -278,7 +278,7 @@ export function TerminalTextField({
 				size={UDim2.fromScale(1, 1)}
 				text={suggestionText}
 				textColor={palette.surface2}
-				textSize={rem(2)}
+				textSize={px(32)}
 				textXAlignment="Left"
 				font={fonts.inter.medium}
 			/>

@@ -1,7 +1,7 @@
 import { BindingOrValue, mapBinding } from "@rbxts/pretty-react-hooks";
 import Roact, { useBinding, useEffect } from "@rbxts/roact";
 import { palette } from "../../../constants/palette";
-import { useRem } from "../../../hooks/useRem";
+import { usePx } from "../../../hooks/usePx";
 import { HistoryLineData } from "../../../types";
 import { ScrollingFrame } from "../../interface/ScrollingFrame";
 import { HistoryLine } from "./HistoryLine";
@@ -25,19 +25,19 @@ export function HistoryList({
 	position,
 	maxHeight,
 }: HistoryListProps) {
-	const rem = useRem();
+	const px = usePx();
 
 	const [scrollingEnabled, setScrollingEnabled] = useBinding(false);
 	const [canvasSize, setCanvasSize] = useBinding(new UDim2());
 	const [canvasPosition, setCanvasPosition] = useBinding(new Vector2());
 
 	useEffect(() => {
-		const height = data.height - rem(0.5);
+		const height = data.height - px(8);
 		setCanvasSize(new UDim2(0, 0, 0, height));
 		setCanvasPosition(new Vector2(0, height));
 
 		if (maxHeight !== undefined) setScrollingEnabled(height > maxHeight);
-	}, [data, rem]);
+	}, [data, px]);
 
 	return (
 		<ScrollingFrame
@@ -63,7 +63,7 @@ export function HistoryList({
 
 			<uilistlayout
 				key="layout"
-				Padding={new UDim(0, rem(0.5))}
+				Padding={new UDim(0, px(8))}
 				SortOrder="LayoutOrder"
 			/>
 		</ScrollingFrame>

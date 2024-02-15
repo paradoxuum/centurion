@@ -11,7 +11,7 @@ import {
 import { DEFAULT_FONT } from "../../constants/fonts";
 import { palette } from "../../constants/palette";
 import { useMotion } from "../../hooks/useMotion";
-import { useRem } from "../../hooks/useRem";
+import { usePx } from "../../hooks/usePx";
 import { useStore } from "../../hooks/useStore";
 import { CommanderContext } from "../../providers/commanderProvider";
 import { OptionsContext } from "../../providers/optionsProvider";
@@ -39,7 +39,7 @@ function getParentPath(parts: string[], atNextPart: boolean) {
 }
 
 export function TerminalWindow() {
-	const rem = useRem();
+	const px = usePx();
 	const store = useStore();
 	const data = useContext(CommanderContext);
 	const options = useContext(OptionsContext);
@@ -59,9 +59,9 @@ export function TerminalWindow() {
 
 	const windowHeightBinding = useMemo(() => {
 		return historyHeight.map((y) => {
-			return new UDim2(1, 0, 0, math.ceil(rem(5) + y));
+			return new UDim2(1, 0, 0, math.ceil(px(80) + y));
 		});
-	}, [rem]);
+	}, [px]);
 
 	const checkMissingArgs = useLatestCallback(
 		(path: ImmutablePath, command: CommandOptions) => {
@@ -95,10 +95,9 @@ export function TerminalWindow() {
 	// Handle history updates
 	useEffect(() => {
 		const historySize = data.history.size();
-		let totalHeight =
-			historySize > 0 ? rem(0.5) + (historySize - 1) * rem(0.5) : 0;
+		let totalHeight = historySize > 0 ? px(8) + (historySize - 1) * px(8) : 0;
 
-		textBoundsParams.Size = rem(1.5);
+		textBoundsParams.Size = px(24);
 
 		const historyLines: HistoryLineData[] = [];
 		for (const entry of data.history) {
@@ -108,8 +107,8 @@ export function TerminalWindow() {
 			historyLines.push({ entry, height: textSize.Y });
 		}
 
-		const isClamped = totalHeight > rem(16);
-		const clampedHeight = isClamped ? rem(16) : totalHeight;
+		const isClamped = totalHeight > px(256);
+		const clampedHeight = isClamped ? px(256) : totalHeight;
 		historyHeightMotion.spring(clampedHeight, {
 			mass: 0.1,
 			tension: 300,
@@ -119,31 +118,31 @@ export function TerminalWindow() {
 			lines: historyLines,
 			height: totalHeight,
 		});
-	}, [data.history, rem]);
+	}, [data.history, px]);
 
 	return (
 		<Frame
 			size={windowHeightBinding}
 			backgroundColor={palette.crust}
-			cornerRadius={new UDim(0, rem(0.5))}
+			cornerRadius={new UDim(0, px(8))}
 			event={{
 				MouseEnter: () => options.setMouseOnGUI(true),
 				MouseLeave: () => options.setMouseOnGUI(false),
 			}}
 		>
-			<Padding key="padding" all={new UDim(0, rem(0.5))} />
+			<Padding key="padding" all={new UDim(0, px(8))} />
 
 			<HistoryList
 				key="history"
-				size={new UDim2(1, 0, 1, -rem(4.5))}
+				size={new UDim2(1, 0, 1, -px(72))}
 				data={historyData}
-				maxHeight={rem(16)}
+				maxHeight={px(256)}
 			/>
 
 			<TerminalTextField
 				key="text-field"
 				anchorPoint={new Vector2(0, 1)}
-				size={new UDim2(1, 0, 0, rem(4))}
+				size={new UDim2(1, 0, 0, px(64))}
 				position={UDim2.fromScale(0, 1)}
 				onTextChange={(text) => {
 					const parts = splitStringBySpace(text);
@@ -284,7 +283,7 @@ export function TerminalWindow() {
 				}}
 			/>
 
-			<Shadow key="shadow" shadowSize={rem(1)} />
+			<Shadow key="shadow" shadowSize={px(16)} />
 		</Frame>
 	);
 }

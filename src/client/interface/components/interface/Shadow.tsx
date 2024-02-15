@@ -1,7 +1,7 @@
 import { BindingOrValue, composeBindings } from "@rbxts/pretty-react-hooks";
 import Roact from "@rbxts/roact";
 import { images } from "../../constants/images";
-import { useRem } from "../../hooks/useRem";
+import { usePx } from "../../hooks/usePx";
 import { Image } from "./Image";
 
 interface ShadowProps extends Roact.PropsWithChildren {
@@ -25,9 +25,9 @@ export function Shadow({
 	zIndex = -1,
 	children,
 }: ShadowProps) {
-	const rem = useRem();
+	const px = usePx();
 
-	shadowPosition ??= rem(1);
+	shadowPosition ??= px(16);
 
 	return (
 		<Image
@@ -36,7 +36,7 @@ export function Shadow({
 			imageColor={shadowColor}
 			anchorPoint={new Vector2(0.5, 0.5)}
 			size={composeBindings(shadowSize, (size) => {
-				const sizeOffsetScaled = rem(BLUR_RADIUS * shadowBlur, "pixel");
+				const sizeOffsetScaled = px(BLUR_RADIUS * shadowBlur);
 
 				if (typeIs(size, "UDim2")) {
 					return new UDim2(1, sizeOffsetScaled, 1, sizeOffsetScaled).add(size);
@@ -55,7 +55,7 @@ export function Shadow({
 			)}
 			scaleType="Slice"
 			sliceCenter={new Rect(IMAGE_SIZE.div(2), IMAGE_SIZE.div(2))}
-			sliceScale={rem(shadowBlur, "pixel")}
+			sliceScale={px(shadowBlur)}
 			zIndex={zIndex}
 		>
 			{children}

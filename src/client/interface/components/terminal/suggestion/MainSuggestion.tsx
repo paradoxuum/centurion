@@ -3,7 +3,7 @@ import Roact, { Binding, useContext } from "@rbxts/roact";
 import { fonts } from "../../../constants/fonts";
 import { palette } from "../../../constants/palette";
 import { useMotion } from "../../../hooks/useMotion";
-import { useRem } from "../../../hooks/useRem";
+import { usePx } from "../../../hooks/usePx";
 import { OptionsContext } from "../../../providers/optionsProvider";
 import { ArgumentSuggestion, Suggestion } from "../../../types";
 import { Frame } from "../../interface/Frame";
@@ -28,7 +28,7 @@ export function MainSuggestion({
 	sizes,
 	argument,
 }: MainSuggestionProps) {
-	const rem = useRem();
+	const px = usePx();
 	const options = useContext(OptionsContext);
 
 	const [badgeWidth, badgeWidthMotion] = useMotion(0);
@@ -37,20 +37,20 @@ export function MainSuggestion({
 		<Frame
 			size={size}
 			backgroundColor={palette.crust}
-			cornerRadius={new UDim(0, rem(0.5))}
+			cornerRadius={new UDim(0, px(8))}
 			clipsDescendants={true}
 			event={{
 				MouseEnter: () => options.setMouseOnGUI(true),
 				MouseLeave: () => options.setMouseOnGUI(false),
 			}}
 		>
-			<Padding key="padding" all={new UDim(0, rem(1))} />
+			<Padding key="padding" all={new UDim(0, px(16))} />
 
 			<Badge
 				key="type-badge"
 				anchorPoint={new Vector2(1, 0)}
 				size={badgeWidth.map((width) =>
-					UDim2.fromOffset(math.round(width), rem(2)),
+					UDim2.fromOffset(math.round(width), px(32)),
 				)}
 				position={UDim2.fromScale(1, 0)}
 				color={palette.lavender}
@@ -60,10 +60,10 @@ export function MainSuggestion({
 						: ""
 				}
 				textColor={palette.surface0}
-				textSize={rem(1.5)}
+				textSize={px(24)}
 				visible={argument}
 				onTextBoundsChange={(textBounds) =>
-					badgeWidthMotion.spring(textBounds.X + rem(1), {
+					badgeWidthMotion.spring(textBounds.X + px(16), {
 						mass: 0.5,
 						tension: 400,
 					})
@@ -78,7 +78,7 @@ export function MainSuggestion({
 						? suggestion?.main.title
 						: highlightMatching(suggestion?.main.title, currentText)
 				}
-				textSize={rem(2)}
+				textSize={px(32)}
 				textColor={palette.text}
 				textXAlignment="Left"
 				richText={true}
@@ -88,9 +88,9 @@ export function MainSuggestion({
 			<Text
 				key="description"
 				size={sizes.map((val) => val.description)}
-				position={UDim2.fromOffset(0, rem(2))}
+				position={UDim2.fromOffset(0, px(32))}
 				text={suggestion?.main.description ?? ""}
-				textSize={rem(1.5)}
+				textSize={px(24)}
 				textColor={palette.subtext0}
 				textXAlignment="Left"
 				textWrapped={true}
@@ -108,7 +108,7 @@ export function MainSuggestion({
 						: ""
 				}
 				textColor={palette.red}
-				textSize={rem(1.5)}
+				textSize={px(24)}
 				textWrapped={true}
 				textXAlignment="Left"
 			/>
