@@ -37,6 +37,7 @@ export function MainSuggestion({
 		<Frame
 			size={size}
 			backgroundColor={palette.crust}
+			backgroundTransparency={options.backgroundTransparency}
 			cornerRadius={new UDim(0, px(8))}
 			clipsDescendants={true}
 			event={{

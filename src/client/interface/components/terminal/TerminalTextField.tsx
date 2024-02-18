@@ -37,6 +37,7 @@ interface TerminalTextFieldProps {
 	anchorPoint?: BindingOrValue<Vector2>;
 	size?: BindingOrValue<UDim2>;
 	position?: BindingOrValue<UDim2>;
+	backgroundTransparency?: BindingOrValue<number>;
 	onTextChange?: (text: string) => void;
 	onSubmit?: (text: string) => void;
 }
@@ -45,6 +46,7 @@ export function TerminalTextField({
 	anchorPoint,
 	size,
 	position,
+	backgroundTransparency,
 	onTextChange,
 	onSubmit,
 }: TerminalTextFieldProps) {
@@ -222,6 +224,7 @@ export function TerminalTextField({
 			size={size}
 			position={position}
 			backgroundColor={palette.mantle}
+			backgroundTransparency={backgroundTransparency}
 			cornerRadius={new UDim(0, px(8))}
 		>
 			<Padding key="padding" all={new UDim(0, px(16))} />
