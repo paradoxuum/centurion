@@ -4,6 +4,7 @@ export interface InterfaceOptions {
 	anchorPoint?: Vector2;
 	size?: UDim2;
 	position?: UDim2;
+	backgroundTransparency?: number;
 	displayOrder?: number;
 	hideOnLostFocus: boolean;
 	activationKeys: Enum.KeyCode[];

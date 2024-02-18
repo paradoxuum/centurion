@@ -174,6 +174,7 @@ export function SuggestionList({ position }: SuggestionListProps) {
 							key={`${i}-${name}`}
 							size={new UDim2(1, 0, 0, px(32))}
 							backgroundColor={palette.mantle}
+							backgroundTransparency={options.backgroundTransparency}
 							cornerRadius={new UDim(0, px(8))}
 							clipsDescendants={true}
 						>

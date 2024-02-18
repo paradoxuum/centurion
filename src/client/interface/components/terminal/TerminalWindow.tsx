@@ -124,6 +124,7 @@ export function TerminalWindow() {
 		<Frame
 			size={windowHeightBinding}
 			backgroundColor={palette.crust}
+			backgroundTransparency={options.backgroundTransparency}
 			cornerRadius={new UDim(0, px(8))}
 			event={{
 				MouseEnter: () => options.setMouseOnGUI(true),
@@ -144,6 +145,7 @@ export function TerminalWindow() {
 				anchorPoint={new Vector2(0, 1)}
 				size={new UDim2(1, 0, 0, px(64))}
 				position={UDim2.fromScale(0, 1)}
+				backgroundTransparency={options.backgroundTransparency}
 				onTextChange={(text) => {
 					const parts = splitStringBySpace(text);
 					store.setText(text, parts);
