@@ -156,19 +156,31 @@ export function TerminalTextField({
 
 		const state = store.getState();
 		const commandPath = state.command.path;
-		const suggestionTextValue = getBindingValue(suggestionText);
 
 		// Handle command suggestions
-		if (commandPath === undefined && suggestionTextValue !== "") {
-			const suggestionTextParts = suggestionTextValue
+		if (commandPath === undefined) {
+			const suggestionTitle = currentSuggestion?.main.title;
+			if (suggestionTitle === undefined) return;
+
+			const currentText = text.getValue();
+			let newText = "";
+			if (endsWithSpace(currentText)) {
+				newText = currentText + suggestionTitle;
+			} else if (!state.text.parts.isEmpty()) {
+				const textPartSize =
+					state.text.parts[state.text.parts.size() - 1].size();
+				newText =
+					currentText.sub(0, currentText.size() - textPartSize) +
+					suggestionTitle;
+			}
+
+			const suggestionTextParts = suggestionText
+				.getValue()
 				.gsub("%s+", " ")[0]
 				.split(" ");
-
 			const nextCommand = data.commands.get(
 				formatPartsAsPath(suggestionTextParts),
 			);
-
-			let newText = suggestionTextValue;
 			if (
 				nextCommand === undefined ||
 				(nextCommand.arguments?.size() ?? 0) > 0
