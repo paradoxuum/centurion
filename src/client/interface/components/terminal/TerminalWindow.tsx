@@ -9,7 +9,7 @@ import {
 	splitStringBySpace,
 } from "../../../../shared/util/string";
 import { palette } from "../../constants/palette";
-import { DEFAULT_FONT, HISTORY_TEXT_SIZE } from "../../constants/text";
+import { HISTORY_TEXT_SIZE } from "../../constants/text";
 import { useMotion } from "../../hooks/useMotion";
 import { usePx } from "../../hooks/usePx";
 import { useStore } from "../../hooks/useStore";
@@ -57,7 +57,7 @@ export function TerminalWindow() {
 	const textBoundsParams = useMemo(() => {
 		const params = new Instance("GetTextBoundsParams");
 		params.Width = math.huge;
-		params.Font = DEFAULT_FONT;
+		params.Font = options.font.regular;
 		return params;
 	}, []);
 

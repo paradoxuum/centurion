@@ -4,7 +4,6 @@ import { palette } from "../../../constants/palette";
 import {
 	SUGGESTION_TEXT_SIZE,
 	SUGGESTION_TITLE_TEXT_SIZE,
-	fonts,
 } from "../../../constants/text";
 import { useMotion } from "../../../hooks/useMotion";
 import { usePx } from "../../../hooks/usePx";
@@ -87,7 +86,7 @@ export function MainSuggestion({
 				textColor={palette.text}
 				textXAlignment="Left"
 				richText={true}
-				font={fonts.builder.bold}
+				font={options.font.bold}
 			/>
 
 			<Text

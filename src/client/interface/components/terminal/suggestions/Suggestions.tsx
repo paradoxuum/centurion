@@ -1,14 +1,19 @@
 import { useSelector } from "@rbxts/react-reflex";
-import Roact, { useBinding, useEffect, useMemo } from "@rbxts/roact";
+import Roact, {
+	useBinding,
+	useContext,
+	useEffect,
+	useMemo,
+} from "@rbxts/roact";
 import { TextService } from "@rbxts/services";
 import { springs } from "../../../constants/springs";
 import {
-	DEFAULT_FONT,
 	SUGGESTION_TEXT_SIZE,
 	SUGGESTION_TITLE_TEXT_SIZE,
 } from "../../../constants/text";
 import { useMotion } from "../../../hooks/useMotion";
 import { usePx } from "../../../hooks/usePx";
+import { OptionsContext } from "../../../providers/optionsProvider";
 import { selectCurrentSuggestion } from "../../../store/suggestion";
 import { selectText } from "../../../store/text";
 import { Group } from "../../interface/Group";
@@ -22,6 +27,7 @@ const MAX_BADGE_WIDTH = 80;
 const PADDING = 8;
 
 export function Suggestions() {
+	const options = useContext(OptionsContext);
 	const px = usePx();
 
 	const terminalText = useSelector(selectText);
@@ -69,6 +75,7 @@ export function Suggestions() {
 		}
 
 		const textBounds = getSuggestionTextBounds(
+			options,
 			mainSuggestion,
 			px(SUGGESTION_TITLE_TEXT_SIZE),
 			px(SUGGESTION_TEXT_SIZE),
@@ -102,7 +109,7 @@ export function Suggestions() {
 		if (!otherSuggestions.isEmpty()) {
 			let maxSuggestionWidth = 0;
 
-			textBoundsParams.Font = DEFAULT_FONT;
+			textBoundsParams.Font = options.font.regular;
 			textBoundsParams.Size = px(SUGGESTION_TEXT_SIZE);
 			textBoundsParams.Width = math.huge;
 

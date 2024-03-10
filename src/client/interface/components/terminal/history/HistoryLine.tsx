@@ -1,9 +1,10 @@
 import { BindingOrValue } from "@rbxts/pretty-react-hooks";
-import Roact, { useMemo } from "@rbxts/roact";
+import Roact, { useContext, useMemo } from "@rbxts/roact";
 import { HistoryEntry } from "../../../../types";
 import { palette } from "../../../constants/palette";
-import { HISTORY_TEXT_SIZE, fonts } from "../../../constants/text";
+import { HISTORY_TEXT_SIZE } from "../../../constants/text";
 import { usePx } from "../../../hooks/usePx";
+import { OptionsContext } from "../../../providers/optionsProvider";
 import { Frame } from "../../interface/Frame";
 import { Group } from "../../interface/Group";
 import { Outline } from "../../interface/Outline";
@@ -18,6 +19,7 @@ interface HistoryLineProps {
 }
 
 export function HistoryLine({ data, size, position, order }: HistoryLineProps) {
+	const options = useContext(OptionsContext);
 	const px = usePx();
 	const date = useMemo(() => {
 		const dateTime = DateTime.fromUnixTimestamp(data.sentAt).FormatLocalTime(
@@ -66,7 +68,7 @@ export function HistoryLine({ data, size, position, order }: HistoryLineProps) {
 				textEditable={false}
 				textXAlignment="Left"
 				clearTextOnFocus={false}
-				font={fonts.builder.medium}
+				font={options.font.medium}
 				richText
 			/>
 		</Group>

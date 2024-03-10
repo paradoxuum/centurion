@@ -19,10 +19,10 @@ import {
 	formatPartsAsPath,
 } from "../../../../shared/util/string";
 import { palette } from "../../constants/palette";
-import { fonts } from "../../constants/text";
 import { usePx } from "../../hooks/usePx";
 import { useStore } from "../../hooks/useStore";
 import { CommanderContext } from "../../providers/commanderProvider";
+import { OptionsContext } from "../../providers/optionsProvider";
 import { selectVisible } from "../../store/app";
 import { selectCommand } from "../../store/command";
 import { selectCurrentSuggestion } from "../../store/suggestion";
@@ -55,6 +55,7 @@ export function TerminalTextField({
 	const px = usePx();
 	const ref = useRef<TextBox>();
 	const data = useContext(CommanderContext);
+	const options = useContext(OptionsContext);
 	const store = useStore();
 
 	const appVisible = useSelector(selectVisible);
@@ -252,7 +253,7 @@ export function TerminalTextField({
 				textColor={valid ? palette.green : palette.red}
 				textXAlignment="Left"
 				clearTextOnFocus={false}
-				font={fonts.builder.medium}
+				font={options.font.medium}
 				ref={ref}
 				event={{
 					FocusLost: (rbx, enterPressed) => {
@@ -297,7 +298,7 @@ export function TerminalTextField({
 				textColor={palette.surface2}
 				textSize={px(TEXT_SIZE)}
 				textXAlignment="Left"
-				font={fonts.builder.medium}
+				font={options.font.medium}
 			/>
 		</Frame>
 	);

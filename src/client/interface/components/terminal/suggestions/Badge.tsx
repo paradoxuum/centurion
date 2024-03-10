@@ -1,7 +1,7 @@
 import { BindingOrValue } from "@rbxts/pretty-react-hooks";
-import Roact from "@rbxts/roact";
-import { fonts } from "../../../constants/text";
+import Roact, { useContext } from "@rbxts/roact";
 import { usePx } from "../../../hooks/usePx";
+import { OptionsContext } from "../../../providers/optionsProvider";
 import { Frame } from "../../interface/Frame";
 import { Text } from "../../interface/Text";
 
@@ -29,6 +29,7 @@ export function Badge({
 	visible,
 	onTextBoundsChange,
 }: BadgeProps) {
+	const options = useContext(OptionsContext);
 	const px = usePx();
 
 	return (
@@ -47,7 +48,7 @@ export function Badge({
 				textColor={textColor}
 				textSize={textSize}
 				size={UDim2.fromScale(1, 1)}
-				font={fonts.builder.bold}
+				font={options.font.bold}
 				change={{
 					TextBounds: (rbx) => onTextBoundsChange?.(rbx.TextBounds),
 				}}

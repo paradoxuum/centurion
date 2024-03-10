@@ -9,7 +9,6 @@ import { InterfaceContext } from "../../types";
 import { Layer } from "../components/interface/Layer";
 import Terminal from "../components/terminal/Terminal";
 import { DEFAULT_INTERFACE_OPTIONS } from "../constants/options";
-import { fonts } from "../constants/text";
 import { OptionsContext } from "../providers/optionsProvider";
 import { RootProvider } from "../providers/rootProvider";
 import { store } from "../store";
@@ -62,16 +61,17 @@ export const CommanderInterface =
 
 		// Attempt to preload font
 		task.spawn(() => {
+			const fontFamily = (
+				options.font?.regular ?? DEFAULT_INTERFACE_OPTIONS.font.regular
+			).Family;
+
 			let attempts = 0;
 			while (attempts < MAX_PRELOAD_ATTEMPTS) {
-				ContentProvider.PreloadAsync(
-					[fonts.builder.regular.Family],
-					(_, status) => {
-						if (status === Enum.AssetFetchStatus.Success) {
-							attempts = MAX_PRELOAD_ATTEMPTS;
-						}
-					},
-				);
+				ContentProvider.PreloadAsync([fontFamily], (_, status) => {
+					if (status === Enum.AssetFetchStatus.Success) {
+						attempts = MAX_PRELOAD_ATTEMPTS;
+					}
+				});
 
 				if (attempts === MAX_PRELOAD_ATTEMPTS) break;
 				print("Wait...");

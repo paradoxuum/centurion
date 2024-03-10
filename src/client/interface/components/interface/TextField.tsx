@@ -1,7 +1,7 @@
-import Roact, { Ref, forwardRef } from "@rbxts/roact";
+import Roact, { Ref, forwardRef, useContext } from "@rbxts/roact";
 
 import { BindingOrValue } from "@rbxts/pretty-react-hooks";
-import { DEFAULT_FONT } from "../../constants/text";
+import { OptionsContext } from "../../providers/optionsProvider";
 import { TextProps } from "./Text";
 
 interface TextFieldProps extends TextProps<TextBox> {
@@ -15,6 +15,8 @@ interface TextFieldProps extends TextProps<TextBox> {
 
 export const TextField = forwardRef(
 	(props: TextFieldProps, ref: Ref<TextBox>) => {
+		const options = useContext(OptionsContext);
+
 		return (
 			<textbox
 				ref={ref}
@@ -24,7 +26,7 @@ export const TextField = forwardRef(
 				MultiLine={props.multiLine}
 				TextEditable={props.textEditable}
 				Font={Enum.Font.Unknown}
-				FontFace={props.font ?? DEFAULT_FONT}
+				FontFace={props.font ?? options.font.regular}
 				Text={props.text}
 				TextColor3={props.textColor}
 				TextSize={props.textSize}

@@ -8,6 +8,11 @@ export interface InterfaceOptions {
 	displayOrder?: number;
 	hideOnLostFocus: boolean;
 	activationKeys: Enum.KeyCode[];
+	font: {
+		regular: Font;
+		medium: Font;
+		bold: Font;
+	};
 }
 
 export interface HistoryLineData {
