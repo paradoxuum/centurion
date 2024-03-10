@@ -4,7 +4,7 @@ import { usePx } from "../../hooks/usePx";
 import { OptionsContext } from "../../providers/optionsProvider";
 import { Group } from "../interface/Group";
 import { TerminalWindow } from "./TerminalWindow";
-import { SuggestionList } from "./suggestion";
+import { Suggestions } from "./suggestions";
 
 export default function Terminal() {
 	const px = usePx();
@@ -13,19 +13,19 @@ export default function Terminal() {
 	return (
 		<Group
 			key="terminal"
-			anchorPoint={options.anchorPoint ?? new Vector2(0.5)}
-			size={options.size ?? new UDim2(1, -px(4), 0, px(32))}
+			anchorPoint={options.anchorPoint ?? new Vector2(0, 0)}
+			size={options.size ?? new UDim2(0, px(1024), 1, 0)}
 			position={
 				options.position ??
-				new UDim2(0.5, 0, 0, px(32) + GuiService.GetGuiInset()[0].Y)
+				UDim2.fromOffset(px(16), px(16) + GuiService.GetGuiInset()[0].Y)
 			}
 		>
 			<TerminalWindow key="window" />
-			<SuggestionList key="suggestions" position={new UDim2(0, 0, 0, px(96))} />
+			<Suggestions key="suggestions" />
 
 			<uilistlayout
 				key="layout"
-				Padding={new UDim(0, px(1))}
+				Padding={new UDim(0, px(8))}
 				SortOrder={"LayoutOrder"}
 			/>
 		</Group>

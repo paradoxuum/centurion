@@ -18,8 +18,8 @@ import {
 	endsWithSpace,
 	formatPartsAsPath,
 } from "../../../../shared/util/string";
-import { fonts } from "../../constants/fonts";
 import { palette } from "../../constants/palette";
+import { fonts } from "../../constants/text";
 import { usePx } from "../../hooks/usePx";
 import { useStore } from "../../hooks/useStore";
 import { CommanderContext } from "../../providers/commanderProvider";
@@ -41,6 +41,8 @@ interface TerminalTextFieldProps {
 	onTextChange?: (text: string) => void;
 	onSubmit?: (text: string) => void;
 }
+
+const TEXT_SIZE = 22;
 
 export function TerminalTextField({
 	anchorPoint,
@@ -237,16 +239,16 @@ export function TerminalTextField({
 			position={position}
 			backgroundColor={palette.mantle}
 			backgroundTransparency={backgroundTransparency}
-			cornerRadius={new UDim(0, px(8))}
+			cornerRadius={new UDim(0, px(4))}
 		>
-			<Padding key="padding" all={new UDim(0, px(16))} />
+			<Padding key="padding" all={new UDim(0, px(8))} />
 
 			<TextField
 				key="textbox"
 				size={UDim2.fromScale(1, 1)}
 				placeholderText="Enter command..."
 				text={text}
-				textSize={px(32)}
+				textSize={px(TEXT_SIZE)}
 				textColor={valid ? palette.green : palette.red}
 				textXAlignment="Left"
 				clearTextOnFocus={false}
@@ -293,7 +295,7 @@ export function TerminalTextField({
 				size={UDim2.fromScale(1, 1)}
 				text={suggestionText}
 				textColor={palette.surface2}
-				textSize={px(32)}
+				textSize={px(TEXT_SIZE)}
 				textXAlignment="Left"
 				font={fonts.builder.medium}
 			/>

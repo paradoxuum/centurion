@@ -1,7 +1,11 @@
 import { BindingOrValue } from "@rbxts/pretty-react-hooks";
 import Roact, { Binding, useContext } from "@rbxts/roact";
-import { fonts } from "../../../constants/fonts";
 import { palette } from "../../../constants/palette";
+import {
+	SUGGESTION_TEXT_SIZE,
+	SUGGESTION_TITLE_TEXT_SIZE,
+	fonts,
+} from "../../../constants/text";
 import { useMotion } from "../../../hooks/useMotion";
 import { usePx } from "../../../hooks/usePx";
 import { OptionsContext } from "../../../providers/optionsProvider";
@@ -45,13 +49,13 @@ export function MainSuggestion({
 				MouseLeave: () => options.setMouseOnGUI(false),
 			}}
 		>
-			<Padding key="padding" all={new UDim(0, px(16))} />
+			<Padding key="padding" all={new UDim(0, px(8))} />
 
 			<Badge
 				key="type-badge"
 				anchorPoint={new Vector2(1, 0)}
 				size={badgeWidth.map((width) =>
-					UDim2.fromOffset(math.round(width), px(32)),
+					UDim2.fromOffset(math.round(width), px(24)),
 				)}
 				position={UDim2.fromScale(1, 0)}
 				color={palette.lavender}
@@ -61,10 +65,10 @@ export function MainSuggestion({
 						: ""
 				}
 				textColor={palette.surface0}
-				textSize={px(24)}
+				textSize={px(SUGGESTION_TEXT_SIZE)}
 				visible={argument}
 				onTextBoundsChange={(textBounds) =>
-					badgeWidthMotion.spring(textBounds.X + px(16), {
+					badgeWidthMotion.spring(textBounds.X + px(8), {
 						mass: 0.5,
 						tension: 400,
 					})
@@ -79,7 +83,7 @@ export function MainSuggestion({
 						? suggestion?.main.title
 						: highlightMatching(suggestion?.main.title, currentText)
 				}
-				textSize={px(32)}
+				textSize={px(SUGGESTION_TITLE_TEXT_SIZE)}
 				textColor={palette.text}
 				textXAlignment="Left"
 				richText={true}
@@ -89,9 +93,9 @@ export function MainSuggestion({
 			<Text
 				key="description"
 				size={sizes.map((val) => val.description)}
-				position={UDim2.fromOffset(0, px(32))}
+				position={UDim2.fromOffset(0, px(SUGGESTION_TITLE_TEXT_SIZE))}
 				text={suggestion?.main.description ?? ""}
-				textSize={px(24)}
+				textSize={px(SUGGESTION_TEXT_SIZE)}
 				textColor={palette.subtext0}
 				textXAlignment="Left"
 				textWrapped={true}
@@ -109,7 +113,7 @@ export function MainSuggestion({
 						: ""
 				}
 				textColor={palette.red}
-				textSize={px(24)}
+				textSize={px(SUGGESTION_TEXT_SIZE)}
 				textWrapped={true}
 				textXAlignment="Left"
 			/>

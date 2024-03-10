@@ -1,6 +1,6 @@
 import { TextService } from "@rbxts/services";
-import { DEFAULT_FONT, fonts } from "../../../constants/fonts";
 import { palette } from "../../../constants/palette";
+import { DEFAULT_FONT, fonts } from "../../../constants/text";
 import { ArgumentSuggestion, CommandSuggestion } from "../../../types";
 import { toHex } from "../../../util/color";
 import { SuggestionTextBounds } from "./types";
@@ -33,10 +33,10 @@ export function getSuggestionTextBounds(
 	TEXT_BOUNDS_PARAMS.Text = suggestion.title;
 	TEXT_BOUNDS_PARAMS.Size = titleTextSize;
 	TEXT_BOUNDS_PARAMS.Font = fonts.builder.bold;
-	TEXT_BOUNDS_PARAMS.Width = maxWidth;
 	const titleBounds = TextService.GetTextBoundsAsync(TEXT_BOUNDS_PARAMS);
 
 	// Get description text bounds
+	TEXT_BOUNDS_PARAMS.Width = maxWidth;
 	TEXT_BOUNDS_PARAMS.Size = textSize;
 	TEXT_BOUNDS_PARAMS.Font = DEFAULT_FONT;
 

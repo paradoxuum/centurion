@@ -8,8 +8,8 @@ import {
 	formatPartsAsPath,
 	splitStringBySpace,
 } from "../../../../shared/util/string";
-import { DEFAULT_FONT } from "../../constants/fonts";
 import { palette } from "../../constants/palette";
+import { DEFAULT_FONT, HISTORY_TEXT_SIZE } from "../../constants/text";
 import { useMotion } from "../../hooks/useMotion";
 import { usePx } from "../../hooks/usePx";
 import { useStore } from "../../hooks/useStore";
@@ -38,6 +38,10 @@ function getParentPath(parts: string[], atNextPart: boolean) {
 	return new ImmutablePath(result);
 }
 
+const MAX_HEIGHT = HISTORY_TEXT_SIZE * 10;
+const SHADOW_SIZE = 8;
+const TEXT_FIELD_HEIGHT = 40;
+
 export function TerminalWindow() {
 	const px = usePx();
 	const store = useStore();
@@ -59,7 +63,7 @@ export function TerminalWindow() {
 
 	const windowHeightBinding = useMemo(() => {
 		return historyHeight.map((y) => {
-			return new UDim2(1, 0, 0, math.ceil(px(80) + y));
+			return new UDim2(1, 0, 0, math.ceil(px(TEXT_FIELD_HEIGHT + 16) + y));
 		});
 	}, [px]);
 
@@ -97,18 +101,19 @@ export function TerminalWindow() {
 		const historySize = data.history.size();
 		let totalHeight = historySize > 0 ? px(8) + (historySize - 1) * px(8) : 0;
 
-		textBoundsParams.Size = px(24);
+		textBoundsParams.Size = HISTORY_TEXT_SIZE;
 
 		const historyLines: HistoryLineData[] = [];
 		for (const entry of data.history) {
 			textBoundsParams.Text = entry.text;
 			const textSize = TextService.GetTextBoundsAsync(textBoundsParams);
-			totalHeight += textSize.Y;
-			historyLines.push({ entry, height: textSize.Y });
+			const lineHeight = px(textSize.Y + 4);
+			totalHeight += lineHeight;
+			historyLines.push({ entry, height: lineHeight });
 		}
 
-		const isClamped = totalHeight > px(256);
-		const clampedHeight = isClamped ? px(256) : totalHeight;
+		const isClamped = totalHeight > px(MAX_HEIGHT);
+		const clampedHeight = isClamped ? px(MAX_HEIGHT) : totalHeight;
 		historyHeightMotion.spring(clampedHeight, {
 			mass: 0.1,
 			tension: 300,
@@ -135,15 +140,15 @@ export function TerminalWindow() {
 
 			<HistoryList
 				key="history"
-				size={new UDim2(1, 0, 1, -px(72))}
+				size={new UDim2(1, 0, 1, -px(TEXT_FIELD_HEIGHT + 8))}
 				data={historyData}
-				maxHeight={px(256)}
+				maxHeight={px(MAX_HEIGHT)}
 			/>
 
 			<TerminalTextField
 				key="text-field"
 				anchorPoint={new Vector2(0, 1)}
-				size={new UDim2(1, 0, 0, px(64))}
+				size={new UDim2(1, 0, 0, px(TEXT_FIELD_HEIGHT))}
 				position={UDim2.fromScale(0, 1)}
 				backgroundTransparency={options.backgroundTransparency}
 				onTextChange={(text) => {
@@ -286,7 +291,7 @@ export function TerminalWindow() {
 				}}
 			/>
 
-			<Shadow key="shadow" shadowSize={px(16)} />
+			<Shadow key="shadow" shadowSize={px(SHADOW_SIZE)} />
 		</Frame>
 	);
 }

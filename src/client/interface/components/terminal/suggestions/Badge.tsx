@@ -1,6 +1,6 @@
 import { BindingOrValue } from "@rbxts/pretty-react-hooks";
 import Roact from "@rbxts/roact";
-import { fonts } from "../../../constants/fonts";
+import { fonts } from "../../../constants/text";
 import { usePx } from "../../../hooks/usePx";
 import { Frame } from "../../interface/Frame";
 import { Text } from "../../interface/Text";
@@ -37,7 +37,7 @@ export function Badge({
 			size={size}
 			position={position}
 			backgroundColor={color}
-			cornerRadius={new UDim(0, px(8))}
+			cornerRadius={new UDim(0, px(4))}
 			visible={visible}
 			clipsDescendants
 		>

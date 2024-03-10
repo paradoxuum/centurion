@@ -1,7 +1,7 @@
 import Roact, { Ref, forwardRef } from "@rbxts/roact";
 
 import { BindingOrValue } from "@rbxts/pretty-react-hooks";
-import { DEFAULT_FONT } from "../../constants/fonts";
+import { DEFAULT_FONT } from "../../constants/text";
 import { TextProps } from "./Text";
 
 interface TextFieldProps extends TextProps<TextBox> {
@@ -24,7 +24,7 @@ export const TextField = forwardRef(
 				MultiLine={props.multiLine}
 				TextEditable={props.textEditable}
 				Font={Enum.Font.Unknown}
-				FontFace={props.font || DEFAULT_FONT}
+				FontFace={props.font ?? DEFAULT_FONT}
 				Text={props.text}
 				TextColor3={props.textColor}
 				TextSize={props.textSize}
@@ -46,8 +46,8 @@ export const TextField = forwardRef(
 				ZIndex={props.zIndex}
 				LayoutOrder={props.layoutOrder}
 				BorderSizePixel={0}
-				Event={props.event || {}}
-				Change={props.change || {}}
+				Event={props.event ?? {}}
+				Change={props.change ?? {}}
 			>
 				{props.cornerRadius && (
 					<uicorner key="corner" CornerRadius={props.cornerRadius} />
