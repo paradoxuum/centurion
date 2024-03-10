@@ -141,8 +141,7 @@ export function Suggestions() {
 
 	return (
 		<Group
-			size={new UDim2(1, 0, 0, px(MAX_SUGGESTION_WIDTH))}
-			clipsDescendants={true}
+			size={UDim2.fromScale(1, 1)}
 			visible={currentSuggestion !== undefined}
 		>
 			<MainSuggestion
