@@ -83,7 +83,7 @@ export function MainSuggestion({
 				textColor={palette.text}
 				textXAlignment="Left"
 				richText={true}
-				font={fonts.inter.bold}
+				font={fonts.builder.bold}
 			/>
 
 			<Text

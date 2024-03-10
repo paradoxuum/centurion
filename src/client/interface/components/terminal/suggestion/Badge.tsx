@@ -47,7 +47,7 @@ export function Badge({
 				textColor={textColor}
 				textSize={textSize}
 				size={UDim2.fromScale(1, 1)}
-				font={fonts.inter.bold}
+				font={fonts.builder.bold}
 				change={{
 					TextBounds: (rbx) => onTextBoundsChange?.(rbx.TextBounds),
 				}}

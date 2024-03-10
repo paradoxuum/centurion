@@ -66,7 +66,7 @@ export function HistoryLine({ data, size, position, order }: HistoryLineProps) {
 				textEditable={false}
 				textXAlignment="Left"
 				clearTextOnFocus={false}
-				font={fonts.inter.medium}
+				font={fonts.builder.medium}
 				richText
 			/>
 		</Group>

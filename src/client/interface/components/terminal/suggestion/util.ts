@@ -32,7 +32,7 @@ export function getSuggestionTextBounds(
 	// Get title text bounds
 	TEXT_BOUNDS_PARAMS.Text = suggestion.title;
 	TEXT_BOUNDS_PARAMS.Size = titleTextSize;
-	TEXT_BOUNDS_PARAMS.Font = fonts.inter.bold;
+	TEXT_BOUNDS_PARAMS.Font = fonts.builder.bold;
 	TEXT_BOUNDS_PARAMS.Width = maxWidth;
 	const titleBounds = TextService.GetTextBoundsAsync(TEXT_BOUNDS_PARAMS);
 

@@ -238,7 +238,7 @@ export function TerminalTextField({
 				textColor={valid ? palette.green : palette.red}
 				textXAlignment="Left"
 				clearTextOnFocus={false}
-				font={fonts.inter.medium}
+				font={fonts.builder.medium}
 				ref={ref}
 				event={{
 					FocusLost: (rbx, enterPressed) => {
@@ -283,7 +283,7 @@ export function TerminalTextField({
 				textColor={palette.surface2}
 				textSize={px(32)}
 				textXAlignment="Left"
-				font={fonts.inter.medium}
+				font={fonts.builder.medium}
 			/>
 		</Frame>
 	);
