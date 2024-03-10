@@ -152,6 +152,7 @@ export function TerminalWindow() {
 
 					if (parts.isEmpty()) {
 						store.clearSuggestions();
+						store.setCommand(undefined);
 						store.setArgIndex(undefined);
 						return;
 					}
