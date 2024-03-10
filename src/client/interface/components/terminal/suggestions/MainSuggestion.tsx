@@ -77,6 +77,7 @@ export function MainSuggestion({
 			<Text
 				key="title"
 				size={sizes.map((val) => val.title)}
+				position={UDim2.fromOffset(0, px(-4))}
 				text={
 					argument
 						? suggestion?.main.title
