@@ -85,6 +85,7 @@ export function MainSuggestion({
 				textSize={px(SUGGESTION_TITLE_TEXT_SIZE)}
 				textColor={palette.text}
 				textXAlignment="Left"
+				textYAlignment="Top"
 				richText={true}
 				font={options.font.bold}
 			/>
@@ -97,6 +98,7 @@ export function MainSuggestion({
 				textSize={px(SUGGESTION_TEXT_SIZE)}
 				textColor={palette.subtext0}
 				textXAlignment="Left"
+				textYAlignment="Top"
 				textWrapped={true}
 				richText={true}
 			/>
