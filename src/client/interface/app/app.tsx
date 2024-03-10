@@ -4,10 +4,11 @@ import { useEventListener } from "@rbxts/pretty-react-hooks";
 import { useSelector } from "@rbxts/react-reflex";
 import { createPortal, createRoot } from "@rbxts/react-roblox";
 import Roact, { StrictMode, useContext, useMemo } from "@rbxts/roact";
-import { Players, UserInputService } from "@rbxts/services";
+import { ContentProvider, Players, UserInputService } from "@rbxts/services";
 import { InterfaceContext } from "../../types";
 import { Layer } from "../components/interface/Layer";
 import Terminal from "../components/terminal/Terminal";
+import { fonts } from "../constants/fonts";
 import { DEFAULT_INTERFACE_OPTIONS } from "../constants/options";
 import { OptionsContext } from "../providers/optionsProvider";
 import { RootProvider } from "../providers/rootProvider";
@@ -50,11 +51,34 @@ function TerminalApp() {
 	);
 }
 
+const MAX_PRELOAD_ATTEMPTS = 3;
+const PRELOAD_ATTEMPT_INTERVAL = 3;
+
 export const CommanderInterface =
 	(options: Partial<InterfaceOptions> = {}) =>
 	(context: InterfaceContext) => {
 		const root = createRoot(new Instance("Folder"));
 		const target = Players.LocalPlayer.WaitForChild("PlayerGui");
+
+		// Attempt to preload font
+		task.spawn(() => {
+			let attempts = 0;
+			while (attempts < MAX_PRELOAD_ATTEMPTS) {
+				ContentProvider.PreloadAsync(
+					[fonts.builder.regular.Family],
+					(_, status) => {
+						if (status === Enum.AssetFetchStatus.Success) {
+							attempts = MAX_PRELOAD_ATTEMPTS;
+						}
+					},
+				);
+
+				if (attempts === MAX_PRELOAD_ATTEMPTS) break;
+				print("Wait...");
+				task.wait(PRELOAD_ATTEMPT_INTERVAL);
+				attempts++;
+			}
+		});
 
 		root.render(
 			createPortal(
