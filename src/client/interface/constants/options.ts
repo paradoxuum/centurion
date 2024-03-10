@@ -9,4 +9,5 @@ export const DEFAULT_INTERFACE_OPTIONS: InterfaceOptions = {
 		medium: new Font("rbxassetid://16658221428", Enum.FontWeight.Medium),
 		bold: new Font("rbxassetid://16658221428", Enum.FontWeight.Bold),
 	},
+	backgroundTransparency: 0.25,
 };
