@@ -1,5 +1,5 @@
 import { Players } from "@rbxts/services";
-import { ArgumentOptions, CommandOptions, Path } from "../shared";
+import { CommandOptions, Path } from "../shared";
 import { CommandGroup, RegistrationData } from "../shared/core/command";
 import { BaseRegistry } from "../shared/core/registry";
 import { Remotes, SyncData } from "../shared/network";
@@ -39,9 +39,7 @@ export class ServerRegistry extends BaseRegistry {
 			if (!this.commandFilter(path, player)) continue;
 
 			syncedCommands.set(path.toString(), {
-				name: command.options.name,
-				aliases: command.options.aliases as string[] | undefined,
-				arguments: command.options.arguments as ArgumentOptions[] | undefined,
+				...(command.options as CommandOptions),
 			});
 		}
 
