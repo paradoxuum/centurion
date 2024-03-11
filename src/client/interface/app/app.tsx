@@ -1,9 +1,9 @@
 import "./config";
 
 import { useEventListener } from "@rbxts/pretty-react-hooks";
+import React, { StrictMode, useContext, useMemo } from "@rbxts/react";
 import { useSelector } from "@rbxts/react-reflex";
 import { createPortal, createRoot } from "@rbxts/react-roblox";
-import Roact, { StrictMode, useContext, useMemo } from "@rbxts/roact";
 import { ContentProvider, Players, UserInputService } from "@rbxts/services";
 import { InterfaceContext } from "../../types";
 import { Layer } from "../components/interface/Layer";
@@ -44,8 +44,8 @@ function TerminalApp() {
 	});
 
 	return (
-		<Layer key="terminal" displayOrder={options.displayOrder} visible={visible}>
-			<Terminal key="terminal-layer" />
+		<Layer displayOrder={options.displayOrder} visible={visible}>
+			<Terminal />
 		</Layer>
 	);
 }
@@ -74,7 +74,6 @@ export const CommanderInterface =
 				});
 
 				if (attempts === MAX_PRELOAD_ATTEMPTS) break;
-				print("Wait...");
 				task.wait(PRELOAD_ATTEMPT_INTERVAL);
 				attempts++;
 			}
@@ -84,11 +83,10 @@ export const CommanderInterface =
 			createPortal(
 				<StrictMode>
 					<RootProvider
-						key="root-provider"
 						context={context}
 						options={{ ...DEFAULT_INTERFACE_OPTIONS, ...options }}
 					>
-						<TerminalApp key="terminal" />
+						<TerminalApp />
 					</RootProvider>
 				</StrictMode>,
 				target,

@@ -1,5 +1,5 @@
 import { BindingOrValue } from "@rbxts/pretty-react-hooks";
-import Roact, { useContext } from "@rbxts/roact";
+import React, { useContext } from "@rbxts/react";
 import { usePx } from "../../../hooks/usePx";
 import { OptionsContext } from "../../../providers/optionsProvider";
 import { Frame } from "../../interface/Frame";
@@ -43,7 +43,6 @@ export function Badge({
 			clipsDescendants
 		>
 			<Text
-				key="text"
 				text={text}
 				textColor={textColor}
 				textSize={textSize}

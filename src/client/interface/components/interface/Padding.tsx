@@ -1,5 +1,5 @@
 import { BindingOrValue } from "@rbxts/pretty-react-hooks";
-import Roact from "@rbxts/roact";
+import React from "@rbxts/react";
 
 interface Props {
 	all?: BindingOrValue<UDim>;

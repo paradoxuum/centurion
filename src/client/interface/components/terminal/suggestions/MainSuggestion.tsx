@@ -1,5 +1,5 @@
 import { BindingOrValue } from "@rbxts/pretty-react-hooks";
-import Roact, { Binding, useContext } from "@rbxts/roact";
+import React, { Binding, useContext } from "@rbxts/react";
 import { palette } from "../../../constants/palette";
 import {
 	SUGGESTION_TEXT_SIZE,
@@ -48,10 +48,9 @@ export function MainSuggestion({
 				MouseLeave: () => options.setMouseOnGUI(false),
 			}}
 		>
-			<Padding key="padding" all={new UDim(0, px(8))} />
+			<Padding all={new UDim(0, px(8))} />
 
 			<Badge
-				key="type-badge"
 				anchorPoint={new Vector2(1, 0)}
 				size={badgeWidth.map((width) =>
 					UDim2.fromOffset(math.round(width), px(24)),
@@ -75,7 +74,6 @@ export function MainSuggestion({
 			/>
 
 			<Text
-				key="title"
 				size={sizes.map((val) => val.title)}
 				position={UDim2.fromOffset(0, px(-4))}
 				text={
@@ -92,7 +90,6 @@ export function MainSuggestion({
 			/>
 
 			<Text
-				key="description"
 				size={sizes.map((val) => val.description)}
 				position={UDim2.fromOffset(0, px(SUGGESTION_TITLE_TEXT_SIZE))}
 				text={suggestion?.main.description ?? ""}
@@ -105,7 +102,6 @@ export function MainSuggestion({
 			/>
 
 			<Text
-				key="error"
 				anchorPoint={new Vector2(0, 1)}
 				size={sizes.map((val) => new UDim2(1, 0, 0, val.errorTextHeight))}
 				position={UDim2.fromScale(0, 1)}

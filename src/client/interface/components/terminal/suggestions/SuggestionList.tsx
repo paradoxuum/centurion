@@ -1,5 +1,5 @@
 import { BindingOrValue } from "@rbxts/pretty-react-hooks";
-import Roact, { useContext } from "@rbxts/roact";
+import React, { useContext } from "@rbxts/react";
 import { palette } from "../../../constants/palette";
 import { SUGGESTION_TEXT_SIZE } from "../../../constants/text";
 import { usePx } from "../../../hooks/usePx";
@@ -27,18 +27,13 @@ export function SuggestionList({
 
 	return (
 		<Group
-			key="other"
 			size={size}
 			event={{
 				MouseEnter: () => options.setMouseOnGUI(true),
 				MouseLeave: () => options.setMouseOnGUI(false),
 			}}
 		>
-			<uilistlayout
-				key="layout"
-				SortOrder="LayoutOrder"
-				Padding={new UDim(0, px(8))}
-			/>
+			<uilistlayout SortOrder="LayoutOrder" Padding={new UDim(0, px(8))} />
 
 			{suggestion?.others?.map((name, i) => {
 				return (
@@ -50,10 +45,9 @@ export function SuggestionList({
 						cornerRadius={new UDim(0, px(8))}
 						clipsDescendants={true}
 					>
-						<Padding key="padding" all={new UDim(0, px(4))} />
+						<Padding all={new UDim(0, px(4))} />
 
 						<Text
-							key="text"
 							size={new UDim2(1, 0, 1, 0)}
 							text={highlightMatching(name, currentText)}
 							textColor={palette.text}

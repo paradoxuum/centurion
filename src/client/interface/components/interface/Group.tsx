@@ -1,10 +1,10 @@
 import { BindingOrValue } from "@rbxts/pretty-react-hooks";
-import Roact, { forwardRef } from "@rbxts/roact";
+import React, { forwardRef } from "@rbxts/react";
 
-interface GroupProps extends Roact.PropsWithChildren {
-	ref?: Roact.Ref<Frame>;
-	event?: Roact.JsxInstanceEvents<Frame>;
-	change?: Roact.JsxInstanceChangeEvents<Frame>;
+interface GroupProps extends React.PropsWithChildren {
+	ref?: React.Ref<Frame>;
+	event?: React.InstanceEvent<Frame>;
+	change?: React.InstanceChangeEvent<Frame>;
 	size?: BindingOrValue<UDim2>;
 	position?: BindingOrValue<UDim2>;
 	anchorPoint?: BindingOrValue<Vector2>;
@@ -15,7 +15,7 @@ interface GroupProps extends Roact.PropsWithChildren {
 	zIndex?: BindingOrValue<number>;
 }
 
-export const Group = forwardRef((props: GroupProps, ref: Roact.Ref<Frame>) => {
+export const Group = forwardRef((props: GroupProps, ref: React.Ref<Frame>) => {
 	return (
 		<frame
 			ref={ref}

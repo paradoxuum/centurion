@@ -1,4 +1,4 @@
-import Roact, { createContext, useState } from "@rbxts/roact";
+import React, { createContext, useState } from "@rbxts/react";
 import { InterfaceOptions } from "../types";
 
 export interface InterfaceOptionsWithState extends InterfaceOptions {
@@ -11,7 +11,7 @@ export const OptionsContext = createContext<InterfaceOptionsWithState>(
 	{} as never,
 );
 
-export interface OptionsProviderProps extends Roact.PropsWithChildren {
+export interface OptionsProviderProps extends React.PropsWithChildren {
 	value: InterfaceOptions;
 }
 

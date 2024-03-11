@@ -3,12 +3,12 @@ import {
 	blend,
 	composeBindings,
 } from "@rbxts/pretty-react-hooks";
-import Roact, { useMemo } from "@rbxts/roact";
+import React, { useMemo } from "@rbxts/react";
 import { palette } from "../../constants/palette";
 import { usePx } from "../../hooks/usePx";
 import { Group } from "./Group";
 
-interface OutlineProps extends Roact.PropsWithChildren {
+interface OutlineProps extends React.PropsWithChildren {
 	readonly outlineTransparency?: BindingOrValue<number>;
 	readonly innerColor?: BindingOrValue<Color3>;
 	readonly outerColor?: BindingOrValue<Color3>;
@@ -95,14 +95,9 @@ export function Outline({
 
 	return (
 		<>
-			<Group
-				key="inner-border"
-				size={innerStyle.size}
-				position={innerStyle.position}
-			>
-				<uicorner key="corner" CornerRadius={innerStyle.radius} />
+			<Group size={innerStyle.size} position={innerStyle.position}>
+				<uicorner CornerRadius={innerStyle.radius} />
 				<uistroke
-					key="stroke"
 					Color={innerColor}
 					Transparency={innerStyle.transparency}
 					Thickness={innerThickness}
@@ -111,10 +106,9 @@ export function Outline({
 				</uistroke>
 			</Group>
 
-			<Group key="outer-border">
-				<uicorner key="corner" CornerRadius={cornerRadius} />
+			<Group>
+				<uicorner CornerRadius={cornerRadius} />
 				<uistroke
-					key="stroke"
 					Color={outerColor}
 					Transparency={outerStyle.transparency}
 					Thickness={outerThickness}

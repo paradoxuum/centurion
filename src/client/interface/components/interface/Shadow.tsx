@@ -1,10 +1,10 @@
 import { BindingOrValue, composeBindings } from "@rbxts/pretty-react-hooks";
-import Roact from "@rbxts/roact";
+import React from "@rbxts/react";
 import { images } from "../../constants/images";
 import { usePx } from "../../hooks/usePx";
 import { Image } from "./Image";
 
-interface ShadowProps extends Roact.PropsWithChildren {
+interface ShadowProps extends React.PropsWithChildren {
 	shadowBlur?: number;
 	shadowPosition?: BindingOrValue<number>;
 	shadowSize?: BindingOrValue<number | UDim2>;

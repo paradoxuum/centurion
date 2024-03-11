@@ -1,5 +1,5 @@
 import { BindingOrValue, mapBinding } from "@rbxts/pretty-react-hooks";
-import Roact, { useBinding, useEffect } from "@rbxts/roact";
+import React, { useBinding, useEffect } from "@rbxts/react";
 import { palette } from "../../../constants/palette";
 import { usePx } from "../../../hooks/usePx";
 import { HistoryLineData } from "../../../types";
@@ -61,11 +61,7 @@ export function HistoryList({
 				);
 			})}
 
-			<uilistlayout
-				key="layout"
-				Padding={new UDim(0, px(8))}
-				SortOrder="LayoutOrder"
-			/>
+			<uilistlayout Padding={new UDim(0, px(8))} SortOrder="LayoutOrder" />
 		</ScrollingFrame>
 	);
 }
