@@ -1,0 +1,25 @@
+name: Publish @next
+
+on:
+    workflow_dispatch:
+    schedule:
+        - cron: "0 7 * * *"
+
+jobs:
+    publish:
+        if: github.repository == 'paradoxuum/commander' && github.ref == 'refs/heads/main'
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout Repository
+              uses: actions/checkout@v3
+
+            - name: Install npm Dependencies
+              uses: bahmutov/npm-install@v1
+
+            - name: Publish @next
+              run: |
+                  git config user.name "GitHub Actions"
+                  git config user.email "noreply@github.com"
+                  echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > .npmrc
+                  npm version --no-git-tag-version $(cat package.json | jq -r .version)-dev.$(git rev-parse --short HEAD)
+                  npm publish --tag next
