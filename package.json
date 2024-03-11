@@ -4,7 +4,7 @@
 	"description": "A flexible command framework built for roblox-ts",
 	"main": "out/init.lua",
 	"scripts": {
-		"prepare": "npm run compile",
+		"prepack": "npm run compile",
 		"compile": "rm -rf out && rbxtsc --verbose",
 		"postcompile": "rm -rf out/**/*.test.* && echo \"return {}\" > out/client/interface/app/config.lua",
 		"watch": "rbxtsc -w --type=game -p test -i test/include",
