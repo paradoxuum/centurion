@@ -43,5 +43,9 @@
 		"@rbxts/rust-classes": "^0.12.0",
 		"@rbxts/services": "^1.5.4",
 		"@rbxts/t": "^3.1.1"
+	},
+	"peerDependencies": {
+		"@rbxts/roact": "*",
+		"@rbxts/react-roblox": "^0.2"
 	}
 }
