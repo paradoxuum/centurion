@@ -85,7 +85,6 @@ export function Suggestions() {
 
 		setSizes(textBounds);
 
-		print(textBounds.typeBadgeWidth);
 		let windowWidth =
 			math.max(textBounds.title.X.Offset, textBounds.description.X.Offset) +
 			px(PADDING * 2);

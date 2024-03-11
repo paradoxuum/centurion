@@ -74,7 +74,6 @@ export const CommanderInterface =
 				});
 
 				if (attempts === MAX_PRELOAD_ATTEMPTS) break;
-				print("Wait...");
 				task.wait(PRELOAD_ATTEMPT_INTERVAL);
 				attempts++;
 			}
