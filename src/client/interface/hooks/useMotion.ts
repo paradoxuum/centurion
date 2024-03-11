@@ -1,6 +1,6 @@
 import { useEventListener } from "@rbxts/pretty-react-hooks";
+import { Binding, useBinding, useMemo } from "@rbxts/react";
 import { Motion, MotionGoal, createMotion } from "@rbxts/ripple";
-import { Binding, useBinding, useMemo } from "@rbxts/roact";
 import { RunService } from "@rbxts/services";
 
 export function useMotion(

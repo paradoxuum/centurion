@@ -1,5 +1,5 @@
 import { useEventListener } from "@rbxts/pretty-react-hooks";
-import Roact, { createContext, useState } from "@rbxts/roact";
+import React, { createContext, useState } from "@rbxts/react";
 import { CommandOptions, GroupOptions, Path } from "../../../shared";
 import { DEFAULT_CLIENT_OPTIONS } from "../../options";
 import { ClientOptions, HistoryEntry, InterfaceContext } from "../../types";
@@ -28,7 +28,7 @@ export const DEFAULT_COMMANDER_CONTEXT: CommanderContextData = {
 	addHistoryEntry: () => {},
 };
 
-export interface CommanderProviderProps extends Roact.PropsWithChildren {
+export interface CommanderProviderProps extends React.PropsWithChildren {
 	value: InterfaceContext;
 }
 

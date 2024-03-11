@@ -1,6 +1,7 @@
-import Roact, { Ref, forwardRef, useContext } from "@rbxts/roact";
+import { Ref, forwardRef, useContext } from "@rbxts/react";
 
 import { BindingOrValue } from "@rbxts/pretty-react-hooks";
+import React from "@rbxts/react";
 import { OptionsContext } from "../../providers/optionsProvider";
 import { TextProps } from "./Text";
 
@@ -51,9 +52,7 @@ export const TextField = forwardRef(
 				Event={props.event ?? {}}
 				Change={props.change ?? {}}
 			>
-				{props.cornerRadius && (
-					<uicorner key="corner" CornerRadius={props.cornerRadius} />
-				)}
+				{props.cornerRadius && <uicorner CornerRadius={props.cornerRadius} />}
 				{props.children}
 			</textbox>
 		);

@@ -30,22 +30,20 @@
 		"@rbxts/compiler-types": "2.3.0-types.0",
 		"@rbxts/midori": "^0.1.3",
 		"@rbxts/types": "^1.0.760",
-		"roblox-ts": "^2.3.0",
+		"roblox-ts": "^2.3.0-dev-3a5b920",
 		"typescript": "=5.2"
 	},
 	"dependencies": {
-		"@rbxts/pretty-react-hooks": "^0.3.3",
-		"@rbxts/react-reflex": "^0.2.0",
-		"@rbxts/react-roblox": "^0.2.0",
+		"@rbxts/pretty-react-hooks": "^0.4.2",
+		"@rbxts/react-reflex": "^0.3.4",
 		"@rbxts/reflex": "^4.3.1",
 		"@rbxts/ripple": "^0.8.1",
-		"@rbxts/roact": "npm:@rbxts/react-ts@^1.0.1",
 		"@rbxts/rust-classes": "^0.12.0",
 		"@rbxts/services": "^1.5.4",
 		"@rbxts/t": "^3.1.1"
 	},
 	"peerDependencies": {
-		"@rbxts/roact": "*",
-		"@rbxts/react-roblox": "^0.2"
+		"@rbxts/react": "*",
+		"@rbxts/react-roblox": "^0.3.3"
 	}
 }

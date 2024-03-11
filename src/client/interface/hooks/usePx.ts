@@ -3,7 +3,7 @@ import {
 	useDebounceState,
 	useEventListener,
 } from "@rbxts/pretty-react-hooks";
-import { useMemo } from "@rbxts/roact";
+import { useMemo } from "@rbxts/react";
 
 interface ScaleFunction {
 	/**

@@ -1,11 +1,11 @@
 import { BindingOrValue } from "@rbxts/pretty-react-hooks";
-import Roact, { Ref, forwardRef } from "@rbxts/roact";
+import React, { Ref, forwardRef } from "@rbxts/react";
 import { FrameProps } from "./Frame";
 
 export interface ScrollingFrameProps extends FrameProps<ScrollingFrame> {
-	automaticSize?: Roact.InferEnumNames<Enum.AutomaticSize>;
-	automaticCanvasSize?: Roact.InferEnumNames<Enum.AutomaticSize>;
-	scrollingDirection?: Roact.InferEnumNames<Enum.ScrollingDirection>;
+	automaticSize?: React.InferEnumNames<Enum.AutomaticSize>;
+	automaticCanvasSize?: React.InferEnumNames<Enum.AutomaticSize>;
+	scrollingDirection?: React.InferEnumNames<Enum.ScrollingDirection>;
 	scrollBarThickness?: BindingOrValue<number>;
 	scrollBarColor?: BindingOrValue<Color3>;
 	scrollBarTransparency?: BindingOrValue<number>;
@@ -42,9 +42,7 @@ export const ScrollingFrame = forwardRef(
 				Event={props.event || {}}
 				Change={props.change || {}}
 			>
-				{props.cornerRadius && (
-					<uicorner key="corner" CornerRadius={props.cornerRadius} />
-				)}
+				{props.cornerRadius && <uicorner CornerRadius={props.cornerRadius} />}
 				{props.children}
 			</scrollingframe>
 		);

@@ -1,5 +1,5 @@
 import { BindingOrValue } from "@rbxts/pretty-react-hooks";
-import Roact, { useContext, useMemo } from "@rbxts/roact";
+import React, { useContext, useMemo } from "@rbxts/react";
 import { HistoryEntry } from "../../../../types";
 import { palette } from "../../../constants/palette";
 import { HISTORY_TEXT_SIZE } from "../../../constants/text";
@@ -33,13 +33,11 @@ export function HistoryLine({ data, size, position, order }: HistoryLineProps) {
 	return (
 		<Group size={size} position={position} layoutOrder={order}>
 			<Frame
-				key="date"
 				backgroundColor={palette.base}
 				size={UDim2.fromOffset(px(76), px(HISTORY_TEXT_SIZE + 4))}
 				cornerRadius={new UDim(0, px(4))}
 			>
 				<Text
-					key="text"
 					size={UDim2.fromScale(1, 1)}
 					text={date}
 					textColor={palette.text}
@@ -48,7 +46,6 @@ export function HistoryLine({ data, size, position, order }: HistoryLineProps) {
 				/>
 
 				<Outline
-					key="outline"
 					innerThickness={px(1)}
 					innerTransparency={0.25}
 					innerColor={data.success ? palette.green : palette.red}
@@ -58,7 +55,6 @@ export function HistoryLine({ data, size, position, order }: HistoryLineProps) {
 			</Frame>
 
 			<TextField
-				key="entry-text"
 				anchorPoint={new Vector2(1, 0)}
 				size={new UDim2(1, -px(84), 1, 0)}
 				position={UDim2.fromScale(1, 0)}

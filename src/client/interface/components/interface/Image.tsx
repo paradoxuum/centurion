@@ -1,4 +1,4 @@
-import Roact from "@rbxts/roact";
+import React from "@rbxts/react";
 
 import { BindingOrValue } from "@rbxts/pretty-react-hooks";
 import { FrameProps } from "./Frame";
@@ -9,7 +9,7 @@ export interface ImageProps extends FrameProps<ImageLabel> {
 	imageTransparency?: BindingOrValue<number>;
 	imageRectOffset?: BindingOrValue<Vector2>;
 	imageRectSize?: BindingOrValue<Vector2>;
-	scaleType?: Roact.InferEnumNames<Enum.ScaleType>;
+	scaleType?: React.InferEnumNames<Enum.ScaleType>;
 	sliceScale?: BindingOrValue<number>;
 	sliceCenter?: BindingOrValue<Rect>;
 	tileSize?: BindingOrValue<UDim2>;
@@ -41,9 +41,7 @@ export function Image(props: ImageProps) {
 			Event={props.event || {}}
 			Change={props.change || {}}
 		>
-			{props.cornerRadius && (
-				<uicorner key="corner" CornerRadius={props.cornerRadius} />
-			)}
+			{props.cornerRadius && <uicorner CornerRadius={props.cornerRadius} />}
 			{props.children}
 		</imagelabel>
 	);

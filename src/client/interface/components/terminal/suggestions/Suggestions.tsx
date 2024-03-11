@@ -1,10 +1,10 @@
-import { useSelector } from "@rbxts/react-reflex";
-import Roact, {
+import React, {
 	useBinding,
 	useContext,
 	useEffect,
 	useMemo,
-} from "@rbxts/roact";
+} from "@rbxts/react";
+import { useSelector } from "@rbxts/react-reflex";
 import { TextService } from "@rbxts/services";
 import { springs } from "../../../constants/springs";
 import {
@@ -144,7 +144,6 @@ export function Suggestions() {
 			visible={currentSuggestion !== undefined}
 		>
 			<MainSuggestion
-				key="main"
 				suggestion={currentSuggestion}
 				argument={currentSuggestion?.main.type === "argument"}
 				currentText={currentTextPart}
@@ -153,14 +152,12 @@ export function Suggestions() {
 			/>
 
 			<SuggestionList
-				key="other"
 				suggestion={currentSuggestion}
 				currentText={currentTextPart}
 				size={otherSuggestionSize}
 			/>
 
 			<uilistlayout
-				key="layout"
 				SortOrder="LayoutOrder"
 				Padding={new UDim(0, px(PADDING))}
 			/>

@@ -1,5 +1,5 @@
 import { useLatestCallback } from "@rbxts/pretty-react-hooks";
-import Roact, { useContext, useEffect, useMemo, useState } from "@rbxts/roact";
+import React, { useContext, useEffect, useMemo, useState } from "@rbxts/react";
 import { TextService } from "@rbxts/services";
 import { CommandOptions, ImmutablePath } from "../../../../shared";
 import { ArrayUtil } from "../../../../shared/util/data";
@@ -136,17 +136,15 @@ export function TerminalWindow() {
 				MouseLeave: () => options.setMouseOnGUI(false),
 			}}
 		>
-			<Padding key="padding" all={new UDim(0, px(8))} />
+			<Padding all={new UDim(0, px(8))} />
 
 			<HistoryList
-				key="history"
 				size={new UDim2(1, 0, 1, -px(TEXT_FIELD_HEIGHT + 8))}
 				data={historyData}
 				maxHeight={px(MAX_HEIGHT)}
 			/>
 
 			<TerminalTextField
-				key="text-field"
 				anchorPoint={new Vector2(0, 1)}
 				size={new UDim2(1, 0, 0, px(TEXT_FIELD_HEIGHT))}
 				position={UDim2.fromScale(0, 1)}
@@ -291,7 +289,7 @@ export function TerminalWindow() {
 				}}
 			/>
 
-			<Shadow key="shadow" shadowSize={px(SHADOW_SIZE)} />
+			<Shadow shadowSize={px(SHADOW_SIZE)} />
 		</Frame>
 	);
 }

@@ -4,15 +4,15 @@ import {
 	useEventListener,
 	useMountEffect,
 } from "@rbxts/pretty-react-hooks";
-import { useSelector } from "@rbxts/react-reflex";
-import Roact, {
+import React, {
 	useBinding,
 	useCallback,
 	useContext,
 	useEffect,
 	useRef,
 	useState,
-} from "@rbxts/roact";
+} from "@rbxts/react";
+import { useSelector } from "@rbxts/react-reflex";
 import { UserInputService } from "@rbxts/services";
 import {
 	endsWithSpace,
@@ -242,10 +242,9 @@ export function TerminalTextField({
 			backgroundTransparency={backgroundTransparency}
 			cornerRadius={new UDim(0, px(4))}
 		>
-			<Padding key="padding" all={new UDim(0, px(8))} />
+			<Padding all={new UDim(0, px(8))} />
 
 			<TextField
-				key="textbox"
 				size={UDim2.fromScale(1, 1)}
 				placeholderText="Enter command..."
 				text={text}
@@ -292,7 +291,6 @@ export function TerminalTextField({
 			/>
 
 			<Text
-				key="suggestion-text"
 				size={UDim2.fromScale(1, 1)}
 				text={suggestionText}
 				textColor={palette.surface2}

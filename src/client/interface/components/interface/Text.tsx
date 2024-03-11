@@ -1,5 +1,5 @@
 import { BindingOrValue } from "@rbxts/pretty-react-hooks";
-import Roact, { Ref, forwardRef, useContext } from "@rbxts/roact";
+import React, { Ref, forwardRef, useContext } from "@rbxts/react";
 import { usePx } from "../../hooks/usePx";
 import { OptionsContext } from "../../providers/optionsProvider";
 import { FrameProps } from "./Frame";
@@ -12,9 +12,9 @@ export interface TextProps<T extends Instance = TextLabel>
 	textSize?: BindingOrValue<number>;
 	textTransparency?: BindingOrValue<number>;
 	textWrapped?: BindingOrValue<boolean>;
-	textXAlignment?: Roact.InferEnumNames<Enum.TextXAlignment>;
-	textYAlignment?: Roact.InferEnumNames<Enum.TextYAlignment>;
-	textTruncate?: Roact.InferEnumNames<Enum.TextTruncate>;
+	textXAlignment?: React.InferEnumNames<Enum.TextXAlignment>;
+	textYAlignment?: React.InferEnumNames<Enum.TextYAlignment>;
+	textTruncate?: React.InferEnumNames<Enum.TextTruncate>;
 	textScaled?: BindingOrValue<boolean>;
 	textHeight?: BindingOrValue<number>;
 	textAutoResize?: "X" | "Y" | "XY";
@@ -56,9 +56,7 @@ export const Text = forwardRef((props: TextProps, ref: Ref<TextLabel>) => {
 			Change={props.change || {}}
 			Event={props.event || {}}
 		>
-			{props.cornerRadius && (
-				<uicorner key="corner" CornerRadius={props.cornerRadius} />
-			)}
+			{props.cornerRadius && <uicorner CornerRadius={props.cornerRadius} />}
 			{props.children}
 		</textlabel>
 	);
