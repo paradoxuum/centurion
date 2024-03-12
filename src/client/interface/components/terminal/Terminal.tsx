@@ -16,7 +16,7 @@ export default function Terminal() {
 			size={options.size ?? new UDim2(0, px(1024), 1, 0)}
 			position={
 				options.position ??
-				UDim2.fromOffset(px(16), px(16) + GuiService.GetGuiInset()[0].Y)
+				UDim2.fromOffset(px(16), px(8) + GuiService.GetGuiInset()[0].Y)
 			}
 		>
 			<TerminalWindow />
