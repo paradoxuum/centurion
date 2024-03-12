@@ -11,7 +11,7 @@ jobs:
         runs-on: ubuntu-latest
         outputs:
             version: ${{ env.VERSION }}
-            version_changed: ${{ steps.version.outputs.changed }}
+            version_changed: ${{ env.VERSION_CHANGED }}
         steps:
             - name: Checkout Repository
               uses: actions/checkout@v4
@@ -21,11 +21,10 @@ jobs:
                   echo "VERSION=$(cat package.json | jq -r .version)-dev.$(git rev-parse --short HEAD)" >> $GITHUB_ENV
                   npm version --no-git-tag-version ${{ env.VERSION }}
 
-            - name: Check version changes
-              uses: EndBug/version-check@v2
-              id: version
-              with:
-                  static-checking: localIsNew
+            - name: Check version
+              run: |
+                  LATEST_VERSION=$(curl --silent https://registry.npmjs.org/@rbxts/commander | jq -r '."dist-tags" | .next')
+                  echo "VERSION_CHANGED=$(test ${{ env.VERSION }} != $LATEST_VERSION && echo true || echo false)" >> $GITHUB_ENV
 
     publish:
         runs-on: ubuntu-latest
