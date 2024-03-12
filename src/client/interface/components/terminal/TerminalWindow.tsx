@@ -21,7 +21,6 @@ import {
 } from "../../util/suggestion";
 import { Frame } from "../interface/Frame";
 import { Padding } from "../interface/Padding";
-import { Shadow } from "../interface/Shadow";
 import { TerminalTextField } from "./TerminalTextField";
 import { HistoryData, HistoryList } from "./history";
 
@@ -287,8 +286,6 @@ export function TerminalWindow() {
 					data.execute(commandPath, text);
 				}}
 			/>
-
-			<Shadow shadowSize={px(SHADOW_SIZE)} />
 		</Frame>
 	);
 }
