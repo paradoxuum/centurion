@@ -1,5 +1,6 @@
-import { BindingOrValue } from "@rbxts/pretty-react-hooks";
-import React, { Binding, useContext } from "@rbxts/react";
+import { BindingOrValue, lerpBinding } from "@rbxts/pretty-react-hooks";
+import React, { Binding, useContext, useEffect } from "@rbxts/react";
+import { springs } from "../../../constants/springs";
 import {
 	SUGGESTION_TEXT_SIZE,
 	SUGGESTION_TITLE_TEXT_SIZE,
@@ -33,7 +34,15 @@ export function MainSuggestion({
 	const px = usePx();
 	const options = useContext(OptionsContext);
 
+	const [titleHeight, titleHeightMotion] = useMotion(0);
 	const [badgeWidth, badgeWidthMotion] = useMotion(0);
+
+	useEffect(() => {
+		titleHeightMotion.spring(
+			suggestion?.main.description !== undefined ? 1 : 0,
+			springs.responsive,
+		);
+	}, [suggestion]);
 
 	return (
 		<Frame
@@ -74,7 +83,11 @@ export function MainSuggestion({
 
 			<Text
 				size={sizes.map((val) => val.title)}
-				position={UDim2.fromOffset(0, px(-4))}
+				position={lerpBinding(
+					titleHeight,
+					UDim2.fromOffset(0, 0),
+					UDim2.fromOffset(0, px(-4)),
+				)}
 				text={
 					argument
 						? suggestion?.main.title
