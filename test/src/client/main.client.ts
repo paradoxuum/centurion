@@ -7,7 +7,7 @@ CommanderClient.start(
 		registry.register(commandContainer);
 	},
 	{
-		interface: CommanderInterface(),
+		interface: CommanderInterface.create(),
 	},
 ).catch((err) => {
 	warn(`An error occurred and Commander could not be started: ${err}`);

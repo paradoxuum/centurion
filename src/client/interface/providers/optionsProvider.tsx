@@ -1,3 +1,4 @@
+import { useEventListener } from "@rbxts/pretty-react-hooks";
 import React, { createContext, useState } from "@rbxts/react";
 import { InterfaceOptions } from "../types";
 
@@ -13,13 +14,27 @@ export const OptionsContext = createContext<InterfaceOptionsWithState>(
 
 export interface OptionsProviderProps extends React.PropsWithChildren {
 	value: InterfaceOptions;
+	changed: RBXScriptSignal<(options: Partial<InterfaceOptions>) => void>;
 }
 
-export function OptionsProvider({ value, children }: OptionsProviderProps) {
+export function OptionsProvider({
+	value,
+	changed,
+	children,
+}: OptionsProviderProps) {
 	const [isMouseOnGUI, setMouseOnGUI] = useState(false);
+	const [options, setOptions] = useState<InterfaceOptions>({
+		...value,
+	});
+
+	useEventListener(changed, (options) => {
+		setOptions((prev) => ({ ...prev, ...options }));
+	});
 
 	return (
-		<OptionsContext.Provider value={{ ...value, isMouseOnGUI, setMouseOnGUI }}>
+		<OptionsContext.Provider
+			value={{ ...options, isMouseOnGUI, setMouseOnGUI }}
+		>
 			{children}
 		</OptionsContext.Provider>
 	);
