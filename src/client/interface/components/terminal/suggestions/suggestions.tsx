@@ -11,14 +11,14 @@ import {
 	SUGGESTION_TEXT_SIZE,
 	SUGGESTION_TITLE_TEXT_SIZE,
 } from "../../../constants/text";
-import { useMotion } from "../../../hooks/useMotion";
-import { usePx } from "../../../hooks/usePx";
-import { OptionsContext } from "../../../providers/optionsProvider";
+import { useMotion } from "../../../hooks/use-motion";
+import { usePx } from "../../../hooks/use-px";
+import { OptionsContext } from "../../../providers/options-provider";
 import { selectCurrentSuggestion } from "../../../store/suggestion";
 import { selectText } from "../../../store/text";
-import { Group } from "../../interface/Group";
-import { MainSuggestion } from "./MainSuggestion";
-import { SuggestionList } from "./SuggestionList";
+import { Group } from "../../interface/group";
+import { MainSuggestion } from "./main-suggestion";
+import { SuggestionList } from "./suggestion-list";
 import { SuggestionTextBounds } from "./types";
 import { getSuggestionTextBounds } from "./util";
 

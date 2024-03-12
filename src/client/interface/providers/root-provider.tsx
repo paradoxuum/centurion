@@ -3,8 +3,8 @@ import { ReflexProvider } from "@rbxts/react-reflex";
 import { InterfaceContext } from "../../types";
 import { store } from "../store";
 import { InterfaceOptions } from "../types";
-import { CommanderProvider } from "./commanderProvider";
-import { OptionsProvider } from "./optionsProvider";
+import { CommanderProvider } from "./commander-provider";
+import { OptionsProvider } from "./options-provider";
 
 interface RootProviderProps extends React.PropsWithChildren {
 	context: InterfaceContext;

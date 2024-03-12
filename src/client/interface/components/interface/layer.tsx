@@ -1,6 +1,6 @@
 import React from "@rbxts/react";
 import { IS_EDIT } from "../../constants/util";
-import { Group } from "./Group";
+import { Group } from "./group";
 
 interface LayerProps extends React.PropsWithChildren {
 	visible?: boolean;

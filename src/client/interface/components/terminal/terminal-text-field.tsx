@@ -18,19 +18,19 @@ import {
 	endsWithSpace,
 	formatPartsAsPath,
 } from "../../../../shared/util/string";
-import { usePx } from "../../hooks/usePx";
-import { useStore } from "../../hooks/useStore";
-import { CommanderContext } from "../../providers/commanderProvider";
-import { OptionsContext } from "../../providers/optionsProvider";
+import { usePx } from "../../hooks/use-px";
+import { useStore } from "../../hooks/use-store";
+import { CommanderContext } from "../../providers/commander-provider";
+import { OptionsContext } from "../../providers/options-provider";
 import { selectVisible } from "../../store/app";
 import { selectCommand } from "../../store/command";
 import { selectCurrentSuggestion } from "../../store/suggestion";
 import { selectValid } from "../../store/text";
 import { getArgumentNames } from "../../util/argument";
-import { Frame } from "../interface/Frame";
-import { Padding } from "../interface/Padding";
-import { Text } from "../interface/Text";
-import { TextField } from "../interface/TextField";
+import { Frame } from "../interface/frame";
+import { Padding } from "../interface/padding";
+import { Text } from "../interface/text";
+import { TextField } from "../interface/text-field";
 
 interface TerminalTextFieldProps {
 	anchorPoint?: BindingOrValue<Vector2>;

@@ -1,9 +1,9 @@
 import { BindingOrValue } from "@rbxts/pretty-react-hooks";
 import React, { useContext } from "@rbxts/react";
-import { usePx } from "../../../hooks/usePx";
-import { OptionsContext } from "../../../providers/optionsProvider";
-import { Frame } from "../../interface/Frame";
-import { Text } from "../../interface/Text";
+import { usePx } from "../../../hooks/use-px";
+import { OptionsContext } from "../../../providers/options-provider";
+import { Frame } from "../../interface/frame";
+import { Text } from "../../interface/text";
 
 interface BadgeProps {
 	anchorPoint?: BindingOrValue<Vector2>;

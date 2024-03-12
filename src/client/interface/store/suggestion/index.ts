@@ -1,2 +1,2 @@
-export * from "./suggestionSelectors";
-export * from "./suggestionSlice";
+export * from "./suggestion-selectors";
+export * from "./suggestion-slice";

@@ -4,8 +4,8 @@ import {
 	composeBindings,
 } from "@rbxts/pretty-react-hooks";
 import React, { useMemo } from "@rbxts/react";
-import { usePx } from "../../hooks/usePx";
-import { Group } from "./Group";
+import { usePx } from "../../hooks/use-px";
+import { Group } from "./group";
 
 interface OutlineProps extends React.PropsWithChildren {
 	readonly outlineTransparency?: BindingOrValue<number>;

@@ -1,8 +1,8 @@
 import { BindingOrValue } from "@rbxts/pretty-react-hooks";
 import React, { Ref, forwardRef, useContext } from "@rbxts/react";
-import { usePx } from "../../hooks/usePx";
-import { OptionsContext } from "../../providers/optionsProvider";
-import { FrameProps } from "./Frame";
+import { usePx } from "../../hooks/use-px";
+import { OptionsContext } from "../../providers/options-provider";
+import { FrameProps } from "./frame";
 
 export interface TextProps<T extends Instance = TextLabel>
 	extends FrameProps<T> {

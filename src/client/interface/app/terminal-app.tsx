@@ -2,9 +2,9 @@ import { useEventListener } from "@rbxts/pretty-react-hooks";
 import React, { useContext, useMemo } from "@rbxts/react";
 import { useSelector } from "@rbxts/react-reflex";
 import { UserInputService } from "@rbxts/services";
-import { Layer } from "../components/interface/Layer";
-import Terminal from "../components/terminal/Terminal";
-import { OptionsContext } from "../providers/optionsProvider";
+import { Layer } from "../components/interface/layer";
+import Terminal from "../components/terminal/terminal";
+import { OptionsContext } from "../providers/options-provider";
 import { store } from "../store";
 import { selectVisible } from "../store/app";
 

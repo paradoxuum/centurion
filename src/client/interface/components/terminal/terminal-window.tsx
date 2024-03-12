@@ -9,20 +9,20 @@ import {
 	splitStringBySpace,
 } from "../../../../shared/util/string";
 import { HISTORY_TEXT_SIZE } from "../../constants/text";
-import { useMotion } from "../../hooks/useMotion";
-import { usePx } from "../../hooks/usePx";
-import { useStore } from "../../hooks/useStore";
-import { CommanderContext } from "../../providers/commanderProvider";
-import { OptionsContext } from "../../providers/optionsProvider";
+import { useMotion } from "../../hooks/use-motion";
+import { usePx } from "../../hooks/use-px";
+import { useStore } from "../../hooks/use-store";
+import { CommanderContext } from "../../providers/commander-provider";
+import { OptionsContext } from "../../providers/options-provider";
 import { HistoryLineData, Suggestion } from "../../types";
 import {
 	getArgumentSuggestion,
 	getCommandSuggestion,
 } from "../../util/suggestion";
-import { Frame } from "../interface/Frame";
-import { Padding } from "../interface/Padding";
-import { TerminalTextField } from "./TerminalTextField";
+import { Frame } from "../interface/frame";
+import { Padding } from "../interface/padding";
 import { HistoryData, HistoryList } from "./history";
+import { TerminalTextField } from "./terminal-text-field";
 
 function getParentPath(parts: string[], atNextPart: boolean) {
 	if (!atNextPart && parts.size() <= 1) {

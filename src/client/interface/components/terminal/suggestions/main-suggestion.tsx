@@ -5,14 +5,14 @@ import {
 	SUGGESTION_TEXT_SIZE,
 	SUGGESTION_TITLE_TEXT_SIZE,
 } from "../../../constants/text";
-import { useMotion } from "../../../hooks/useMotion";
-import { usePx } from "../../../hooks/usePx";
-import { OptionsContext } from "../../../providers/optionsProvider";
+import { useMotion } from "../../../hooks/use-motion";
+import { usePx } from "../../../hooks/use-px";
+import { OptionsContext } from "../../../providers/options-provider";
 import { ArgumentSuggestion, Suggestion } from "../../../types";
-import { Frame } from "../../interface/Frame";
-import { Padding } from "../../interface/Padding";
-import { Text } from "../../interface/Text";
-import { Badge } from "./Badge";
+import { Frame } from "../../interface/frame";
+import { Padding } from "../../interface/padding";
+import { Text } from "../../interface/text";
+import { Badge } from "./badge";
 import { SuggestionTextBounds } from "./types";
 import { highlightMatching } from "./util";
 

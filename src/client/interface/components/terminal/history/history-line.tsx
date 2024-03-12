@@ -2,13 +2,13 @@ import { BindingOrValue } from "@rbxts/pretty-react-hooks";
 import React, { useContext, useMemo } from "@rbxts/react";
 import { HistoryEntry } from "../../../../types";
 import { HISTORY_TEXT_SIZE } from "../../../constants/text";
-import { usePx } from "../../../hooks/usePx";
-import { OptionsContext } from "../../../providers/optionsProvider";
-import { Frame } from "../../interface/Frame";
-import { Group } from "../../interface/Group";
-import { Outline } from "../../interface/Outline";
-import { Text } from "../../interface/Text";
-import { TextField } from "../../interface/TextField";
+import { usePx } from "../../../hooks/use-px";
+import { OptionsContext } from "../../../providers/options-provider";
+import { Frame } from "../../interface/frame";
+import { Group } from "../../interface/group";
+import { Outline } from "../../interface/outline";
+import { Text } from "../../interface/text";
+import { TextField } from "../../interface/text-field";
 
 interface HistoryLineProps {
 	data: HistoryEntry;

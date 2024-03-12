@@ -2,8 +2,8 @@ import { Ref, forwardRef, useContext } from "@rbxts/react";
 
 import { BindingOrValue } from "@rbxts/pretty-react-hooks";
 import React from "@rbxts/react";
-import { OptionsContext } from "../../providers/optionsProvider";
-import { TextProps } from "./Text";
+import { OptionsContext } from "../../providers/options-provider";
+import { TextProps } from "./text";
 
 interface TextFieldProps extends TextProps<TextBox> {
 	text?: BindingOrValue<string>;

@@ -1,7 +1,7 @@
 import React from "@rbxts/react";
 
 import { BindingOrValue } from "@rbxts/pretty-react-hooks";
-import { FrameProps } from "./Frame";
+import { FrameProps } from "./frame";
 
 export interface ImageProps extends FrameProps<ImageLabel> {
 	image: string;

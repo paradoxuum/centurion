@@ -1,13 +1,13 @@
 import { BindingOrValue } from "@rbxts/pretty-react-hooks";
 import React, { useContext } from "@rbxts/react";
 import { SUGGESTION_TEXT_SIZE } from "../../../constants/text";
-import { usePx } from "../../../hooks/usePx";
-import { OptionsContext } from "../../../providers/optionsProvider";
+import { usePx } from "../../../hooks/use-px";
+import { OptionsContext } from "../../../providers/options-provider";
 import { Suggestion } from "../../../types";
-import { Frame } from "../../interface/Frame";
-import { Group } from "../../interface/Group";
-import { Padding } from "../../interface/Padding";
-import { Text } from "../../interface/Text";
+import { Frame } from "../../interface/frame";
+import { Group } from "../../interface/group";
+import { Padding } from "../../interface/padding";
+import { Text } from "../../interface/text";
 import { highlightMatching } from "./util";
 
 export interface SuggestionListProps {

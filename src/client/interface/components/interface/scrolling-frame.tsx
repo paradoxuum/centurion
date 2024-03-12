@@ -1,6 +1,6 @@
 import { BindingOrValue } from "@rbxts/pretty-react-hooks";
 import React, { Ref, forwardRef } from "@rbxts/react";
-import { FrameProps } from "./Frame";
+import { FrameProps } from "./frame";
 
 export interface ScrollingFrameProps extends FrameProps<ScrollingFrame> {
 	automaticSize?: React.InferEnumNames<Enum.AutomaticSize>;

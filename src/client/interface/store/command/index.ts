@@ -1,2 +1,2 @@
-export * from "./commandSelectors";
-export * from "./commandSlice";
+export * from "./command-selectors";
+export * from "./command-slice";

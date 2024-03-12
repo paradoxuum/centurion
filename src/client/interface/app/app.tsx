@@ -5,7 +5,7 @@ import { createPortal, createRoot } from "@rbxts/react-roblox";
 import { ContentProvider, Players } from "@rbxts/services";
 import { InterfaceContext } from "../../types";
 import { DEFAULT_INTERFACE_OPTIONS } from "../constants/options";
-import { RootProvider } from "../providers/rootProvider";
+import { RootProvider } from "../providers/root-provider";
 import { InterfaceOptions } from "../types";
 import { TerminalApp } from "./terminal-app";
 

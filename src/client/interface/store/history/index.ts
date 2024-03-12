@@ -1,1 +1,1 @@
-export * from "./historySlice";
+export * from "./history-slice";

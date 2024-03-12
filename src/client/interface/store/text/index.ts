@@ -1,2 +1,2 @@
-export * from "./textSelectors";
-export * from "./textSlice";
+export * from "./text-selectors";
+export * from "./text-slice";
