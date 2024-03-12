@@ -4,10 +4,11 @@ import { Command, CommandInteraction, CommanderType } from "../../shared";
 export class ThemeCommand {
 	@Command({
 		name: "theme",
+		description: "Change the interface's palette",
 		arguments: [
 			{
-				name: "theme",
-				description: "The theme to set",
+				name: "name",
+				description: "The name of the palette to set",
 				type: CommanderType.String,
 			},
 		],
