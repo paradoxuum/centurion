@@ -122,6 +122,47 @@ export abstract class BaseRegistry {
 	}
 
 	/**
+	 * Registers a list of groups.
+	 *
+	 * @param groups The groups to register
+	 */
+	registerGroups(...groups: GroupOptions[]) {
+		const childMap = new Map<string, GroupOptions[]>();
+		for (const group of groups) {
+			if (group.root !== undefined) {
+				const childArray = childMap.get(group.root) ?? [];
+				childArray.push(group);
+				childMap.set(group.root, childArray);
+				continue;
+			}
+
+			if (this.groups.has(group.name)) {
+				warn("Skipping duplicate group:", group.name);
+				continue;
+			}
+
+			this.validatePath(group.name, false);
+			this.updateGroupMap(group.name, this.createGroup(group));
+		}
+
+		for (const [root, children] of childMap) {
+			const rootGroup = this.groups.get(root);
+			assert(rootGroup !== undefined, `Parent group '${root}' does not exist'`);
+
+			for (const child of children) {
+				if (rootGroup.hasGroup(child.name)) {
+					warn(`Skipping duplicate child group in ${root}: ${child}`);
+					continue;
+				}
+
+				const childGroup = this.createGroup(child);
+				rootGroup.addGroup(childGroup);
+				this.updateGroupMap(childGroup.path.toString(), childGroup);
+			}
+		}
+	}
+
+	/**
 	 * Gets a registered type.
 	 *
 	 * @param name The name of the type
@@ -292,11 +333,6 @@ export abstract class BaseRegistry {
 		);
 		const globalGroups = classOptions?.globalGroups ?? [];
 
-		// Register command groups
-		if (classOptions?.groups !== undefined) {
-			this.registerGroups(classOptions.groups);
-		}
-
 		for (const name of MetadataReflect.getOwnProperties(commandClass)) {
 			// Get decorator data
 			const metadata = MetadataReflect.getOwnMetadata<CommandMetadata>(
@@ -346,42 +382,6 @@ export abstract class BaseRegistry {
 				},
 				commandGroup,
 			);
-		}
-	}
-
-	protected registerGroups(groups: GroupOptions[]) {
-		const childMap = new Map<string, GroupOptions[]>();
-		for (const group of groups) {
-			if (group.root !== undefined) {
-				const childArray = childMap.get(group.root) ?? [];
-				childArray.push(group);
-				childMap.set(group.root, childArray);
-				continue;
-			}
-
-			if (this.groups.has(group.name)) {
-				warn("Skipping duplicate group:", group.name);
-				continue;
-			}
-
-			this.validatePath(group.name, false);
-			this.updateGroupMap(group.name, this.createGroup(group));
-		}
-
-		for (const [root, children] of childMap) {
-			const rootGroup = this.groups.get(root);
-			assert(rootGroup !== undefined, `Parent group '${root}' does not exist'`);
-
-			for (const child of children) {
-				if (rootGroup.hasGroup(child.name)) {
-					warn(`Skipping duplicate child group in ${root}: ${child}`);
-					continue;
-				}
-
-				const childGroup = this.createGroup(child);
-				rootGroup.addGroup(childGroup);
-				this.updateGroupMap(childGroup.path.toString(), childGroup);
-			}
 		}
 	}
 

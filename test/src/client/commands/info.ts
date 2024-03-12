@@ -7,22 +7,6 @@ import {
 } from "@rbxts/commander";
 
 @Commander({
-	groups: [
-		{
-			name: "info",
-			description: "View info about a user or the server",
-		},
-		{
-			name: "user",
-			description: "View info about a user",
-			root: "info",
-		},
-		{
-			name: "server",
-			description: "View info about the server",
-			root: "info",
-		},
-	],
 	globalGroups: ["info"],
 })
 class InfoCommand {

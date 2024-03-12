@@ -42,7 +42,7 @@ export class ClientRegistry extends BaseRegistry {
 			}
 
 			this.registerGroups(
-				data.groups.filter((group) => !syncedGroups.has(getGroupKey(group))),
+				...data.groups.filter((group) => !syncedGroups.has(getGroupKey(group))),
 			);
 			this.registerServerCommands(data.commands);
 
