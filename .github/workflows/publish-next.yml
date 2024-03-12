@@ -24,6 +24,8 @@ jobs:
             - name: Check version changes
               uses: EndBug/version-check@v2
               id: version
+              with:
+                  static-checking: localIsNew
 
     publish:
         runs-on: ubuntu-latest
