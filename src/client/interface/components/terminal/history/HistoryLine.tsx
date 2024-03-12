@@ -1,7 +1,6 @@
 import { BindingOrValue } from "@rbxts/pretty-react-hooks";
 import React, { useContext, useMemo } from "@rbxts/react";
 import { HistoryEntry } from "../../../../types";
-import { palette } from "../../../constants/palette";
 import { HISTORY_TEXT_SIZE } from "../../../constants/text";
 import { usePx } from "../../../hooks/usePx";
 import { OptionsContext } from "../../../providers/optionsProvider";
@@ -33,14 +32,14 @@ export function HistoryLine({ data, size, position, order }: HistoryLineProps) {
 	return (
 		<Group size={size} position={position} layoutOrder={order}>
 			<Frame
-				backgroundColor={palette.base}
+				backgroundColor={options.palette.surface}
 				size={UDim2.fromOffset(px(76), px(HISTORY_TEXT_SIZE + 4))}
 				cornerRadius={new UDim(0, px(4))}
 			>
 				<Text
 					size={UDim2.fromScale(1, 1)}
 					text={date}
-					textColor={palette.text}
+					textColor={options.palette.text}
 					textSize={px(HISTORY_TEXT_SIZE)}
 					richText={true}
 				/>
@@ -48,7 +47,9 @@ export function HistoryLine({ data, size, position, order }: HistoryLineProps) {
 				<Outline
 					innerThickness={px(1)}
 					innerTransparency={0.25}
-					innerColor={data.success ? palette.green : palette.red}
+					innerColor={
+						data.success ? options.palette.success : options.palette.error
+					}
 					outerThickness={0}
 					cornerRadius={new UDim(0, px(4))}
 				/>
@@ -60,7 +61,7 @@ export function HistoryLine({ data, size, position, order }: HistoryLineProps) {
 				position={UDim2.fromScale(1, 0)}
 				text={data.text}
 				textSize={px(HISTORY_TEXT_SIZE)}
-				textColor={data.success ? palette.text : palette.red}
+				textColor={data.success ? options.palette.text : options.palette.error}
 				textEditable={false}
 				textXAlignment="Left"
 				clearTextOnFocus={false}

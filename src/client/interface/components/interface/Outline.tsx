@@ -4,7 +4,6 @@ import {
 	composeBindings,
 } from "@rbxts/pretty-react-hooks";
 import React, { useMemo } from "@rbxts/react";
-import { palette } from "../../constants/palette";
 import { usePx } from "../../hooks/usePx";
 import { Group } from "./Group";
 
@@ -23,10 +22,13 @@ function ceilEven(n: number) {
 	return math.ceil(n / 2) * 2;
 }
 
+const DEFAULT_INNER_COLOR = new Color3(1, 1, 1);
+const DEFAULT_OUTER_COLOR = new Color3(0, 0, 0);
+
 export function Outline({
 	outlineTransparency = 0,
-	innerColor = palette.white,
-	outerColor = palette.black,
+	innerColor = DEFAULT_INNER_COLOR,
+	outerColor = DEFAULT_OUTER_COLOR,
 	innerTransparency = 0.9,
 	outerTransparency = 0.85,
 	innerThickness,

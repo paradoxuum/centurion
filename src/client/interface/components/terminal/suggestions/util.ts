@@ -1,18 +1,22 @@
 import { TextService } from "@rbxts/services";
-import { palette } from "../../../constants/palette";
 import {
 	ArgumentSuggestion,
 	CommandSuggestion,
 	InterfaceOptions,
 } from "../../../types";
-import { toHex } from "../../../util/color";
 import { SuggestionTextBounds } from "./types";
 
-const HIGHLIGHT_PREFIX = `<font color="${toHex(palette.blue)}">`;
 const TEXT_BOUNDS_PARAMS = new Instance("GetTextBoundsParams");
 const DEFAULT_BOUNDS = new Vector2();
 
-export function highlightMatching(text?: string, terminalText?: string) {
+let prevColor: Color3 | undefined;
+let prevColorHex: string | undefined;
+
+export function highlightMatching(
+	color: Color3,
+	text?: string,
+	terminalText?: string,
+) {
 	if (text === undefined) return "";
 	if (terminalText === undefined) return text;
 
@@ -21,8 +25,13 @@ export function highlightMatching(text?: string, terminalText?: string) {
 		return text;
 	}
 
+	if (prevColor !== color) {
+		prevColor = color;
+		prevColorHex = color.ToHex();
+	}
+
 	const unhighlightedText = text.sub(terminalText.size() + 1);
-	return `${HIGHLIGHT_PREFIX}${subText}</font>${unhighlightedText}`;
+	return `<font color="#${prevColorHex}">${subText}</font>${unhighlightedText}`;
 }
 
 export function getSuggestionTextBounds(

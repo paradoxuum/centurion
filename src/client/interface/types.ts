@@ -1,4 +1,5 @@
 import { HistoryEntry } from "../types";
+import { InterfacePalette } from "./palette";
 
 export interface InterfaceOptions {
 	anchorPoint?: Vector2;
@@ -13,6 +14,7 @@ export interface InterfaceOptions {
 		medium: Font;
 		bold: Font;
 	};
+	palette: InterfacePalette;
 }
 
 export interface HistoryLineData {

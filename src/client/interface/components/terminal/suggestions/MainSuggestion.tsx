@@ -1,6 +1,5 @@
 import { BindingOrValue } from "@rbxts/pretty-react-hooks";
 import React, { Binding, useContext } from "@rbxts/react";
-import { palette } from "../../../constants/palette";
 import {
 	SUGGESTION_TEXT_SIZE,
 	SUGGESTION_TITLE_TEXT_SIZE,
@@ -39,7 +38,7 @@ export function MainSuggestion({
 	return (
 		<Frame
 			size={size}
-			backgroundColor={palette.crust}
+			backgroundColor={options.palette.background}
 			backgroundTransparency={options.backgroundTransparency}
 			cornerRadius={new UDim(0, px(8))}
 			clipsDescendants={true}
@@ -56,13 +55,13 @@ export function MainSuggestion({
 					UDim2.fromOffset(math.round(width), px(24)),
 				)}
 				position={UDim2.fromScale(1, 0)}
-				color={palette.lavender}
+				color={options.palette.highlight}
 				text={
 					argument && suggestion !== undefined
 						? (suggestion.main as ArgumentSuggestion).dataType
 						: ""
 				}
-				textColor={palette.surface0}
+				textColor={options.palette.surface}
 				textSize={px(SUGGESTION_TEXT_SIZE)}
 				visible={argument}
 				onTextBoundsChange={(textBounds) =>
@@ -79,10 +78,14 @@ export function MainSuggestion({
 				text={
 					argument
 						? suggestion?.main.title
-						: highlightMatching(suggestion?.main.title, currentText)
+						: highlightMatching(
+								options.palette.highlight,
+								suggestion?.main.title,
+								currentText,
+						  )
 				}
 				textSize={px(SUGGESTION_TITLE_TEXT_SIZE)}
-				textColor={palette.text}
+				textColor={options.palette.text}
 				textXAlignment="Left"
 				textYAlignment="Top"
 				richText={true}
@@ -94,7 +97,7 @@ export function MainSuggestion({
 				position={UDim2.fromOffset(0, px(SUGGESTION_TITLE_TEXT_SIZE))}
 				text={suggestion?.main.description ?? ""}
 				textSize={px(SUGGESTION_TEXT_SIZE)}
-				textColor={palette.subtext0}
+				textColor={options.palette.subtext}
 				textXAlignment="Left"
 				textYAlignment="Top"
 				textWrapped={true}
@@ -110,7 +113,7 @@ export function MainSuggestion({
 						? (suggestion.main as ArgumentSuggestion).error ?? ""
 						: ""
 				}
-				textColor={palette.red}
+				textColor={options.palette.error}
 				textSize={px(SUGGESTION_TEXT_SIZE)}
 				textWrapped={true}
 				textXAlignment="Left"

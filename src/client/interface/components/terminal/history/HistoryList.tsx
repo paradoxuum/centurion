@@ -1,7 +1,7 @@
 import { BindingOrValue, mapBinding } from "@rbxts/pretty-react-hooks";
-import React, { useBinding, useEffect } from "@rbxts/react";
-import { palette } from "../../../constants/palette";
+import React, { useBinding, useContext, useEffect } from "@rbxts/react";
 import { usePx } from "../../../hooks/usePx";
+import { OptionsContext } from "../../../providers/optionsProvider";
 import { HistoryLineData } from "../../../types";
 import { ScrollingFrame } from "../../interface/ScrollingFrame";
 import { HistoryLine } from "./HistoryLine";
@@ -26,6 +26,7 @@ export function HistoryList({
 	maxHeight,
 }: HistoryListProps) {
 	const px = usePx();
+	const options = useContext(OptionsContext);
 
 	const [scrollingEnabled, setScrollingEnabled] = useBinding(false);
 	const [canvasSize, setCanvasSize] = useBinding(new UDim2());
@@ -45,7 +46,7 @@ export function HistoryList({
 			position={position}
 			canvasSize={canvasSize}
 			canvasPosition={canvasPosition}
-			scrollBarColor={palette.surface2}
+			scrollBarColor={options.palette.subtext}
 			scrollBarThickness={mapBinding(scrollingEnabled, (val) => {
 				return val ? 10 : 0;
 			})}

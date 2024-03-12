@@ -1,3 +1,4 @@
+import { DefaultPalette } from "../palette";
 import { InterfaceOptions } from "../types";
 
 export const DEFAULT_INTERFACE_OPTIONS: InterfaceOptions = {
@@ -9,5 +10,6 @@ export const DEFAULT_INTERFACE_OPTIONS: InterfaceOptions = {
 		medium: new Font("rbxassetid://16658221428", Enum.FontWeight.Medium),
 		bold: new Font("rbxassetid://16658221428", Enum.FontWeight.Bold),
 	},
-	backgroundTransparency: 0.25,
+	palette: DefaultPalette.mocha,
+	backgroundTransparency: 0.2,
 };

@@ -18,7 +18,6 @@ import {
 	endsWithSpace,
 	formatPartsAsPath,
 } from "../../../../shared/util/string";
-import { palette } from "../../constants/palette";
 import { usePx } from "../../hooks/usePx";
 import { useStore } from "../../hooks/useStore";
 import { CommanderContext } from "../../providers/commanderProvider";
@@ -238,7 +237,7 @@ export function TerminalTextField({
 			anchorPoint={anchorPoint}
 			size={size}
 			position={position}
-			backgroundColor={palette.mantle}
+			backgroundColor={options.palette.surface}
 			backgroundTransparency={backgroundTransparency}
 			cornerRadius={new UDim(0, px(4))}
 		>
@@ -249,7 +248,8 @@ export function TerminalTextField({
 				placeholderText="Enter command..."
 				text={text}
 				textSize={px(TEXT_SIZE)}
-				textColor={valid ? palette.green : palette.red}
+				textColor={valid ? options.palette.success : options.palette.error}
+				placeholderColor={options.palette.subtext}
 				textXAlignment="Left"
 				clearTextOnFocus={false}
 				font={options.font.medium}
@@ -293,7 +293,7 @@ export function TerminalTextField({
 			<Text
 				size={UDim2.fromScale(1, 1)}
 				text={suggestionText}
-				textColor={palette.surface2}
+				textColor={options.palette.subtext}
 				textSize={px(TEXT_SIZE)}
 				textXAlignment="Left"
 				font={options.font.medium}

@@ -8,7 +8,6 @@ import {
 	formatPartsAsPath,
 	splitStringBySpace,
 } from "../../../../shared/util/string";
-import { palette } from "../../constants/palette";
 import { HISTORY_TEXT_SIZE } from "../../constants/text";
 import { useMotion } from "../../hooks/useMotion";
 import { usePx } from "../../hooks/usePx";
@@ -128,7 +127,7 @@ export function TerminalWindow() {
 	return (
 		<Frame
 			size={windowHeightBinding}
-			backgroundColor={palette.crust}
+			backgroundColor={options.palette.background}
 			backgroundTransparency={options.backgroundTransparency}
 			cornerRadius={new UDim(0, px(8))}
 			event={{

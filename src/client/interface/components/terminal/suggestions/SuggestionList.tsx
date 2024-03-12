@@ -1,6 +1,5 @@
 import { BindingOrValue } from "@rbxts/pretty-react-hooks";
 import React, { useContext } from "@rbxts/react";
-import { palette } from "../../../constants/palette";
 import { SUGGESTION_TEXT_SIZE } from "../../../constants/text";
 import { usePx } from "../../../hooks/usePx";
 import { OptionsContext } from "../../../providers/optionsProvider";
@@ -40,7 +39,7 @@ export function SuggestionList({
 					<Frame
 						key={`${i}-${name}`}
 						size={new UDim2(1, 0, 0, px(SUGGESTION_TEXT_SIZE + 6))}
-						backgroundColor={palette.mantle}
+						backgroundColor={options.palette.background}
 						backgroundTransparency={options.backgroundTransparency}
 						cornerRadius={new UDim(0, px(8))}
 						clipsDescendants={true}
@@ -49,8 +48,12 @@ export function SuggestionList({
 
 						<Text
 							size={new UDim2(1, 0, 1, 0)}
-							text={highlightMatching(name, currentText)}
-							textColor={palette.text}
+							text={highlightMatching(
+								options.palette.highlight,
+								name,
+								currentText,
+							)}
+							textColor={options.palette.text}
 							textSize={px(SUGGESTION_TEXT_SIZE)}
 							textXAlignment="Left"
 							richText={true}
