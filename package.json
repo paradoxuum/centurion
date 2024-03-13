@@ -10,11 +10,7 @@
 		"watch": "rbxtsc -w --type=game -p test -i test/include",
 		"serve": "rojo serve test"
 	},
-	"keywords": [
-		"roblox-ts",
-		"rbxts",
-		"command"
-	],
+	"keywords": ["roblox-ts", "rbxts", "command"],
 	"author": "paradoxuum",
 	"license": "MIT",
 	"types": "out/index.d.ts",
@@ -25,10 +21,7 @@
 	"bugs": {
 		"url": "https://github.com/paradoxuum/commander/issues"
 	},
-	"files": [
-		"out",
-		"!**/*.tsbuildinfo"
-	],
+	"files": ["out", "!**/*.tsbuildinfo"],
 	"publishConfig": {
 		"access": "public"
 	},
