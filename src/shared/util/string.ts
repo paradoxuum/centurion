@@ -29,7 +29,6 @@ function decodeControlChars(text: string) {
 
 const START_QUOTE_PATTERN = `^(['"])`;
 const END_QUOTE_PATTERN = `(['"])$`;
-// eslint-disable-next-line no-useless-escape
 const ESCAPE_PATTERN = `(\*)['"]$`;
 
 /**
