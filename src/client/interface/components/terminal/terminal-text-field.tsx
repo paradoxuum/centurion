@@ -24,7 +24,7 @@ import { CommanderContext } from "../../providers/commander-provider";
 import { OptionsContext } from "../../providers/options-provider";
 import { selectVisible } from "../../store/app";
 import { selectCommand } from "../../store/command";
-import { selectCurrentSuggestion } from "../../store/suggestion";
+import { selectSuggestion } from "../../store/suggestion";
 import { selectValid } from "../../store/text";
 import { getArgumentNames } from "../../util/argument";
 import { Frame } from "../interface/frame";
@@ -58,7 +58,7 @@ export function TerminalTextField({
 	const store = useStore();
 
 	const appVisible = useSelector(selectVisible);
-	const currentSuggestion = useSelector(selectCurrentSuggestion);
+	const currentSuggestion = useSelector(selectSuggestion);
 	const [text, setText] = useBinding("");
 	const [suggestionText, setSuggestionText] = useBinding("");
 	const [valid, setValid] = useState(false);

@@ -154,7 +154,7 @@ export class Path {
 	 * @returns True if the paths are equal, false if not
 	 */
 	equals(other: Path) {
-		return ArrayUtil.equals(this.parts, other.parts);
+		return this.toString() === other.toString();
 	}
 
 	/**
@@ -236,7 +236,7 @@ export class ImmutablePath extends Path {
 			return new ImmutablePath([]);
 		}
 
-		return this.slice(0, this.parts.size() - 1);
+		return this.slice(0, this.parts.size() - 2);
 	}
 
 	slice(from: number, to?: number) {

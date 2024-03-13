@@ -14,7 +14,7 @@ import {
 import { useMotion } from "../../../hooks/use-motion";
 import { usePx } from "../../../hooks/use-px";
 import { OptionsContext } from "../../../providers/options-provider";
-import { selectCurrentSuggestion } from "../../../store/suggestion";
+import { selectSuggestion } from "../../../store/suggestion";
 import { selectText } from "../../../store/text";
 import { Group } from "../../interface/group";
 import { MainSuggestion } from "./main-suggestion";
@@ -47,7 +47,7 @@ export function Suggestions() {
 	);
 
 	// Suggestions
-	const currentSuggestion = useSelector(selectCurrentSuggestion);
+	const currentSuggestion = useSelector(selectSuggestion);
 	const [sizes, setSizes] = useBinding<SuggestionTextBounds>({
 		title: UDim2.fromOffset(0, px(SUGGESTION_TITLE_TEXT_SIZE)),
 		description: UDim2.fromOffset(0, px(SUGGESTION_TEXT_SIZE)),

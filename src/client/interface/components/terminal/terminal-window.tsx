@@ -153,41 +153,33 @@ export function TerminalWindow() {
 					store.setText(text, parts);
 
 					if (parts.isEmpty()) {
-						store.clearSuggestions();
+						store.setSuggestion(undefined);
 						store.setCommand(undefined);
 						store.setArgIndex(undefined);
 						return;
 					}
 
 					store.flush();
-					let parentPath = store.getState().command.path;
-					let atCommand = data.commands.has(formatPartsAsPath(parts));
-
 					// If the text ends in a space, we want to count that as having traversed
 					// to the next "part" of the text. This means we should include the previous
 					// text part as part of the parent path.
 					const atNextPart = endsWithSpace(text);
-					let showArgs = atCommand && atNextPart;
 
+					let commandPath = store.getState().command.path;
+					let atCommand = false;
 					if (
-						parentPath !== undefined &&
+						commandPath !== undefined &&
 						formatPartsAsPath(
-							ArrayUtil.slice(parts, 0, parentPath.getSize()),
-						) === parentPath.toString()
+							ArrayUtil.slice(parts, 0, commandPath.getSize()),
+						) === commandPath.toString()
 					) {
 						// The current path still leads to the command, so it's valid
 						atCommand = true;
-						showArgs = atNextPart || parts.size() !== parentPath.getSize();
-
-						if (!showArgs) {
-							parentPath =
-								parentPath.getSize() > 1
-									? parentPath.remove(parentPath.getSize() - 1)
-									: undefined;
-						}
+					} else if (data.commands.has(formatPartsAsPath(parts))) {
+						atCommand = true;
+						commandPath = new ImmutablePath(parts);
 					} else {
 						const registry = CommanderClient.registry();
-
 						const currentPath = Path.empty();
 						for (const part of parts) {
 							currentPath.append(part);
@@ -203,34 +195,43 @@ export function TerminalWindow() {
 							}
 						}
 
-						parentPath = getParentPath(parts, atNextPart);
-						if (atCommand) {
-							store.setCommand(ImmutablePath.fromPath(currentPath));
-						}
+						commandPath = ImmutablePath.fromPath(currentPath);
 					}
 
-					if (atCommand) {
-						store.flush();
-						const commandPath = store.getState().command.path;
-						const command =
-							commandPath !== undefined
-								? data.commands.get(commandPath.toString())
-								: undefined;
-
-						if (commandPath !== undefined && command !== undefined) {
-							store.setTextValid(
-								checkMissingArgs(commandPath, command) === undefined,
-							);
-						}
-					} else {
+					if (!atCommand && store.getState().command.path !== undefined) {
 						store.setCommand(undefined);
-						parentPath = getParentPath(parts, atNextPart);
+						store.flush();
+					} else if (
+						atCommand &&
+						commandPath !== store.getState().command.path
+					) {
+						store.setCommand(commandPath);
+						store.flush();
+					}
+
+					const command =
+						commandPath !== undefined
+							? data.commands.get(commandPath.toString())
+							: undefined;
+					if (commandPath !== undefined && command !== undefined) {
+						store.setTextValid(
+							checkMissingArgs(commandPath, command) === undefined,
+						);
+					} else {
+						store.setTextValid(false);
 					}
 
 					// Update suggestions
+					const showArgs =
+						atCommand &&
+						(atNextPart ||
+							(commandPath !== undefined &&
+								parts.size() > commandPath.getSize()));
+
 					const argCount =
-						showArgs && parentPath !== undefined
-							? data.commands.get(parentPath.toString())?.arguments?.size() ?? 0
+						showArgs && commandPath !== undefined
+							? data.commands.get(commandPath.toString())?.arguments?.size() ??
+							  0
 							: 0;
 					const currentTextPart = !atNextPart
 						? parts[parts.size() - 1]
@@ -238,24 +239,27 @@ export function TerminalWindow() {
 
 					let suggestion: Suggestion | undefined;
 					if (argCount === 0) {
+						const parentPath = atNextPart
+							? commandPath
+							: !commandPath.isCommand()
+							  ? commandPath.getParent()
+							  : undefined;
 						suggestion = getCommandSuggestion(parentPath, currentTextPart);
-					} else if (parentPath !== undefined) {
+					} else if (commandPath !== undefined) {
 						// Handle argument suggestions
 						const argIndex =
-							parts.size() - parentPath.getSize() - (atNextPart ? 0 : 1);
+							parts.size() - commandPath.getSize() - (atNextPart ? 0 : 1);
 						if (argIndex >= argCount) return;
 
 						store.setArgIndex(argIndex);
 						suggestion = getArgumentSuggestion(
-							parentPath,
+							commandPath,
 							argIndex,
 							currentTextPart,
 						);
 					}
 
-					const suggestionIndex = parts.size() - 1 + (atNextPart ? 1 : 0);
-					store.setSuggestion(suggestionIndex, suggestion);
-					store.setSuggestionIndex(suggestionIndex);
+					store.setSuggestion(suggestion);
 				}}
 				onSubmit={(text) => {
 					const storeState = store.getState();
