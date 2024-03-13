@@ -1,13 +1,14 @@
 import { useLatestCallback } from "@rbxts/pretty-react-hooks";
 import React, { useContext, useEffect, useMemo, useState } from "@rbxts/react";
 import { TextService } from "@rbxts/services";
-import { CommandOptions, ImmutablePath } from "../../../../shared";
+import { CommandOptions, ImmutablePath, Path } from "../../../../shared";
 import { ArrayUtil } from "../../../../shared/util/data";
 import {
 	endsWithSpace,
 	formatPartsAsPath,
 	splitStringBySpace,
 } from "../../../../shared/util/string";
+import { CommanderClient } from "../../../core";
 import { HISTORY_TEXT_SIZE } from "../../constants/text";
 import { useMotion } from "../../hooks/use-motion";
 import { usePx } from "../../hooks/use-px";
@@ -168,45 +169,43 @@ export function TerminalWindow() {
 					const atNextPart = endsWithSpace(text);
 					let showArgs = atCommand && atNextPart;
 
-					if (parentPath !== undefined) {
-						if (
-							formatPartsAsPath(
-								ArrayUtil.slice(parts, 0, parentPath.getSize()),
-							) === parentPath.toString()
-						) {
-							// The current path still leads to the command, so it's valid
-							atCommand = true;
-							showArgs = atNextPart || parts.size() !== parentPath.getSize();
+					if (
+						parentPath !== undefined &&
+						formatPartsAsPath(
+							ArrayUtil.slice(parts, 0, parentPath.getSize()),
+						) === parentPath.toString()
+					) {
+						// The current path still leads to the command, so it's valid
+						atCommand = true;
+						showArgs = atNextPart || parts.size() !== parentPath.getSize();
 
-							if (!showArgs) {
-								parentPath =
-									parentPath.getSize() > 1
-										? parentPath.remove(parentPath.getSize() - 1)
-										: undefined;
-							}
-						} else {
-							// As a last resort, iterate over all parts of text to check if it points to a command
-							// This could be the case if the text is selected and a valid command is pasted into
-							// the text box, meaning the command path will still point to the previous command.
-							for (const i of $range(0, parts.size() - 1)) {
-								const pathSlice = formatPartsAsPath(
-									ArrayUtil.slice(parts, 0, i + 1),
-								);
-
-								if (data.commands.has(pathSlice)) {
-									atCommand = true;
-
-									// Since the command has possibly changed, we also need to update the path
-									parentPath = ImmutablePath.fromString(pathSlice);
-									store.setCommand(parentPath);
-									break;
-								}
-							}
+						if (!showArgs) {
+							parentPath =
+								parentPath.getSize() > 1
+									? parentPath.remove(parentPath.getSize() - 1)
+									: undefined;
 						}
 					} else {
+						const registry = CommanderClient.registry();
+
+						const currentPath = Path.empty();
+						for (const part of parts) {
+							currentPath.append(part);
+
+							if (data.commands.has(currentPath.toString())) {
+								atCommand = true;
+								break;
+							}
+
+							if (registry.getChildPaths(currentPath).isEmpty()) {
+								atCommand = false;
+								break;
+							}
+						}
+
 						parentPath = getParentPath(parts, atNextPart);
 						if (atCommand) {
-							store.setCommand(new ImmutablePath([...parts]));
+							store.setCommand(ImmutablePath.fromPath(currentPath));
 						}
 					}
 

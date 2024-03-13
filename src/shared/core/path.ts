@@ -175,12 +175,7 @@ export class Path {
 		for (const part of parts) {
 			this.parts.push(part);
 		}
-
-		let newPathString = this.pathString;
-		for (const part of parts) {
-			newPathString = `${newPathString}/${part}`;
-		}
-		this.pathString = newPathString;
+		this.pathString = this.parts.join("/");
 	}
 
 	/**
