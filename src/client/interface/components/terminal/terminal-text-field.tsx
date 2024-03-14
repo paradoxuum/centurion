@@ -115,33 +115,49 @@ export function TerminalTextField({
 		}
 
 		const state = store.getState();
-		const parts = state.text.parts;
 		const atNextPart = endsWithSpace(state.text.value);
+		const suggestionStartIndex =
+			state.text.parts.size() > 0
+				? (!atNextPart
+						? state.text.parts[state.text.parts.size() - 1].size()
+						: 0) + 1
+				: -1;
 
-		let newText = getBindingValue(text);
 		const command = state.command.path;
 		const argIndex = state.command.argIndex;
 		if (
-			currentSuggestion.main.type === "argument" &&
-			command !== undefined &&
-			argIndex !== undefined
+			currentSuggestion.main.type === "command" &&
+			suggestionStartIndex > -1
 		) {
-			const argNames = getArgumentNames(command);
-			for (const i of $range(argIndex, argNames.size() - 1)) {
-				const firstArg = i === argIndex;
-				if (firstArg && !atNextPart) {
-					newText += " ";
-					continue;
-				}
-
-				newText = `${newText}${argNames[i]} `;
-			}
-		} else if (currentSuggestion.main.type === "command" && !parts.isEmpty()) {
-			const suggestionStartIndex =
-				(!atNextPart ? parts[parts.size() - 1].size() : 0) + 1;
-			newText += currentSuggestion.main.title.sub(suggestionStartIndex);
+			setSuggestionText(
+				getBindingValue(text) +
+					currentSuggestion.main.title.sub(suggestionStartIndex),
+			);
+			return;
 		}
 
+		if (
+			currentSuggestion.main.type !== "argument" ||
+			command === undefined ||
+			argIndex === undefined
+		) {
+			return;
+		}
+
+		let newText = getBindingValue(text);
+		const argNames = getArgumentNames(command);
+		for (const i of $range(argIndex, argNames.size() - 1)) {
+			if (i === argIndex && !atNextPart) {
+				if (!currentSuggestion.others.isEmpty()) {
+					newText += currentSuggestion.others[0].sub(suggestionStartIndex);
+				}
+
+				newText += " ";
+				continue;
+			}
+
+			newText = `${newText}${argNames[i]} `;
+		}
 		setSuggestionText(newText);
 	}, [currentSuggestion]);
 
