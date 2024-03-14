@@ -1,4 +1,4 @@
-import { useLatestCallback } from "@rbxts/pretty-react-hooks";
+import { useEventListener, useLatestCallback } from "@rbxts/pretty-react-hooks";
 import React, { useContext, useEffect, useMemo, useState } from "@rbxts/react";
 import { TextService } from "@rbxts/services";
 import { CommandOptions, ImmutablePath, Path } from "../../../../shared";
@@ -9,11 +9,11 @@ import {
 	splitStringBySpace,
 } from "../../../../shared/util/string";
 import { CommanderClient } from "../../../core";
+import { HistoryEntry } from "../../../types";
 import { HISTORY_TEXT_SIZE } from "../../constants/text";
 import { useMotion } from "../../hooks/use-motion";
 import { usePx } from "../../hooks/use-px";
 import { useStore } from "../../hooks/use-store";
-import { CommanderContext } from "../../providers/commander-provider";
 import { OptionsContext } from "../../providers/options-provider";
 import { HistoryLineData, Suggestion } from "../../types";
 import {
@@ -38,15 +38,16 @@ function getParentPath(parts: string[], atNextPart: boolean) {
 }
 
 const MAX_HEIGHT = HISTORY_TEXT_SIZE * 10;
-const SHADOW_SIZE = 8;
 const TEXT_FIELD_HEIGHT = 40;
 
 export function TerminalWindow() {
 	const px = usePx();
 	const store = useStore();
-	const data = useContext(CommanderContext);
 	const options = useContext(OptionsContext);
 
+	const [history, setHistory] = useState<HistoryEntry[]>(
+		CommanderClient.dispatcher().getHistory(),
+	);
 	const [historyData, setHistoryData] = useState<HistoryData>({
 		lines: [],
 		height: 0,
@@ -65,6 +66,8 @@ export function TerminalWindow() {
 			return new UDim2(1, 0, 0, math.ceil(px(TEXT_FIELD_HEIGHT + 16) + y));
 		});
 	}, [px]);
+
+	const registry = useMemo(() => CommanderClient.registry(), []);
 
 	const checkMissingArgs = useLatestCallback(
 		(path: ImmutablePath, command: CommandOptions) => {
@@ -95,15 +98,19 @@ export function TerminalWindow() {
 		},
 	);
 
+	useEventListener(CommanderClient.events().historyUpdated, (entries) => {
+		setHistory(entries);
+	});
+
 	// Handle history updates
 	useEffect(() => {
-		const historySize = data.history.size();
+		const historySize = history.size();
 		let totalHeight = historySize > 0 ? px(8) + (historySize - 1) * px(8) : 0;
 
 		textBoundsParams.Size = HISTORY_TEXT_SIZE;
 
 		const historyLines: HistoryLineData[] = [];
-		for (const entry of data.history) {
+		for (const entry of history) {
 			textBoundsParams.Text = entry.text;
 			const textSize = TextService.GetTextBoundsAsync(textBoundsParams);
 			const lineHeight = px(textSize.Y + 4);
@@ -122,7 +129,7 @@ export function TerminalWindow() {
 			lines: historyLines,
 			height: totalHeight,
 		});
-	}, [data.history, px]);
+	}, [history, px]);
 
 	return (
 		<Frame
@@ -175,16 +182,17 @@ export function TerminalWindow() {
 					) {
 						// The current path still leads to the command, so it's valid
 						atCommand = true;
-					} else if (data.commands.has(formatPartsAsPath(parts))) {
+					} else if (
+						registry.getCommandByString(formatPartsAsPath(parts)) !== undefined
+					) {
 						atCommand = true;
 						commandPath = new ImmutablePath(parts);
 					} else {
-						const registry = CommanderClient.registry();
 						const currentPath = Path.empty();
 						for (const part of parts) {
 							currentPath.append(part);
 
-							if (data.commands.has(currentPath.toString())) {
+							if (registry.getCommand(currentPath) !== undefined) {
 								atCommand = true;
 								break;
 							}
@@ -211,11 +219,12 @@ export function TerminalWindow() {
 
 					const command =
 						commandPath !== undefined
-							? data.commands.get(commandPath.toString())
+							? registry.getCommand(commandPath)?.options
 							: undefined;
 					if (commandPath !== undefined && command !== undefined) {
 						store.setTextValid(
-							checkMissingArgs(commandPath, command) === undefined,
+							checkMissingArgs(commandPath, command as CommandOptions) ===
+								undefined,
 						);
 					} else {
 						store.setTextValid(false);
@@ -229,9 +238,8 @@ export function TerminalWindow() {
 								parts.size() > commandPath.getSize()));
 
 					const argCount =
-						showArgs && commandPath !== undefined
-							? data.commands.get(commandPath.toString())?.arguments?.size() ??
-							  0
+						showArgs && command !== undefined
+							? command.arguments?.size() ?? 0
 							: 0;
 					const currentTextPart = !atNextPart
 						? parts[parts.size() - 1]
@@ -266,10 +274,12 @@ export function TerminalWindow() {
 					const commandPath = storeState.command.path;
 					const command =
 						commandPath !== undefined
-							? data.commands.get(commandPath.toString())
+							? registry.getCommand(commandPath)
 							: undefined;
+
+					const dispatcher = CommanderClient.dispatcher();
 					if (commandPath === undefined || command === undefined) {
-						data.addHistoryEntry({
+						dispatcher.addHistoryEntry({
 							success: false,
 							text: "Command not found.",
 							sentAt: os.time(),
@@ -277,16 +287,19 @@ export function TerminalWindow() {
 						return;
 					}
 
-					const argCheckMessage = checkMissingArgs(commandPath, command);
+					const argCheckMessage = checkMissingArgs(
+						commandPath,
+						command.options as CommandOptions,
+					);
 					if (argCheckMessage !== undefined) {
-						data.addHistoryEntry({
+						dispatcher.addHistoryEntry({
 							success: false,
 							text: argCheckMessage,
 							sentAt: os.time(),
 						});
 						return;
 					}
-					data.execute(commandPath, text);
+					dispatcher.run(commandPath, text);
 				}}
 			/>
 		</Frame>

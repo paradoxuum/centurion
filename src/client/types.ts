@@ -1,9 +1,9 @@
-import { CommandOptions, GroupOptions, Path } from "../shared";
+import { CommandOptions, GroupOptions } from "../shared";
 import { SharedOptions } from "../shared/options";
 
 export interface ClientOptions extends SharedOptions {
 	historyLength: number;
-	interface?: (data: InterfaceContext) => void;
+	interface?: () => void;
 }
 
 export interface HistoryEntry {
@@ -24,16 +24,4 @@ export type CommanderEventCallbacks = {
 	>
 		? RBXScriptSignal<R>
 		: never;
-};
-
-export type InterfaceContext = {
-	options: ClientOptions;
-	initialData: {
-		commands: Map<string, CommandOptions>;
-		groups: Map<string, GroupOptions>;
-		history: HistoryEntry[];
-	};
-	events: CommanderEventCallbacks;
-	execute: (path: Path, text: string) => Promise<HistoryEntry>;
-	addHistoryEntry: (entry: HistoryEntry) => void;
 };

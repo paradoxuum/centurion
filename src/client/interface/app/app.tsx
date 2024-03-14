@@ -3,7 +3,6 @@ import "./config";
 import React, { StrictMode } from "@rbxts/react";
 import { createPortal, createRoot } from "@rbxts/react-roblox";
 import { ContentProvider, Players } from "@rbxts/services";
-import { InterfaceContext } from "../../types";
 import { DEFAULT_INTERFACE_OPTIONS } from "../constants/options";
 import { RootProvider } from "../providers/root-provider";
 import { InterfaceOptions } from "../types";
@@ -21,7 +20,7 @@ export namespace CommanderInterface {
 	}
 
 	export function create(options: Partial<InterfaceOptions> = {}) {
-		return (context: InterfaceContext) => {
+		return () => {
 			const root = createRoot(new Instance("Folder"));
 			const target = Players.LocalPlayer.WaitForChild("PlayerGui");
 
@@ -49,7 +48,6 @@ export namespace CommanderInterface {
 				createPortal(
 					<StrictMode>
 						<RootProvider
-							context={context}
 							options={{ ...DEFAULT_INTERFACE_OPTIONS, ...options }}
 							optionsChanged={optionsChanged.Event}
 						>

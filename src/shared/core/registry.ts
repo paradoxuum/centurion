@@ -183,6 +183,16 @@ export abstract class BaseRegistry {
 	}
 
 	/**
+	 * Gets a registered command.
+	 *
+	 * @param path The path of the command as a string
+	 * @returns A {@link BaseCommand} or `undefined` if no command with the given path is registered
+	 */
+	getCommandByString(pathString: string) {
+		return this.commands.get(pathString);
+	}
+
+	/**
 	 * Gets all registered commands.
 	 *
 	 * @returns An array of all registered commands
@@ -196,23 +206,23 @@ export abstract class BaseRegistry {
 	}
 
 	/**
-	 * Gets a registered {@link GroupOptions} from a given {@link Path}.
+	 * Gets a registered {@link CommandGroup} from a given {@link Path}.
 	 *
 	 * @param path The path of the group
-	 * @returns A {@link GroupOptions} or `undefined` if none exists at the given path
+	 * @returns A {@link CommandGroup} or `undefined` if no group is registered at the given path
 	 */
 	getGroup(path: Path) {
-		assert(
-			path.getSize() < 3,
-			`Invalid group path '${path}', a group path has a maximum of 2 parts`,
-		);
+		return this.groups.get(path.toString());
+	}
 
-		const root = this.groups.get(path.getPart(0));
-		if (path.getSize() === 1 || root === undefined) {
-			return root;
-		}
-
-		return root.getGroup(path.getPart(1));
+	/**
+	 * Gets a registered {@link GroupOptions} from a given path string.
+	 *
+	 * @param pathString The path of the group as a string
+	 * @returns A {@link CommandGroup} or `undefined` if no group is registered at the given path
+	 */
+	getGroupByString(pathString: string) {
+		return this.groups.get(pathString);
 	}
 
 	/**

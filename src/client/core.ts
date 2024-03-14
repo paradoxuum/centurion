@@ -4,17 +4,30 @@ import { ObjectUtil } from "../shared/util/data";
 import { ClientDispatcher } from "./dispatcher";
 import { DEFAULT_CLIENT_OPTIONS } from "./options";
 import { ClientRegistry } from "./registry";
-import { ClientOptions, CommanderEvents } from "./types";
+import {
+	ClientOptions,
+	CommanderEventCallbacks,
+	CommanderEvents,
+} from "./types";
 
 export namespace CommanderClient {
 	let started = false;
-	const events: CommanderEvents = {
+	const eventSignals: CommanderEvents = {
 		historyUpdated: new Instance("BindableEvent"),
 		commandAdded: new Instance("BindableEvent"),
 		groupAdded: new Instance("BindableEvent"),
 	};
-	const registryInstance = new ClientRegistry(events);
-	const dispatcherInstance = new ClientDispatcher(registryInstance, events);
+	const eventCallbacks: CommanderEventCallbacks = {
+		historyUpdated: eventSignals.historyUpdated.Event,
+		commandAdded: eventSignals.commandAdded.Event,
+		groupAdded: eventSignals.groupAdded.Event,
+	};
+
+	const registryInstance = new ClientRegistry(eventSignals);
+	const dispatcherInstance = new ClientDispatcher(
+		registryInstance,
+		eventSignals,
+	);
 	let optionsObject = DEFAULT_CLIENT_OPTIONS;
 
 	const IS_CLIENT = RunService.IsClient();
@@ -63,21 +76,7 @@ export namespace CommanderClient {
 				);
 			}
 
-			options.interface({
-				options: optionsObject,
-				execute: (path, text) => dispatcherInstance.run(path, text),
-				addHistoryEntry: (entry) => dispatcherInstance.addHistoryEntry(entry),
-				initialData: {
-					commands,
-					groups,
-					history: dispatcherInstance.getHistory(),
-				},
-				events: {
-					historyUpdated: events.historyUpdated.Event,
-					commandAdded: events.commandAdded.Event,
-					groupAdded: events.groupAdded.Event,
-				},
-			});
+			options.interface();
 		}
 	}
 
@@ -94,6 +93,11 @@ export namespace CommanderClient {
 	export function options() {
 		assertAccess("options");
 		return optionsObject;
+	}
+
+	export function events() {
+		assertAccess("events");
+		return eventCallbacks;
 	}
 
 	function assertAccess(name: string) {
