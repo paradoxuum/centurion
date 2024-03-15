@@ -23,6 +23,7 @@ export interface ArgumentOptions {
 	description: string;
 	type: string;
 	optional?: boolean;
+	suggestions?: string[];
 }
 
 export interface CommandOptions {

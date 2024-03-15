@@ -10,6 +10,7 @@ export class ThemeCommand {
 				name: "name",
 				description: "The name of the palette to set",
 				type: CommanderType.String,
+				suggestions: ["mocha", "macchiato", "frappe", "latte"],
 			},
 		],
 	})

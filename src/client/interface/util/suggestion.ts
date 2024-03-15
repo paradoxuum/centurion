@@ -22,16 +22,34 @@ export function getArgumentSuggestion(
 	const typeObject = CommanderClient.registry().getType(arg.type);
 	if (typeObject === undefined) return;
 
-	let typeSuggestions =
-		typeObject.suggestions !== undefined
-			? typeObject.suggestions(text ?? "", Players.LocalPlayer)
-			: [];
-	if (!typeSuggestions.isEmpty()) {
-		typeSuggestions = ArrayUtil.slice(
-			getSortedIndices(typeSuggestions, text),
+	let argSuggestions: string[] = [];
+	if (arg.suggestions !== undefined) {
+		for (const suggestion of arg.suggestions) {
+			argSuggestions.push(suggestion);
+		}
+	}
+
+	let suggestionCount = argSuggestions.size();
+	if (
+		typeObject.suggestions !== undefined &&
+		suggestionCount < MAX_OTHER_SUGGESTIONS
+	) {
+		for (const suggestion of typeObject.suggestions(
+			text ?? "",
+			Players.LocalPlayer,
+		)) {
+			if (suggestionCount >= MAX_OTHER_SUGGESTIONS) break;
+			argSuggestions.push(suggestion);
+			suggestionCount++;
+		}
+	}
+
+	if (!argSuggestions.isEmpty()) {
+		argSuggestions = ArrayUtil.slice(
+			getSortedIndices(argSuggestions, text),
 			0,
 			MAX_OTHER_SUGGESTIONS,
-		).map((index) => typeSuggestions[index]);
+		).map((index) => argSuggestions[index]);
 	}
 
 	// If the type is not marked as "expensive", transform the text into the type
@@ -61,7 +79,7 @@ export function getArgumentSuggestion(
 			optional: arg.optional ?? false,
 			error: errorText,
 		},
-		others: typeSuggestions,
+		others: argSuggestions,
 	};
 }
 
