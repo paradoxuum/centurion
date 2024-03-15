@@ -7,6 +7,7 @@ import { ServerCommand } from "./command";
 
 export class ClientRegistry extends BaseRegistry {
 	private initialSyncReceived = false;
+	private syncedPaths = new Set<string>();
 
 	/**
 	 * Begins registry synchronisation to the server.
@@ -16,9 +17,6 @@ export class ClientRegistry extends BaseRegistry {
 	 * @returns A promise that will be resolved when the initial sync is received
 	 */
 	async sync() {
-		const syncedCommands = new Set<string>();
-		const syncedGroups = new Set<string>();
-
 		const getGroupKey = (group: GroupOptions) => {
 			let groupName = group.name;
 			if (group.root !== undefined) {
@@ -30,22 +28,25 @@ export class ClientRegistry extends BaseRegistry {
 		Remotes.SyncDispatch.OnClientEvent.Connect((data) => {
 			if (!this.initialSyncReceived) this.initialSyncReceived = true;
 
-			for (const [k] of data.commands) {
-				if (!syncedCommands.has(k)) continue;
-				data.commands.delete(k);
+			for (const path of this.syncedPaths) {
+				data.commands.delete(path);
+				data.groups.delete(path);
 			}
 
-			this.registerGroups(
-				...data.groups.filter((group) => !syncedGroups.has(getGroupKey(group))),
-			);
+			const groups: GroupOptions[] = [];
+			for (const [_, group] of data.groups) {
+				groups.push(group);
+			}
+
+			this.registerGroups(...groups);
 			this.registerServerCommands(data.commands);
 
-			for (const [k] of data.commands) {
-				syncedCommands.add(k);
+			for (const [path] of data.commands) {
+				this.syncedPaths.add(path);
 			}
 
-			for (const group of data.groups) {
-				syncedGroups.add(getGroupKey(group));
+			for (const [path] of data.groups) {
+				this.syncedPaths.add(path);
 			}
 		});
 

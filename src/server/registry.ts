@@ -1,5 +1,5 @@
 import { Players } from "@rbxts/services";
-import { CommandOptions, Path } from "../shared";
+import { CommandOptions, GroupOptions, Path } from "../shared";
 import { BaseCommand, CommandGroup } from "../shared/core/command";
 import { BaseRegistry } from "../shared/core/registry";
 import { Remotes, SyncData } from "../shared/network";
@@ -42,9 +42,14 @@ export class ServerRegistry extends BaseRegistry {
 			});
 		}
 
+		const syncedGroups = new Map<string, GroupOptions>();
+		for (const [path, group] of this.groups) {
+			syncedGroups.set(path, group.options);
+		}
+
 		return {
 			commands: syncedCommands,
-			groups: this.getGroups().map((group) => group.options),
+			groups: syncedGroups,
 		};
 	}
 }

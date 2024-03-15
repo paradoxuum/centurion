@@ -38,7 +38,7 @@ function getRemote<T extends keyof NetworkInstances>(
 
 export interface SyncData {
 	commands: Map<string, CommandOptions>;
-	groups: GroupOptions[];
+	groups: Map<string, GroupOptions>;
 }
 
 export namespace Remotes {
