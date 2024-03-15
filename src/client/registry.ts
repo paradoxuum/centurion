@@ -1,18 +1,12 @@
 import { RunService } from "@rbxts/services";
 import { CommandOptions, GroupOptions, ImmutablePath } from "../shared";
-import { BaseCommand, CommandGroup } from "../shared/core/command";
+import { CommandGroup } from "../shared/core/command";
 import { BaseRegistry } from "../shared/core/registry";
 import { Remotes } from "../shared/network";
-import { ObjectUtil } from "../shared/util/data";
 import { ServerCommand } from "./command";
-import { CommanderEvents } from "./types";
 
 export class ClientRegistry extends BaseRegistry {
 	private initialSyncReceived = false;
-
-	constructor(private readonly events: CommanderEvents) {
-		super();
-	}
 
 	/**
 	 * Begins registry synchronisation to the server.
@@ -66,22 +60,6 @@ export class ClientRegistry extends BaseRegistry {
 			.catch(() => {
 				throw "Server did not respond in time";
 			});
-	}
-
-	protected addCommand(command: BaseCommand) {
-		super.addCommand(command);
-		const options = ObjectUtil.copyDeep(command.options as CommandOptions);
-		for (const path of command.getPaths()) {
-			this.events.commandAdded.Fire(path.toString(), options);
-		}
-	}
-
-	protected addGroup(group: CommandGroup) {
-		super.addGroup(group);
-		this.events.groupAdded.Fire(
-			group.getPath().toString(),
-			ObjectUtil.copyDeep(group.options as GroupOptions),
-		);
 	}
 
 	private registerServerCommands(commands: Map<string, CommandOptions>) {

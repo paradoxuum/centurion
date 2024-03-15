@@ -1,4 +1,4 @@
-import { CommandOptions, GroupOptions } from "../shared";
+import { BaseCommand, CommandGroup } from "../shared/core/command";
 import { SharedOptions } from "../shared/options";
 
 export interface ClientOptions extends SharedOptions {
@@ -14,8 +14,8 @@ export interface HistoryEntry {
 
 export interface CommanderEvents {
 	historyUpdated: BindableEvent<(history: HistoryEntry[]) => void>;
-	commandAdded: BindableEvent<(key: string, command: CommandOptions) => void>;
-	groupAdded: BindableEvent<(key: string, group: GroupOptions) => void>;
+	commandAdded: BindableEvent<(key: string, command: BaseCommand) => void>;
+	groupAdded: BindableEvent<(key: string, group: CommandGroup) => void>;
 }
 
 export type CommanderEventCallbacks = {

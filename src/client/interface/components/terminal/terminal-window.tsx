@@ -98,9 +98,12 @@ export function TerminalWindow() {
 		},
 	);
 
-	useEventListener(CommanderClient.events().historyUpdated, (entries) => {
-		setHistory(entries);
-	});
+	useEventListener(
+		CommanderClient.dispatcher().getHistoryEvent(),
+		(entries) => {
+			setHistory(entries);
+		},
+	);
 
 	// Handle history updates
 	useEffect(() => {

@@ -1,19 +1,15 @@
 import { Players } from "@rbxts/services";
-import { BaseRegistry, Path } from "../shared";
+import { Path } from "../shared";
 import { BaseDispatcher } from "../shared/core/dispatcher";
 import { DEFAULT_CLIENT_OPTIONS } from "./options";
-import { ClientOptions, CommanderEvents, HistoryEntry } from "./types";
+import { ClientOptions, HistoryEntry } from "./types";
 
 export class ClientDispatcher extends BaseDispatcher {
 	private readonly history: HistoryEntry[] = [];
 	private maxHistoryLength = DEFAULT_CLIENT_OPTIONS.historyLength;
-
-	constructor(
-		registry: BaseRegistry,
-		private readonly events: CommanderEvents,
-	) {
-		super(registry);
-	}
+	private readonly historyUpdated: BindableEvent<
+		(history: HistoryEntry[]) => void
+	> = new Instance("BindableEvent");
 
 	/**
 	 * Initialises the client dispatcher.
@@ -66,6 +62,10 @@ export class ClientDispatcher extends BaseDispatcher {
 		return this.history;
 	}
 
+	getHistoryEvent() {
+		return this.historyUpdated.Event;
+	}
+
 	/**
 	 * Adds a {@link HistoryEntry} to the history.
 	 *
@@ -80,6 +80,6 @@ export class ClientDispatcher extends BaseDispatcher {
 		}
 
 		this.history.push(entry);
-		this.events.historyUpdated.Fire(this.history);
+		this.historyUpdated.Fire(this.history);
 	}
 }

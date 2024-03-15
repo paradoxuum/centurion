@@ -16,6 +16,25 @@ const tsImpl = (_G as Map<unknown, unknown>).get(script) as {
 	import: (...modules: LuaSourceContainer[]) => unknown;
 };
 
+type CommandRegisteredCallback = (command: BaseCommand) => void;
+type GroupRegisteredCallback = (group: CommandGroup) => void;
+
+export interface RegistryEvents {
+	/**
+	 * Fired when a command is registered.
+	 *
+	 * @param command The command that was registered
+	 */
+	commandRegistered: RBXScriptSignal<CommandRegisteredCallback>;
+
+	/**
+	 * Fired when a group is registered.
+	 *
+	 * @param group The group that was registered
+	 */
+	groupRegistered: RBXScriptSignal<GroupRegisteredCallback>;
+}
+
 export abstract class BaseRegistry {
 	protected static readonly ROOT_KEY = "__root__";
 	protected readonly commands = new Map<string, BaseCommand>();
@@ -23,6 +42,16 @@ export abstract class BaseRegistry {
 	protected readonly guards: CommandGuard[] = [];
 	protected readonly types = new Map<string, TypeOptions<defined>>();
 	protected readonly registeredObjects = new Set<object>();
+
+	protected readonly commandRegistered: BindableEvent<CommandRegisteredCallback> =
+		new Instance("BindableEvent");
+	protected readonly groupRegistered: BindableEvent<GroupRegisteredCallback> =
+		new Instance("BindableEvent");
+	protected readonly events: RegistryEvents = {
+		commandRegistered: this.commandRegistered.Event,
+		groupRegistered: this.groupRegistered.Event,
+	};
+
 	protected cachedPaths = new Map<string, Path[]>();
 
 	init(options: SharedOptions) {
@@ -122,38 +151,44 @@ export abstract class BaseRegistry {
 	 * @param groups The groups to register
 	 */
 	registerGroups(...groups: GroupOptions[]) {
-		const childMap = new Map<string, GroupOptions[]>();
-		for (const group of groups) {
-			if (group.root !== undefined) {
-				const childArray = childMap.get(group.root) ?? [];
-				childArray.push(group);
-				childMap.set(group.root, childArray);
-				continue;
-			}
-
-			if (this.groups.has(group.name)) {
-				warn("Skipping duplicate group:", group.name);
-				continue;
-			}
-
-			this.validatePath(group.name, false);
-			this.addGroup(this.createGroup(group));
+		const commandGroups: CommandGroup[] = [];
+		for (const options of groups) {
+			const groupPath =
+				options.root !== undefined
+					? Path.fromString(options.root)
+					: Path.empty();
+			groupPath.append(options.name);
+			commandGroups.push(
+				new CommandGroup(ImmutablePath.fromPath(groupPath), options),
+			);
 		}
 
-		for (const [root, children] of childMap) {
-			const rootGroup = this.groups.get(root);
-			assert(rootGroup !== undefined, `Parent group '${root}' does not exist'`);
+		// Sort groups by path size so parent groups are registered first
+		commandGroups.sort((a, b) => a.getPath().getSize() < b.getPath().getSize());
 
-			for (const child of children) {
-				if (rootGroup.hasGroup(child.name)) {
-					warn(`Skipping duplicate child group in ${root}: ${child}`);
-					continue;
+		for (const group of commandGroups) {
+			const pathString = group.getPath().toString();
+			this.validatePath(pathString, false);
+
+			if (group.getPath().getSize() > 1) {
+				const parentPath = group.getPath().getParent();
+				const parentGroup = this.groups.get(parentPath.toString());
+				if (parentGroup === undefined) {
+					throw `Parent group '${parentPath}' for group '${pathString}' is not registered`;
 				}
 
-				const childGroup = this.createGroup(child);
-				rootGroup.addGroup(childGroup);
-				this.addGroup(childGroup);
+				if (parentGroup.hasGroup(group.options.name)) {
+					warn(
+						`Skipping duplicate child group in ${parentPath}: ${group.options.name}`,
+					);
+				}
+
+				parentGroup.addGroup(group);
 			}
+
+			this.groups.set(pathString, group);
+			this.cachePath(group.getPath());
+			this.groupRegistered.Fire(group);
 		}
 	}
 
@@ -264,6 +299,16 @@ export abstract class BaseRegistry {
 		return this.cachedPaths.get(path.toString()) ?? [];
 	}
 
+	/**
+	 * Returns registry events, which can be used to listen for
+	 * commands and group registration.
+	 *
+	 * @returns Registry events
+	 */
+	getEvents() {
+		return this.events;
+	}
+
 	protected cachePath(path: Path) {
 		let key = BaseRegistry.ROOT_KEY;
 		for (const i of $range(0, path.getSize() - 1)) {
@@ -290,10 +335,17 @@ export abstract class BaseRegistry {
 	}
 
 	protected registerCommand(command: BaseCommand, group?: CommandGroup) {
-		this.addCommand(command);
+		for (const path of command.getPaths()) {
+			this.validatePath(path.toString(), true);
+			this.commands.set(path.toString(), command);
+			this.cachePath(path);
+		}
+
 		if (group !== undefined) {
 			group.addCommand(command);
 		}
+
+		this.commandRegistered.Fire(command);
 	}
 
 	private registerCommandClass(commandClass: object) {
@@ -371,42 +423,18 @@ export abstract class BaseRegistry {
 		}
 	}
 
-	protected createGroup(group: GroupOptions) {
-		const groupParts: string[] = [];
-		if (group.root !== undefined) {
-			groupParts.push(group.root);
-		}
-
-		groupParts.push(group.name);
-		return new CommandGroup(new ImmutablePath(groupParts), group);
-	}
-
 	protected validatePath(path: string, isCommand: boolean) {
 		const hasCommand = this.commands.has(path);
 		if (hasCommand && isCommand) throw `Duplicate command: ${path}`;
 
-		if (hasCommand)
+		if (hasCommand) {
 			throw `A command already exists with the same name as this group: ${path}`;
+		}
 
 		const hasGroup = this.groups.has(path);
 		if (hasGroup && isCommand)
 			throw `A group already exists with the same name as this command: ${path}`;
 
 		if (hasGroup) throw `Duplicate group: ${path}`;
-	}
-
-	protected addCommand(command: BaseCommand) {
-		for (const path of command.getPaths()) {
-			this.validatePath(path.toString(), true);
-			this.commands.set(path.toString(), command);
-			this.cachePath(path);
-		}
-	}
-
-	protected addGroup(group: CommandGroup) {
-		const pathString = group.getPath().toString();
-		this.validatePath(pathString, false);
-		this.groups.set(pathString, group);
-		this.cachePath(group.getPath());
 	}
 }
