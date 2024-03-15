@@ -17,7 +17,9 @@ jobs:
               uses: actions/checkout@v4
 
             - name: Set version
-              run: echo "VERSION=$(cat package.json | jq -r .version)-dev.$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+              run: |
+                  CURRENT=$(cat package.json | jq -r .version)
+                  echo "VERSION="${CURRENT::-1}$((${CURRENT: -1} + 1))"-dev.$(git rev-parse --short HEAD)" >> $GITHUB_ENV
 
             - name: Check version
               run: |
