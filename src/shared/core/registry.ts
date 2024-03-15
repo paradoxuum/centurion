@@ -229,8 +229,8 @@ export abstract class BaseRegistry {
 	 */
 	getCommands() {
 		const commands: BaseCommand[] = [];
-		for (const [_, v] of this.commands) {
-			commands.push(v);
+		for (const [_, command] of this.commands) {
+			commands.push(command);
 		}
 		return commands;
 	}
@@ -262,11 +262,8 @@ export abstract class BaseRegistry {
 	 */
 	getGroups() {
 		const groups: CommandGroup[] = [];
-		for (const path of this.getRootPaths()) {
-			const group = this.getGroup(path);
-			if (group !== undefined) {
-				groups.push(group);
-			}
+		for (const [_, group] of this.groups) {
+			groups.push(group);
 		}
 		return groups;
 	}
@@ -402,7 +399,7 @@ export abstract class BaseRegistry {
 				}
 
 				if (commandGroup === undefined) {
-					throw `Cannot assign group '${groupPath}' to command'${name}' as it is not registered`;
+					throw `Cannot assign group '${groupPath}' to command '${name}' as it is not registered`;
 				}
 			}
 
