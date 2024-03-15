@@ -3,6 +3,7 @@ import {
 	CommandInteraction,
 	Commander,
 	CommanderType,
+	Group,
 } from "@rbxts/commander";
 
 @Commander({
@@ -20,16 +21,17 @@ class InfoCommand {
 			},
 		],
 	})
+	@Group("user")
 	userView(interaction: CommandInteraction, player: Player) {
 		interaction.reply(`<Random data about ${player.Name} here>`);
 	}
 
-	// @Command({
-	// 	name: "view",
-	// 	description: "Views information about the server",
-	// })
-	// @Group("server")
-	// serverView(interaction: CommandInteraction) {
-	// 	interaction.reply("<Random data about the server here>");
-	// }
+	@Command({
+		name: "view",
+		description: "Views information about the server",
+	})
+	@Group("server")
+	serverView(interaction: CommandInteraction) {
+		interaction.reply("<Random data about the server here>");
+	}
 }
