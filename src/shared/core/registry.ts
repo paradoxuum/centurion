@@ -341,7 +341,7 @@ export abstract class BaseRegistry {
 			commandClass,
 			MetadataKey.CommandClass,
 		);
-		const globalGroups = classOptions?.globalGroups ?? [];
+		const globalGroups = classOptions?.globalGroups;
 
 		for (const name of MetadataReflect.getOwnProperties(commandClass)) {
 			// Get decorator data
@@ -368,19 +368,28 @@ export abstract class BaseRegistry {
 			);
 
 			// Get registered command group
-			let commandGroup: CommandGroup | undefined;
+			let groupPath =
+				globalGroups !== undefined ? new Path([...globalGroups]) : undefined;
 			if (group !== undefined && !group.isEmpty()) {
-				const groupPath = new Path([...globalGroups, ...group]);
+				if (groupPath !== undefined) {
+					for (const part of group) {
+						groupPath.append(part);
+					}
+				} else {
+					groupPath = new Path(group);
+				}
+			}
 
+			let commandGroup: CommandGroup | undefined;
+			if (groupPath !== undefined) {
+				commandGroup = this.getGroup(groupPath);
 				if (groupPath.getSize() > 2) {
 					throw `Invalid group for command '${name}': a command can only have 2 groups, found ${groupPath.getSize()}`;
 				}
 
-				commandGroup = this.getGroup(groupPath);
-				assert(
-					commandGroup !== undefined,
-					`The group '${groupPath}' assigned to command '${name}' is invalid`,
-				);
+				if (commandGroup === undefined) {
+					throw `Cannot assign group '${groupPath}' to command'${name}' as it is not registered`;
+				}
 			}
 
 			this.registerCommand(
