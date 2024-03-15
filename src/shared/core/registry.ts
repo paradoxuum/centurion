@@ -7,12 +7,7 @@ import {
 	TypeOptions,
 } from "../types";
 import { MetadataReflect } from "../util/reflect";
-import {
-	BaseCommand,
-	CommandGroup,
-	ExecutableCommand,
-	RegistrationData,
-} from "./command";
+import { BaseCommand, CommandGroup, ExecutableCommand } from "./command";
 import { MetadataKey } from "./decorators";
 import { ImmutablePath, Path } from "./path";
 
@@ -142,7 +137,7 @@ export abstract class BaseRegistry {
 			}
 
 			this.validatePath(group.name, false);
-			this.updateGroupMap(group.name, this.createGroup(group));
+			this.addGroup(this.createGroup(group));
 		}
 
 		for (const [root, children] of childMap) {
@@ -157,7 +152,7 @@ export abstract class BaseRegistry {
 
 				const childGroup = this.createGroup(child);
 				rootGroup.addGroup(childGroup);
-				this.updateGroupMap(childGroup.path.toString(), childGroup);
+				this.addGroup(childGroup);
 			}
 		}
 	}
@@ -232,7 +227,7 @@ export abstract class BaseRegistry {
 	 */
 	getGroups() {
 		const groups: CommandGroup[] = [];
-		for (const path of this.getPaths()) {
+		for (const path of this.getRootPaths()) {
 			const group = this.getGroup(path);
 			if (group !== undefined) {
 				groups.push(group);
@@ -251,11 +246,11 @@ export abstract class BaseRegistry {
 	}
 
 	/**
-	 * Gets the paths of all registered commands and groups.
+	 * Gets the root paths of all registered commands and groups.
 	 *
-	 * @returns An array of all paths
+	 * @returns An array of all root paths
 	 */
-	getPaths() {
+	getRootPaths() {
 		return this.cachedPaths.get(BaseRegistry.ROOT_KEY) ?? [];
 	}
 
@@ -270,29 +265,18 @@ export abstract class BaseRegistry {
 	}
 
 	protected cachePath(path: Path) {
-		let cacheKey = BaseRegistry.ROOT_KEY;
-		if (path.getSize() === 3) {
-			if (!this.cachedPaths.has(path.getRoot())) {
-				this.addCacheEntry(
-					BaseRegistry.ROOT_KEY,
-					Path.fromString(path.getRoot()),
-				);
-			}
+		let key = BaseRegistry.ROOT_KEY;
+		for (const i of $range(0, path.getSize() - 1)) {
+			const pathSlice = path.slice(0, i);
 
-			const childPath = path.slice(0, 1);
-			this.addCacheEntry(path.getRoot(), childPath);
-			cacheKey = childPath.toString();
+			const cache = this.cachedPaths.get(key) ?? [];
+			this.cachedPaths.set(key, cache);
+			key = pathSlice.toString();
+
+			if (cache.some((val) => val.equals(pathSlice))) continue;
+			cache.push(pathSlice);
+			cache.sort((a, b) => a.getTail() < b.getTail());
 		}
-
-		this.addCacheEntry(cacheKey, path);
-	}
-
-	private addCacheEntry(key: string, path: Path) {
-		const cache = this.cachedPaths.get(key) ?? [];
-		cache.push(path);
-		cache.sort((a, b) => a.getTail() < b.getTail());
-		this.cachedPaths.set(key, cache);
-		return cache;
 	}
 
 	private import(moduleScript: ModuleScript) {
@@ -305,35 +289,11 @@ export abstract class BaseRegistry {
 		return value;
 	}
 
-	protected registerCommand(data: RegistrationData, group?: CommandGroup) {
-		const options = data.options;
-
-		const parentPath =
-			group !== undefined ? group.getPath() : new ImmutablePath([]);
-		const path = parentPath.append(options.name);
-
-		const command = new ExecutableCommand(
-			this,
-			ImmutablePath.fromPath(path),
-			data.class,
-			data.options,
-			data.callback,
-			[...data.guards],
-		);
-
-		const aliases = options.aliases ?? [];
-		const paths = [path, ...aliases.map((a) => parentPath.append(a))];
-		for (const path of paths) {
-			this.validatePath(path.toString(), true);
-			this.cachePath(path);
-			this.updateCommandMap(path.toString(), command);
-		}
-
+	protected registerCommand(command: BaseCommand, group?: CommandGroup) {
+		this.addCommand(command);
 		if (group !== undefined) {
 			group.addCommand(command);
 		}
-
-		return command;
 	}
 
 	private registerCommandClass(commandClass: object) {
@@ -343,29 +303,31 @@ export abstract class BaseRegistry {
 		);
 		const globalGroups = classOptions?.globalGroups;
 
-		for (const name of MetadataReflect.getOwnProperties(commandClass)) {
+		for (const property of MetadataReflect.getOwnProperties(commandClass)) {
 			// Get decorator data
 			const metadata = MetadataReflect.getOwnMetadata<CommandMetadata>(
 				commandClass,
 				MetadataKey.Command,
-				name,
+				property,
 			);
 			assert(
 				metadata !== undefined,
-				`Command metadata not found: ${commandClass}/${name}`,
+				`Command metadata not found: ${commandClass}/${property}`,
 			);
 
 			const group = MetadataReflect.getOwnMetadata<string[]>(
 				commandClass,
 				MetadataKey.Group,
-				name,
+				property,
 			);
 
 			const guards = MetadataReflect.getOwnMetadata<CommandGuard[]>(
 				commandClass,
 				MetadataKey.Guard,
-				name,
+				property,
 			);
+
+			const name = metadata.options.name;
 
 			// Get registered command group
 			let groupPath =
@@ -392,15 +354,20 @@ export abstract class BaseRegistry {
 				}
 			}
 
-			this.registerCommand(
-				{
-					class: commandClass,
-					callback: metadata.func,
-					options: metadata.options,
-					guards: guards ?? [],
-				},
-				commandGroup,
+			const parentPath =
+				commandGroup !== undefined
+					? commandGroup.getPath()
+					: ImmutablePath.empty();
+			const path = parentPath.append(metadata.options.name);
+
+			const command = new ExecutableCommand(
+				this,
+				parentPath.append(name),
+				metadata.options,
+				(...args) => metadata.func(commandClass, ...args),
+				guards ?? [],
 			);
+			this.registerCommand(command, commandGroup);
 		}
 	}
 
@@ -428,11 +395,18 @@ export abstract class BaseRegistry {
 		if (hasGroup) throw `Duplicate group: ${path}`;
 	}
 
-	protected updateCommandMap(key: string, command: BaseCommand) {
-		this.commands.set(key, command);
+	protected addCommand(command: BaseCommand) {
+		for (const path of command.getPaths()) {
+			this.validatePath(path.toString(), true);
+			this.commands.set(path.toString(), command);
+			this.cachePath(path);
+		}
 	}
 
-	protected updateGroupMap(key: string, group: CommandGroup) {
-		this.groups.set(key, group);
+	protected addGroup(group: CommandGroup) {
+		const pathString = group.getPath().toString();
+		this.validatePath(pathString, false);
+		this.groups.set(pathString, group);
+		this.cachePath(group.getPath());
 	}
 }

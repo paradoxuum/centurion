@@ -90,7 +90,7 @@ export function getCommandSuggestion(
 	const paths =
 		parentPath !== undefined
 			? CommanderClient.registry().getChildPaths(parentPath)
-			: CommanderClient.registry().getPaths();
+			: CommanderClient.registry().getRootPaths();
 	if (paths.isEmpty()) return;
 
 	const pathNames = paths.map((path) => path.getTail());

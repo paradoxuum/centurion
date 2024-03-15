@@ -68,51 +68,46 @@ export class ClientRegistry extends BaseRegistry {
 			});
 	}
 
-	protected updateCommandMap(key: string, command: BaseCommand): void {
-		super.updateCommandMap(key, command);
-		this.events.commandAdded.Fire(
-			key,
-			ObjectUtil.copyDeep(command.options as CommandOptions),
-		);
+	protected addCommand(command: BaseCommand) {
+		super.addCommand(command);
+		const options = ObjectUtil.copyDeep(command.options as CommandOptions);
+		for (const path of command.getPaths()) {
+			this.events.commandAdded.Fire(path.toString(), options);
+		}
 	}
 
-	protected updateGroupMap(key: string, group: CommandGroup): void {
-		super.updateGroupMap(key, group);
+	protected addGroup(group: CommandGroup) {
+		super.addGroup(group);
 		this.events.groupAdded.Fire(
-			key,
+			group.getPath().toString(),
 			ObjectUtil.copyDeep(group.options as GroupOptions),
 		);
 	}
 
 	private registerServerCommands(commands: Map<string, CommandOptions>) {
-		for (const [path, command] of commands) {
-			const commandPath = ImmutablePath.fromString(path);
+		for (const [pathString, options] of commands) {
+			const path = ImmutablePath.fromString(pathString);
 			let group: CommandGroup | undefined;
-			if (commandPath.getSize() > 1) {
-				const groupPath = commandPath.remove(commandPath.getSize() - 1);
+			if (path.getSize() > 1) {
+				const groupPath = path.remove(path.getSize() - 1);
 				group = this.getGroup(groupPath);
 				assert(
 					group !== undefined,
-					`Group '${groupPath}' for server command '${commandPath}' is not registered`,
+					`Group '${groupPath}' for server command '${path}' is not registered`,
 				);
 			}
 
-			if (this.commands.has(path)) {
+			if (this.commands.has(pathString)) {
 				// TODO Implement shared command support:
 				// - Verify that the argument options are the same
 				// - Use the client command's return value to determine whether the
 				//   server command should be executed
 				// - Maybe log a warning if the description is different on the client
-				warn(`Skipping shared command ${commandPath}`);
+				warn(`Skipping shared command ${path}`);
 				continue;
 			}
 
-			this.validatePath(path, true);
-			this.cachePath(commandPath);
-			this.updateCommandMap(
-				path,
-				ServerCommand.create(this, commandPath, command),
-			);
+			this.registerCommand(ServerCommand.create(this, path, options), group);
 		}
 	}
 }

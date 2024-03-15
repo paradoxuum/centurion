@@ -1,6 +1,6 @@
 import { Players } from "@rbxts/services";
 import { CommandOptions, Path } from "../shared";
-import { CommandGroup, RegistrationData } from "../shared/core/command";
+import { BaseCommand, CommandGroup } from "../shared/core/command";
 import { BaseRegistry } from "../shared/core/registry";
 import { Remotes, SyncData } from "../shared/network";
 import { ServerOptions } from "./types";
@@ -22,14 +22,13 @@ export class ServerRegistry extends BaseRegistry {
 	}
 
 	protected registerCommand(
-		data: RegistrationData,
+		command: BaseCommand,
 		group?: CommandGroup | undefined,
 	) {
-		const command = super.registerCommand(data, group);
+		super.registerCommand(command, group);
 		for (const player of Players.GetPlayers()) {
 			Remotes.SyncDispatch.FireClient(player, this.getSyncData(player));
 		}
-		return command;
 	}
 
 	private getSyncData(player: Player): SyncData {

@@ -11,13 +11,6 @@ import { CommandInteraction } from "./interaction";
 import { ImmutablePath } from "./path";
 import { BaseRegistry } from "./registry";
 
-export interface RegistrationData {
-	class: defined;
-	callback: (...args: unknown[]) => unknown;
-	options: CommandOptions;
-	guards: CommandGuard[];
-}
-
 export abstract class BaseCommand {
 	protected readonly argTypes: TypeOptions<defined>[] = [];
 	protected readonly path: ImmutablePath;
@@ -61,26 +54,34 @@ export abstract class BaseCommand {
 		return this.path;
 	}
 
+	getPaths() {
+		const paths = [this.path];
+		if (this.options.aliases !== undefined) {
+			const parentPath = this.path.getParent();
+			for (const alias of this.options.aliases) {
+				paths.push(parentPath.append(alias));
+			}
+		}
+		return paths;
+	}
+
 	getName() {
 		return this.options.name;
 	}
 }
 
 export class ExecutableCommand extends BaseCommand {
-	private readonly commandClass: defined;
 	private readonly callback: (...args: unknown[]) => unknown;
 	private readonly guards: ReadonlyArray<CommandGuard>;
 
 	constructor(
 		registry: BaseRegistry,
 		path: ImmutablePath,
-		commandClass: defined,
 		options: CommandOptions,
 		callback: (...args: unknown[]) => unknown,
 		guards: CommandGuard[],
 	) {
 		super(registry, path, options);
-		this.commandClass = commandClass;
 		this.callback = callback;
 		this.guards = table.freeze([...registry.getGuards(), ...guards]);
 	}
@@ -98,11 +99,7 @@ export class ExecutableCommand extends BaseCommand {
 			return;
 		}
 
-		return this.callback(
-			this.commandClass,
-			interaction,
-			...transformedArgs.unwrap(),
-		);
+		return this.callback(interaction, ...transformedArgs.unwrap());
 	}
 
 	transformArgs(
@@ -147,7 +144,7 @@ export class ExecutableCommand extends BaseCommand {
 }
 
 export class CommandGroup {
-	private readonly commands = new Map<string, ExecutableCommand>();
+	private readonly commands = new Map<string, BaseCommand>();
 	private readonly groups = new Map<string, CommandGroup>();
 	readonly options: ReadonlyDeepObject<GroupOptions>;
 
@@ -158,7 +155,7 @@ export class CommandGroup {
 		this.options = options;
 	}
 
-	addCommand(command: ExecutableCommand) {
+	addCommand(command: BaseCommand) {
 		if (!command.getPath().isChildOf(this.path)) {
 			throw `${command} is not a child of this group (${this})`;
 		}
@@ -213,7 +210,7 @@ export class CommandGroup {
 	}
 
 	getCommands() {
-		const commandsArray: ExecutableCommand[] = [];
+		const commandsArray: BaseCommand[] = [];
 		for (const [_, command] of this.commands) {
 			commandsArray.push(command);
 		}

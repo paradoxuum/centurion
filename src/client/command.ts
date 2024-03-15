@@ -13,14 +13,12 @@ export class SharedCommand extends ExecutableCommand {
 	static create(
 		registry: BaseRegistry,
 		path: ImmutablePath,
-		commandClass: defined,
 		data: CommandMetadata,
 		guards?: CommandGuard[] | undefined,
 	) {
 		return new SharedCommand(
 			registry,
 			path,
-			commandClass,
 			data.options,
 			data.func,
 			guards ?? [],
