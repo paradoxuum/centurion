@@ -153,13 +153,11 @@ export abstract class BaseRegistry {
 	registerGroups(...groups: GroupOptions[]) {
 		const commandGroups: CommandGroup[] = [];
 		for (const options of groups) {
-			const groupPath =
-				options.root !== undefined
-					? Path.fromString(options.root)
-					: Path.empty();
-			groupPath.append(options.name);
 			commandGroups.push(
-				new CommandGroup(ImmutablePath.fromPath(groupPath), options),
+				new CommandGroup(
+					new ImmutablePath([...(options.parent ?? []), options.name]),
+					options,
+				),
 			);
 		}
 
@@ -181,6 +179,7 @@ export abstract class BaseRegistry {
 					warn(
 						`Skipping duplicate child group in ${parentPath}: ${group.options.name}`,
 					);
+					continue;
 				}
 
 				parentGroup.addGroup(group);
@@ -394,24 +393,14 @@ export abstract class BaseRegistry {
 			let commandGroup: CommandGroup | undefined;
 			if (groupPath !== undefined) {
 				commandGroup = this.getGroup(groupPath);
-				if (groupPath.getSize() > 2) {
-					throw `Invalid group for command '${name}': a command can only have 2 groups, found ${groupPath.getSize()}`;
-				}
-
 				if (commandGroup === undefined) {
 					throw `Cannot assign group '${groupPath}' to command '${name}' as it is not registered`;
 				}
 			}
 
-			const parentPath =
-				commandGroup !== undefined
-					? commandGroup.getPath()
-					: ImmutablePath.empty();
-			const path = parentPath.append(metadata.options.name);
-
 			const command = new ExecutableCommand(
 				this,
-				parentPath.append(name),
+				(commandGroup?.getPath() ?? ImmutablePath.empty()).append(name),
 				metadata.options,
 				(...args) => metadata.func(commandClass, ...args),
 				guards ?? [],

@@ -44,7 +44,9 @@ export class ServerRegistry extends BaseRegistry {
 
 		const syncedGroups = new Map<string, GroupOptions>();
 		for (const [path, group] of this.groups) {
-			syncedGroups.set(path, group.options);
+			syncedGroups.set(path, {
+				...(group.options as GroupOptions),
+			});
 		}
 
 		return {

@@ -17,14 +17,6 @@ export class ClientRegistry extends BaseRegistry {
 	 * @returns A promise that will be resolved when the initial sync is received
 	 */
 	async sync() {
-		const getGroupKey = (group: GroupOptions) => {
-			let groupName = group.name;
-			if (group.root !== undefined) {
-				groupName = `${group.root}/${groupName}`;
-			}
-			return groupName;
-		};
-
 		Remotes.SyncDispatch.OnClientEvent.Connect((data) => {
 			if (!this.initialSyncReceived) this.initialSyncReceived = true;
 

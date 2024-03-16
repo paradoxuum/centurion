@@ -36,7 +36,7 @@ export interface CommandOptions {
 export interface GroupOptions {
 	name: string;
 	description?: string;
-	root?: string;
+	parent?: string[];
 }
 
 export interface CommandMetadata {

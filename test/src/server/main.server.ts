@@ -10,12 +10,12 @@ CommanderServer.start((registry) => {
 		{
 			name: "user",
 			description: "View info about a user",
-			root: "info",
+			parent: ["info"],
 		},
 		{
 			name: "server",
 			description: "View info about the server",
-			root: "info",
+			parent: ["info"],
 		},
 	);
 
