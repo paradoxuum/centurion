@@ -34,11 +34,10 @@ export namespace CommanderClient {
 		dispatcherInstance.init(optionsObject);
 		registryInstance.init(optionsObject);
 
-		callback?.(registryInstance);
 		await registryInstance.sync();
+		callback?.(registryInstance);
 		started = true;
-
-		if (options.interface !== undefined) options.interface();
+		options.interface?.();
 	}
 
 	export function registry() {
