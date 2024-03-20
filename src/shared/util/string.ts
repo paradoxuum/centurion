@@ -29,7 +29,7 @@ function decodeControlChars(text: string) {
 
 const START_QUOTE_PATTERN = `^(['"])`;
 const END_QUOTE_PATTERN = `(['"])$`;
-const ESCAPE_PATTERN = `(\*)['"]$`;
+const ESCAPE_PATTERN = `(\\*)['"]$`;
 
 /**
  * Splits a string by space and takes into account quoted sentences,
@@ -44,6 +44,7 @@ export function splitStringBySpace(
 	text: string,
 	max: number = math.huge,
 ): string[] {
+	print(text);
 	const resultText = encodeControlChars(text);
 	const t: string[] = [];
 
