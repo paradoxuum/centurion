@@ -44,7 +44,6 @@ export function splitStringBySpace(
 	text: string,
 	max: number = math.huge,
 ): string[] {
-	print(text);
 	const resultText = encodeControlChars(text);
 	const t: string[] = [];
 
