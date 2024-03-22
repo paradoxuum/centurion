@@ -15,8 +15,6 @@ export namespace CommanderServer {
 	/**
 	 * Starts {@link CommanderServer}.
 	 *
-	 * All registration must be done in the provided callback.
-	 *
 	 * @param callback The run callback
 	 * @param options Server options
 	 */

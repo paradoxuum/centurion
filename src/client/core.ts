@@ -15,8 +15,6 @@ export namespace CommanderClient {
 	/**
 	 * Starts {@link CommanderClient}.
 	 *
-	 * All registration must be done in the provided callback.
-	 *
 	 * @param callback The run callback
 	 * @param options Client options
 	 */
