@@ -7,7 +7,7 @@ export interface TextState {
 	valid: boolean;
 }
 
-export const initialTextState: TextState = {
+const initialTextState: TextState = {
 	value: "",
 	parts: [],
 	index: -1,

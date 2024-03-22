@@ -5,7 +5,7 @@ export interface SuggestionState {
 	current?: Suggestion;
 }
 
-export const initialSuggestionState: SuggestionState = {};
+const initialSuggestionState: SuggestionState = {};
 
 export const suggestionSlice = createProducer(initialSuggestionState, {
 	setSuggestion: (state, suggestion?: Suggestion) => ({

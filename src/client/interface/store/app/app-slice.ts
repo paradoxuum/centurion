@@ -4,7 +4,7 @@ export interface AppState {
 	visible: boolean;
 }
 
-export const initialAppState: AppState = {
+const initialAppState: AppState = {
 	visible: false,
 };
 

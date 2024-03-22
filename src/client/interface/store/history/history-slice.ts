@@ -5,7 +5,7 @@ export interface HistoryState {
 	commandHistoryIndex: number;
 }
 
-export const initialHistoryState: HistoryState = {
+const initialHistoryState: HistoryState = {
 	commandHistory: [],
 	commandHistoryIndex: -1,
 };

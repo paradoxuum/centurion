@@ -1,34 +1,7 @@
-import {
-	CommandGuard,
-	CommandInteraction,
-	CommandMetadata,
-	CommandOptions,
-	ImmutablePath,
-} from "../shared";
-import { BaseCommand, ExecutableCommand } from "../shared/core/command";
+import { CommandInteraction, CommandOptions, ImmutablePath } from "../shared";
+import { BaseCommand } from "../shared/core/command";
 import { BaseRegistry } from "../shared/core/registry";
 import { Remotes } from "../shared/network";
-
-export class SharedCommand extends ExecutableCommand {
-	static create(
-		registry: BaseRegistry,
-		path: ImmutablePath,
-		data: CommandMetadata,
-		guards?: CommandGuard[] | undefined,
-	) {
-		return new SharedCommand(
-			registry,
-			path,
-			data.options,
-			data.func,
-			guards ?? [],
-		);
-	}
-
-	toString() {
-		return `SharedCommand{path=${this.path}}`;
-	}
-}
 
 export class ServerCommand extends BaseCommand {
 	static create(

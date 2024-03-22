@@ -25,18 +25,6 @@ import { Padding } from "../interface/padding";
 import { HistoryData, HistoryList } from "./history";
 import { TerminalTextField } from "./terminal-text-field";
 
-function getParentPath(parts: string[], atNextPart: boolean) {
-	if (!atNextPart && parts.size() <= 1) {
-		return;
-	}
-
-	const result = [...parts];
-	if (!atNextPart) {
-		result.pop();
-	}
-	return new ImmutablePath(result);
-}
-
 const MAX_HEIGHT = HISTORY_TEXT_SIZE * 10;
 const TEXT_FIELD_HEIGHT = 40;
 

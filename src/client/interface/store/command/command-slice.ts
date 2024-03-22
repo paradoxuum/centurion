@@ -6,7 +6,7 @@ export interface CommandState {
 	argIndex?: number;
 }
 
-export const initialCommandState: CommandState = {};
+const initialCommandState: CommandState = {};
 
 export const commandSlice = createProducer(initialCommandState, {
 	setCommand: (state, path?: ImmutablePath) => ({
