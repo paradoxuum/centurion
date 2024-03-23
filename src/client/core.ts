@@ -32,8 +32,8 @@ export namespace CommanderClient {
 		dispatcherInstance.init(optionsObject);
 		registryInstance.init(optionsObject);
 
-		await registryInstance.sync();
 		callback?.(registryInstance);
+		await registryInstance.sync();
 		started = true;
 		options.interface?.();
 	}
