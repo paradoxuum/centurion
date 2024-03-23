@@ -268,6 +268,19 @@ export abstract class BaseRegistry {
 	}
 
 	/**
+	 * Gets all registered types.
+	 *
+	 * @returns An array of all registered types
+	 */
+	getTypes() {
+		const types: TypeOptions<defined>[] = [];
+		for (const [_, typeObject] of this.types) {
+			types.push(typeObject);
+		}
+		return types;
+	}
+
+	/**
 	 * Gets all registered guards.
 	 *
 	 * @returns An array of all registered guards
