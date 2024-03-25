@@ -6,7 +6,7 @@ import { ArrayUtil } from "../../../../shared/util/data";
 import {
 	endsWithSpace,
 	formatPartsAsPath,
-	splitStringBySpace,
+	splitString,
 } from "../../../../shared/util/string";
 import { CommanderClient } from "../../../core";
 import { HistoryEntry } from "../../../types";
@@ -147,7 +147,7 @@ export function TerminalWindow() {
 				position={UDim2.fromScale(0, 1)}
 				backgroundTransparency={options.backgroundTransparency}
 				onTextChange={(text) => {
-					const parts = splitStringBySpace(text);
+					const parts = splitString(text, " ");
 					store.setText(text, parts);
 
 					if (parts.isEmpty()) {

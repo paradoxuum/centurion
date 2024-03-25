@@ -1,23 +1,23 @@
 import { TestProps } from "@rbxts/midori";
-import { endsWithSpace, formatPartsAsPath, splitStringBySpace } from "./string";
+import { endsWithSpace, formatPartsAsPath, splitString } from "./string";
 
 export = (x: TestProps) => {
 	x.nested("split string", () => {
 		x.test("splits one space", () => {
 			const testString = "part1 part2 part3";
-			const parts = splitStringBySpace(testString);
+			const parts = splitString(testString, " ");
 			x.assertEqual(parts.size(), 3);
 		});
 
 		x.test("splits multiple spaces", () => {
 			const testString = "part1   part2  part3    part4  ";
-			const parts = splitStringBySpace(testString);
+			const parts = splitString(testString, " ");
 			x.assertEqual(parts.size(), 4);
 		});
 
 		x.test("takes into account quoted sentences", () => {
 			const testString = `part1 "part2 but quoted" part3 'part4' "part5"`;
-			const parts = splitStringBySpace(testString);
+			const parts = splitString(testString, " ");
 			x.assertEqual(parts.size(), 5);
 			x.assertEqual(parts[1], "part2 but quoted");
 			x.assertEqual(parts[3], "part4");

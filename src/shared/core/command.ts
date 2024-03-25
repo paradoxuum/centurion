@@ -6,7 +6,7 @@ import {
 	TypeOptions,
 } from "../types";
 import { ObjectUtil, ReadonlyDeepObject } from "../util/data";
-import { splitStringBySpace } from "../util/string";
+import { splitString } from "../util/string";
 import { CommandInteraction } from "./interaction";
 import { ImmutablePath } from "./path";
 import { BaseRegistry } from "./registry";
@@ -106,7 +106,7 @@ export class ExecutableCommand extends BaseCommand {
 		text: string,
 		interaction: CommandInteraction,
 	): Result<unknown[], string> {
-		const args = splitStringBySpace(text);
+		const args = splitString(text, " ");
 
 		const argOptions = this.options.arguments;
 		if (argOptions === undefined || argOptions.isEmpty()) {

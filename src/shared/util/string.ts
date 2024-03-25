@@ -32,24 +32,26 @@ const END_QUOTE_PATTERN = `(['"])$`;
 const ESCAPE_PATTERN = `(\\*)['"]$`;
 
 /**
- * Splits a string by space and takes into account quoted sentences,
+ * Splits a string by a given character, taking into account quoted sentences,
  * which will be treated as a single part instead of being split.
  *
  * @see https://github.com/evaera/Cmdr/blob/e3180638849a8615bb982bb74f970bf64435da63/Cmdr/Shared/Util.lua
  * @param text The text to split
+ * @param separator The character to split by
  * @param max The max number of splits
- * @returns The split string
+ * @returns An array of strings, separated by the given character
  */
-export function splitStringBySpace(
+export function splitString(
 	text: string,
-	max: number = math.huge,
+	separator: string,
+	max = math.huge,
 ): string[] {
 	const resultText = encodeControlChars(text);
 	const t: string[] = [];
 
 	let buf: string | undefined;
 	let quoted: string | undefined;
-	for (let [str] of resultText.gmatch("[^ ]+")) {
+	for (let [str] of resultText.gmatch(`[^${separator}]+`)) {
 		str = parseEscapeSequences(str as string);
 
 		const startQuote = str.match(START_QUOTE_PATTERN)[0] as string;
@@ -67,9 +69,9 @@ export function splitStringBySpace(
 			endQuote === quoted &&
 			escaped.size() % 2 === 0
 		) {
-			[str, buf, quoted] = [`${buf} ${str}`, undefined, undefined];
+			[str, buf, quoted] = [`${buf}${separator}${str}`, undefined, undefined];
 		} else if (buf !== undefined) {
-			buf = `${buf} ${str}`;
+			buf = `${buf}${separator}${str}`;
 		}
 
 		if (buf !== undefined) {
