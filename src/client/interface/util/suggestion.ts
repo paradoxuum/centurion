@@ -55,19 +55,20 @@ export function getArgumentSuggestion(
 	// If the type is not marked as "expensive", transform the text into the type
 	// If the transformation fails, include the error message in the suggestion
 	let errorText: string | undefined;
-	try {
-		if (!typeObject.expensive) {
-			const transformResult = typeObject.transform(
-				text ?? "",
-				Players.LocalPlayer,
-			);
+	const [success, err] = pcall(() => {
+		if (typeObject.expensive) return;
+		const transformResult = typeObject.transform(
+			text ?? "",
+			Players.LocalPlayer,
+		);
 
-			if (transformResult.isErr()) {
-				errorText = transformResult.unwrapErr();
-			}
-		}
-	} catch {
-		errorText = "Failed to transform type";
+		if (!transformResult.isErr()) return;
+		errorText = transformResult.unwrapErr();
+	});
+
+	if (!success) {
+		errorText = "Failed to transform argument";
+		warn(err);
 	}
 
 	return {
