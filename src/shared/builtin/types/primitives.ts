@@ -15,11 +15,11 @@ const toNumberTransformation = (text: string) => {
 const getNumTransformation =
 	(validateFn: t.check<number>, errMsg: string) => (text: string) => {
 		const numResult = toNumberTransformation(text);
-		if (numResult.isErr()) {
+		if (!numResult.ok) {
 			return numResult;
 		}
 
-		const num = numResult.unwrap();
+		const num = numResult.value;
 		return validateFn(num)
 			? TransformResult.ok(num)
 			: TransformResult.err<number>(errMsg);

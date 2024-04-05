@@ -62,8 +62,8 @@ export function getArgumentSuggestion(
 			Players.LocalPlayer,
 		);
 
-		if (!transformResult.isErr()) return;
-		errorText = transformResult.unwrapErr();
+		if (transformResult.ok) return;
+		errorText = transformResult.value;
 	});
 
 	if (!success) {

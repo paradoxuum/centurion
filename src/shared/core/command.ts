@@ -1,4 +1,3 @@
-import { Result } from "@rbxts/rust-classes";
 import {
 	CommandGuard,
 	CommandOptions,
@@ -7,6 +6,7 @@ import {
 } from "../types";
 import { ObjectUtil, ReadonlyDeepObject } from "../util/data";
 import { splitString } from "../util/string";
+import { TransformResult } from "../util/type";
 import { CommandInteraction } from "./interaction";
 import { ImmutablePath } from "./path";
 import { BaseRegistry } from "./registry";
@@ -94,23 +94,23 @@ export class ExecutableCommand extends BaseCommand {
 		if (interaction.isReplyReceived()) return;
 
 		const transformedArgs = this.transformArgs(text, interaction);
-		if (transformedArgs.isErr()) {
-			interaction.error(transformedArgs.unwrapErr());
+		if (!transformedArgs.ok) {
+			interaction.error(transformedArgs.value);
 			return;
 		}
 
-		return this.callback(interaction, ...transformedArgs.unwrap());
+		return this.callback(interaction, ...transformedArgs.value);
 	}
 
 	transformArgs(
 		text: string,
 		interaction: CommandInteraction,
-	): Result<unknown[], string> {
+	): TransformResult.Object<unknown[]> {
 		const args = splitString(text, " ");
 
 		const argOptions = this.options.arguments;
 		if (argOptions === undefined || argOptions.isEmpty()) {
-			return Result.ok([]);
+			return TransformResult.ok([]);
 		}
 
 		const startIndex = this.path.getSize();
@@ -124,18 +124,20 @@ export class ExecutableCommand extends BaseCommand {
 			const argData = argOptions[i];
 			if (i > endIndex) {
 				if (argData.optional) break;
-				return Result.err(`Missing required argument: <b>${argData.name}</b>`);
+				return TransformResult.err(
+					`Missing required argument: <b>${argData.name}</b>`,
+				);
 			}
 
 			const transformedArg = argType.transform(
 				args[startIndex + i],
 				interaction.executor,
 			);
-			if (transformedArg.isErr()) return Result.err(transformedArg.unwrapErr());
-			transformedArgs[i] = transformedArg.unwrap();
+			if (!transformedArg.ok) return TransformResult.err(transformedArg.value);
+			transformedArgs[i] = transformedArg.value;
 		}
 
-		return Result.ok(transformedArgs);
+		return TransformResult.ok(transformedArgs);
 	}
 
 	toString() {

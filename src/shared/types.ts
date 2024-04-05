@@ -1,6 +1,6 @@
-import { Result } from "@rbxts/rust-classes";
 import { t } from "@rbxts/t";
 import { CommandInteraction } from "./core/interaction";
+import { TransformResult } from "./util/type";
 
 export type CommandGuard = (interaction: CommandInteraction) => boolean;
 
@@ -8,13 +8,11 @@ export interface CommanderOptions {
 	globalGroups?: string[];
 }
 
-export type TransformationResult<T extends defined> = Result<T, string>;
-
 export interface TypeOptions<T extends defined> {
 	name: string;
 	expensive: boolean;
 	validate: t.check<T>;
-	transform: (text: string, executor: Player) => TransformationResult<T>;
+	transform: (text: string, executor: Player) => TransformResult.Object<T>;
 	suggestions?: (text: string, executor: Player) => string[];
 }
 

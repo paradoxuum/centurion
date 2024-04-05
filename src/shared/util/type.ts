@@ -1,37 +1,44 @@
-import { Result } from "@rbxts/rust-classes";
 import { t } from "@rbxts/t";
-import { TransformationResult, TypeOptions } from "../types";
+import { TypeOptions } from "../types";
 
 type TransformFn<T extends defined> = TypeOptions<T>["transform"];
-type SuggestionFn<T extends defined> = TypeOptions<T>["suggestions"];
+type SuggestionFn = TypeOptions<defined>["suggestions"];
 
 export namespace TransformResult {
+	export type Object<T> = { ok: true; value: T } | { ok: false; value: string };
+
 	/**
 	 * Produces a successful `Result`, indicating that a transformation was successful.
 	 *
 	 * @param value - The resulting value of the transformation
 	 */
-	export const ok: <T extends defined>(value: T) => TransformationResult<T> = (
-		value,
-	) => Result.ok(value);
+	export function ok<T extends defined>(value: T): Object<T> {
+		return {
+			ok: true,
+			value,
+		};
+	}
 
 	/**
 	 * Produces a failed `Result`, indicating that a transformation was not successful.
 	 *
 	 * @param text - The error message
 	 */
-	export const err: <T extends defined>(
-		text: string,
-	) => TransformationResult<T> = (text: string) => Result.err(text);
+	export function err<T extends defined>(text: string): Object<T> {
+		return {
+			ok: false,
+			value: text,
+		};
+	}
 }
 
 export class TypeBuilder<T extends defined> {
-	private expensive = false;
-	private validationFn?: t.check<T>;
-	private transformFn?: TransformFn<T>;
-	private suggestionFn?: SuggestionFn<T>;
+	protected expensive = false;
+	protected validationFn?: t.check<T>;
+	protected transformFn?: TransformFn<T>;
+	protected suggestionFn?: SuggestionFn;
 
-	private constructor(private readonly name: string) {}
+	protected constructor(protected readonly name: string) {}
 
 	/**
 	 * Creates a {@link TypeBuilder}.
@@ -76,12 +83,12 @@ export class TypeBuilder<T extends defined> {
 	 * interface is being used in this case, it will disable real-time
 	 * checking while the user is typing the command.
 	 *
-	 * @param transformFn - The transformation function for this type
+	 * @param callback - The transformation function for this type
 	 * @param expensive - Whether the function is expensive to compute
 	 * @returns The type builder
 	 */
-	transform(transformFn: TransformFn<T>, expensive = false) {
-		this.transformFn = transformFn;
+	transform(callback: TransformFn<T>, expensive = false) {
+		this.transformFn = callback;
 		this.expensive = expensive;
 		return this;
 	}
@@ -91,11 +98,11 @@ export class TypeBuilder<T extends defined> {
 	 *
 	 * This function should provide a list of suggestions for this type.
 	 *
-	 * @param suggestionFn - The suggestion function for this type
+	 * @param callback - The suggestion function for this type
 	 * @returns The type builder
 	 */
-	suggestions(suggestionFn: SuggestionFn<T>) {
-		this.suggestionFn = suggestionFn;
+	suggestions(callback: SuggestionFn) {
+		this.suggestionFn = callback;
 		return this;
 	}
 

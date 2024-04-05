@@ -2,13 +2,12 @@ import { Players } from "@rbxts/services";
 import { t } from "@rbxts/t";
 import { CommanderType } from ".";
 import { BaseRegistry } from "../../core/registry";
-import { TransformationResult } from "../../types";
 import { TransformResult, TypeBuilder } from "../../util/type";
 
 const getPlayer = (
 	text: string,
 	executor: Player,
-): TransformationResult<Player> => {
+): TransformResult.Object<Player> => {
 	if (text === "@me" || text === ".") {
 		return TransformResult.ok(executor);
 	}
@@ -58,10 +57,10 @@ const playersType = TypeBuilder.create(CommanderType.Players)
 			}
 
 			const playerResult = getPlayer(textPart, executor);
-			if (playerResult.isErr()) {
+			if (!playerResult.ok) {
 				return TransformResult.err(`Player not found: ${textPart}`);
 			}
-			players.push(playerResult.unwrap());
+			players.push(playerResult.value);
 		}
 
 		return TransformResult.ok(players);
