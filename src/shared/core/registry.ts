@@ -1,4 +1,4 @@
-import { Signal, SignalCallback } from "@rbxts/beacon";
+import { Signal } from "@rbxts/beacon";
 import { SharedOptions } from "../options";
 import {
 	CommandGuard,
@@ -25,8 +25,8 @@ export abstract class BaseRegistry {
 	protected readonly types = new Map<string, TypeOptions<defined>>();
 	protected readonly registeredObjects = new Set<object>();
 
-	protected readonly commandRegistered = new Signal<[command: BaseCommand]>();
-	protected readonly groupRegistered = new Signal<[group: CommandGroup]>();
+	readonly commandRegistered = new Signal<[command: BaseCommand]>();
+	readonly groupRegistered = new Signal<[group: CommandGroup]>();
 
 	protected cachedPaths = new Map<string, Path[]>();
 
@@ -282,26 +282,6 @@ export abstract class BaseRegistry {
 	 */
 	getChildPaths(path: Path) {
 		return this.cachedPaths.get(path.toString()) ?? [];
-	}
-
-	/**
-	 * Listens for command registration.
-	 *
-	 * @param callback The callback to execute when a command is registered.
-	 * @returns The connection to the registration event.
-	 */
-	onCommandRegistered(callback: SignalCallback<[command: BaseCommand]>) {
-		return this.commandRegistered.Connect(callback);
-	}
-
-	/**
-	 * Listens for group registration.
-	 *
-	 * @param callback The callback to execute when a group is registered.
-	 * @returns The connection to the registration event.
-	 */
-	onGroupRegistered(callback: SignalCallback<[group: CommandGroup]>) {
-		return this.groupRegistered.Connect(callback);
 	}
 
 	protected cachePath(path: Path) {

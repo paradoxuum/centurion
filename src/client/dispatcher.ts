@@ -1,4 +1,4 @@
-import { Signal, SignalCallback } from "@rbxts/beacon";
+import { Signal } from "@rbxts/beacon";
 import { Players } from "@rbxts/services";
 import { Path } from "../shared";
 import { BaseDispatcher } from "../shared/core/dispatcher";
@@ -8,7 +8,7 @@ import { ClientOptions, HistoryEntry } from "./types";
 export class ClientDispatcher extends BaseDispatcher {
 	private readonly history: HistoryEntry[] = [];
 	private maxHistoryLength = DEFAULT_CLIENT_OPTIONS.historyLength;
-	private readonly historyUpdated = new Signal<[history: HistoryEntry[]]>();
+	readonly historyUpdated = new Signal<[history: HistoryEntry[]]>();
 
 	/**
 	 * Initialises the client dispatcher.
@@ -59,10 +59,6 @@ export class ClientDispatcher extends BaseDispatcher {
 
 	getHistory() {
 		return this.history;
-	}
-
-	onHistoryUpdated(callback: SignalCallback<[history: HistoryEntry[]]>) {
-		return this.historyUpdated.Connect(callback);
 	}
 
 	/**
