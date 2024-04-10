@@ -1,3 +1,4 @@
+import { Signal } from "@rbxts/beacon";
 import { useEventListener } from "@rbxts/pretty-react-hooks";
 import React, { createContext, useState } from "@rbxts/react";
 import { InterfaceOptions } from "../types";
@@ -14,7 +15,7 @@ export const OptionsContext = createContext<InterfaceOptionsWithState>(
 
 export interface OptionsProviderProps extends React.PropsWithChildren {
 	value: InterfaceOptions;
-	changed: RBXScriptSignal<(options: Partial<InterfaceOptions>) => void>;
+	changed: Signal<[options: Partial<InterfaceOptions>]>;
 }
 
 export function OptionsProvider({

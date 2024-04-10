@@ -1,4 +1,4 @@
-import { useEventListener, useLatestCallback } from "@rbxts/pretty-react-hooks";
+import { useLatestCallback } from "@rbxts/pretty-react-hooks";
 import React, { useContext, useEffect, useMemo, useState } from "@rbxts/react";
 import { TextService } from "@rbxts/services";
 import { CommandOptions, ImmutablePath, Path } from "../../../../shared";
@@ -86,12 +86,17 @@ export function TerminalWindow() {
 		},
 	);
 
-	useEventListener(
-		CommanderClient.dispatcher().getHistoryEvent(),
-		(entries) => {
-			setHistory(entries);
-		},
-	);
+	useEffect(() => {
+		const connection = CommanderClient.dispatcher().onHistoryUpdated(
+			(entries) => {
+				setHistory([...entries]);
+			},
+		);
+
+		return () => {
+			connection.Disconnect();
+		};
+	}, []);
 
 	// Handle history updates
 	useEffect(() => {

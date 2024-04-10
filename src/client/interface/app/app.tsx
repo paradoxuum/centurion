@@ -1,5 +1,6 @@
 import "./config";
 
+import { Signal } from "@rbxts/beacon";
 import React, { StrictMode } from "@rbxts/react";
 import { createPortal, createRoot } from "@rbxts/react-roblox";
 import { ContentProvider, Players } from "@rbxts/services";
@@ -11,9 +12,7 @@ import { TerminalApp } from "./terminal-app";
 export namespace CommanderInterface {
 	const MAX_PRELOAD_ATTEMPTS = 3;
 	const PRELOAD_ATTEMPT_INTERVAL = 3;
-	const optionsChanged: BindableEvent<
-		(options: Partial<InterfaceOptions>) => void
-	> = new Instance("BindableEvent");
+	const optionsChanged = new Signal<[options: Partial<InterfaceOptions>]>();
 
 	export function setOptions(options: Partial<InterfaceOptions>) {
 		optionsChanged.Fire(options);
@@ -49,7 +48,7 @@ export namespace CommanderInterface {
 					<StrictMode>
 						<RootProvider
 							options={{ ...DEFAULT_INTERFACE_OPTIONS, ...options }}
-							optionsChanged={optionsChanged.Event}
+							optionsChanged={optionsChanged}
 						>
 							<TerminalApp />
 						</RootProvider>

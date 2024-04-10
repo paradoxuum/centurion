@@ -1,3 +1,4 @@
+import { Signal } from "@rbxts/beacon";
 import React from "@rbxts/react";
 import { ReflexProvider } from "@rbxts/react-reflex";
 import { store } from "../store";
@@ -6,7 +7,7 @@ import { OptionsProvider } from "./options-provider";
 
 interface RootProviderProps extends React.PropsWithChildren {
 	options: InterfaceOptions;
-	optionsChanged: RBXScriptSignal<(options: Partial<InterfaceOptions>) => void>;
+	optionsChanged: Signal<[options: Partial<InterfaceOptions>]>;
 }
 
 export function RootProvider({

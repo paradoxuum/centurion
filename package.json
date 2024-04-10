@@ -41,6 +41,7 @@
 		"typescript": "~5.4"
 	},
 	"dependencies": {
+		"@rbxts/beacon": "^2.1.1",
 		"@rbxts/pretty-react-hooks": "^0.4.2",
 		"@rbxts/react": "^0.3.3",
 		"@rbxts/react-reflex": "^0.3.4",

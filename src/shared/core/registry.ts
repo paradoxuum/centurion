@@ -1,3 +1,4 @@
+import { Signal, SignalCallback } from "@rbxts/beacon";
 import { SharedOptions } from "../options";
 import {
 	CommandGuard,
@@ -16,25 +17,6 @@ const tsImpl = (_G as Map<unknown, unknown>).get(script) as {
 	import: (...modules: LuaSourceContainer[]) => unknown;
 };
 
-type CommandRegisteredCallback = (command: BaseCommand) => void;
-type GroupRegisteredCallback = (group: CommandGroup) => void;
-
-export interface RegistryEvents {
-	/**
-	 * Fired when a command is registered.
-	 *
-	 * @param command The command that was registered
-	 */
-	commandRegistered: RBXScriptSignal<CommandRegisteredCallback>;
-
-	/**
-	 * Fired when a group is registered.
-	 *
-	 * @param group The group that was registered
-	 */
-	groupRegistered: RBXScriptSignal<GroupRegisteredCallback>;
-}
-
 export abstract class BaseRegistry {
 	protected static readonly ROOT_KEY = "__root__";
 	protected readonly commands = new Map<string, BaseCommand>();
@@ -43,14 +25,8 @@ export abstract class BaseRegistry {
 	protected readonly types = new Map<string, TypeOptions<defined>>();
 	protected readonly registeredObjects = new Set<object>();
 
-	protected readonly commandRegistered: BindableEvent<CommandRegisteredCallback> =
-		new Instance("BindableEvent");
-	protected readonly groupRegistered: BindableEvent<GroupRegisteredCallback> =
-		new Instance("BindableEvent");
-	protected readonly events: RegistryEvents = {
-		commandRegistered: this.commandRegistered.Event,
-		groupRegistered: this.groupRegistered.Event,
-	};
+	protected readonly commandRegistered = new Signal<[command: BaseCommand]>();
+	protected readonly groupRegistered = new Signal<[group: CommandGroup]>();
 
 	protected cachedPaths = new Map<string, Path[]>();
 
@@ -309,13 +285,23 @@ export abstract class BaseRegistry {
 	}
 
 	/**
-	 * Returns registry events, which can be used to listen for
-	 * commands and group registration.
+	 * Listens for command registration.
 	 *
-	 * @returns Registry events
+	 * @param callback The callback to execute when a command is registered.
+	 * @returns The connection to the registration event.
 	 */
-	getEvents() {
-		return this.events;
+	onCommandRegistered(callback: SignalCallback<[command: BaseCommand]>) {
+		return this.commandRegistered.Connect(callback);
+	}
+
+	/**
+	 * Listens for group registration.
+	 *
+	 * @param callback The callback to execute when a group is registered.
+	 * @returns The connection to the registration event.
+	 */
+	onGroupRegistered(callback: SignalCallback<[group: CommandGroup]>) {
+		return this.groupRegistered.Connect(callback);
 	}
 
 	protected cachePath(path: Path) {
