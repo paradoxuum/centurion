@@ -1,7 +1,11 @@
 import { useEventListener, useLatestCallback } from "@rbxts/pretty-react-hooks";
 import React, { useContext, useEffect, useMemo, useState } from "@rbxts/react";
 import { TextService } from "@rbxts/services";
-import { CommandOptions, ImmutablePath, Path } from "../../../../shared";
+import {
+	CommandOptions,
+	ImmutableRegistryPath,
+	RegistryPath,
+} from "../../../../shared";
 import { ArrayUtil } from "../../../../shared/util/data";
 import {
 	endsWithSpace,
@@ -58,7 +62,7 @@ export function TerminalWindow() {
 	const registry = useMemo(() => CommanderClient.registry(), []);
 
 	const checkMissingArgs = useLatestCallback(
-		(path: ImmutablePath, command: CommandOptions) => {
+		(path: ImmutableRegistryPath, command: CommandOptions) => {
 			if (command.arguments === undefined || command.arguments.isEmpty()) {
 				return undefined;
 			}
@@ -174,9 +178,9 @@ export function TerminalWindow() {
 						registry.getCommandByString(formatPartsAsPath(parts)) !== undefined
 					) {
 						atCommand = true;
-						commandPath = new ImmutablePath(parts);
+						commandPath = new ImmutableRegistryPath(parts);
 					} else {
-						const currentPath = Path.empty();
+						const currentPath = RegistryPath.empty();
 						for (const part of parts) {
 							currentPath.append(part);
 
@@ -191,7 +195,7 @@ export function TerminalWindow() {
 							}
 						}
 
-						commandPath = ImmutablePath.fromPath(currentPath);
+						commandPath = ImmutableRegistryPath.fromPath(currentPath);
 					}
 
 					if (!atCommand && store.getState().command.path !== undefined) {

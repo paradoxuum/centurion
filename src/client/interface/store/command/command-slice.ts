@@ -1,15 +1,15 @@
 import { createProducer } from "@rbxts/reflex";
-import { ImmutablePath } from "../../../../shared";
+import { ImmutableRegistryPath } from "../../../../shared";
 
 export interface CommandState {
-	path?: ImmutablePath;
+	path?: ImmutableRegistryPath;
 	argIndex?: number;
 }
 
 const initialCommandState: CommandState = {};
 
 export const commandSlice = createProducer(initialCommandState, {
-	setCommand: (state, path?: ImmutablePath) => ({
+	setCommand: (state, path?: ImmutableRegistryPath) => ({
 		...state,
 		path,
 	}),

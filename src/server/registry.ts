@@ -1,12 +1,13 @@
 import { Players } from "@rbxts/services";
-import { CommandOptions, GroupOptions, Path } from "../shared";
+import { CommandOptions, GroupOptions, RegistryPath } from "../shared";
 import { BaseCommand, CommandGroup } from "../shared/core/command";
 import { BaseRegistry } from "../shared/core/registry";
 import { Remotes, SyncData } from "../shared/network";
 import { ServerOptions } from "./types";
 
 export class ServerRegistry extends BaseRegistry {
-	private commandFilter: (path: Path, player: Player) => boolean = () => true;
+	private commandFilter: (path: RegistryPath, player: Player) => boolean = () =>
+		true;
 
 	init(options: ServerOptions) {
 		super.init(options);
@@ -34,7 +35,7 @@ export class ServerRegistry extends BaseRegistry {
 	private getSyncData(player: Player): SyncData {
 		const syncedCommands = new Map<string, CommandOptions>();
 		for (const [pathString, command] of this.commands) {
-			const path = Path.fromString(pathString);
+			const path = RegistryPath.fromString(pathString);
 			if (!this.commandFilter(path, player)) continue;
 
 			syncedCommands.set(path.toString(), {

@@ -1,6 +1,6 @@
 import { Signal } from "@rbxts/beacon";
 import { Players } from "@rbxts/services";
-import { Path } from "../shared";
+import { RegistryPath } from "../shared";
 import { BaseDispatcher } from "../shared/core/dispatcher";
 import { DEFAULT_CLIENT_OPTIONS } from "./options";
 import { ClientOptions, HistoryEntry } from "./types";
@@ -26,7 +26,7 @@ export class ClientDispatcher extends BaseDispatcher {
 	 * @param text The text input used to execute the command
 	 * @returns A {@link HistoryEntry} containing the command's response
 	 */
-	async run(path: Path, text = "") {
+	async run(path: RegistryPath, text = "") {
 		const [success, interaction] = this.executeCommand(
 			path,
 			Players.LocalPlayer,

@@ -1,5 +1,5 @@
 import { CommandInteractionData, CommandReply } from "../types";
-import { Path } from "./path";
+import { RegistryPath } from "./path";
 
 /**
  * A data structure containing the executor of a command, the
@@ -10,7 +10,7 @@ export class CommandInteraction {
 	private replyData?: CommandReply;
 
 	constructor(
-		readonly path: Path,
+		readonly path: RegistryPath,
 		readonly executor: Player,
 		readonly text: string,
 	) {}

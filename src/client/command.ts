@@ -1,4 +1,8 @@
-import { CommandInteraction, CommandOptions, ImmutablePath } from "../shared";
+import {
+	CommandInteraction,
+	CommandOptions,
+	ImmutableRegistryPath,
+} from "../shared";
 import { BaseCommand } from "../shared/core/command";
 import { BaseRegistry } from "../shared/core/registry";
 import { Remotes } from "../shared/network";
@@ -6,7 +10,7 @@ import { Remotes } from "../shared/network";
 export class ServerCommand extends BaseCommand {
 	static create(
 		registry: BaseRegistry,
-		path: ImmutablePath,
+		path: ImmutableRegistryPath,
 		options: CommandOptions,
 	) {
 		return new ServerCommand(registry, path, options);

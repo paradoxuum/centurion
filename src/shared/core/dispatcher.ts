@@ -1,5 +1,5 @@
 import { CommandInteraction } from "./interaction";
-import { Path } from "./path";
+import { RegistryPath } from "./path";
 import { BaseRegistry } from "./registry";
 
 const DEFAULT_REPLY_TEXT = "Command executed.";
@@ -7,7 +7,11 @@ const DEFAULT_REPLY_TEXT = "Command executed.";
 export abstract class BaseDispatcher {
 	constructor(private readonly registry: BaseRegistry) {}
 
-	protected async executeCommand(path: Path, executor: Player, text: string) {
+	protected async executeCommand(
+		path: RegistryPath,
+		executor: Player,
+		text: string,
+	) {
 		const command = this.registry.getCommand(path);
 		const interaction = new CommandInteraction(path, executor, text);
 

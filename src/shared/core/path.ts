@@ -3,7 +3,7 @@ import { ArrayUtil } from "../util/data";
 /**
  * A representation of a command or group's path
  */
-export class Path {
+export class RegistryPath {
 	private pathString: string;
 
 	constructor(protected readonly parts: string[]) {
@@ -11,15 +11,15 @@ export class Path {
 	}
 
 	static fromString(path: string) {
-		return new Path(path.split("/"));
+		return new RegistryPath(path.split("/"));
 	}
 
 	static empty() {
-		return new Path([]);
+		return new RegistryPath([]);
 	}
 
 	/**
-	 * Returns a copy of the {@link Path}'s parts
+	 * Returns a copy of the {@link RegistryPath}'s parts
 	 */
 	getParts() {
 		return [...this.parts];
@@ -76,10 +76,12 @@ export class Path {
 	 */
 	getParent() {
 		if (this.isCommand()) {
-			return new Path([]);
+			return new RegistryPath([]);
 		}
 
-		return new Path(ArrayUtil.slice(this.parts, 0, this.parts.size() - 1));
+		return new RegistryPath(
+			ArrayUtil.slice(this.parts, 0, this.parts.size() - 1),
+		);
 	}
 
 	/**
@@ -98,7 +100,7 @@ export class Path {
 	 * @param other Path to test against
 	 * @returns True if this path is the child of the given path, false if not
 	 */
-	isChildOf(other: Path) {
+	isChildOf(other: RegistryPath) {
 		const otherSize = other.getSize();
 		if (otherSize !== this.parts.size() - 1) {
 			return false;
@@ -119,7 +121,7 @@ export class Path {
 	 * @param other Path to test against
 	 * @returns True if this path is the descendant of the given path, false if not
 	 */
-	isDescendantOf(other: Path) {
+	isDescendantOf(other: RegistryPath) {
 		const otherSize = other.getSize();
 		if (this.parts.size() < otherSize) {
 			return false;
@@ -135,25 +137,25 @@ export class Path {
 	}
 
 	/**
-	 * Returns a new {@link Path} from a slice of this path.
+	 * Returns a new {@link RegistryPath} from a slice of this path.
 	 *
 	 * @param from The start index
 	 * @param to The end index
 	 * @returns A new path containing a slice of this path
 	 */
 	slice(from: number, to?: number) {
-		return new Path(
+		return new RegistryPath(
 			ArrayUtil.slice(this.parts, from, to !== undefined ? to + 1 : undefined),
 		);
 	}
 
 	/**
-	 * Determines if this path equals the given {@link Path}.
+	 * Determines if this path equals the given {@link RegistryPath}.
 	 *
 	 * @param other The path to compare against
 	 * @returns True if the paths are equal, false if not
 	 */
-	equals(other: Path) {
+	equals(other: RegistryPath) {
 		return this.toString() === other.toString();
 	}
 
@@ -207,56 +209,56 @@ export class Path {
 }
 
 /**
- * An immutable version of a {@link Path}.
+ * An immutable version of a {@link RegistryPath}.
  *
  * Operations that would mutate the path such as `append` or `remove` now
- * return a new {@link ImmutablePath} with the changes made.
+ * return a new {@link ImmutableRegistryPath} with the changes made.
  */
-export class ImmutablePath extends Path {
+export class ImmutableRegistryPath extends RegistryPath {
 	/**
-	 * Returns a new {@link ImmutablePath} from a given {@link Path}.
+	 * Returns a new {@link ImmutableRegistryPath} from a given {@link RegistryPath}.
 	 *
-	 * @param path The {@link Path}
-	 * @returns A new {@link ImmutablePath}
+	 * @param path The {@link RegistryPath}
+	 * @returns A new {@link ImmutableRegistryPath}
 	 */
-	static fromPath(path: Path) {
-		return new ImmutablePath(path.getParts());
+	static fromPath(path: RegistryPath) {
+		return new ImmutableRegistryPath(path.getParts());
 	}
 
 	static fromString(path: string) {
-		return new ImmutablePath(path.split("/"));
+		return new ImmutableRegistryPath(path.split("/"));
 	}
 
 	static empty() {
-		return new ImmutablePath([]);
+		return new ImmutableRegistryPath([]);
 	}
 
 	getParent() {
 		if (this.isCommand()) {
-			return new ImmutablePath([]);
+			return new ImmutableRegistryPath([]);
 		}
 
 		return this.slice(0, this.parts.size() - 2);
 	}
 
 	slice(from: number, to?: number) {
-		return new ImmutablePath(
+		return new ImmutableRegistryPath(
 			ArrayUtil.slice(this.parts, from, to !== undefined ? to + 1 : undefined),
 		);
 	}
 
 	/**
-	 * Returns a new {@link ImmutablePath} with the given parts appended.
+	 * Returns a new {@link ImmutableRegistryPath} with the given parts appended.
 	 *
 	 * @param parts The parts to append
-	 * @returns A new {@link ImmutablePath} with the given parts appended
+	 * @returns A new {@link ImmutableRegistryPath} with the given parts appended
 	 */
 	append(...parts: string[]) {
-		return new ImmutablePath([...this.parts, ...parts]);
+		return new ImmutableRegistryPath([...this.parts, ...parts]);
 	}
 
 	/**
-	 * Returns a new {@link ImmutablePath} with the part at the given index
+	 * Returns a new {@link ImmutableRegistryPath} with the part at the given index
 	 * removed.
 	 *
 	 * @param index The index of the part to remove
@@ -267,15 +269,15 @@ export class ImmutablePath extends Path {
 
 		const parts = [...this.parts];
 		parts.remove(index);
-		return new ImmutablePath(parts);
+		return new ImmutableRegistryPath(parts);
 	}
 
 	/**
-	 * Creates a new empty {@link ImmutablePath}.
+	 * Creates a new empty {@link ImmutableRegistryPath}.
 	 *
 	 * @returns An empty path
 	 */
 	clear() {
-		return new ImmutablePath([]);
+		return new ImmutableRegistryPath([]);
 	}
 }

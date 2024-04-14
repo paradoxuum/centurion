@@ -1,6 +1,6 @@
-import { Path } from "../shared";
+import { RegistryPath } from "../shared";
 import { SharedOptions } from "../shared/options";
 
 export interface ServerOptions extends SharedOptions {
-	commandFilter?: (command: Path, player: Player) => boolean;
+	commandFilter?: (command: RegistryPath, player: Player) => boolean;
 }

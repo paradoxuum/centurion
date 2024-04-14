@@ -1,5 +1,5 @@
 import { Players } from "@rbxts/services";
-import { Path } from "../../../shared";
+import { RegistryPath } from "../../../shared";
 import { ArrayUtil } from "../../../shared/util/data";
 import { CommanderClient } from "../../core";
 import { Suggestion } from "../types";
@@ -7,7 +7,7 @@ import { Suggestion } from "../types";
 const MAX_OTHER_SUGGESTIONS = 3;
 
 export function getArgumentSuggestion(
-	path: Path,
+	path: RegistryPath,
 	index: number,
 	text?: string,
 ): Suggestion | undefined {
@@ -85,7 +85,7 @@ export function getArgumentSuggestion(
 }
 
 export function getCommandSuggestion(
-	parentPath?: Path,
+	parentPath?: RegistryPath,
 	text?: string,
 ): Suggestion | undefined {
 	const paths =

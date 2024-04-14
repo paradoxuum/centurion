@@ -10,7 +10,7 @@ import {
 import { MetadataReflect } from "../util/reflect";
 import { BaseCommand, CommandGroup, ExecutableCommand } from "./command";
 import { MetadataKey } from "./decorators";
-import { ImmutablePath, Path } from "./path";
+import { ImmutableRegistryPath, RegistryPath } from "./path";
 
 // Used to import packages
 const tsImpl = (_G as Map<unknown, unknown>).get(script) as {
@@ -28,7 +28,7 @@ export abstract class BaseRegistry {
 	readonly commandRegistered = new Signal<[command: BaseCommand]>();
 	readonly groupRegistered = new Signal<[group: CommandGroup]>();
 
-	protected cachedPaths = new Map<string, Path[]>();
+	protected cachedPaths = new Map<string, RegistryPath[]>();
 
 	init(options: SharedOptions) {
 		if (options.registerBuiltInTypes) {
@@ -131,7 +131,7 @@ export abstract class BaseRegistry {
 		for (const options of groups) {
 			commandGroups.push(
 				new CommandGroup(
-					new ImmutablePath([...(options.parent ?? []), options.name]),
+					new ImmutableRegistryPath([...(options.parent ?? []), options.name]),
 					options,
 				),
 			);
@@ -183,7 +183,7 @@ export abstract class BaseRegistry {
 	 * @param path The path of the command
 	 * @returns A {@link BaseCommand} or `undefined` if no command with the given path is registered
 	 */
-	getCommand(path: Path) {
+	getCommand(path: RegistryPath) {
 		return this.commands.get(path.toString());
 	}
 
@@ -211,12 +211,12 @@ export abstract class BaseRegistry {
 	}
 
 	/**
-	 * Gets a registered {@link CommandGroup} from a given {@link Path}.
+	 * Gets a registered {@link CommandGroup} from a given {@link RegistryPath}.
 	 *
 	 * @param path The path of the group
 	 * @returns A {@link CommandGroup} or `undefined` if no group is registered at the given path
 	 */
-	getGroup(path: Path) {
+	getGroup(path: RegistryPath) {
 		return this.groups.get(path.toString());
 	}
 
@@ -275,16 +275,16 @@ export abstract class BaseRegistry {
 	}
 
 	/**
-	 * Gets all paths that are children of the given {@link Path}.
+	 * Gets all paths that are children of the given {@link RegistryPath}.
 	 *
 	 * @param path The path to get the children of
 	 * @returns The paths that are children of the given path
 	 */
-	getChildPaths(path: Path) {
+	getChildPaths(path: RegistryPath) {
 		return this.cachedPaths.get(path.toString()) ?? [];
 	}
 
-	protected cachePath(path: Path) {
+	protected cachePath(path: RegistryPath) {
 		let key = BaseRegistry.ROOT_KEY;
 		for (const i of $range(0, path.getSize() - 1)) {
 			const pathSlice = path.slice(0, i);
@@ -358,14 +358,16 @@ export abstract class BaseRegistry {
 
 			// Get registered command group
 			let groupPath =
-				globalGroups !== undefined ? new Path([...globalGroups]) : undefined;
+				globalGroups !== undefined
+					? new RegistryPath([...globalGroups])
+					: undefined;
 			if (group !== undefined && !group.isEmpty()) {
 				if (groupPath !== undefined) {
 					for (const part of group) {
 						groupPath.append(part);
 					}
 				} else {
-					groupPath = new Path(group);
+					groupPath = new RegistryPath(group);
 				}
 			}
 
@@ -379,7 +381,7 @@ export abstract class BaseRegistry {
 
 			const command = new ExecutableCommand(
 				this,
-				(commandGroup?.getPath() ?? ImmutablePath.empty()).append(name),
+				(commandGroup?.getPath() ?? ImmutableRegistryPath.empty()).append(name),
 				metadata.options,
 				(...args) => metadata.func(commandClass, ...args),
 				guards ?? [],

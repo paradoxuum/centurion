@@ -1,8 +1,8 @@
-import { Path } from "../../../shared";
+import { RegistryPath } from "../../../shared";
 import { CommanderClient } from "../../core";
 import { IS_EDIT } from "../constants/util";
 
-export function getArgumentNames(path: Path) {
+export function getArgumentNames(path: RegistryPath) {
 	if (IS_EDIT) {
 		return [];
 	}
