@@ -39,7 +39,7 @@ const playerType = TypeBuilder.create<Player>(CommanderType.Player)
 	.suggestions(getPlayerSuggestions)
 	.build();
 
-const playersType = TypeBuilder.create(CommanderType.Players)
+const playersType = TypeBuilder.create<Player[]>(CommanderType.Players)
 	.validate(t.array(isPlayer))
 	.transform((text, executor) => {
 		let players: Player[] = [];

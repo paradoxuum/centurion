@@ -25,24 +25,24 @@ const getNumTransformation =
 			: TransformResult.err<number>(errMsg);
 	};
 
-const stringType = TypeBuilder.create(CommanderType.String)
+const stringType = TypeBuilder.create<string>(CommanderType.String)
 	.validate(t.string)
 	.transform((text) => TransformResult.ok(text))
 	.build();
 
-const numberType = TypeBuilder.create(CommanderType.Number)
+const numberType = TypeBuilder.create<number>(CommanderType.Number)
 	.validate(t.number)
 	.transform(toNumberTransformation)
 	.build();
 
-const integerType = TypeBuilder.create(CommanderType.Integer)
+const integerType = TypeBuilder.create<number>(CommanderType.Integer)
 	.validate(t.integer)
 	.transform(getNumTransformation(t.integer, "Invalid integer"))
 	.build();
 
 const truthyValues = new Set<string>(["true", "yes", "y"]);
 const falsyValues = new Set<string>(["false", "no", "n"]);
-const booleanType = TypeBuilder.create(CommanderType.Boolean)
+const booleanType = TypeBuilder.create<boolean>(CommanderType.Boolean)
 	.validate(t.boolean)
 	.transform((text) => {
 		const textLower = text.lower();
