@@ -3,7 +3,7 @@ import { CommanderType } from ".";
 import { BaseRegistry } from "../../core/registry";
 import { TransformResult, TypeBuilder } from "../../util/type";
 
-const toNumberTransformation = (text: string) => {
+const transformToNumber = (text: string) => {
 	const num = tonumber(text);
 	if (num === undefined) {
 		return TransformResult.err<number>("Invalid number");
@@ -12,19 +12,6 @@ const toNumberTransformation = (text: string) => {
 	return TransformResult.ok(num);
 };
 
-const getNumTransformation =
-	(validateFn: t.check<number>, errMsg: string) => (text: string) => {
-		const numResult = toNumberTransformation(text);
-		if (!numResult.ok) {
-			return numResult;
-		}
-
-		const num = numResult.value;
-		return validateFn(num)
-			? TransformResult.ok(num)
-			: TransformResult.err<number>(errMsg);
-	};
-
 const stringType = TypeBuilder.create<string>(CommanderType.String)
 	.validate(t.string)
 	.transform((text) => TransformResult.ok(text))
@@ -32,12 +19,22 @@ const stringType = TypeBuilder.create<string>(CommanderType.String)
 
 const numberType = TypeBuilder.create<number>(CommanderType.Number)
 	.validate(t.number)
-	.transform(toNumberTransformation)
+	.transform(transformToNumber)
 	.build();
 
 const integerType = TypeBuilder.create<number>(CommanderType.Integer)
 	.validate(t.integer)
-	.transform(getNumTransformation(t.integer, "Invalid integer"))
+	.transform((text) => {
+		const numResult = transformToNumber(text);
+		if (!numResult.ok) {
+			return numResult;
+		}
+
+		const num = numResult.value;
+		return t.integer(num)
+			? TransformResult.ok(num)
+			: TransformResult.err("Invalid integer");
+	})
 	.build();
 
 const truthyValues = new Set<string>(["true", "yes", "y"]);
