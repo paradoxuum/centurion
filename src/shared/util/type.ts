@@ -1,8 +1,8 @@
 import { t } from "@rbxts/t";
 import { ArgumentType } from "../types";
 
-type TransformFn<T extends defined> = ArgumentType<T>["transform"];
-type SuggestionFn = ArgumentType<defined>["suggestions"];
+type TransformFn<T> = ArgumentType<T>["transform"];
+type SuggestionFn<T> = ArgumentType<T>["suggestions"];
 
 export namespace TransformResult {
 	export type Object<T> = { ok: true; value: T } | { ok: false; value: string };
@@ -12,7 +12,7 @@ export namespace TransformResult {
 	 *
 	 * @param value - The resulting value of the transformation
 	 */
-	export function ok<T extends defined>(value: T): Object<T> {
+	export function ok<T>(value: T): Object<T> {
 		return {
 			ok: true,
 			value,
@@ -24,7 +24,7 @@ export namespace TransformResult {
 	 *
 	 * @param text - The error message
 	 */
-	export function err<T extends defined>(text: string): Object<T> {
+	export function err<T>(text: string): Object<T> {
 		return {
 			ok: false,
 			value: text,
@@ -32,11 +32,11 @@ export namespace TransformResult {
 	}
 }
 
-export class TypeBuilder<T extends defined> {
+export class TypeBuilder<T> {
 	protected expensive = false;
 	protected validationFn?: t.check<T>;
 	protected transformFn?: TransformFn<T>;
-	protected suggestionFn?: SuggestionFn;
+	protected suggestionFn?: SuggestionFn<T>;
 
 	protected constructor(protected readonly name: string) {}
 
@@ -46,7 +46,7 @@ export class TypeBuilder<T extends defined> {
 	 * @param name - The name of the type
 	 * @returns A type builder
 	 */
-	static create<T extends defined>(name: string) {
+	static create<T>(name: string) {
 		return new TypeBuilder<T>(name);
 	}
 
@@ -55,7 +55,7 @@ export class TypeBuilder<T extends defined> {
 	 * @param options - The type to extend from
 	 * @returns A builder extended from the given type
 	 */
-	static extend<T extends defined>(name: string, options: ArgumentType<T>) {
+	static extend<T>(name: string, options: ArgumentType<T>) {
 		const builder = new TypeBuilder<T>(name);
 		builder.expensive = options.expensive;
 		builder.validationFn = options.validate;
@@ -101,7 +101,7 @@ export class TypeBuilder<T extends defined> {
 	 * @param callback - The suggestion function for this type
 	 * @returns The type builder
 	 */
-	suggestions(callback: SuggestionFn) {
+	suggestions(callback: SuggestionFn<T>) {
 		this.suggestionFn = callback;
 		return this;
 	}

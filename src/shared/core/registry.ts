@@ -22,7 +22,7 @@ export abstract class BaseRegistry {
 	protected readonly commands = new Map<string, BaseCommand>();
 	protected readonly groups = new Map<string, CommandGroup>();
 	protected readonly guards: CommandGuard[] = [];
-	protected readonly types = new Map<string, ArgumentType<defined>>();
+	protected readonly types = new Map<string, ArgumentType<unknown>>();
 	protected readonly registeredObjects = new Set<object>();
 
 	readonly commandRegistered = new Signal<[command: BaseCommand]>();
@@ -95,7 +95,7 @@ export abstract class BaseRegistry {
 	 *
 	 * @param typeOptions The type to register
 	 */
-	registerType<T extends defined>(typeOptions: ArgumentType<T>) {
+	registerType<T>(typeOptions: ArgumentType<T>) {
 		this.types.set(typeOptions.name, typeOptions);
 	}
 
@@ -104,7 +104,7 @@ export abstract class BaseRegistry {
 	 *
 	 * @param types The types to register
 	 */
-	registerTypes(...types: ArgumentType<defined>[]) {
+	registerTypes(...types: ArgumentType<unknown>[]) {
 		for (const options of types) {
 			this.registerType(options);
 		}
@@ -249,7 +249,7 @@ export abstract class BaseRegistry {
 	 * @returns An array of all registered types
 	 */
 	getTypes() {
-		const types: ArgumentType<defined>[] = [];
+		const types: ArgumentType<unknown>[] = [];
 		for (const [_, typeObject] of this.types) {
 			types.push(typeObject);
 		}

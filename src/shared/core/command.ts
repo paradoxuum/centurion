@@ -12,7 +12,7 @@ import { ImmutableRegistryPath } from "./path";
 import { BaseRegistry } from "./registry";
 
 export abstract class BaseCommand {
-	protected readonly argTypes: ArgumentType<defined>[] = [];
+	protected readonly argTypes: ArgumentType<unknown>[] = [];
 	protected readonly path: ImmutableRegistryPath;
 	readonly options: ReadonlyDeepObject<CommandOptions>;
 
