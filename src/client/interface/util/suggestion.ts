@@ -6,6 +6,37 @@ import { Suggestion } from "../types";
 
 const MAX_OTHER_SUGGESTIONS = 3;
 
+function getSortedIndices(max: number, strings: string[], text?: string) {
+	// If no text is provided, sort alphabetically
+	if (text === undefined) {
+		const sorted = [...strings].sort().map((_, index) => index);
+		return ArrayUtil.slice(sorted, 0, math.min(sorted.size(), max));
+	}
+
+	// Otherwise, sort by the closest match
+	const textLower = text.lower();
+	const textEndIndex = text.size();
+
+	const results: Array<[number, number]> = [];
+	for (const i of $range(0, strings.size() - 1)) {
+		const part = strings[i].lower().sub(0, textEndIndex);
+		if (part === textLower) {
+			results.push([part.size(), i]);
+		}
+	}
+
+	results.sort((a, b) => {
+		if (a[0] === b[0]) {
+			return strings[a[1]] < strings[b[1]];
+		}
+		return a[0] < b[0];
+	});
+
+	return ArrayUtil.slice(results, 0, math.min(results.size(), max)).map(
+		(val) => val[1],
+	);
+}
+
 export function getArgumentSuggestion(
 	path: RegistryPath,
 	index: number,
@@ -22,34 +53,15 @@ export function getArgumentSuggestion(
 	const typeObject = CommanderClient.registry().getType(arg.type);
 	if (typeObject === undefined) return;
 
-	let argSuggestions: string[] = [];
-	if (arg.suggestions !== undefined) {
-		for (const suggestion of arg.suggestions) {
-			argSuggestions.push(suggestion);
-		}
-	}
-
-	let suggestionCount = argSuggestions.size();
-	if (
-		typeObject.suggestions !== undefined &&
-		suggestionCount < MAX_OTHER_SUGGESTIONS
-	) {
+	const argSuggestions =
+		arg.suggestions !== undefined ? [...arg.suggestions] : [];
+	if (typeObject.suggestions !== undefined) {
 		for (const suggestion of typeObject.suggestions(
 			text ?? "",
 			Players.LocalPlayer,
 		)) {
-			if (suggestionCount >= MAX_OTHER_SUGGESTIONS) break;
 			argSuggestions.push(suggestion);
-			suggestionCount++;
 		}
-	}
-
-	if (!argSuggestions.isEmpty()) {
-		argSuggestions = ArrayUtil.slice(
-			getSortedIndices(argSuggestions, text),
-			0,
-			MAX_OTHER_SUGGESTIONS,
-		).map((index) => argSuggestions[index]);
 	}
 
 	// If the type is not marked as "expensive", transform the text into the type
@@ -71,6 +83,12 @@ export function getArgumentSuggestion(
 		warn(err);
 	}
 
+	const otherSuggestions = getSortedIndices(
+		MAX_OTHER_SUGGESTIONS,
+		argSuggestions,
+		text,
+	).map((index) => argSuggestions[index]);
+
 	return {
 		main: {
 			type: "argument",
@@ -80,7 +98,7 @@ export function getArgumentSuggestion(
 			optional: arg.optional ?? false,
 			error: errorText,
 		},
-		others: argSuggestions,
+		others: otherSuggestions,
 	};
 }
 
@@ -95,21 +113,24 @@ export function getCommandSuggestion(
 	if (paths.isEmpty()) return;
 
 	const pathNames = paths.map((path) => path.getTail());
-	const indices = getSortedIndices(pathNames, text);
-	if (indices.isEmpty()) return;
+	const sortedPaths = getSortedIndices(
+		MAX_OTHER_SUGGESTIONS + 1,
+		pathNames,
+		text,
+	);
+	if (sortedPaths.isEmpty()) return;
 
-	const firstPath = paths[indices[0]];
+	const firstPath = paths[sortedPaths[0]];
 	const mainData =
 		CommanderClient.registry().getCommand(firstPath)?.options ??
 		CommanderClient.registry().getGroup(firstPath)?.options;
 	if (mainData === undefined) return;
 
 	const otherNames =
-		indices.size() > 1
-			? ArrayUtil.slice(indices, 1, MAX_OTHER_SUGGESTIONS + 1).map(
-					(index) => pathNames[index],
-			  )
+		sortedPaths.size() > 1
+			? ArrayUtil.slice(sortedPaths, 1).map((index) => pathNames[index])
 			: [];
+
 	return {
 		main: {
 			type: "command",
@@ -118,28 +139,4 @@ export function getCommandSuggestion(
 		},
 		others: otherNames,
 	};
-}
-
-function getSortedIndices(strings: string[], text?: string) {
-	if (text === undefined) return strings.sort().map((_, index) => index);
-
-	const textLower = text.lower();
-	const textEndIndex = text.size();
-
-	const results: Array<[number, number]> = [];
-	for (const i of $range(0, strings.size() - 1)) {
-		const suggestionPart = strings[i].lower().sub(0, textEndIndex);
-		if (suggestionPart === textLower) {
-			results.push([suggestionPart.size(), i]);
-		}
-	}
-
-	return results
-		.sort((a, b) => {
-			if (a[0] === b[0]) {
-				return strings[a[1]] < strings[b[1]];
-			}
-			return a[0] < b[0];
-		})
-		.map((val) => val[1]);
 }
