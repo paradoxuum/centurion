@@ -8,7 +8,7 @@ export interface CommanderOptions {
 	globalGroups?: string[];
 }
 
-export interface TypeOptions<T extends defined> {
+export interface ArgumentType<T extends defined> {
 	name: string;
 	expensive: boolean;
 	validate: t.check<T>;

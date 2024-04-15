@@ -1,11 +1,11 @@
 import { Signal } from "@rbxts/beacon";
 import { SharedOptions } from "../options";
 import {
+	ArgumentType,
 	CommandGuard,
 	CommandMetadata,
 	CommanderOptions,
 	GroupOptions,
-	TypeOptions,
 } from "../types";
 import { MetadataReflect } from "../util/reflect";
 import { BaseCommand, CommandGroup, ExecutableCommand } from "./command";
@@ -22,7 +22,7 @@ export abstract class BaseRegistry {
 	protected readonly commands = new Map<string, BaseCommand>();
 	protected readonly groups = new Map<string, CommandGroup>();
 	protected readonly guards: CommandGuard[] = [];
-	protected readonly types = new Map<string, TypeOptions<defined>>();
+	protected readonly types = new Map<string, ArgumentType<defined>>();
 	protected readonly registeredObjects = new Set<object>();
 
 	readonly commandRegistered = new Signal<[command: BaseCommand]>();
@@ -91,20 +91,20 @@ export abstract class BaseRegistry {
 	}
 
 	/**
-	 * Registers a type from a {@link TypeOptions}.
+	 * Registers a type from a {@link ArgumentType}.
 	 *
 	 * @param typeOptions The type to register
 	 */
-	registerType<T extends defined>(typeOptions: TypeOptions<T>) {
+	registerType<T extends defined>(typeOptions: ArgumentType<T>) {
 		this.types.set(typeOptions.name, typeOptions);
 	}
 
 	/**
-	 * Registers multiple types from a list of {@link TypeOptions}.
+	 * Registers multiple types from a list of {@link ArgumentType}.
 	 *
 	 * @param types The types to register
 	 */
-	registerTypes(...types: TypeOptions<defined>[]) {
+	registerTypes(...types: ArgumentType<defined>[]) {
 		for (const options of types) {
 			this.registerType(options);
 		}
@@ -171,7 +171,7 @@ export abstract class BaseRegistry {
 	 * Gets a registered type.
 	 *
 	 * @param name The name of the type
-	 * @returns The registered {@link TypeOptions}, or `undefined` if it is not registered
+	 * @returns The registered {@link ArgumentType}, or `undefined` if it is not registered
 	 */
 	getType(name: string) {
 		return this.types.get(name);
@@ -249,7 +249,7 @@ export abstract class BaseRegistry {
 	 * @returns An array of all registered types
 	 */
 	getTypes() {
-		const types: TypeOptions<defined>[] = [];
+		const types: ArgumentType<defined>[] = [];
 		for (const [_, typeObject] of this.types) {
 			types.push(typeObject);
 		}

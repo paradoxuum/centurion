@@ -1,8 +1,8 @@
 import { t } from "@rbxts/t";
-import { TypeOptions } from "../types";
+import { ArgumentType } from "../types";
 
-type TransformFn<T extends defined> = TypeOptions<T>["transform"];
-type SuggestionFn = TypeOptions<defined>["suggestions"];
+type TransformFn<T extends defined> = ArgumentType<T>["transform"];
+type SuggestionFn = ArgumentType<defined>["suggestions"];
 
 export namespace TransformResult {
 	export type Object<T> = { ok: true; value: T } | { ok: false; value: string };
@@ -55,7 +55,7 @@ export class TypeBuilder<T extends defined> {
 	 * @param options - The type to extend from
 	 * @returns A builder extended from the given type
 	 */
-	static extend<T extends defined>(name: string, options: TypeOptions<T>) {
+	static extend<T extends defined>(name: string, options: ArgumentType<T>) {
 		const builder = new TypeBuilder<T>(name);
 		builder.expensive = options.expensive;
 		builder.validationFn = options.validate;
@@ -107,13 +107,13 @@ export class TypeBuilder<T extends defined> {
 	}
 
 	/**
-	 * Creates a {@link TypeOptions} using the options that were provided to the builder.
+	 * Creates a {@link ArgumentType} using the options that were provided to the builder.
 	 *
 	 * @throws Will throw an error if the required options were not provided
 	 *
-	 * @returns A {@link TypeOptions} created from the options provided to the builder
+	 * @returns A {@link ArgumentType} created from the options provided to the builder
 	 */
-	build(): TypeOptions<T> {
+	build(): ArgumentType<T> {
 		assert(this.validationFn !== undefined, "Validation function is required");
 		assert(this.transformFn !== undefined, "Transform function is required");
 

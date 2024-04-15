@@ -1,8 +1,8 @@
 import {
+	ArgumentType,
 	CommandGuard,
 	CommandOptions,
 	GroupOptions,
-	TypeOptions,
 } from "../types";
 import { ObjectUtil, ReadonlyDeepObject } from "../util/data";
 import { splitString } from "../util/string";
@@ -12,7 +12,7 @@ import { ImmutableRegistryPath } from "./path";
 import { BaseRegistry } from "./registry";
 
 export abstract class BaseCommand {
-	protected readonly argTypes: TypeOptions<defined>[] = [];
+	protected readonly argTypes: ArgumentType<defined>[] = [];
 	protected readonly path: ImmutableRegistryPath;
 	readonly options: ReadonlyDeepObject<CommandOptions>;
 
