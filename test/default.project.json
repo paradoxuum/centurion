@@ -40,9 +40,7 @@
 			"$properties": {
 				"ExecuteWithStudioRun": true
 			},
-			"TS": {
-				"$path": "scripts/runTests.server.lua"
-			}
+			"$path": "scripts"
 		}
 	}
 }
