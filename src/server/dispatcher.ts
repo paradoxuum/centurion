@@ -56,7 +56,7 @@ export class ServerDispatcher extends BaseDispatcher {
 		return this.executeCommand(path, executor, text).catch((err) => {
 			this.handleError(executor, text, err);
 
-			const interaction = new CommandInteraction(path, executor, text);
+			const interaction = new CommandInteraction(path, text, executor);
 			interaction.error("An error occurred.");
 			return interaction;
 		});

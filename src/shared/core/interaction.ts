@@ -11,8 +11,8 @@ export class CommandInteraction {
 
 	constructor(
 		readonly path: RegistryPath,
-		readonly executor: Player,
 		readonly text: string,
+		readonly executor?: Player,
 	) {}
 
 	/**

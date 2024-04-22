@@ -12,8 +12,8 @@ export interface ArgumentType<T> {
 	name: string;
 	expensive: boolean;
 	validate: t.check<T>;
-	transform: (text: string, executor: Player) => TransformResult.Object<T>;
-	suggestions?: (text: string, executor: Player) => string[];
+	transform: (text: string, executor?: Player) => TransformResult.Object<T>;
+	suggestions?: (text: string, executor?: Player) => string[];
 }
 
 export interface ArgumentOptions {
@@ -49,7 +49,7 @@ export interface CommandReply {
 }
 
 export interface CommandInteractionData {
-	executor: Player;
+	executor?: Player;
 	text: string;
 	reply?: CommandReply;
 }

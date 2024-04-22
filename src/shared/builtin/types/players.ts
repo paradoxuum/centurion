@@ -6,10 +6,12 @@ import { TransformResult, TypeBuilder } from "../../util/type";
 
 const getPlayer = (
 	text: string,
-	executor: Player,
+	executor?: Player,
 ): TransformResult.Object<Player> => {
 	if (text === "@me" || text === ".") {
-		return TransformResult.ok(executor);
+		return executor !== undefined
+			? TransformResult.ok(executor)
+			: TransformResult.err("Player not found");
 	}
 
 	if (text === "@random" || text === "?") {
