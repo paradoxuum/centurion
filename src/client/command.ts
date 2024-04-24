@@ -26,7 +26,7 @@ export class ServerCommand extends BaseCommand {
 			return;
 		}
 
-		interaction.replyFromData(data);
+		if (data.reply !== undefined) interaction.setReply(data.reply);
 	}
 
 	toString() {

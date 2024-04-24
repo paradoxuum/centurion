@@ -7,7 +7,7 @@ import { RegistryPath } from "./path";
  * if one was given.
  */
 export class CommandInteraction {
-	private replyData?: CommandReply;
+	private replyData?: Readonly<CommandReply>;
 
 	constructor(
 		readonly path: RegistryPath,
@@ -36,20 +36,7 @@ export class CommandInteraction {
 	 * @param text The reply text
 	 */
 	reply(text: string) {
-		this.setReply(text, true);
-	}
-
-	/**
-	 * Replies to the interaction using {@link CommandInteractionData}.
-	 *
-	 * @param data The interaction data
-	 */
-	replyFromData(data: CommandInteractionData) {
-		assert(
-			this.replyData === undefined,
-			"This CommandInteraction has already received a reply",
-		);
-		this.replyData = data.reply;
+		this.setReply(this.createReply(text, true));
 	}
 
 	/**
@@ -58,25 +45,45 @@ export class CommandInteraction {
 	 * @param text The reply text
 	 */
 	error(text: string) {
-		this.setReply(text, false);
+		this.setReply(this.createReply(text, false));
 	}
 
-	isReplyReceived() {
-		return this.replyData !== undefined;
-	}
-
-	getReply() {
-		return this.replyData;
-	}
-
-	private setReply(text: string, success: boolean) {
+	/**
+	 * Sets the reply data.
+	 *
+	 * @param reply The reply data
+	 * @throws Will throw if a reply has already been set
+	 */
+	setReply(reply: CommandReply) {
 		assert(
 			this.replyData === undefined,
 			"This CommandInteraction has already received a reply",
 		);
-		this.replyData = {
-			text,
+		this.replyData = table.freeze(table.clone(reply));
+	}
+
+	/**
+	 * Gets the reply data.
+	 *
+	 * @returns The reply data
+	 */
+	getReply() {
+		return this.replyData;
+	}
+
+	/**
+	 * Checks whether a reply has been received.
+	 *
+	 * @returns `true` if a reply has been received, `false` if not
+	 */
+	isReplyReceived() {
+		return this.replyData !== undefined;
+	}
+
+	private createReply(text: string, success: boolean): CommandReply {
+		return {
 			success,
+			text,
 			sentAt: os.time(),
 		};
 	}
