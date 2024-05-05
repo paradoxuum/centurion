@@ -1,6 +1,6 @@
 import {
 	Command,
-	CommandInteraction,
+	CommandContext,
 	Commander,
 	CommanderType,
 } from "@rbxts/commander";
@@ -18,12 +18,12 @@ class KillCommand {
 			},
 		],
 	})
-	kill(interaction: CommandInteraction, players: Player[]) {
+	kill(ctx: CommandContext, players: Player[]) {
 		for (const player of players) {
 			this.killPlayer(player);
 		}
 
-		interaction.reply(`Successfully killed ${players.size()} player(s)`);
+		ctx.reply(`Successfully killed ${players.size()} player(s)`);
 	}
 
 	private killPlayer(player: Player) {

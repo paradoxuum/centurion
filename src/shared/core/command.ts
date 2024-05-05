@@ -7,7 +7,7 @@ import {
 import { ObjectUtil, ReadonlyDeepObject } from "../util/data";
 import { splitString } from "../util/string";
 import { TransformResult } from "../util/type";
-import { CommandInteraction } from "./interaction";
+import { CommandContext } from "./context";
 import { ImmutableRegistryPath } from "./path";
 import { BaseRegistry } from "./registry";
 
@@ -48,7 +48,7 @@ export abstract class BaseCommand {
 		}
 	}
 
-	abstract execute(interaction: CommandInteraction, text: string): unknown;
+	abstract execute(context: CommandContext, text: string): unknown;
 
 	getPath() {
 		return this.path;
@@ -86,25 +86,25 @@ export class ExecutableCommand extends BaseCommand {
 		this.guards = table.freeze([...registry.getGuards(), ...guards]);
 	}
 
-	execute(interaction: CommandInteraction, text: string) {
+	execute(context: CommandContext, text: string) {
 		for (const guard of this.guards) {
-			if (!guard(interaction)) return;
+			if (!guard(context)) return;
 		}
 
-		if (interaction.isReplyReceived()) return;
+		if (context.isReplyReceived()) return;
 
-		const transformedArgs = this.transformArgs(text, interaction);
+		const transformedArgs = this.transformArgs(text, context);
 		if (!transformedArgs.ok) {
-			interaction.error(transformedArgs.value);
+			context.error(transformedArgs.value);
 			return;
 		}
 
-		return this.callback(interaction, ...transformedArgs.value);
+		return this.callback(context, ...transformedArgs.value);
 	}
 
 	transformArgs(
 		text: string,
-		interaction: CommandInteraction,
+		context: CommandContext,
 	): TransformResult.Object<unknown[]> {
 		const args = splitString(text, " ");
 
@@ -131,7 +131,7 @@ export class ExecutableCommand extends BaseCommand {
 
 			const transformedArg = argType.transform(
 				args[startIndex + i],
-				interaction.executor,
+				context.executor,
 			);
 			if (!transformedArg.ok) return TransformResult.err(transformedArg.value);
 			transformedArgs[i] = transformedArg.value;

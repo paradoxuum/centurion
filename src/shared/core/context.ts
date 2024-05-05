@@ -1,4 +1,4 @@
-import { CommandInteractionData, CommandReply } from "../types";
+import { CommandContextData, CommandReply } from "../types";
 import { RegistryPath } from "./path";
 
 /**
@@ -6,7 +6,7 @@ import { RegistryPath } from "./path";
  * text used to execute it and the reply sent to the executor,
  * if one was given.
  */
-export class CommandInteraction {
+export class CommandContext {
 	private replyData?: Readonly<CommandReply>;
 
 	constructor(
@@ -16,13 +16,13 @@ export class CommandInteraction {
 	) {}
 
 	/**
-	 * Gets the command interaction's data.
+	 * Gets the command context's data.
 	 *
-	 * This creates a new {@link CommandInteractionData} each time it is called.
+	 * This creates a new {@link CommandContextData} each time it is called.
 	 *
-	 * @returns The interaction's data
+	 * @returns The command context's data
 	 */
-	getData(): CommandInteractionData {
+	getData(): CommandContextData {
 		return {
 			executor: this.executor,
 			text: this.text,
@@ -31,7 +31,7 @@ export class CommandInteraction {
 	}
 
 	/**
-	 * Replies to the interaction.
+	 * Sets the reply for this {@link CommandContext}.
 	 *
 	 * @param text The reply text
 	 */
@@ -40,7 +40,7 @@ export class CommandInteraction {
 	}
 
 	/**
-	 * Replies to the interaction, indicating an error has occurred.
+	 * Sets the reply for this {@link CommandContext}, indicating an error has occurred.
 	 *
 	 * @param text The reply text
 	 */
@@ -57,7 +57,7 @@ export class CommandInteraction {
 	setReply(reply: CommandReply) {
 		assert(
 			this.replyData === undefined,
-			"This CommandInteraction has already received a reply",
+			"This CommandContext has already received a reply",
 		);
 		this.replyData = table.freeze(table.clone(reply));
 	}

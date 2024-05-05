@@ -1,8 +1,8 @@
 import { t } from "@rbxts/t";
-import { CommandInteraction } from "./core/interaction";
+import { CommandContext } from "./core/context";
 import { TransformResult } from "./util/type";
 
-export type CommandGuard = (interaction: CommandInteraction) => boolean;
+export type CommandGuard = (context: CommandContext) => boolean;
 
 export interface CommanderOptions {
 	globalGroups?: string[];
@@ -48,7 +48,7 @@ export interface CommandReply {
 	sentAt: number;
 }
 
-export interface CommandInteractionData {
+export interface CommandContextData {
 	executor?: Player;
 	text: string;
 	reply?: CommandReply;

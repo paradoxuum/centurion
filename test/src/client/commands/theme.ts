@@ -1,5 +1,5 @@
 import { CommanderInterface, DefaultPalette } from "..";
-import { Command, CommandInteraction, CommanderType } from "../../shared";
+import { Command, CommandContext, CommanderType } from "../../shared";
 
 export class ThemeCommand {
 	@Command({
@@ -14,15 +14,15 @@ export class ThemeCommand {
 			},
 		],
 	})
-	theme(interaction: CommandInteraction, theme: string) {
+	theme(ctx: CommandContext, theme: string) {
 		if (!(theme in DefaultPalette)) {
-			interaction.error("Invalid theme");
+			ctx.error("Invalid theme");
 			return;
 		}
 
 		CommanderInterface.setOptions({
 			palette: DefaultPalette[theme as never],
 		});
-		interaction.reply(`Set theme to '${theme}'`);
+		ctx.reply(`Set theme to '${theme}'`);
 	}
 }

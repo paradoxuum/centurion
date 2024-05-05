@@ -1,4 +1,4 @@
-import { CommandInteraction } from "./interaction";
+import { CommandContext } from "./context";
 import { RegistryPath } from "./path";
 import { BaseRegistry } from "./registry";
 
@@ -13,18 +13,18 @@ export abstract class BaseDispatcher {
 		text: string,
 	) {
 		const command = this.registry.getCommand(path);
-		const interaction = new CommandInteraction(path, text, executor);
+		const context = new CommandContext(path, text, executor);
 
 		if (command === undefined) {
-			interaction.error("Command not found.");
-			return interaction;
+			context.error("Command not found.");
+			return context;
 		}
 
-		command.execute(interaction, text);
-		if (!interaction.isReplyReceived()) {
-			interaction.reply(DEFAULT_REPLY_TEXT);
+		command.execute(context, text);
+		if (!context.isReplyReceived()) {
+			context.reply(DEFAULT_REPLY_TEXT);
 		}
 
-		return interaction;
+		return context;
 	}
 }

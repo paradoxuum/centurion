@@ -1,5 +1,5 @@
 import {
-	CommandInteraction,
+	CommandContext,
 	CommandOptions,
 	ImmutableRegistryPath,
 } from "../shared";
@@ -16,17 +16,17 @@ export class ServerCommand extends BaseCommand {
 		return new ServerCommand(registry, path, options);
 	}
 
-	execute(interaction: CommandInteraction, text: string) {
+	execute(context: CommandContext, text: string) {
 		const [success, data] = pcall(() =>
 			Remotes.Execute.InvokeServer(this.path.toString(), text),
 		);
 
 		if (!success) {
-			interaction.error("An error occurred.");
+			context.error("An error occurred.");
 			return;
 		}
 
-		if (data.reply !== undefined) interaction.setReply(data.reply);
+		if (data.reply !== undefined) context.setReply(data.reply);
 	}
 
 	toString() {

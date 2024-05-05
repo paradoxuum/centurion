@@ -1,5 +1,5 @@
 import { RunService } from "@rbxts/services";
-import { CommandInteractionData, CommandOptions, GroupOptions } from "./types";
+import { CommandContextData, CommandOptions, GroupOptions } from "./types";
 
 type NetworkInstances = Pick<
 	CreatableInstances,
@@ -52,6 +52,6 @@ export namespace Remotes {
 	);
 
 	export const Execute: RemoteFunction<
-		(path: string, text: string) => CommandInteractionData
+		(path: string, text: string) => CommandContextData
 	> = getRemote("RemoteFunction", "Execute");
 }

@@ -1,9 +1,5 @@
 import { t } from "@rbxts/t";
-import {
-	CommandInteraction,
-	CommandInteractionData,
-	RegistryPath,
-} from "../shared";
+import { CommandContext, CommandContextData, RegistryPath } from "../shared";
 import { BaseDispatcher } from "../shared/core/dispatcher";
 import { Remotes } from "../shared/network";
 
@@ -24,12 +20,12 @@ export class ServerDispatcher extends BaseDispatcher {
 				.timeout(5)
 				.await();
 
-			let interactionData: CommandInteractionData;
+			let contextData: CommandContextData;
 			if (success) {
-				interactionData = data.getData();
+				contextData = data.getData();
 			} else {
 				this.handleError(player, text, data);
-				interactionData = {
+				contextData = {
 					executor: player,
 					text,
 					reply: {
@@ -40,7 +36,7 @@ export class ServerDispatcher extends BaseDispatcher {
 				};
 			}
 
-			return interactionData;
+			return contextData;
 		};
 	}
 
@@ -50,15 +46,15 @@ export class ServerDispatcher extends BaseDispatcher {
 	 * @param path The path of the command
 	 * @param executor The command executor
 	 * @param text The text input used to execute the command
-	 * @returns A {@link CommandInteraction} determining the result of execution
+	 * @returns A {@link CommandContext} determining the result of execution
 	 */
 	async run(path: RegistryPath, executor: Player, text = "") {
 		return this.executeCommand(path, executor, text).catch((err) => {
 			this.handleError(executor, text, err);
 
-			const interaction = new CommandInteraction(path, text, executor);
-			interaction.error("An error occurred.");
-			return interaction;
+			const context = new CommandContext(path, text, executor);
+			context.error("An error occurred.");
+			return context;
 		});
 	}
 

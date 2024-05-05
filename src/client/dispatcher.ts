@@ -27,13 +27,14 @@ export class ClientDispatcher extends BaseDispatcher {
 	 * @returns A {@link HistoryEntry} containing the command's response
 	 */
 	async run(path: RegistryPath, text = "") {
-		const [success, interaction] = this.executeCommand(
+		const [success, context] = this.executeCommand(
 			path,
 			Players.LocalPlayer,
 			text,
 		).await();
+
 		if (!success) {
-			warn(`An error occurred while executing '${text}': ${interaction}`);
+			warn(`An error occurred while executing '${text}': ${context}`);
 
 			const errorEntry: HistoryEntry = {
 				text: "An error occurred.",
@@ -44,7 +45,7 @@ export class ClientDispatcher extends BaseDispatcher {
 			return errorEntry;
 		}
 
-		const reply = interaction.getData().reply;
+		const reply = context.getData().reply;
 		assert(reply !== undefined, "Reply not received");
 
 		const entry: HistoryEntry = {

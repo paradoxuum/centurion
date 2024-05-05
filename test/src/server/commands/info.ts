@@ -1,6 +1,6 @@
 import {
 	Command,
-	CommandInteraction,
+	CommandContext,
 	Commander,
 	CommanderType,
 	Group,
@@ -22,8 +22,8 @@ class InfoCommand {
 		],
 	})
 	@Group("user")
-	userView(interaction: CommandInteraction, player: Player) {
-		interaction.reply(`<Random data about ${player.Name} here>`);
+	userView(ctx: CommandContext, player: Player) {
+		ctx.reply(`<Random data about ${player.Name} here>`);
 	}
 
 	@Command({
@@ -31,7 +31,7 @@ class InfoCommand {
 		description: "Views information about the server",
 	})
 	@Group("server")
-	serverView(interaction: CommandInteraction) {
-		interaction.reply("<Random data about the server here>");
+	serverView(ctx: CommandContext) {
+		ctx.reply("<Random data about the server here>");
 	}
 }

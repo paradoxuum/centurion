@@ -1,6 +1,6 @@
 import {
 	Command,
-	CommandInteraction,
+	CommandContext,
 	Commander,
 	CommanderType,
 } from "@rbxts/commander";
@@ -23,26 +23,24 @@ class DamageCommand {
 			},
 		],
 	})
-	damage(interaction: CommandInteraction, player: Player, damage: number) {
+	damage(ctx: CommandContext, player: Player, damage: number) {
 		if (player.Character === undefined) {
-			interaction.error("Player's character does not exist");
+			ctx.error("Player's character does not exist");
 			return;
 		}
 
 		const humanoid = player.Character.FindFirstChildOfClass("Humanoid");
 		if (humanoid === undefined) {
-			interaction.error("Player's humanoid does not exist");
+			ctx.error("Player's humanoid does not exist");
 			return;
 		}
 
 		if (humanoid.Health === 0) {
-			interaction.error("Player is already dead");
+			ctx.error("Player is already dead");
 			return;
 		}
 
 		humanoid.Health -= damage;
-		interaction.reply(
-			`Damaged <b>${player.DisplayName}</b> for <b>${damage}</b> HP`,
-		);
+		ctx.reply(`Damaged <b>${player.DisplayName}</b> for <b>${damage}</b> HP`);
 	}
 }
