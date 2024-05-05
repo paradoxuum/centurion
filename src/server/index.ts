@@ -30,7 +30,7 @@ export namespace CommanderServer {
 			...options,
 		};
 
-		dispatcherInstance.init();
+		dispatcherInstance.init(optionsObject);
 		registryInstance.init(optionsObject);
 		callback?.(registryInstance);
 		started = true;

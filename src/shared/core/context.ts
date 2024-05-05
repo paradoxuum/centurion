@@ -2,12 +2,11 @@ import { CommandContextData, CommandReply } from "../types";
 import { RegistryPath } from "./path";
 
 /**
- * A data structure containing the executor of a command, the
- * text used to execute it and the reply sent to the executor,
- * if one was given.
+ * A data structure containing the context of an executed command.
  */
-export class CommandContext {
+export class CommandContext<S = unknown> {
 	private replyData?: Readonly<CommandReply>;
+	state: S;
 
 	constructor(
 		readonly path: RegistryPath,

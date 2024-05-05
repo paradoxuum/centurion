@@ -2,6 +2,7 @@ import { t } from "@rbxts/t";
 import { CommandContext, CommandContextData, RegistryPath } from "../shared";
 import { BaseDispatcher } from "../shared/core/dispatcher";
 import { Remotes } from "../shared/network";
+import { ServerOptions } from "./types";
 
 export class ServerDispatcher extends BaseDispatcher {
 	/**
@@ -10,7 +11,8 @@ export class ServerDispatcher extends BaseDispatcher {
 	 * This handles any connections to dispatcher remotes. It is
 	 * required in order to handle server command execution from clients.
 	 */
-	init() {
+	init(options: ServerOptions) {
+		super.init(options);
 		Remotes.Execute.OnServerInvoke = (player, path, text) => {
 			if (!t.string(path) || !t.string(text)) return;
 
@@ -53,6 +55,7 @@ export class ServerDispatcher extends BaseDispatcher {
 			this.handleError(executor, text, err);
 
 			const context = new CommandContext(path, text, executor);
+			context.state = this.defaultContextState;
 			context.error("An error occurred.");
 			return context;
 		});

@@ -16,6 +16,7 @@ export class ClientDispatcher extends BaseDispatcher {
 	 * @param options The client options provided when starting Commander
 	 */
 	init(options: ClientOptions) {
+		super.init(options);
 		this.maxHistoryLength = options.historyLength;
 	}
 
