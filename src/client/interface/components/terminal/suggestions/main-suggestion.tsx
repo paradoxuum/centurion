@@ -95,7 +95,7 @@ export function MainSuggestion({
 								options.palette.highlight,
 								suggestion?.main.title,
 								currentText,
-						  )
+							)
 				}
 				textSize={px(SUGGESTION_TITLE_TEXT_SIZE)}
 				textColor={options.palette.text}

@@ -1,10 +1,10 @@
 export type ReadonlyDeep<T> = T extends (infer U)[]
 	? ReadonlyDeepArray<U>
 	: T extends Callback
-	  ? T
-	  : T extends object
-		  ? ReadonlyDeepObject<T>
-		  : T;
+		? T
+		: T extends object
+			? ReadonlyDeepObject<T>
+			: T;
 
 interface ReadonlyDeepArray<T> extends ReadonlyArray<ReadonlyDeep<T>> {}
 

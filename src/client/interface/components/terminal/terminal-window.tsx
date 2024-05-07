@@ -242,8 +242,8 @@ export function TerminalWindow() {
 						const parentPath = atNextPart
 							? commandPath
 							: !commandPath.isCommand()
-							  ? commandPath.getParent()
-							  : undefined;
+								? commandPath.getParent()
+								: undefined;
 						suggestion = getCommandSuggestion(parentPath, currentTextPart);
 					} else if (commandPath !== undefined) {
 						// Handle argument suggestions
