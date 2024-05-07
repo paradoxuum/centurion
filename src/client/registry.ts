@@ -2,12 +2,30 @@ import { RunService } from "@rbxts/services";
 import { CommandOptions, GroupOptions, ImmutableRegistryPath } from "../shared";
 import { CommandGroup } from "../shared/core/command";
 import { BaseRegistry } from "../shared/core/registry";
-import { Remotes } from "../shared/network";
 import { ServerCommand } from "./command";
+import { DEFAULT_CLIENT_OPTIONS } from "./options";
+import { ClientOptions, ClientRemotes } from "./types";
 
 export class ClientRegistry extends BaseRegistry {
+	private options: ClientOptions = DEFAULT_CLIENT_OPTIONS;
 	private initialSyncReceived = false;
 	private syncedPaths = new Set<string>();
+	private syncStart: ClientRemotes.SyncStart;
+	private syncDispatch: ClientRemotes.SyncDispatch;
+	private execute: ClientRemotes.Execute;
+
+	init(options: ClientOptions) {
+		super.init(options);
+		this.options = options;
+
+		assert(
+			this.options.network !== undefined,
+			"Client options must include network options",
+		);
+		this.syncStart = this.options.network.syncStart;
+		this.syncDispatch = this.options.network.syncDispatch;
+		this.execute = this.options.network.execute;
+	}
 
 	/**
 	 * Begins registry synchronisation to the server.
@@ -17,7 +35,7 @@ export class ClientRegistry extends BaseRegistry {
 	 * @returns A promise that will be resolved when the initial sync is received
 	 */
 	async sync() {
-		Remotes.SyncDispatch.OnClientEvent.Connect((data) => {
+		this.syncDispatch.Connect((data) => {
 			if (!this.initialSyncReceived) this.initialSyncReceived = true;
 
 			for (const path of this.syncedPaths) {
@@ -42,7 +60,7 @@ export class ClientRegistry extends BaseRegistry {
 			}
 		});
 
-		Remotes.SyncStart.FireServer();
+		this.syncStart.Fire();
 
 		return new Promise((resolve) => {
 			// Wait until dispatch has been received
@@ -78,7 +96,10 @@ export class ClientRegistry extends BaseRegistry {
 				continue;
 			}
 
-			this.registerCommand(ServerCommand.create(this, path, options), group);
+			this.registerCommand(
+				ServerCommand.create(this, path, options, this.execute),
+				group,
+			);
 		}
 	}
 }

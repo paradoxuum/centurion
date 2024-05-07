@@ -1,4 +1,5 @@
 import { RunService } from "@rbxts/services";
+import { getRemotes } from "../shared/network";
 import { ClientDispatcher } from "./dispatcher";
 import { DEFAULT_CLIENT_OPTIONS } from "./options";
 import { ClientRegistry } from "./registry";
@@ -29,6 +30,24 @@ export namespace CommanderClient {
 			...DEFAULT_CLIENT_OPTIONS,
 			...options,
 		};
+
+		if (optionsObject.network === undefined) {
+			const remotes = getRemotes();
+			optionsObject.network = {
+				syncStart: {
+					Fire: () => remotes.syncStart.FireServer(),
+				},
+				syncDispatch: {
+					Connect: (callback) => {
+						remotes.syncDispatch.OnClientEvent.Connect(callback);
+					},
+				},
+				execute: {
+					Invoke: (path, text) => remotes.execute.InvokeServer(path, text),
+				},
+			};
+		}
+
 		dispatcherInstance.init(optionsObject);
 		registryInstance.init(optionsObject);
 

@@ -41,17 +41,14 @@ export interface SyncData {
 	groups: Map<string, GroupOptions>;
 }
 
-export namespace Remotes {
-	export const SyncStart: RemoteEvent<() => void> = getRemote(
-		"RemoteEvent",
-		"SyncStart",
-	);
-	export const SyncDispatch: RemoteEvent<(data: SyncData) => void> = getRemote(
-		"RemoteEvent",
-		"SyncDispatch",
-	);
-
-	export const Execute: RemoteFunction<
-		(path: string, text: string) => CommandContextData
-	> = getRemote("RemoteFunction", "Execute");
+export function getRemotes() {
+	return {
+		syncStart: getRemote("RemoteEvent", "SyncStart") as RemoteEvent<() => void>,
+		syncDispatch: getRemote("RemoteEvent", "SyncDispatch") as RemoteEvent<
+			(data: SyncData) => void
+		>,
+		execute: getRemote("RemoteFunction", "Execute") as RemoteFunction<
+			(path: string, text: string) => CommandContextData
+		>,
+	};
 }

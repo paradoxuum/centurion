@@ -2,23 +2,27 @@ import { Players } from "@rbxts/services";
 import { CommandOptions, GroupOptions, RegistryPath } from "../shared";
 import { BaseCommand, CommandGroup } from "../shared/core/command";
 import { BaseRegistry } from "../shared/core/registry";
-import { Remotes, SyncData } from "../shared/network";
-import { ServerOptions } from "./types";
+import { SyncData } from "../shared/network";
+import { DEFAULT_SERVER_OPTIONS } from "./options";
+import { ServerOptions, ServerRemotes } from "./types";
 
 export class ServerRegistry extends BaseRegistry {
-	private commandFilter: (path: RegistryPath, player: Player) => boolean = () =>
-		true;
+	private options = DEFAULT_SERVER_OPTIONS;
+	private syncStart: ServerRemotes.SyncStart;
+	private syncDispatch: ServerRemotes.SyncDispatch;
 
 	init(options: ServerOptions) {
 		super.init(options);
+		this.options = options;
 
-		const filter = options.commandFilter;
-		if (filter !== undefined) {
-			this.commandFilter = filter;
-		}
-
-		Remotes.SyncStart.OnServerEvent.Connect((player) => {
-			Remotes.SyncDispatch.FireClient(player, this.getSyncData(player));
+		assert(
+			options.network !== undefined,
+			"Server options must include network options",
+		);
+		this.syncStart = options.network.syncStart;
+		this.syncDispatch = options.network.syncDispatch;
+		this.syncStart.Connect((player) => {
+			this.syncDispatch.Fire(player, this.getSyncData(player));
 		});
 	}
 
@@ -28,15 +32,16 @@ export class ServerRegistry extends BaseRegistry {
 	) {
 		super.registerCommand(command, group);
 		for (const player of Players.GetPlayers()) {
-			Remotes.SyncDispatch.FireClient(player, this.getSyncData(player));
+			this.syncDispatch.Fire(player, this.getSyncData(player));
 		}
 	}
 
 	private getSyncData(player: Player): SyncData {
 		const syncedCommands = new Map<string, CommandOptions>();
+		const commandFilter = this.options.commandFilter ?? (() => true);
 		for (const [pathString, command] of this.commands) {
 			const path = RegistryPath.fromString(pathString);
-			if (!this.commandFilter(path, player)) continue;
+			if (!commandFilter(path, player)) continue;
 
 			syncedCommands.set(path.toString(), {
 				...(command.options as CommandOptions),

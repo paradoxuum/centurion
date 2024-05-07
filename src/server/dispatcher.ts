@@ -1,7 +1,6 @@
 import { t } from "@rbxts/t";
 import { CommandContext, CommandContextData, RegistryPath } from "../shared";
 import { BaseDispatcher } from "../shared/core/dispatcher";
-import { Remotes } from "../shared/network";
 import { ServerOptions } from "./types";
 
 export class ServerDispatcher extends BaseDispatcher {
@@ -13,12 +12,27 @@ export class ServerDispatcher extends BaseDispatcher {
 	 */
 	init(options: ServerOptions) {
 		super.init(options);
-		Remotes.Execute.OnServerInvoke = (player, path, text) => {
-			if (!t.string(path) || !t.string(text)) return;
+
+		assert(
+			options.network !== undefined,
+			"Server options must include network options",
+		);
+		options.network.execute.SetCallback((executor, path, text) => {
+			if (!t.string(path) || !t.string(text)) {
+				return {
+					executor,
+					text,
+					reply: {
+						success: false,
+						text: "Invalid input.",
+						sentAt: os.time(),
+					},
+				} as CommandContextData;
+			}
 
 			const commandPath = RegistryPath.fromString(path);
 
-			const [success, data] = this.run(commandPath, player, text)
+			const [success, data] = this.run(commandPath, executor, text)
 				.timeout(5)
 				.await();
 
@@ -26,9 +40,9 @@ export class ServerDispatcher extends BaseDispatcher {
 			if (success) {
 				contextData = data.getData();
 			} else {
-				this.handleError(player, text, data);
+				this.handleError(executor, text, data);
 				contextData = {
-					executor: player,
+					executor,
 					text,
 					reply: {
 						success: false,
@@ -39,7 +53,7 @@ export class ServerDispatcher extends BaseDispatcher {
 			}
 
 			return contextData;
-		};
+		});
 	}
 
 	/**

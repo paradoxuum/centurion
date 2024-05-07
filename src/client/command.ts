@@ -5,20 +5,30 @@ import {
 } from "../shared";
 import { BaseCommand } from "../shared/core/command";
 import { BaseRegistry } from "../shared/core/registry";
-import { Remotes } from "../shared/network";
+import { ClientRemotes } from "./types";
 
 export class ServerCommand extends BaseCommand {
 	static create(
 		registry: BaseRegistry,
 		path: ImmutableRegistryPath,
 		options: CommandOptions,
+		executeRemote: ClientRemotes.Execute,
 	) {
-		return new ServerCommand(registry, path, options);
+		return new ServerCommand(registry, path, options, executeRemote);
+	}
+
+	constructor(
+		registry: BaseRegistry,
+		path: ImmutableRegistryPath,
+		options: CommandOptions,
+		private readonly executeRemote: ClientRemotes.Execute,
+	) {
+		super(registry, path, options);
 	}
 
 	execute(context: CommandContext, text: string) {
 		const [success, data] = pcall(() =>
-			Remotes.Execute.InvokeServer(this.path.toString(), text),
+			this.executeRemote.Invoke(this.path.toString(), text),
 		);
 
 		if (!success) {
@@ -26,7 +36,7 @@ export class ServerCommand extends BaseCommand {
 			return;
 		}
 
-		if (data.reply !== undefined) context.setReply(data.reply);
+		if (data?.reply !== undefined) context.setReply(data.reply);
 	}
 
 	toString() {
