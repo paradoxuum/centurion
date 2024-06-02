@@ -1,4 +1,4 @@
-name: Test docs deployment
+name: Check docs
 
 on:
     pull_request:
