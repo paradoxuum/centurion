@@ -1,0 +1,53 @@
+---
+title: Groups
+description: Learn how to organize commands into groups.
+---
+
+import { Code } from '@astrojs/starlight/components';
+
+Groups are a way to organize your commands, effectively turning them into subcommands.
+
+Groups must be defined in the `@Commander` decorator in order to be used.
+You can use the `@Group` decorator to assign a command to a group.
+
+For example, let's say you want to organize view and delete commands under a profile group:
+
+<Code lang="ts" code={`
+@Commander({
+	groups: [
+		{
+			name: "profile",
+			description: "Profile commands",
+		},
+	],
+})
+class ProfileCommand {
+	@Command({
+		name: "view",
+		description: "Views a player's profile",
+		arguments: [
+			{
+				name: "player",
+				description: "The player",
+				type: CommanderType.Player,
+			},
+		],
+	})
+	@Group("profile")
+	view(interaction: CommandInteraction, player: Player) {}
+
+	@Command({
+		name: "delete",
+		description: "Deletes a player's profile",
+		arguments: [
+			{
+				name: "player",
+				description: "The player",
+				type: CommanderType.Player,
+			},
+		],
+	})
+	@Group("profile")
+	delete(interaction: CommandInteraction, player: Player) {}
+}
+`} />

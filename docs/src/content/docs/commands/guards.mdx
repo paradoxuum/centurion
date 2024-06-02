@@ -1,0 +1,14 @@
+---
+title: Guards
+description: Learn how to use guards to restrict command execution.
+---
+
+A command guard is simply a function that can be used to determine if a command
+should be executed. You can use the `@Guard` decorator to assign guards to a command.
+
+A guard function is passed the same `CommandInteraction` that will be passed to the command.
+You can use this to access data such as the command path or executor, and you
+can send a reply using its `reply` and `error` methods.
+
+A guard function should return a `boolean`: `true` if the command should be executed,
+`false` if not.

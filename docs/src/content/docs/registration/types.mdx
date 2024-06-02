@@ -1,0 +1,38 @@
+---
+title: Types
+description: Learn how to register types.
+---
+
+import { Code } from '@astrojs/starlight/components';
+
+To register a `TypeObject`, you can use the `registerType` or `registerTypes` methods.
+
+<Code lang="ts" code={`
+// You can register a single type like this
+registry.registerType(someType);
+
+// You can also register multiple types at once!
+registry.registerTypes(someType, someOtherType);
+`}/>
+
+Similar to commands, you can also organize your types into modules.
+
+One caveat here is that you currently cannot use something like `Flamework.addPaths`
+to load type modules and register them. Instead, you must pass the instance
+containing the type modules to the `register` method.
+
+<Code lang="ts" code={`
+import { BaseRegistry } from "@rbxts/commander";
+
+// ...
+
+export = (registry: BaseRegistry) => {
+    registry.registerTypes(someType, someOtherType);
+};
+`} />
+
+<Code lang="ts" code={`
+CommanderServer.start((registry) => {
+    registry.register(script.Parent.types)
+}).catch((err) => warn("Commander could not be started:", tostring(err)));
+`} />

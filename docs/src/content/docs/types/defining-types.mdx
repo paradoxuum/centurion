@@ -1,0 +1,48 @@
+---
+title: Defining types
+description: Learn how to define types.
+---
+
+import { Code } from '@astrojs/starlight/components';
+
+In order to define a type, you should use `TypeBuilder`.
+This is a helper class to make defining types easier.
+
+`TypeBuilder` will create a TypeOptions for you, using the values you provide to each method.
+This object is used to register the type.
+
+<Code lang="ts" code={`
+import { TransformResult, TypeBuilder } from "@rbxts/commander";
+import { t } from "@rbxts/t";
+
+const playerType = TypeBuilder.create<Player>("player")
+	.validate(t.instanceOf("Player"))
+	.transform((text, executor) => {
+		if (text === "@me") {
+			return TransformResult.ok(executor);
+		}
+
+		const player = Players.FindFirstChild(text);
+		if (player === undefined || !classIs(player, "Player")) {
+			return TransformResult.err("Player not found");
+		}
+		return TransformResult.ok(player);
+	})
+	.suggestions(() => Players.GetPlayers().map((player) => player.Name))
+	.build();
+`} />
+
+The `string` you provide to `TypeBuilder.create` will be the name of the type.
+It may be useful to store your type names in an enum or constant to make them
+more accessible - see [CommanderType](https://github.com/paradoxuum/commander/blob/main/src/shared/builtin/types/index.ts)
+for an example.
+
+## Methods
+
+- **validate**: Requires a type guard. You can use `@rbxts/t` for this, or you can define
+them manually.
+
+- **transform**: Requires a function that takes the text and the executor
+and returns a `TransformResult`.
+
+- **suggestions**: Optional, requires a function that returns an array of strings.
