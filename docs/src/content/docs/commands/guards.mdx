@@ -3,6 +3,12 @@ title: Guards
 description: Learn how to use guards to restrict command execution.
 ---
 
+import { Aside, Code } from '@astrojs/starlight/components';
+
+<Aside>
+If a response is sent in a guard (through reply or error), the command will not be executed.
+</Aside>
+
 A command guard is simply a function that can be used to determine if a command
 should be executed. You can use the `@Guard` decorator to assign guards to a command.
 
@@ -12,3 +18,34 @@ can send a reply using its `reply` and `error` methods.
 
 A guard function should return a `boolean`: `true` if the command should be executed,
 `false` if not.
+
+<Code lang="ts" code={`
+const isAdmin: CommandGuard = (interaction) => {
+    if (interaction.executor.UserId !== 1) {
+        interaction.error("Insufficient permission!");
+        return false;
+    }
+
+    return true;
+};
+
+@Commander()
+class KickCommand {
+    @Command({
+        name: "kick",
+        description: "Kick a player",
+        arguments: [
+            {
+                name: "player",
+                description: "Player to kick",
+                type: CommanderType.Player
+            }
+        ]
+    })
+    @Guard(isAdmin)
+    kick(interaction: CommandInteraction, player: Player) {
+		player.Kick("You have been kicked from the server.");
+        interaction.reply(\`Successfully kicked \${player.Name}\`);
+    }
+}
+`} />
