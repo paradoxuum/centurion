@@ -1,0 +1,42 @@
+---
+title: Usage
+description: Learn how to use types.
+---
+
+import { Aside, Code } from '@astrojs/starlight/components';
+
+<Aside>Types must be registered in order to be used!</Aside>
+
+Types are primarily used when defining arguments - they specify what type the argument
+requires.
+
+Let's say you have a kill command that requires a Player argument:
+
+<Code lang="ts" code={`
+import { CommanderType } from "@rbxts/commander";
+
+@Commander()
+class KillCommand {
+    @Command({
+        name: "kill",
+        description: "Kills a player",
+        arguments: [
+            {
+                name: "player",
+                description: "Player to kill",
+                type: CommanderType.Player, // Specify the name of the type here
+            },
+        ],
+    })
+    kill(interaction: CommandInteraction, player: Player) {
+        const humanoid = player.Character?.FindFirstChildOfClass("Humanoid");
+        if (humanoid === undefined) {
+            interaction.error(\`\${player.Name} does not have a Humanoid\`);
+            return;
+        }
+
+        humanoid.Health = 0;
+        interaction.reply(\`Successfully killed \${player.Name}\`);
+    }
+}
+`} />

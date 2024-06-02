@@ -1,0 +1,35 @@
+---
+title: Commander
+description: Flexible command framework for roblox-ts
+template: splash
+hero:
+  tagline: A flexible and extensible command framework for roblox-ts
+  image:
+    file: ../../assets/logo.webp
+  actions:
+    - text: Get Started
+      link: /getting-started
+      icon: right-arrow
+      variant: primary
+---
+
+import { Card, CardGrid } from '@astrojs/starlight/components';
+import Install from '@fragments/install.mdx';
+
+<Card title="Installation" icon="rocket">
+	<Install />
+</Card>
+
+<CardGrid stagger>
+	<Card title="Easy to use" icon="pencil">
+		Commander uses decorators to make defining commands easy and readable.
+	</Card>
+	<Card title="Extensible" icon="add-document">
+		Commander is built to be extensible - allowing for a custom
+		user interface, custom types and more.
+	</Card>
+	<Card title="Powerful" icon="setting">
+		Features like command guards and custom types
+		allow for a wide range of customization.
+	</Card>
+</CardGrid>

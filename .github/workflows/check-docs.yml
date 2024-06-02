@@ -1,0 +1,31 @@
+name: Check docs
+
+on:
+    pull_request:
+        branches:
+            - main
+        paths:
+            - docs/**
+
+jobs:
+    test-deploy:
+        name: Test deployment
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - uses: pnpm/action-setup@v4
+              with:
+                  version: 9
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: 20
+                  cache: pnpm
+                  cache-dependency-path: ./docs/pnpm-lock.yaml
+
+            - name: Install dependencies
+              working-directory: ./docs
+              run: pnpm install
+
+            - name: Test build website
+              working-directory: ./docs
+              run: pnpm build

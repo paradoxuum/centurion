@@ -1,0 +1,105 @@
+---
+title: Defining commands
+description: Learn how to define commands.
+---
+
+import { Aside, Code } from '@astrojs/starlight/components';
+
+<Aside type="caution">
+To avoid confusing bugs or errors, make sure to look at
+<a href="/commands/defining-commands#type-safety">type safety!</a>
+</Aside>
+
+Commands are defined using [decorators](https://www.typescriptlang.org/docs/handbook/decorators.html).
+
+There are three decorators that you'll likely use the most:
+
+- `@Commander` - Classes containing commands must be decorated with this to be registered
+- `@Command` - This is used to define commands
+- `@Group` - This is used to assign a command to a group
+
+A command can be defined like so:
+
+<Code lang="ts" code={`
+@Commander()
+class EchoCommand {
+    @Command({
+        name: "echo",
+        description: "Displays text",
+        arguments: [
+            {
+                name: "text",
+                description: "The text to display",
+                type: CommanderType.String,
+            },
+        ],
+    })
+    echo(interaction: CommandInteraction, text: string) {
+        interaction.reply(text);
+    }
+}
+`} />
+
+## Command Interactions
+
+Each command is passed a `CommandInteraction` as its first argument.
+
+The primary purpose of a `CommandInteraction` is to send a **response** back
+to the command executor.
+
+<Code lang="ts" code={`
+@Command({ name: "hello" })
+hello(interaction: CommandInteraction) {
+    interaction.reply(\`Hello, \${interaction.executor.Name}!\`);
+}
+
+@Command({ name: "error" })
+errorMessage(interaction: CommandInteraction) {
+    // The default interface supports rich text, so it can be used here
+    interaction.error("An <b>error</b> occurred.");
+}
+`} />
+
+It also contains data such as the command **executor**
+and the **text** used to execute the command.
+
+<Code lang="ts" code={`
+@Command({ name: "printInteraction" })
+printInteraction(interaction: CommandInteraction) {
+    print(\`\${interaction.executor.Name} executed: \${interaction.text}\`);
+}
+`} />
+
+## Type safety
+
+Type safety can only be provided if the types for your arguments match your parameters' types.
+
+It's worth keeping in mind that **no warning or error** will be
+displayed for argument and parameter types that do not match.
+
+To avoid confusing bugs or errors, you should exercise caution when defining
+command arguments and ensure they have the correct type.
+
+For example, the following code would **not** be type-safe - the argument types and
+parameter types don't match!
+
+<Code lang="ts" code={`
+@Command({
+    name: "echo",
+    description: "Displays text",
+    arguments: [
+        {
+            name: "text",
+            description: "The text to display",
+            type: CommanderType.String, // We're requesting a string for this argument...
+        },
+    ],
+})
+echo(interaction: CommandInteraction, text: number) {} // But we're expecting a number here!
+`} />
+
+In order to assert that the argument and parameter types are equal,
+we would need a way to retrieve each parameter's type.
+Unfortunately, this is not possible without using a TypeScript transformer.
+There are no plans to implement this currently, as it would require manual configuration
+and add a significant maintenance cost to the project.

@@ -2,8 +2,8 @@
 	"$schema": "https://biomejs.dev/schemas/1.6.1/schema.json",
 	"files": {
 		"ignore": [
-			"./docs/.docusaurus",
-			"./docs/build",
+			"./docs/.astro",
+			"./docs/dist",
 			"./out",
 			"./test/out",
 			"./package.json"

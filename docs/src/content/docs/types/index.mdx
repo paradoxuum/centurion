@@ -1,0 +1,31 @@
+---
+title: Overview
+sidebar:
+    order: 0
+    label: Overview
+---
+
+import { CardGrid, LinkCard } from '@astrojs/starlight/components';
+
+Types are used to specify how text for an argument should be treated when executing a command.
+
+The primary purpose of a type is to transform text into another value.
+For example, a `Number` type would transform the provided text (`string`) into a `number`.
+
+They also provide the ability to provide suggestions to the player when they're
+typing out a command.
+
+<CardGrid>
+    <LinkCard
+        title="Defining types"
+        description="Learn how to define types."
+        href="/types/defining-types"
+    />
+
+
+    <LinkCard
+        title="Usage"
+        description="Learn how to use types."
+        href="/types/usage"
+    />
+</CardGrid>

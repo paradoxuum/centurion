@@ -1,0 +1,93 @@
+---
+title: Getting Started
+description: Learn how to install, start and register commands with Commander
+---
+
+import { Aside, Card, Code } from '@astrojs/starlight/components';
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+import Install from '@fragments/install.mdx';
+
+export const clientCode = `
+`;
+
+Commander is a flexible and extensible command framework for roblox-ts that
+makes defining commands easy and readable.
+
+<Card title="Installation" icon="rocket">
+	<Install />
+</Card>
+
+## Starting Commander
+
+Commander needs to be started **once** on the client and server.
+
+<Tabs>
+    <TabItem label="Client">
+        <Aside type="caution" title="Usage with React">
+            When using React in development mode (`_G.__DEV__` set to true),
+            you must set `_G.__DEV__` to true **before importing** Commander.
+        </Aside>
+
+        <Code lang="ts" code={`
+CommanderClient.start(
+    (registry) => {
+        // Register commands or types here
+    },
+    {
+        interface: CommanderInterface({
+            // You can configure the interface here, such as changing activation keys
+        }),
+
+        // The options below are optional
+
+        // The maximum terminal and command history length, default length is 1000
+        historyLength: 1000,
+
+        // If you don't want to register built-in types, you can change this option
+        // This is set to true by default
+        registerBuiltInTypes: true,
+    },
+).catch((err) => warn("Commander could not be started:", tostring(err)));
+        `} />
+    </TabItem>
+
+    <TabItem label="Server">
+        <Code lang="ts" code={`
+CommanderServer.start(
+    (registry) => {
+        // Register commands or types here
+    },
+    {
+        // If you don't want to register built-in types, you can change this option
+        // This is set to true by default.
+        registerBuiltInTypes: true,
+    },
+).catch((err) => warn("Commander could not be started:", tostring(err)));
+        `} />
+    </TabItem>
+</Tabs>
+
+
+## Registration
+
+The way commands and types are registered is the same on the server and client.
+
+<Code lang="ts" code={`
+CommanderServer.start((registry) => {
+    // Register commands by loading all command ModuleScripts under an Instance
+    // You can also use this for types: ModuleScripts that export a function
+    // will be called with the registry object, allowing you to do any
+    // registration there.
+    const commandContainer = script.Parent.commands;
+    registry.register(commandContainer);
+
+    // If you've already loaded the command ModuleScripts
+    // (e.g. through Flamework.addPaths) you can register
+    // them like this:
+    registry.registerCommands();
+
+    // Type objects are registered like this:
+    registry.registerType(someType);
+    registry.registerTypes(someOtherType, anotherType);
+}).catch((err) => warn("Commander could not be started:", tostring(err)));
+`} />

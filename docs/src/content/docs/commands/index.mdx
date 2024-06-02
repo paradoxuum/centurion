@@ -1,0 +1,40 @@
+---
+title: Overview
+sidebar:
+    order: 0
+    label: Overview
+---
+
+import { CardGrid, LinkCard } from '@astrojs/starlight/components';
+
+Commands are functions that players can execute.
+They're defined by their name and group and can have arguments.
+
+A command does not necessarily have to belong to a group.
+Groups are simply a way to organize your commands, effectively
+turning them into subcommands.
+
+If the command has arguments, the player's text input may be transformed into
+a new value, which is then passed to the command function.
+The argument's type handles this transformation.
+
+<CardGrid>
+    <LinkCard
+        title="Defining commands"
+        description="Learn how to define commands."
+        href="/commands/defining-commands"
+    />
+
+
+    <LinkCard
+        title="Groups"
+        description="Learn how to organize commands into groups."
+        href="/commands/groups"
+    />
+
+    <LinkCard
+        title="Guards"
+        description="Learn how to use guards to restrict command execution."
+        href="/commands/guards"
+    />
+</CardGrid>
