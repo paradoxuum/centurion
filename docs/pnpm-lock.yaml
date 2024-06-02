@@ -13,19 +13,19 @@ importers:
         version: 0.7.0(typescript@5.4.5)
       '@astrojs/starlight':
         specifier: ^0.23.2
-        version: 0.23.2(astro@4.9.2(typescript@5.4.5))
+        version: 0.23.2(astro@4.9.2(sass@1.77.4)(typescript@5.4.5))
       '@astrojs/starlight-tailwind':
         specifier: ^2.0.3
-        version: 2.0.3(@astrojs/starlight@0.23.2(astro@4.9.2(typescript@5.4.5)))(@astrojs/tailwind@5.1.0(astro@4.9.2(typescript@5.4.5))(tailwindcss@3.4.3))(tailwindcss@3.4.3)
+        version: 2.0.3(@astrojs/starlight@0.23.2(astro@4.9.2(sass@1.77.4)(typescript@5.4.5)))(@astrojs/tailwind@5.1.0(astro@4.9.2(sass@1.77.4)(typescript@5.4.5))(tailwindcss@3.4.3))(tailwindcss@3.4.3)
       '@astrojs/tailwind':
         specifier: ^5.1.0
-        version: 5.1.0(astro@4.9.2(typescript@5.4.5))(tailwindcss@3.4.3)
+        version: 5.1.0(astro@4.9.2(sass@1.77.4)(typescript@5.4.5))(tailwindcss@3.4.3)
       '@fontsource-variable/jetbrains-mono':
         specifier: ^5.0.21
         version: 5.0.21
       astro:
         specifier: ^4.8.6
-        version: 4.9.2(typescript@5.4.5)
+        version: 4.9.2(sass@1.77.4)(typescript@5.4.5)
       sharp:
         specifier: ^0.32.5
         version: 0.32.6
@@ -35,6 +35,10 @@ importers:
       typescript:
         specifier: ^5.4.5
         version: 5.4.5
+    devDependencies:
+      sass:
+        specifier: ^1.77.4
+        version: 1.77.4
 
 packages:
 
@@ -1482,6 +1486,9 @@ packages:
   ieee754@1.2.1:
     resolution: {integrity: sha512-dcyqhDvX1C46lXZcVqCpK+FtMRQVdIMN6/Df5js2zouUsqG7I6sFxitIC+7KYK29KdXOLHdu9zL4sFnoVQnqaA==}
 
+  immutable@4.3.6:
+    resolution: {integrity: sha512-Ju0+lEMyzMVZarkTn/gqRpdqd5dOPaz1mCZ0SH3JV6iFw81PldE/PEB1hWVEA288HPt4WXW8O7AWxB10M+03QQ==}
+
   import-meta-resolve@4.1.0:
     resolution: {integrity: sha512-I6fiaX09Xivtk+THaMfAwnA3MVA5Big1WHF1Dfx9hFuvNIWpXnorlkzhcQf6ehrqQiiZECRt1poOAkPmer3ruw==}
 
@@ -2236,6 +2243,11 @@ packages:
   safe-buffer@5.2.1:
     resolution: {integrity: sha512-rp3So07KcdmmKbGvgaNxQSJr7bGVSVk5S9Eq1F+ppbRo70+YeaDxkw5Dd8NPN+GD6bjnYm2VuPuCXmpuYvmCXQ==}
 
+  sass@1.77.4:
+    resolution: {integrity: sha512-vcF3Ckow6g939GMA4PeU7b2K/9FALXk2KF9J87txdHzXbUF9XRQRwSxcAs/fGaTnJeBFd7UoV22j3lzMLdM0Pw==}
+    engines: {node: '>=14.0.0'}
+    hasBin: true
+
   sax@1.4.1:
     resolution: {integrity: sha512-+aWOz7yVScEGoKNd4PA10LZ8sk0A/z5+nXQG5giUO5rprX9jgYsTdov9qCchZiPIZezbZH+jRut8nPodFAX4Jg==}
 
@@ -2799,12 +2811,12 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@astrojs/mdx@3.0.1(astro@4.9.2(typescript@5.4.5))':
+  '@astrojs/mdx@3.0.1(astro@4.9.2(sass@1.77.4)(typescript@5.4.5))':
     dependencies:
       '@astrojs/markdown-remark': 5.1.0
       '@mdx-js/mdx': 3.0.1
       acorn: 8.11.3
-      astro: 4.9.2(typescript@5.4.5)
+      astro: 4.9.2(sass@1.77.4)(typescript@5.4.5)
       es-module-lexer: 1.5.3
       estree-util-visit: 2.0.0
       github-slugger: 2.0.0
@@ -2830,21 +2842,21 @@ snapshots:
       stream-replace-string: 2.0.0
       zod: 3.23.8
 
-  '@astrojs/starlight-tailwind@2.0.3(@astrojs/starlight@0.23.2(astro@4.9.2(typescript@5.4.5)))(@astrojs/tailwind@5.1.0(astro@4.9.2(typescript@5.4.5))(tailwindcss@3.4.3))(tailwindcss@3.4.3)':
+  '@astrojs/starlight-tailwind@2.0.3(@astrojs/starlight@0.23.2(astro@4.9.2(sass@1.77.4)(typescript@5.4.5)))(@astrojs/tailwind@5.1.0(astro@4.9.2(sass@1.77.4)(typescript@5.4.5))(tailwindcss@3.4.3))(tailwindcss@3.4.3)':
     dependencies:
-      '@astrojs/starlight': 0.23.2(astro@4.9.2(typescript@5.4.5))
-      '@astrojs/tailwind': 5.1.0(astro@4.9.2(typescript@5.4.5))(tailwindcss@3.4.3)
+      '@astrojs/starlight': 0.23.2(astro@4.9.2(sass@1.77.4)(typescript@5.4.5))
+      '@astrojs/tailwind': 5.1.0(astro@4.9.2(sass@1.77.4)(typescript@5.4.5))(tailwindcss@3.4.3)
       tailwindcss: 3.4.3
 
-  '@astrojs/starlight@0.23.2(astro@4.9.2(typescript@5.4.5))':
+  '@astrojs/starlight@0.23.2(astro@4.9.2(sass@1.77.4)(typescript@5.4.5))':
     dependencies:
-      '@astrojs/mdx': 3.0.1(astro@4.9.2(typescript@5.4.5))
+      '@astrojs/mdx': 3.0.1(astro@4.9.2(sass@1.77.4)(typescript@5.4.5))
       '@astrojs/sitemap': 3.1.5
       '@pagefind/default-ui': 1.1.0
       '@types/hast': 3.0.4
       '@types/mdast': 4.0.4
-      astro: 4.9.2(typescript@5.4.5)
-      astro-expressive-code: 0.35.3(astro@4.9.2(typescript@5.4.5))
+      astro: 4.9.2(sass@1.77.4)(typescript@5.4.5)
+      astro-expressive-code: 0.35.3(astro@4.9.2(sass@1.77.4)(typescript@5.4.5))
       bcp-47: 2.1.0
       hast-util-from-html: 2.0.1
       hast-util-select: 6.0.2
@@ -2862,9 +2874,9 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@astrojs/tailwind@5.1.0(astro@4.9.2(typescript@5.4.5))(tailwindcss@3.4.3)':
+  '@astrojs/tailwind@5.1.0(astro@4.9.2(sass@1.77.4)(typescript@5.4.5))(tailwindcss@3.4.3)':
     dependencies:
-      astro: 4.9.2(typescript@5.4.5)
+      astro: 4.9.2(sass@1.77.4)(typescript@5.4.5)
       autoprefixer: 10.4.19(postcss@8.4.38)
       postcss: 8.4.38
       postcss-load-config: 4.0.2(postcss@8.4.38)
@@ -3616,12 +3628,12 @@ snapshots:
 
   astring@1.8.6: {}
 
-  astro-expressive-code@0.35.3(astro@4.9.2(typescript@5.4.5)):
+  astro-expressive-code@0.35.3(astro@4.9.2(sass@1.77.4)(typescript@5.4.5)):
     dependencies:
-      astro: 4.9.2(typescript@5.4.5)
+      astro: 4.9.2(sass@1.77.4)(typescript@5.4.5)
       rehype-expressive-code: 0.35.3
 
-  astro@4.9.2(typescript@5.4.5):
+  astro@4.9.2(sass@1.77.4)(typescript@5.4.5):
     dependencies:
       '@astrojs/compiler': 2.8.0
       '@astrojs/internal-helpers': 0.4.0
@@ -3680,8 +3692,8 @@ snapshots:
       tsconfck: 3.1.0(typescript@5.4.5)
       unist-util-visit: 5.0.0
       vfile: 6.0.1
-      vite: 5.2.12
-      vitefu: 0.2.5(vite@5.2.12)
+      vite: 5.2.12(sass@1.77.4)
+      vitefu: 0.2.5(vite@5.2.12(sass@1.77.4))
       which-pm: 2.2.0
       yargs-parser: 21.1.1
       zod: 3.23.8
@@ -4359,6 +4371,8 @@ snapshots:
   human-signals@5.0.0: {}
 
   ieee754@1.2.1: {}
+
+  immutable@4.3.6: {}
 
   import-meta-resolve@4.1.0: {}
 
@@ -5469,6 +5483,12 @@ snapshots:
 
   safe-buffer@5.2.1: {}
 
+  sass@1.77.4:
+    dependencies:
+      chokidar: 3.6.0
+      immutable: 4.3.6
+      source-map-js: 1.2.0
+
   sax@1.4.1: {}
 
   section-matter@1.0.0:
@@ -5873,17 +5893,18 @@ snapshots:
       unist-util-stringify-position: 4.0.0
       vfile-message: 4.0.2
 
-  vite@5.2.12:
+  vite@5.2.12(sass@1.77.4):
     dependencies:
       esbuild: 0.20.2
       postcss: 8.4.38
       rollup: 4.18.0
     optionalDependencies:
       fsevents: 2.3.3
+      sass: 1.77.4
 
-  vitefu@0.2.5(vite@5.2.12):
+  vitefu@0.2.5(vite@5.2.12(sass@1.77.4)):
     optionalDependencies:
-      vite: 5.2.12
+      vite: 5.2.12(sass@1.77.4)
 
   volar-service-css@0.0.45(@volar/language-service@2.2.5):
     dependencies:
