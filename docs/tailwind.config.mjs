@@ -11,7 +11,7 @@ export default {
 				gray: colors.zinc,
 			},
 			fontFamily: {
-				mono: ['"JetBrains Mono"'],
+				mono: ['"JetBrains Mono Variable"'],
 			},
 		},
 	},

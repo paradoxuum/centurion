@@ -13,6 +13,10 @@ export default defineConfig({
 				github: "https://github.com/paradoxuum/commander",
 				discord: "https://discord.roblox-ts.com/",
 			},
+			logo: {
+				dark: "src/assets/logo-dark.svg",
+				light: "src/assets/logo-light.svg",
+			},
 			sidebar: [
 				{
 					label: "Quick Start",
