@@ -51,3 +51,48 @@ class ProfileCommand {
 	delete(interaction: CommandInteraction, player: Player) {}
 }
 `} />
+
+## Nested groups
+
+Groups at the top level can have child group(s), whereas groups that have a parent
+cannot have child groups. This limitation means the maximum nesting level is 2, as of now.
+
+To define a group as a child of another group, you specify its name using the root key:
+
+<Code lang="ts" code={`
+@Commander({
+	groups: [
+		{
+			name: "info",
+			description: "View info about a user or the server",
+		},
+		{
+			name: "user",
+			description: "View info about a user",
+			root: "info",
+		},
+		{
+			name: "server",
+			description: "View info about the server",
+			root: "info",
+		},
+	],
+})
+class InfoCommand {
+	@Command({
+		name: "view",
+        description: "View information about a player",
+		arguments: [{ name: "player", description: "Player to view information for", type: CommanderType.Player }],
+	})
+	// If info was a global group, you could do @Group("user") here
+	@Group("info", "user")
+	userView(interaction: CommandInteraction, player: Player) {}
+
+	@Command({
+		name: "view",
+        description: "View information about the server",
+	})
+	@Group("info", "server")
+	serverView(interaction: CommandInteraction, player: Player) {}
+}
+`} />
