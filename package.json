@@ -38,7 +38,7 @@
 		"@rbxts/jest": "^0.1.0",
 		"@rbxts/jest-globals": "^0.1.0",
 		"@rbxts/types": "^1.0.774",
-		"roblox-ts": "^2.3.0-dev-3a89c93",
+		"roblox-ts": "2.3.0-dev-4a3b6b9",
 		"typescript": "~5.4"
 	},
 	"dependencies": {

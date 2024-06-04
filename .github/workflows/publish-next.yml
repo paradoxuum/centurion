@@ -13,7 +13,7 @@ jobs:
             version: ${{ env.VERSION }}
             version_changed: ${{ env.VERSION_CHANGED }}
         steps:
-            - name: Checkout Repository
+            - name: Checkout
               uses: actions/checkout@v4
 
             - name: Set version
@@ -35,21 +35,24 @@ jobs:
         permissions:
             id-token: write
         steps:
-            - name: Checkout Repository
+            - name: Checkout
               uses: actions/checkout@v4
+
+            - uses: pnpm/action-setup@v4
+              with:
+                  version: 9
 
             - uses: actions/setup-node@v4
               with:
                   node-version: "20.x"
                   registry-url: "https://registry.npmjs.org"
-
-            - name: Install npm Dependencies
-              uses: bahmutov/npm-install@v1
+                  cache: pnpm
+                  cache-dependency-path: ./pnpm-lock.yaml
 
             - name: Set version
-              run: npm version --no-git-tag-version ${{ env.VERSION }}
+              run: pnpm version --no-git-tag-version ${{ env.VERSION }}
 
             - name: Publish @next
-              run: npm publish --tag next --provenance
+              run: pnpm publish --tag next
               env:
                   NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

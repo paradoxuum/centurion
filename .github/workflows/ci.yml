@@ -11,16 +11,21 @@ jobs:
             - name: Checkout
               uses: actions/checkout@v4
 
-            - name: Install npm dependencies
-              uses: bahmutov/npm-install@v1
-
-            - name: Setup Aftman
-              uses: ok-nick/setup-aftman@v0.4.2
+            - uses: pnpm/action-setup@v4
               with:
-                  token: ${{ secrets.GITHUB_TOKEN }}
+                  version: 9
+
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: 20
+                  cache: pnpm
+                  cache-dependency-path: ./pnpm-lock.yaml
+
+            - name: Install dependencies
+              run: pnpm install
 
             - name: Run Biome
-              run: npm exec biome ci .
+              run: pnpm biome ci .
 
             - name: Compile
-              run: npm run compile --verbose
+              run: pnpm compile --verbose
