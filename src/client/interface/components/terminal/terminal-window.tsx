@@ -68,7 +68,7 @@ export function TerminalWindow() {
 			}
 
 			const storeState = store.getState();
-			const lastPartIndex = storeState.text.parts.size() - path.getSize() - 1;
+			const lastPartIndex = storeState.text.parts.size() - path.size() - 1;
 			const missingArgs: string[] = [];
 
 			let index = 0;
@@ -168,9 +168,8 @@ export function TerminalWindow() {
 					let atCommand = false;
 					if (
 						commandPath !== undefined &&
-						formatPartsAsPath(
-							ArrayUtil.slice(parts, 0, commandPath.getSize()),
-						) === commandPath.toString()
+						formatPartsAsPath(ArrayUtil.slice(parts, 0, commandPath.size())) ===
+							commandPath.toString()
 					) {
 						// The current path still leads to the command, so it's valid
 						atCommand = true;
@@ -226,8 +225,7 @@ export function TerminalWindow() {
 					const showArgs =
 						atCommand &&
 						(atNextPart ||
-							(commandPath !== undefined &&
-								parts.size() > commandPath.getSize()));
+							(commandPath !== undefined && parts.size() > commandPath.size()));
 
 					const argCount =
 						showArgs && command !== undefined
@@ -241,14 +239,14 @@ export function TerminalWindow() {
 					if (argCount === 0) {
 						const parentPath = atNextPart
 							? commandPath
-							: !commandPath.isCommand()
-								? commandPath.getParent()
+							: commandPath.size() !== 1
+								? commandPath.parent()
 								: undefined;
 						suggestion = getCommandSuggestion(parentPath, currentTextPart);
 					} else if (commandPath !== undefined) {
 						// Handle argument suggestions
 						const argIndex =
-							parts.size() - commandPath.getSize() - (atNextPart ? 0 : 1);
+							parts.size() - commandPath.size() - (atNextPart ? 0 : 1);
 						if (argIndex >= argCount) return;
 
 						store.setArgIndex(argIndex);

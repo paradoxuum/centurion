@@ -112,7 +112,7 @@ export function getCommandSuggestion(
 			: CommanderClient.registry().getRootPaths();
 	if (paths.isEmpty()) return;
 
-	const pathNames = paths.map((path) => path.getTail());
+	const pathNames = paths.map((path) => path.tail());
 	const sortedPaths = getSortedIndices(
 		MAX_OTHER_SUGGESTIONS + 1,
 		pathNames,

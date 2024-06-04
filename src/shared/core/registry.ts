@@ -138,14 +138,14 @@ export abstract class BaseRegistry {
 		}
 
 		// Sort groups by path size so parent groups are registered first
-		commandGroups.sort((a, b) => a.getPath().getSize() < b.getPath().getSize());
+		commandGroups.sort((a, b) => a.getPath().size() < b.getPath().size());
 
 		for (const group of commandGroups) {
 			const pathString = group.getPath().toString();
 			this.validatePath(pathString, false);
 
-			if (group.getPath().getSize() > 1) {
-				const parentPath = group.getPath().getParent();
+			if (group.getPath().size() > 1) {
+				const parentPath = group.getPath().parent();
 				const parentGroup = this.groups.get(parentPath.toString());
 				if (parentGroup === undefined) {
 					throw `Parent group '${parentPath}' for group '${pathString}' is not registered`;
@@ -286,7 +286,7 @@ export abstract class BaseRegistry {
 
 	protected cachePath(path: RegistryPath) {
 		let key = BaseRegistry.ROOT_KEY;
-		for (const i of $range(0, path.getSize() - 1)) {
+		for (const i of $range(0, path.size() - 1)) {
 			const pathSlice = path.slice(0, i);
 
 			const cache = this.cachedPaths.get(key) ?? [];
@@ -295,7 +295,7 @@ export abstract class BaseRegistry {
 
 			if (cache.some((val) => val.equals(pathSlice))) continue;
 			cache.push(pathSlice);
-			cache.sort((a, b) => a.getTail() < b.getTail());
+			cache.sort((a, b) => a.tail() < b.tail());
 		}
 	}
 

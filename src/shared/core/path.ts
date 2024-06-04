@@ -6,8 +6,8 @@ import { ArrayUtil } from "../util/data";
 export class RegistryPath {
 	private pathString: string;
 
-	constructor(protected readonly parts: string[]) {
-		this.pathString = parts.join("/");
+	constructor(protected readonly pathParts: string[]) {
+		this.updatePathString();
 	}
 
 	static fromString(path: string) {
@@ -21,8 +21,8 @@ export class RegistryPath {
 	/**
 	 * Returns a copy of the {@link RegistryPath}'s parts
 	 */
-	getParts() {
-		return [...this.parts];
+	parts() {
+		return [...this.pathParts];
 	}
 
 	/**
@@ -30,10 +30,11 @@ export class RegistryPath {
 	 *
 	 * @param index The index of the part
 	 * @returns The part at the given index
+	 * @throws If the index is out of bounds
 	 */
-	getPart(index: number) {
-		assert(index > -1 && index < this.parts.size(), "Index out of bounds");
-		return this.parts[index];
+	part(index: number) {
+		assert(index > -1 && index < this.size(), "Index out of bounds");
+		return this.pathParts[index];
 	}
 
 	/**
@@ -41,8 +42,8 @@ export class RegistryPath {
 	 *
 	 * @returns The root of this path
 	 */
-	getRoot() {
-		return this.parts[0];
+	root() {
+		return this.pathParts[0];
 	}
 
 	/**
@@ -50,12 +51,12 @@ export class RegistryPath {
 	 *
 	 * @returns The tail of this path
 	 */
-	getTail() {
-		if (this.parts.isEmpty()) {
+	tail() {
+		if (this.pathParts.isEmpty()) {
 			return "";
 		}
 
-		return this.parts[this.parts.size() - 1];
+		return this.pathParts[this.size() - 1];
 	}
 
 	/**
@@ -63,8 +64,8 @@ export class RegistryPath {
 	 *
 	 * @returns The size of the path
 	 */
-	getSize() {
-		return this.parts.size();
+	size() {
+		return this.pathParts.size();
 	}
 
 	/**
@@ -74,24 +75,14 @@ export class RegistryPath {
 	 *
 	 * @returns The parent path
 	 */
-	getParent() {
-		if (this.isCommand()) {
+	parent() {
+		if (this.size() === 1) {
 			return new RegistryPath([]);
 		}
 
 		return new RegistryPath(
-			ArrayUtil.slice(this.parts, 0, this.parts.size() - 1),
+			ArrayUtil.slice(this.pathParts, 0, this.size() - 1),
 		);
-	}
-
-	/**
-	 * Returns whether the path represents an executable command,
-	 * meaning it only has a single path element.
-	 *
-	 * @returns Whether the path is a root path
-	 */
-	isCommand() {
-		return this.parts.size() === 1;
 	}
 
 	/**
@@ -101,13 +92,11 @@ export class RegistryPath {
 	 * @returns True if this path is the child of the given path, false if not
 	 */
 	isChildOf(other: RegistryPath) {
-		const otherSize = other.getSize();
-		if (otherSize !== this.parts.size() - 1) {
-			return false;
-		}
+		const otherSize = other.size();
+		if (otherSize !== this.size() - 1) return false;
 
 		for (const i of $range(0, otherSize - 1)) {
-			if (other.parts[i] !== this.parts[i]) {
+			if (other.pathParts[i] !== this.pathParts[i]) {
 				return false;
 			}
 		}
@@ -122,13 +111,11 @@ export class RegistryPath {
 	 * @returns True if this path is the descendant of the given path, false if not
 	 */
 	isDescendantOf(other: RegistryPath) {
-		const otherSize = other.getSize();
-		if (this.parts.size() < otherSize) {
-			return false;
-		}
+		const otherSize = other.size();
+		if (this.size() < otherSize) return false;
 
 		for (const i of $range(0, otherSize - 1)) {
-			if (other.parts[i] !== this.parts[i]) {
+			if (other.pathParts[i] !== this.pathParts[i]) {
 				return false;
 			}
 		}
@@ -145,7 +132,11 @@ export class RegistryPath {
 	 */
 	slice(from: number, to?: number) {
 		return new RegistryPath(
-			ArrayUtil.slice(this.parts, from, to !== undefined ? to + 1 : undefined),
+			ArrayUtil.slice(
+				this.pathParts,
+				from,
+				to !== undefined ? to + 1 : undefined,
+			),
 		);
 	}
 
@@ -175,36 +166,42 @@ export class RegistryPath {
 	 */
 	append(...parts: string[]) {
 		for (const part of parts) {
-			this.parts.push(part);
+			this.pathParts.push(part);
 		}
-		this.pathString = this.parts.join("/");
+		this.updatePathString();
 	}
 
 	/**
 	 * Removes the part at the given index
 	 *
 	 * @param index The index of the part to remove
+	 * @throws If the index is out of bounds
 	 */
 	remove(index: number) {
-		assert(index > -1 && index < this.parts.size(), "Index out of bounds");
-		this.parts.remove(index);
+		assert(index > -1 && index < this.size(), "Index out of bounds");
+		this.pathParts.remove(index);
+		this.updatePathString();
 	}
 
 	/**
 	 * Clears all parts from the path, leaving an empty path
 	 */
 	clear() {
-		this.parts.clear();
+		this.pathParts.clear();
 	}
 
 	isEmpty() {
-		return this.parts.isEmpty();
+		return this.pathParts.isEmpty();
 	}
 
 	*iter() {
-		for (const part of this.parts) {
+		for (const part of this.pathParts) {
 			yield part;
 		}
+	}
+
+	private updatePathString() {
+		this.pathString = this.pathParts.join("/");
 	}
 }
 
@@ -222,7 +219,7 @@ export class ImmutableRegistryPath extends RegistryPath {
 	 * @returns A new {@link ImmutableRegistryPath}
 	 */
 	static fromPath(path: RegistryPath) {
-		return new ImmutableRegistryPath(path.getParts());
+		return new ImmutableRegistryPath(path.parts());
 	}
 
 	static fromString(path: string) {
@@ -233,17 +230,21 @@ export class ImmutableRegistryPath extends RegistryPath {
 		return new ImmutableRegistryPath([]);
 	}
 
-	getParent() {
-		if (this.isCommand()) {
+	parent() {
+		if (this.size() === 1) {
 			return new ImmutableRegistryPath([]);
 		}
 
-		return this.slice(0, this.parts.size() - 2);
+		return this.slice(0, this.size() - 2);
 	}
 
 	slice(from: number, to?: number) {
 		return new ImmutableRegistryPath(
-			ArrayUtil.slice(this.parts, from, to !== undefined ? to + 1 : undefined),
+			ArrayUtil.slice(
+				this.pathParts,
+				from,
+				to !== undefined ? to + 1 : undefined,
+			),
 		);
 	}
 
@@ -254,7 +255,7 @@ export class ImmutableRegistryPath extends RegistryPath {
 	 * @returns A new {@link ImmutableRegistryPath} with the given parts appended
 	 */
 	append(...parts: string[]) {
-		return new ImmutableRegistryPath([...this.parts, ...parts]);
+		return new ImmutableRegistryPath([...this.pathParts, ...parts]);
 	}
 
 	/**
@@ -263,11 +264,12 @@ export class ImmutableRegistryPath extends RegistryPath {
 	 *
 	 * @param index The index of the part to remove
 	 * @returns A path with the part removed
+	 * @throws If the index is out of bounds
 	 */
 	remove(index: number) {
-		assert(index > -1 && index < this.parts.size(), "Index out of bounds");
+		assert(index > -1 && index < this.size(), "Index out of bounds");
 
-		const parts = [...this.parts];
+		const parts = [...this.pathParts];
 		parts.remove(index);
 		return new ImmutableRegistryPath(parts);
 	}

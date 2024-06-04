@@ -11,25 +11,25 @@ describe("path operations", () => {
 	test("append parts to a path", () => {
 		const path = RegistryPath.fromString("root/part1/part2");
 		path.append("part3");
-		expect(path.getPart(path.getSize() - 1)).toBe("part3");
+		expect(path.part(path.size() - 1)).toBe("part3");
 
 		path.append("part4");
-		expect(path.getPart(path.getSize() - 1)).toBe("part4");
+		expect(path.part(path.size() - 1)).toBe("part4");
 	});
 
 	test("remove parts from a path", () => {
 		const path = RegistryPath.fromString("root/part1/part2");
 		path.remove(0);
-		expect(path.getPart(0)).toBe("part1");
+		expect(path.part(0)).toBe("part1");
 
-		path.remove(path.getSize() - 1);
-		expect(path.getPart(path.getSize() - 1)).toBe("part1");
+		path.remove(path.size() - 1);
+		expect(path.part(path.size() - 1)).toBe("part1");
 	});
 
 	test("remove all parts from a path", () => {
 		const path = RegistryPath.fromString("root/part1/part");
 		path.clear();
-		expect(path.getSize()).toBe(0);
+		expect(path.size()).toBe(0);
 	});
 
 	test("return a slice of a path", () => {

@@ -77,8 +77,8 @@ export class ClientRegistry extends BaseRegistry {
 		for (const [pathString, options] of commands) {
 			const path = ImmutableRegistryPath.fromString(pathString);
 			let group: CommandGroup | undefined;
-			if (path.getSize() > 1) {
-				const groupPath = path.remove(path.getSize() - 1);
+			if (path.size() > 1) {
+				const groupPath = path.remove(path.size() - 1);
 				group = this.getGroup(groupPath);
 				assert(
 					group !== undefined,

@@ -57,7 +57,7 @@ export abstract class BaseCommand {
 	getPaths() {
 		const paths = [this.path];
 		if (this.options.aliases !== undefined) {
-			const parentPath = this.path.getParent();
+			const parentPath = this.path.parent();
 			for (const alias of this.options.aliases) {
 				paths.push(parentPath.append(alias));
 			}
@@ -113,7 +113,7 @@ export class ExecutableCommand extends BaseCommand {
 			return TransformResult.ok([]);
 		}
 
-		const startIndex = this.path.getSize();
+		const startIndex = this.path.size();
 		const endIndex = args.size() - startIndex - 1;
 
 		const transformedArgs: unknown[] = [];
