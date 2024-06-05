@@ -87,8 +87,7 @@ CommanderServer.start((registry) => {
     // them like this:
     registry.registerCommands();
 
-    // Type objects are registered like this:
-    registry.registerType(someType);
-    registry.registerTypes(someOtherType, anotherType);
+    // Types are registered like this:
+    registry.registerTypes(aType, anotherType);
 }).catch((err) => warn("Commander could not be started:", tostring(err)));
 `} />

@@ -12,16 +12,17 @@ To avoid confusing bugs or errors, make sure to look at
 
 Commands are defined using [decorators](https://www.typescriptlang.org/docs/handbook/decorators.html).
 
-There are three decorators that you'll likely use the most:
+Commander has four decorators:
 
 - `@Commander` - Classes containing commands must be decorated with this to be registered
-- `@Command` - This is used to define commands
-- `@Group` - This is used to assign a command to a group
+- `@Command` - Used to define commands
+- `@Group` - Used to assign groups to a command
+- `@Guard` - Used to assign guards to a command
 
 A command can be defined like so:
 
 <Code lang="ts" code={`
-@Commander()
+@Commander
 class EchoCommand {
     @Command({
         name: "echo",
@@ -34,29 +35,29 @@ class EchoCommand {
             },
         ],
     })
-    echo(interaction: CommandInteraction, text: string) {
-        interaction.reply(text);
+    echo(ctx: CommandContext, text: string) {
+        ctx.reply(text);
     }
 }
 `} />
 
-## Command Interactions
+## Command context
 
-Each command is passed a `CommandInteraction` as its first argument.
+Each command is passed a `CommandContext` as its first argument.
 
-The primary purpose of a `CommandInteraction` is to send a **response** back
+The primary purpose of a `CommandContext` is to send a **response** back
 to the command executor.
 
 <Code lang="ts" code={`
 @Command({ name: "hello" })
-hello(interaction: CommandInteraction) {
-    interaction.reply(\`Hello, \${interaction.executor.Name}!\`);
+hello(ctx: CommandContext) {
+    ctx.reply(\`Hello, \${ctx.executor.Name}!\`);
 }
 
 @Command({ name: "error" })
-errorMessage(interaction: CommandInteraction) {
+errorMessage(ctx: CommandContext) {
     // The default interface supports rich text, so it can be used here
-    interaction.error("An <b>error</b> occurred.");
+    ctx.error("An <b>error</b> occurred.");
 }
 `} />
 
@@ -64,9 +65,9 @@ It also contains data such as the command **executor**
 and the **text** used to execute the command.
 
 <Code lang="ts" code={`
-@Command({ name: "printInteraction" })
-printInteraction(interaction: CommandInteraction) {
-    print(\`\${interaction.executor.Name} executed: \${interaction.text}\`);
+@Command({ name: "echo" })
+echo(ctx: CommandContext) {
+    print(\`\${ctx.executor.Name} executed: \${ctx.text}\`);
 }
 `} />
 
@@ -95,7 +96,7 @@ parameter types don't match!
         },
     ],
 })
-echo(interaction: CommandInteraction, text: number) {} // But we're expecting a number here!
+echo(ctx: CommandContext, text: number) {} // But we're expecting a number here!
 `} />
 
 In order to assert that the argument and parameter types are equal,

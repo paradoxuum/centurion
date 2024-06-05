@@ -15,7 +15,7 @@ Let's say you have a kill command that requires a Player argument:
 <Code lang="ts" code={`
 import { CommanderType } from "@rbxts/commander";
 
-@Commander()
+@Commander
 class KillCommand {
     @Command({
         name: "kill",
@@ -28,15 +28,15 @@ class KillCommand {
             },
         ],
     })
-    kill(interaction: CommandInteraction, player: Player) {
+    kill(ctx: CommandContext, player: Player) {
         const humanoid = player.Character?.FindFirstChildOfClass("Humanoid");
         if (humanoid === undefined) {
-            interaction.error(\`\${player.Name} does not have a Humanoid\`);
+            ctx.error(\`\${player.Name} does not have a Humanoid\`);
             return;
         }
 
         humanoid.Health = 0;
-        interaction.reply(\`Successfully killed \${player.Name}\`);
+        ctx.reply(\`Successfully killed \${player.Name}\`);
     }
 }
 `} />

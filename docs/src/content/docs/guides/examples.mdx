@@ -8,7 +8,7 @@ import { Code, TabItem, Tabs } from '@astrojs/starlight/components';
 ## Kick Command
 
 <Code lang="ts" code={`
-import { Command, CommandGuard, CommandInteraction, Commander, CommanderType, Guard } from "@rbxts/commander";
+import { Command, CommandGuard, CommandContext, Commander, CommanderType, Guard } from "@rbxts/commander";
 
 const isAdmin: CommandGuard = (ctx) => {
     if (ctx.executor.UserId !== 1) {
@@ -33,9 +33,9 @@ class KickCommand {
         ]
     })
     @Guard(isAdmin)
-    kick(interaction: CommandInteraction, player: Player) {
+    kick(ctx: CommandContext, player: Player) {
         player.Kick("You have been kicked from the server.");
-        interaction.reply(\`Successfully kicked \${player.Name}\`);
+        ctx.reply(\`Successfully kicked \${player.Name}\`);
     }
 }
 `} />
