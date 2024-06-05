@@ -10,9 +10,9 @@ import { Code, TabItem, Tabs } from '@astrojs/starlight/components';
 <Code lang="ts" code={`
 import { Command, CommandGuard, CommandInteraction, Commander, CommanderType, Guard } from "@rbxts/commander";
 
-const isAdmin: CommandGuard = (interaction) => {
-    if (interaction.executor.UserId !== 1) {
-        interaction.error("Insufficient permission!");
+const isAdmin: CommandGuard = (ctx) => {
+    if (ctx.executor.UserId !== 1) {
+        ctx.error("Insufficient permission!");
         return false;
     }
 
@@ -45,10 +45,22 @@ class KickCommand {
 <Tabs>
 	<TabItem label="commands/ban.ts">
 		<Code lang="ts" code={`
+const isAdmin: CommandGuard = (ctx) => {
+    if (ctx.executor.UserId !== 1) {
+        ctx.error("Insufficient permission!");
+        return false;
+    }
+
+    return true;
+};
+
 @Commander
 // Assigning a group to the class will
 // make all commands in the class belong to that group
 @Group("info")
+// Similar to the above, this assigns the
+// provided guard(s) to all commands in the class
+@Guard(isAdmin)
 class InfoCommand {
 	// This command will be executable through
 	// "info user view" once registered!
