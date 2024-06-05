@@ -1,6 +1,6 @@
 <div align="center">
   <a href="https://paradoxuum.github.io/commander/" target="_blank">
-	<img src="https://paradoxuum.github.io/commander/img/logo.png" width="150" />
+	<img src="docs/src/assets/logo.webp" width="150" />
   </a>
 
   <h1>Commander</h1>
