@@ -1,7 +1,6 @@
 import starlight from "@astrojs/starlight";
 import { defineConfig } from "astro/config";
 
-import tailwind from "@astrojs/tailwind";
 import starlightUtils from "@lorenzo_lewis/starlight-utils";
 import starlightLinksValidator from "starlight-links-validator";
 
@@ -84,23 +83,20 @@ export default defineConfig({
 					],
 				},
 			],
-			customCss: ["./src/tailwind.css", "./src/custom.scss"],
+			customCss: ["./src/custom.scss"],
 			plugins: [
 				starlightLinksValidator(),
 				starlightUtils({
+					multiSidebar: {
+						switcherStyle: "horizontalList",
+					},
 					navLinks: {
 						leading: {
 							useSidebarLabelled: "leading",
 						},
 					},
-					multiSidebar: {
-						switcherStyle: "horizontalList",
-					},
 				}),
 			],
-		}),
-		tailwind({
-			applyBaseStyles: false,
 		}),
 	],
 });
