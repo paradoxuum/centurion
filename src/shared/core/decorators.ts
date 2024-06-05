@@ -26,7 +26,7 @@ export function Command(options?: Partial<CommandOptions>) {
 				name: key,
 				...options,
 			},
-			func: (target as never)[key],
+			func: (target as Record<string, unknown>)[key] as never,
 		};
 		MetadataReflect.defineMetadata(
 			target as never,
