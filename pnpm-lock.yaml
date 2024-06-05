@@ -12,8 +12,8 @@ importers:
         specifier: ^2.1.1
         version: 2.1.1
       '@rbxts/pretty-react-hooks':
-        specifier: ^0.4.2
-        version: 0.4.2(@rbxts/react-roblox@0.3.6)(@rbxts/react@0.3.6)
+        specifier: ^0.5.0
+        version: 0.5.0
       '@rbxts/react':
         specifier: ^0.3.3
         version: 0.3.6
@@ -49,8 +49,8 @@ importers:
         specifier: ^0.1.0
         version: 0.1.0
       '@rbxts/types':
-        specifier: ^1.0.774
-        version: 1.0.778
+        specifier: ^1.0.779
+        version: 1.0.779
       roblox-ts:
         specifier: 2.3.0-dev-4a3b6b9
         version: 2.3.0-dev-4a3b6b9
@@ -137,11 +137,8 @@ packages:
   '@rbxts/pretty-format@0.1.0':
     resolution: {integrity: sha512-ZEZM6wd2kWXhXYcr+Q6Vey2wcre6JP6LDRX4u6PnLOEHmSy5XiLCmed1sicYFQfFYgkG5bRk+sGCySSWFEbqoA==}
 
-  '@rbxts/pretty-react-hooks@0.4.2':
-    resolution: {integrity: sha512-PSHTkfNeG1+sXo1EIuzPmxIcR5BQVcP3MZG7fjUF7ulUfmfbY4AUzCsQoXxYYshavLCBA6OxEigKS+eOJX4kWg==}
-    peerDependencies:
-      '@rbxts/react': '*'
-      '@rbxts/react-roblox': '*'
+  '@rbxts/pretty-react-hooks@0.5.0':
+    resolution: {integrity: sha512-6SMwpcvg7gInb0WxEQnuzWtXlFr9G6YDBP0dnvvUtFIYhccA7qt0eCcG59ADalDAB78wy1UyHteqZ2LN8rd+Rw==}
 
   '@rbxts/react-reflex@0.3.4':
     resolution: {integrity: sha512-GCXd7PjS/ovxD5v2oWqKMrxXROL5k49DiQC2M4UOUKHp+rGJeRGTlGcThnS7uqg6GZpSaCbPPsDZAx1hm7E2Yw==}
@@ -173,8 +170,8 @@ packages:
   '@rbxts/t@3.1.1':
     resolution: {integrity: sha512-r+IvHHGLt9ZM8+cJAs5Q7ZyGaSlsbkXTaeat85FxRmjjozykHLbQ24rY/5utJbp63a5uCy3Wyl1fGv/Gk/GnIw==}
 
-  '@rbxts/types@1.0.778':
-    resolution: {integrity: sha512-FKXv2Etmn23kHXRQjUB+4CLPqipl0z4oyKmBOTMFFyIGV/SAaxvDEAPKLr8HA/ZWOiSmd97qb5f7+mcOy6J9/Q==}
+  '@rbxts/types@1.0.779':
+    resolution: {integrity: sha512-9vWuZ0khGeLtaPhqWxD/8DBwM/EBNbvnfD/Bo8aZMmQ/jog0vOSbES+vkToWAAIDT4zQn4eF7o28MHAx2/IChQ==}
 
   '@roblox-ts/luau-ast@1.0.11':
     resolution: {integrity: sha512-+maoLYpqY0HK8ugLFHS3qz0phMyDaN3i21jjW75T2ZaqJg84heKDUo98iXClvnx3mUDhW10IxqH+cYJ2iftYhQ==}
@@ -483,7 +480,7 @@ snapshots:
     dependencies:
       '@rbxts/jest-vendor': 0.1.0
 
-  '@rbxts/pretty-react-hooks@0.4.2(@rbxts/react-roblox@0.3.6)(@rbxts/react@0.3.6)':
+  '@rbxts/pretty-react-hooks@0.5.0':
     dependencies:
       '@rbxts/flipper': 2.0.1
       '@rbxts/react': 0.3.6
@@ -519,7 +516,7 @@ snapshots:
 
   '@rbxts/t@3.1.1': {}
 
-  '@rbxts/types@1.0.778': {}
+  '@rbxts/types@1.0.779': {}
 
   '@roblox-ts/luau-ast@1.0.11': {}
 

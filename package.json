@@ -37,13 +37,13 @@
 		"@rbxts/compiler-types": "2.3.0-types.1",
 		"@rbxts/jest": "^0.1.0",
 		"@rbxts/jest-globals": "^0.1.0",
-		"@rbxts/types": "^1.0.774",
+		"@rbxts/types": "^1.0.779",
 		"roblox-ts": "2.3.0-dev-4a3b6b9",
 		"typescript": "~5.4"
 	},
 	"dependencies": {
 		"@rbxts/beacon": "^2.1.1",
-		"@rbxts/pretty-react-hooks": "^0.4.2",
+		"@rbxts/pretty-react-hooks": "^0.5.0",
 		"@rbxts/react": "^0.3.3",
 		"@rbxts/react-reflex": "^0.3.4",
 		"@rbxts/react-roblox": "^0.3.6",
