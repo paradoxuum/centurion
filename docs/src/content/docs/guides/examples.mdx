@@ -3,7 +3,7 @@ title: Examples
 description: Learn the basic usage of Commander through examples
 ---
 
-import { Code } from '@astrojs/starlight/components';
+import { Code, TabItem, Tabs } from '@astrojs/starlight/components';
 
 ## Kick Command
 
@@ -19,7 +19,7 @@ const isAdmin: CommandGuard = (interaction) => {
     return true;
 };
 
-@Commander()
+@Commander
 class KickCommand {
     @Command({
         name: "kick",
@@ -40,33 +40,18 @@ class KickCommand {
 }
 `} />
 
-## Ban Command
+## Info Command
 
-<Code lang="ts" code={`
-@Commander({
-	groups: [
-		{
-			name: "info",
-			description: "View info about a user or the server",
-		},
-		{
-			name: "user",
-			description: "View info about a user",
-			root: "info",
-		},
-		{
-			name: "server",
-			description: "View info about the server",
-			root: "info",
-		},
-	],
-
-	// Global groups are groups assigned to all commands
-	// defined in this class.
-	globalGroups: ["info"],
-})
+<Tabs>
+	<TabItem label="commands/ban.ts">
+		<Code lang="ts" code={`
+@Commander
+// Assigning a group to the class will
+// make all commands in the class belong to that group
+@Group("info")
 class InfoCommand {
-	// This command will be executable through "info user view" once registered!
+	// This command will be executable through
+	// "info user view" once registered!
 	@Command({
 		name: "view",
 		arguments: [
@@ -77,20 +62,49 @@ class InfoCommand {
 			},
 		],
 	})
-	@Group("user") // You can also define groups like this: @Group("info", "user")
-	userView(interaction: CommandInteraction, player: Player) {
-		interaction.reply(\`<Random data about \${player.Name}...>\`);
+	@Group("user")
+	userView(ctx: CommandContext, player: Player) {
+		ctx.reply(\`<Random data about \${player.Name}...>\`);
 	}
 
 	// This command can have the same name as the above command, because it
 	// is grouped under "server" instead.
-	// This command will be executable through "info server view" once registered!
+	// This command will be executable through
+	// "info server view" once registered!
 	@Command({
 		name: "view",
 	})
 	@Group("server")
-	serverView(interaction: CommandInteraction) {
-		interaction.error("Not implemented!");
+	serverView(ctx: CommandContext) {
+		ctx.error("Not implemented!");
 	}
 }
-`} />
+		`} />
+	</TabItem>
+	<TabItem label="main.client.ts">
+	<Code lang="ts" code={`
+CommanderServer.start((registry) => {
+	registry.registerGroups(
+		{
+			name: "info",
+			description: "View info about a user or the server",
+		},
+		{
+			name: "user",
+			description: "View info about a user",
+			parent: ["info"],
+		},
+		{
+			name: "server",
+			description: "View info about the server",
+			parent: ["info"],
+		},
+	);
+
+	if (script.Parent === undefined) return;
+	const commandContainer = script.Parent.WaitForChild("commands");
+	registry.register(commandContainer);
+});
+	`} />
+	</TabItem>
+</Tabs>
