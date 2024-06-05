@@ -5,7 +5,7 @@ import {
 	CommanderType,
 } from "@rbxts/commander";
 
-@Commander()
+@Commander
 class DamageCommand {
 	@Command({
 		name: "damage",

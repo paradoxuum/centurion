@@ -49,10 +49,13 @@ jobs:
                   cache: pnpm
                   cache-dependency-path: ./pnpm-lock.yaml
 
+            - name: Install dependencies
+              run: pnpm install
+
             - name: Set version
               run: pnpm version --no-git-tag-version ${{ env.VERSION }}
 
             - name: Publish @next
-              run: pnpm publish --tag next
+              run: pnpm publish --tag next --no-git-checks
               env:
                   NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
