@@ -334,8 +334,6 @@ export abstract class BaseRegistry {
 				MetadataKey.Guard,
 			) ?? [];
 
-		print(classGuards);
-
 		for (const property of MetadataReflect.getOwnProperties(commandClass)) {
 			// Get decorator data
 			const metadata = MetadataReflect.getOwnMetadata<CommandMetadata>(
