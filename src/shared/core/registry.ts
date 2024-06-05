@@ -323,10 +323,18 @@ export abstract class BaseRegistry {
 	}
 
 	private registerCommandClass(commandClass: object) {
-		const globalGroups = MetadataReflect.getOwnMetadata<string[]>(
+		const classGroups = MetadataReflect.getOwnMetadata<string[]>(
 			commandClass,
 			MetadataKey.Group,
 		);
+
+		const classGuards =
+			MetadataReflect.getOwnMetadata<CommandGuard[]>(
+				commandClass,
+				MetadataKey.Guard,
+			) ?? [];
+
+		print(classGuards);
 
 		for (const property of MetadataReflect.getOwnProperties(commandClass)) {
 			// Get decorator data
@@ -356,8 +364,8 @@ export abstract class BaseRegistry {
 
 			// Get registered command group
 			let groupPath =
-				globalGroups !== undefined
-					? new RegistryPath([...globalGroups])
+				classGroups !== undefined
+					? new RegistryPath([...classGroups])
 					: undefined;
 			if (group !== undefined && !group.isEmpty()) {
 				if (groupPath !== undefined) {
@@ -382,7 +390,7 @@ export abstract class BaseRegistry {
 				(commandGroup?.getPath() ?? ImmutableRegistryPath.empty()).append(name),
 				metadata.options,
 				(...args) => metadata.func(commandClass, ...args),
-				guards ?? [],
+				guards !== undefined ? [...classGuards, ...guards] : classGuards,
 			);
 			this.registerCommand(command, commandGroup);
 		}
