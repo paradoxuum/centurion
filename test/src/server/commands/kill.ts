@@ -5,7 +5,7 @@ import {
 	CommanderType,
 } from "@rbxts/commander";
 
-@Commander()
+@Commander
 class KillCommand {
 	@Command({
 		name: "kill",

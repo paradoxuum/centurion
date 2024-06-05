@@ -6,9 +6,8 @@ import {
 	Group,
 } from "@rbxts/commander";
 
-@Commander({
-	globalGroups: ["info"],
-})
+@Commander
+@Group("info")
 class InfoCommand {
 	@Command({
 		name: "view",

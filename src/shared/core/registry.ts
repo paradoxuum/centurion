@@ -4,7 +4,6 @@ import {
 	ArgumentType,
 	CommandGuard,
 	CommandMetadata,
-	CommanderOptions,
 	GroupOptions,
 } from "../types";
 import { MetadataReflect } from "../util/reflect";
@@ -324,11 +323,10 @@ export abstract class BaseRegistry {
 	}
 
 	private registerCommandClass(commandClass: object) {
-		const classOptions = MetadataReflect.getOwnMetadata<CommanderOptions>(
+		const globalGroups = MetadataReflect.getOwnMetadata<string[]>(
 			commandClass,
-			MetadataKey.CommandClass,
+			MetadataKey.Group,
 		);
-		const globalGroups = classOptions?.globalGroups;
 
 		for (const property of MetadataReflect.getOwnProperties(commandClass)) {
 			// Get decorator data

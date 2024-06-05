@@ -4,10 +4,6 @@ import { TransformResult } from "./util/type";
 
 export type CommandGuard = (context: CommandContext) => boolean;
 
-export interface CommanderOptions {
-	globalGroups?: string[];
-}
-
 export interface ArgumentType<T> {
 	name: string;
 	expensive: boolean;

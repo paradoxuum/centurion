@@ -1,9 +1,4 @@
-import {
-	CommandGuard,
-	CommandMetadata,
-	CommandOptions,
-	CommanderOptions,
-} from "../types";
+import { CommandGuard, CommandMetadata, CommandOptions } from "../types";
 import { MetadataReflect } from "../util/reflect";
 
 export enum MetadataKey {
@@ -13,10 +8,8 @@ export enum MetadataKey {
 	Guard = "guard",
 }
 
-export function Commander(options?: CommanderOptions) {
-	return (target: new () => object) => {
-		MetadataReflect.defineMetadata(target, MetadataKey.CommandClass, options);
-	};
+export function Commander(target: new () => object) {
+	MetadataReflect.defineMetadata(target, MetadataKey.CommandClass, true);
 }
 
 export function Command(options?: Partial<CommandOptions>) {
@@ -38,7 +31,7 @@ export function Command(options?: Partial<CommandOptions>) {
 }
 
 export function Group(...groups: string[]) {
-	return (target: unknown, key: string) => {
+	return (target: unknown, key?: string) => {
 		MetadataReflect.defineMetadata(
 			target as never,
 			MetadataKey.Group,
