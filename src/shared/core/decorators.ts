@@ -42,7 +42,7 @@ export function Group(...groups: string[]) {
 }
 
 export function Guard(...guards: CommandGuard[]) {
-	return (target: unknown, key: string) => {
+	return (target: unknown, key?: string) => {
 		MetadataReflect.defineMetadata(
 			target as never,
 			MetadataKey.Guard,
