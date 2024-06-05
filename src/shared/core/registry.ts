@@ -90,22 +90,13 @@ export abstract class BaseRegistry {
 	}
 
 	/**
-	 * Registers a type from a {@link ArgumentType}.
-	 *
-	 * @param typeOptions The type to register
-	 */
-	registerType<T>(typeOptions: ArgumentType<T>) {
-		this.types.set(typeOptions.name, typeOptions);
-	}
-
-	/**
-	 * Registers multiple types from a list of {@link ArgumentType}.
+	 * Registers one or more types from a list of {@link ArgumentType} objects.
 	 *
 	 * @param types The types to register
 	 */
 	registerTypes(...types: ArgumentType<unknown>[]) {
 		for (const options of types) {
-			this.registerType(options);
+			this.types.set(options.name, options);
 		}
 	}
 

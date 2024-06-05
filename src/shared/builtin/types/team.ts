@@ -17,5 +17,5 @@ const teamType = TypeBuilder.create<Team>(CommanderType.Team)
 	.build();
 
 export = (registry: BaseRegistry) => {
-	registry.registerType(teamType);
+	registry.registerTypes(teamType);
 };
