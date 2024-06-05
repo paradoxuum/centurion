@@ -2,6 +2,8 @@ import starlight from "@astrojs/starlight";
 import { defineConfig } from "astro/config";
 
 import tailwind from "@astrojs/tailwind";
+import starlightUtils from "@lorenzo_lewis/starlight-utils";
+import starlightLinksValidator from "starlight-links-validator";
 
 // https://astro.build/config
 export default defineConfig({
@@ -21,38 +23,81 @@ export default defineConfig({
 			},
 			sidebar: [
 				{
-					label: "Quick Start",
+					label: "Guides",
+					collapsed: true,
 					items: [
 						{
-							label: "Getting Started",
-							link: "getting-started",
+							label: "Quick Start",
+							items: [
+								{
+									label: "Getting Started",
+									link: "/guides",
+								},
+								{
+									label: "Examples",
+									link: "/guides/examples",
+								},
+							],
 						},
 						{
-							label: "Examples",
-							link: "examples",
+							label: "Commands",
+							autogenerate: {
+								directory: "/guides/commands",
+							},
+						},
+						{
+							label: "Types",
+							autogenerate: {
+								directory: "/guides/types",
+							},
+						},
+						{
+							label: "Registration",
+							autogenerate: {
+								directory: "/guides/registration",
+							},
 						},
 					],
 				},
 				{
-					label: "Commands",
-					autogenerate: {
-						directory: "commands",
-					},
+					label: "Reference",
+					collapsed: true,
+					items: [
+						{
+							label: "Registry",
+							link: "/reference/registry",
+						},
+						{
+							label: "Dispatcher",
+							link: "/reference/dispatcher",
+						},
+					],
 				},
 				{
-					label: "Types",
-					autogenerate: {
-						directory: "types",
-					},
-				},
-				{
-					label: "Registration",
-					autogenerate: {
-						directory: "registration",
-					},
+					label: "leading",
+					items: [
+						{ label: "Guides", link: "/guides" },
+						{
+							label: "Reference",
+							link: "/reference/registry",
+						},
+					],
 				},
 			],
 			customCss: ["./src/tailwind.css", "./src/custom.scss"],
+			plugins: [
+				starlightLinksValidator(),
+				starlightUtils({
+					navLinks: {
+						leading: {
+							useSidebarLabelled: "leading",
+						},
+					},
+					multiSidebar: {
+						switcherStyle: "horizontalList",
+					},
+				}),
+			],
 		}),
 		tailwind({
 			applyBaseStyles: false,

@@ -1,0 +1,62 @@
+---
+title: Dispatcher
+---
+
+## BaseDispatcher
+
+`BaseDispatcher` is an abstract class.
+`ServerDispatcher` and `ClientDispatcher` inherit from it.
+
+### `init(options)`
+
+Initializes the dispatcher.
+
+**Parameters**:
+- `options` - The options object provided when starting Commander.
+
+## ServerDispatcher
+
+### `init(options)`
+
+Initializes the server dispatcher. Listens to remote events to handle
+server command execution.
+
+**Parameters**:
+- `options` - The options object provided when starting Commander.
+
+### `run(path, executor, text)`
+
+Executes a command.
+
+**Parameters**:
+- `path` - The path of the command.
+- `executor` - The executor of the command.
+- `text` - The input text
+
+**Returns**:
+A promise that resolves when the command is executed.
+
+## ClientDispatcher
+
+### `init(options)`
+
+Initializes the client dispatcher.
+
+**Parameters**:
+- `options` - The options object provided when starting Commander.
+
+### `run(path, text)`
+
+Executes a command.
+
+If the path points to a server command, the command will be executed on the server.
+
+**Parameters**:
+- `path` - The path of the command.
+- `text` - The input text
+
+**Returns**:
+A promise that resolves when the command is executed.
+
+The value contained in the Promise is a HistoryEntry object containing
+the command's response and the time it was executed.
