@@ -13,23 +13,23 @@ export enum MetadataKey {
 	Guard = "guard",
 }
 
-export function Commander(options?: CommanderOptions): ClassDecorator {
-	return (target) => {
+export function Commander(options?: CommanderOptions) {
+	return (target: new () => object) => {
 		MetadataReflect.defineMetadata(target, MetadataKey.CommandClass, options);
 	};
 }
 
-export function Command(options?: Partial<CommandOptions>): MethodDecorator {
-	return (target, key) => {
+export function Command(options?: Partial<CommandOptions>) {
+	return (target: unknown, key: string) => {
 		const commandData: CommandMetadata = {
 			options: {
 				name: key,
 				...options,
 			},
-			func: target[key],
+			func: (target as never)[key],
 		};
 		MetadataReflect.defineMetadata(
-			target,
+			target as never,
 			MetadataKey.Command,
 			commandData,
 			key,
@@ -37,29 +37,24 @@ export function Command(options?: Partial<CommandOptions>): MethodDecorator {
 	};
 }
 
-export function Group(...groups: string[]): MethodDecorator {
-	return (target, key) => {
-		MetadataReflect.defineMetadata(target, MetadataKey.Group, groups, key);
+export function Group(...groups: string[]) {
+	return (target: unknown, key: string) => {
+		MetadataReflect.defineMetadata(
+			target as never,
+			MetadataKey.Group,
+			groups,
+			key,
+		);
 	};
 }
 
-export function Guard(...guards: CommandGuard[]): MethodDecorator {
-	return (target, key) => {
-		MetadataReflect.defineMetadata(target, MetadataKey.Guard, guards, key);
+export function Guard(...guards: CommandGuard[]) {
+	return (target: unknown, key: string) => {
+		MetadataReflect.defineMetadata(
+			target as never,
+			MetadataKey.Guard,
+			guards,
+			key,
+		);
 	};
 }
-
-// biome-ignore lint/suspicious/noExplicitAny: <explanation>
-type DecoratorTarget = Record<string, any>;
-
-type ClassDecorator = (
-	target: DecoratorTarget,
-	propertyKey?: undefined,
-	descriptor?: undefined,
-) => void;
-
-type MethodDecorator = <T>(
-	target: DecoratorTarget,
-	propertyKey: string,
-	descriptor: TypedPropertyDescriptor<T>,
-) => void;
