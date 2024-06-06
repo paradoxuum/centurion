@@ -1,10 +1,9 @@
 import { Teams } from "@rbxts/services";
 import { t } from "@rbxts/t";
 import { CommanderType } from ".";
-import { BaseRegistry } from "../../core/registry";
 import { TransformResult, TypeBuilder } from "../../util/type";
 
-const teamType = TypeBuilder.create<Team>(CommanderType.Team)
+export const TeamType = TypeBuilder.create<Team>(CommanderType.Team)
 	.validate(t.instanceOf("Team"))
 	.transform((text) => {
 		const team = Teams.FindFirstChild(text);
@@ -15,7 +14,3 @@ const teamType = TypeBuilder.create<Team>(CommanderType.Team)
 	})
 	.suggestions(() => Teams.GetChildren().map((team) => team.Name))
 	.build();
-
-export = (registry: BaseRegistry) => {
-	registry.registerTypes(teamType);
-};

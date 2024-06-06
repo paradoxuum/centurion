@@ -1,7 +1,6 @@
 import { Players } from "@rbxts/services";
 import { t } from "@rbxts/t";
 import { CommanderType } from ".";
-import { BaseRegistry } from "../../core/registry";
 import { TransformResult, TypeBuilder } from "../../util/type";
 
 const getPlayer = (
@@ -35,13 +34,13 @@ const getPlayerSuggestions = () => [
 ];
 
 const isPlayer = t.instanceOf("Player");
-const playerType = TypeBuilder.create<Player>(CommanderType.Player)
+export const PlayerType = TypeBuilder.create<Player>(CommanderType.Player)
 	.validate(isPlayer)
 	.transform(getPlayer)
 	.suggestions(getPlayerSuggestions)
 	.build();
 
-const playersType = TypeBuilder.create<Player[]>(CommanderType.Players)
+export const PlayersType = TypeBuilder.create<Player[]>(CommanderType.Players)
 	.validate(t.array(isPlayer))
 	.transform((text, executor) => {
 		let players: Player[] = [];
@@ -73,7 +72,3 @@ const playersType = TypeBuilder.create<Player[]>(CommanderType.Players)
 		return playerNames;
 	})
 	.build();
-
-export = (registry: BaseRegistry) => {
-	registry.registerTypes(playerType, playersType);
-};

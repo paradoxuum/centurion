@@ -1,4 +1,5 @@
 import { Signal } from "@rbxts/beacon";
+import { t } from "@rbxts/t";
 import { SharedOptions } from "../options";
 import {
 	ArgumentType,
@@ -15,6 +16,18 @@ import { ImmutableRegistryPath, RegistryPath } from "./path";
 const tsImpl = (_G as Map<unknown, unknown>).get(script) as {
 	import: (...modules: LuaSourceContainer[]) => unknown;
 };
+
+const argTypeSchema = t.interface({
+	name: t.string,
+	expensive: t.boolean,
+	validate: t.callback,
+	transform: t.callback,
+	suggestions: t.optional(t.callback),
+});
+
+function isArgumentType(value: unknown): value is ArgumentType<unknown> {
+	return argTypeSchema(value);
+}
 
 export abstract class BaseRegistry {
 	protected static readonly ROOT_KEY = "__root__";
@@ -39,22 +52,20 @@ export abstract class BaseRegistry {
 				builtInTypes !== undefined,
 				"Built-in type container does not exist",
 			);
-			this.register(builtInTypes);
+			this.load(builtInTypes);
+			this.register();
 		}
 	}
 
 	/**
-	 * Loads all {@link ModuleScript}s in the given {@link Instance}.
+	 * Requires all {@link ModuleScript}s in the given {@link Instance}.
 	 *
 	 * If the {@link ModuleScript} returns a function, it will be called with the registry
 	 * as an argument.
 	 *
-	 * If the {@link ModuleScript} contains command(s), these commands will be registered.
-	 *
-	 * @param container The container containing {@link ModuleScript}s
+	 * @param container The container to iterate over
 	 */
-	register(container: Instance) {
-		let registerCommands = false;
+	load(container: Instance) {
 		for (const obj of container.GetChildren()) {
 			if (!obj.IsA("ModuleScript")) {
 				continue;
@@ -63,29 +74,32 @@ export abstract class BaseRegistry {
 			const value = this.import(obj);
 			if (typeIs(value, "function")) {
 				value(this);
-			} else {
-				registerCommands = true;
 			}
-		}
-
-		if (registerCommands) {
-			this.registerCommands();
 		}
 	}
 
 	/**
-	 * Registers all commands.
+	 * Registers any loaded commands and types that need to be registered.
 	 *
-	 * If the command has already been registered, it will be skipped.
+	 * If the command/type has already been registered, it will be skipped.
 	 */
-	registerCommands() {
-		for (const [commandClass] of MetadataReflect.metadata) {
-			if (this.registeredObjects.has(commandClass)) {
+	register() {
+		for (const [obj] of MetadataReflect.metadata) {
+			if (this.registeredObjects.has(obj)) continue;
+			this.registeredObjects.add(obj);
+			if (
+				MetadataReflect.getOwnMetadata<boolean>(obj, MetadataKey.CommandClass)
+			) {
+				this.registerCommandClass(obj);
 				continue;
 			}
 
-			this.registeredObjects.add(commandClass);
-			this.registerCommandClass(commandClass);
+			if (
+				MetadataReflect.getOwnMetadata<boolean>(obj, MetadataKey.Type) &&
+				isArgumentType(obj)
+			) {
+				this.registerTypes(obj);
+			}
 		}
 	}
 

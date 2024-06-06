@@ -1,5 +1,7 @@
 import { t } from "@rbxts/t";
+import { MetadataKey } from "../core/decorators";
 import { ArgumentType } from "../types";
+import { MetadataReflect } from "./reflect";
 
 type TransformFn<T> = ArgumentType<T>["transform"];
 type SuggestionFn<T> = ArgumentType<T>["suggestions"];
@@ -117,12 +119,16 @@ export class TypeBuilder<T> {
 		assert(this.validationFn !== undefined, "Validation function is required");
 		assert(this.transformFn !== undefined, "Transform function is required");
 
-		return {
+		const argType = {
 			name: this.name,
 			expensive: this.expensive,
 			validate: this.validationFn,
 			transform: this.transformFn,
 			suggestions: this.suggestionFn,
-		};
+		} as ArgumentType<T>;
+
+		MetadataReflect.defineMetadata(argType, MetadataKey.Type, true);
+
+		return argType;
 	}
 }

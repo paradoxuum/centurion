@@ -1,6 +1,5 @@
 import { t } from "@rbxts/t";
 import { CommanderType } from ".";
-import { BaseRegistry } from "../../core/registry";
 import { TransformResult, TypeBuilder } from "../../util/type";
 
 const transformToNumber = (text: string) => {
@@ -12,17 +11,17 @@ const transformToNumber = (text: string) => {
 	return TransformResult.ok(num);
 };
 
-const stringType = TypeBuilder.create<string>(CommanderType.String)
+export const StringType = TypeBuilder.create<string>(CommanderType.String)
 	.validate(t.string)
 	.transform((text) => TransformResult.ok(text))
 	.build();
 
-const numberType = TypeBuilder.create<number>(CommanderType.Number)
+export const NumberType = TypeBuilder.create<number>(CommanderType.Number)
 	.validate(t.number)
 	.transform(transformToNumber)
 	.build();
 
-const integerType = TypeBuilder.create<number>(CommanderType.Integer)
+export const IntegerType = TypeBuilder.create<number>(CommanderType.Integer)
 	.validate(t.integer)
 	.transform((text) => {
 		const numResult = transformToNumber(text);
@@ -39,7 +38,7 @@ const integerType = TypeBuilder.create<number>(CommanderType.Integer)
 
 const truthyValues = new Set<string>(["true", "yes", "y"]);
 const falsyValues = new Set<string>(["false", "no", "n"]);
-const booleanType = TypeBuilder.create<boolean>(CommanderType.Boolean)
+export const BooleanType = TypeBuilder.create<boolean>(CommanderType.Boolean)
 	.validate(t.boolean)
 	.transform((text) => {
 		const textLower = text.lower();
@@ -49,7 +48,3 @@ const booleanType = TypeBuilder.create<boolean>(CommanderType.Boolean)
 		return TransformResult.err("Invalid boolean");
 	})
 	.build();
-
-export = (registry: BaseRegistry) => {
-	registry.registerTypes(stringType, numberType, integerType, booleanType);
-};

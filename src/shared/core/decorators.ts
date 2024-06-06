@@ -3,6 +3,7 @@ import { MetadataReflect } from "../util/reflect";
 
 export enum MetadataKey {
 	CommandClass = "class",
+	Type = "type",
 	Command = "command",
 	Group = "group",
 	Guard = "guard",

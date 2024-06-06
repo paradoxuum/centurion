@@ -1,6 +1,5 @@
 import { t } from "@rbxts/t";
 import { CommanderType } from ".";
-import { BaseRegistry } from "../../core/registry";
 import { TransformResult, TypeBuilder } from "../../util/type";
 
 const brickColorNames = new Set([
@@ -216,7 +215,9 @@ const brickColorNames = new Set([
 
 const brickColorNameArray = [...brickColorNames];
 
-const brickColorType = TypeBuilder.create<BrickColor>(CommanderType.BrickColor)
+export const BrickColorType = TypeBuilder.create<BrickColor>(
+	CommanderType.BrickColor,
+)
 	.validate(t.BrickColor)
 	.transform((text) => {
 		if (!brickColorNames.has(text))
@@ -233,7 +234,7 @@ function isHexColor(value: unknown): value is Color3 {
 	return !value.match(HEX_COLOR_PATTERN).isEmpty();
 }
 
-const hexColorType = TypeBuilder.create<Color3>(CommanderType.HexColor)
+export const HexColorType = TypeBuilder.create<Color3>(CommanderType.HexColor)
 	.validate(isHexColor)
 	.transform((text) => {
 		if (text.match(HEX_COLOR_PATTERN).isEmpty())
@@ -241,7 +242,3 @@ const hexColorType = TypeBuilder.create<Color3>(CommanderType.HexColor)
 		return TransformResult.ok(Color3.fromHex(text));
 	})
 	.build();
-
-export = (registry: BaseRegistry) => {
-	registry.registerTypes(brickColorType, hexColorType);
-};

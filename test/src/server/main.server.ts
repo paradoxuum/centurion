@@ -21,5 +21,6 @@ CommanderServer.start((registry) => {
 
 	if (script.Parent === undefined) return;
 	const commandContainer = script.Parent.WaitForChild("commands");
-	registry.register(commandContainer);
+	registry.load(commandContainer);
+	registry.register();
 });
