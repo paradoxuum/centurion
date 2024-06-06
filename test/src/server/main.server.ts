@@ -2,7 +2,7 @@ import { CommanderServer } from "@rbxts/commander";
 
 // Start commander
 CommanderServer.start((registry) => {
-	registry.registerGroups(
+	registry.registerGroup(
 		{
 			name: "info",
 			description: "View info about a user or the server",

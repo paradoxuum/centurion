@@ -48,7 +48,7 @@ export class ClientRegistry extends BaseRegistry {
 				groups.push(group);
 			}
 
-			this.registerGroups(...groups);
+			this.registerGroup(...groups);
 			this.registerServerCommands(data.commands);
 
 			for (const [path] of data.commands) {

@@ -98,7 +98,7 @@ export abstract class BaseRegistry {
 				MetadataReflect.getOwnMetadata<boolean>(obj, MetadataKey.Type) &&
 				isArgumentType(obj)
 			) {
-				this.registerTypes(obj);
+				this.registerType(obj);
 			}
 		}
 	}
@@ -108,7 +108,7 @@ export abstract class BaseRegistry {
 	 *
 	 * @param types The types to register
 	 */
-	registerTypes(...types: ArgumentType<unknown>[]) {
+	registerType(...types: ArgumentType<unknown>[]) {
 		for (const options of types) {
 			this.types.set(options.name, options);
 		}
@@ -119,7 +119,7 @@ export abstract class BaseRegistry {
 	 *
 	 * @param guards The guards to register
 	 */
-	registerGuards(...guards: CommandGuard[]) {
+	registerGuard(...guards: CommandGuard[]) {
 		for (const guard of guards) {
 			this.guards.push(guard);
 		}
@@ -130,7 +130,7 @@ export abstract class BaseRegistry {
 	 *
 	 * @param groups The groups to register
 	 */
-	registerGroups(...groups: GroupOptions[]) {
+	registerGroup(...groups: GroupOptions[]) {
 		const commandGroups: CommandGroup[] = [];
 		for (const options of groups) {
 			commandGroups.push(
