@@ -77,7 +77,9 @@ export default defineConfig({
 			],
 			customCss: ["./src/custom.scss"],
 			plugins: [
-				starlightLinksValidator(),
+				starlightLinksValidator({
+					errorOnRelativeLinks: false,
+				}),
 				starlightUtils({
 					multiSidebar: {
 						switcherStyle: "horizontalList",

@@ -15,8 +15,9 @@ should be executed.
 Guards can be assigned in three ways:
 - At the class-level, which assigns the guard to all commands in the class.
   Guards assigned at the class-level will be executed before method-level guards.
-- At the method-level, which assigns the group to a single command.
-- Through registration, which assigns the guard to all registered commands.
+- At the method-level, which assigns the guard to a single command.
+- Through the `guards` option when starting Commander, which assigns the guard
+to all commands.
 
 A guard function is passed the same `CommandContext` that will be passed to the command.
 You can use this to access data such as the command path or executor, and you
