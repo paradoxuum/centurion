@@ -1,5 +1,5 @@
 <div align="center">
-  <a href="https://paradoxuum.github.io/commander/" target="_blank">
+  <a href="https://commander.paradoxum.dev/" target="_blank">
 	<img src="docs/src/assets/logo.webp" width="150" />
   </a>
 
@@ -10,7 +10,7 @@
   </p>
 
   <h4>
-    <a href="https://paradoxuum.github.io/commander/">Documentation</a>
+    <a href="https://commander.paradoxum.dev/">Documentation</a>
   </h4>
 </div>
 
