@@ -64,17 +64,18 @@ export abstract class BaseRegistry {
 	 * as an argument.
 	 *
 	 * @param container The container to iterate over
+	 * @param recursive Whether to iterate over all descendants, not just children
 	 */
-	load(container: Instance) {
-		for (const obj of container.GetChildren()) {
-			if (!obj.IsA("ModuleScript")) {
-				continue;
-			}
+	load(container: Instance, recursive = false) {
+		const instances = recursive
+			? container.GetDescendants()
+			: container.GetChildren();
+
+		for (const obj of instances) {
+			if (!obj.IsA("ModuleScript")) continue;
 
 			const value = this.import(obj);
-			if (typeIs(value, "function")) {
-				value(this);
-			}
+			if (typeIs(value, "function")) value(this);
 		}
 	}
 
