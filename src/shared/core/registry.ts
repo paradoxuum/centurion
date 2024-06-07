@@ -7,15 +7,11 @@ import {
 	CommandMetadata,
 	GroupOptions,
 } from "../types";
+import { importModule } from "../util/import";
 import { MetadataReflect } from "../util/reflect";
 import { BaseCommand, CommandGroup, ExecutableCommand } from "./command";
 import { MetadataKey } from "./decorators";
 import { ImmutableRegistryPath, RegistryPath } from "./path";
-
-// Used to import packages
-const tsImpl = (_G as Map<unknown, unknown>).get(script) as {
-	import: (...modules: LuaSourceContainer[]) => unknown;
-};
 
 const argTypeSchema = t.interface({
 	name: t.string,
@@ -77,7 +73,7 @@ export abstract class BaseRegistry {
 		for (const obj of instances) {
 			if (!obj.IsA("ModuleScript")) continue;
 
-			const value = this.import(obj);
+			const value = importModule(obj);
 			if (typeIs(value, "function")) value(this);
 		}
 	}
@@ -305,16 +301,6 @@ export abstract class BaseRegistry {
 			cache.push(pathSlice);
 			cache.sort((a, b) => a.tail() < b.tail());
 		}
-	}
-
-	private import(moduleScript: ModuleScript) {
-		const [success, value] = pcall(() => tsImpl.import(script, moduleScript));
-		if (!success) {
-			warn(`Failed to import ${moduleScript.GetFullName()}: ${value}`);
-			return;
-		}
-
-		return value;
 	}
 
 	protected registerCommand(command: BaseCommand, group?: CommandGroup) {
