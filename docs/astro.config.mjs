@@ -60,16 +60,9 @@ export default defineConfig({
 				{
 					label: "Reference",
 					collapsed: true,
-					items: [
-						{
-							label: "Registry",
-							link: "/reference/registry",
-						},
-						{
-							label: "Dispatcher",
-							link: "/reference/dispatcher",
-						},
-					],
+					autogenerate: {
+						directory: "/reference",
+					},
 				},
 				{
 					label: "leading",
@@ -77,7 +70,7 @@ export default defineConfig({
 						{ label: "Guides", link: "/guides" },
 						{
 							label: "Reference",
-							link: "/reference/registry",
+							link: "/reference/decorators",
 						},
 					],
 				},
