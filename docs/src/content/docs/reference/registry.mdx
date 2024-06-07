@@ -40,16 +40,9 @@ Registers one or more argument types.
 
 - `types` - The types to register.
 
-### `registerGuard(guards)`
-
-Registers one or more guards. These are global and will be used for all commands.
-
-**Parameters**:
-- `guards` - The guards to register.
-
 ### `registerGroup(groups)`
 
-Registers one or more groups.
+Takes one or more [GroupOptions](#groupoptions) objects and registers them.
 
 **Parameters**:
 - `groups` - The groups to register.
@@ -105,13 +98,6 @@ Returns all registered groups.
 
 **Returns**:
 An array of `CommandGroup` instances.
-
-### `getGuards()`
-
-Returns all registered guards.
-
-**Returns**:
-An array of guard callbacks.
 
 ### `getRootPaths()`
 
@@ -254,3 +240,17 @@ Checks if the path is empty.
 
 **Returns**:
 `true` if the path is empty, `false` if not.
+
+## `GroupOptions`
+
+- name: `string`;
+
+The name of the group.
+
+- description?: `string`;
+
+The group's description.
+
+- (**optional**) parent: `string[]`;
+
+An array of parent groups.
