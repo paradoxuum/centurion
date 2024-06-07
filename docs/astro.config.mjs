@@ -6,8 +6,7 @@ import starlightLinksValidator from "starlight-links-validator";
 
 // https://astro.build/config
 export default defineConfig({
-	site: "https://paradoxuum.github.io",
-	base: "/commander",
+	site: "https://commander.paradoxum.dev",
 	integrations: [
 		starlight({
 			title: "Commander",
