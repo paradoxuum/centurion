@@ -60,6 +60,9 @@ export abstract class BaseRegistry {
 	/**
 	 * Requires all {@link ModuleScript}s in the given {@link Instance}.
 	 *
+	 * If the `recursive` parameter is set to `true`, all descendant {@link ModuleScript}s
+	 * will be loaded.
+	 *
 	 * If the {@link ModuleScript} returns a function, it will be called with the registry
 	 * as an argument.
 	 *
