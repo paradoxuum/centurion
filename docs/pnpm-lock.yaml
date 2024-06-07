@@ -12,23 +12,23 @@ importers:
         specifier: ^0.7.0
         version: 0.7.0(typescript@5.4.5)
       '@astrojs/starlight':
-        specifier: ^0.23.2
-        version: 0.23.2(astro@4.9.2(sass@1.77.4)(typescript@5.4.5))
+        specifier: ^0.23.4
+        version: 0.23.4(astro@4.10.0(sass@1.77.4)(typescript@5.4.5))
       '@fontsource-variable/jetbrains-mono':
         specifier: ^5.0.21
         version: 5.0.21
       '@lorenzo_lewis/starlight-utils':
-        specifier: ^0.1.0
-        version: 0.1.0(@astrojs/starlight@0.23.2(astro@4.9.2(sass@1.77.4)(typescript@5.4.5)))(astro@4.9.2(sass@1.77.4)(typescript@5.4.5))
+        specifier: ^0.1.1
+        version: 0.1.1(@astrojs/starlight@0.23.4(astro@4.10.0(sass@1.77.4)(typescript@5.4.5)))(astro@4.10.0(sass@1.77.4)(typescript@5.4.5))
       astro:
-        specifier: ^4.8.6
-        version: 4.9.2(sass@1.77.4)(typescript@5.4.5)
+        specifier: ^4.10.0
+        version: 4.10.0(sass@1.77.4)(typescript@5.4.5)
       sharp:
         specifier: ^0.32.5
         version: 0.32.6
       starlight-links-validator:
         specifier: ^0.9.0
-        version: 0.9.0(@astrojs/starlight@0.23.2(astro@4.9.2(sass@1.77.4)(typescript@5.4.5)))(astro@4.9.2(sass@1.77.4)(typescript@5.4.5))
+        version: 0.9.0(@astrojs/starlight@0.23.4(astro@4.10.0(sass@1.77.4)(typescript@5.4.5)))(astro@4.10.0(sass@1.77.4)(typescript@5.4.5))
       typescript:
         specifier: ^5.4.5
         version: 5.4.5
@@ -83,8 +83,8 @@ packages:
   '@astrojs/sitemap@3.1.5':
     resolution: {integrity: sha512-GLdzJ01387Uzb8RKYpsYLlg/GzoPnGbmDeQNkarSE11i2+l9Qp8Nj/WoTEy9nkTS25fxxy0kxDfJmreeVleCqg==}
 
-  '@astrojs/starlight@0.23.2':
-    resolution: {integrity: sha512-j8odYR744qCilip9s0UXNzDQ66uu1klD24zRI5Aqzxoj01eVnAsEgDPC8rU/gDTvydKWhF5diBRC1QVDN5JIYw==}
+  '@astrojs/starlight@0.23.4':
+    resolution: {integrity: sha512-EHsjFfnvv+m2bHGJCwFoCLrbW1kfCPnHaPIbqCTMW+NWU8xO/bwtz6MgK6ant5wqjf0DqUkwHY6Esn72kmc9jQ==}
     peerDependencies:
       astro: ^4.8.6
 
@@ -652,8 +652,8 @@ packages:
   '@jridgewell/trace-mapping@0.3.25':
     resolution: {integrity: sha512-vNk6aEwybGtawWmy/PzwnGDOjCkLWSD2wqvjGGAgOAwCGWySYXfYoxt00IJkTF+8Lb57DwOb3Aa0o9CApepiYQ==}
 
-  '@lorenzo_lewis/starlight-utils@0.1.0':
-    resolution: {integrity: sha512-JuyM9PXREPoGSwL3YwNiqUkU4P7raN9QiABe154mdoTl8pcjSczcETTqW0fUv8Ei5CZu7sV0GJGS6iZO5k+b8w==}
+  '@lorenzo_lewis/starlight-utils@0.1.1':
+    resolution: {integrity: sha512-WBbZ9tnLxRsiiNVBzyNrANbl098/wMt7gVT09XCJtHZiiOlYQFBBYywgk/vAwzgicUe3vb27MBFc6jDOqvmu5w==}
     peerDependencies:
       '@astrojs/starlight': '>=0.16.0'
       astro: '>=4.0.0'
@@ -950,8 +950,8 @@ packages:
       '@astrojs/db':
         optional: true
 
-  astro@4.9.2:
-    resolution: {integrity: sha512-apzpRoISk6L8g99m3zKIW5SYxw2GhOju/1Gq0Ccf3SH+X2UcFXF+MTdxPOFl5yJUQg7X0qsVQDOIVf8zHRRKFg==}
+  astro@4.10.0:
+    resolution: {integrity: sha512-UNVGGZIwdEPIUumcwgIQnd90b4/PslReY9q3xy/Q6bIq/kvK0duIWCbhFPwf06xu+1tExziP9Jl+klvLXM0LfA==}
     engines: {node: ^18.17.1 || ^20.3.0 || >=21.0.0, npm: '>=9.6.5', pnpm: '>=7.1.0'}
     hasBin: true
 
@@ -2673,12 +2673,12 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@astrojs/mdx@3.0.1(astro@4.9.2(sass@1.77.4)(typescript@5.4.5))':
+  '@astrojs/mdx@3.0.1(astro@4.10.0(sass@1.77.4)(typescript@5.4.5))':
     dependencies:
       '@astrojs/markdown-remark': 5.1.0
       '@mdx-js/mdx': 3.0.1
       acorn: 8.11.3
-      astro: 4.9.2(sass@1.77.4)(typescript@5.4.5)
+      astro: 4.10.0(sass@1.77.4)(typescript@5.4.5)
       es-module-lexer: 1.5.3
       estree-util-visit: 2.0.0
       github-slugger: 2.0.0
@@ -2704,15 +2704,15 @@ snapshots:
       stream-replace-string: 2.0.0
       zod: 3.23.8
 
-  '@astrojs/starlight@0.23.2(astro@4.9.2(sass@1.77.4)(typescript@5.4.5))':
+  '@astrojs/starlight@0.23.4(astro@4.10.0(sass@1.77.4)(typescript@5.4.5))':
     dependencies:
-      '@astrojs/mdx': 3.0.1(astro@4.9.2(sass@1.77.4)(typescript@5.4.5))
+      '@astrojs/mdx': 3.0.1(astro@4.10.0(sass@1.77.4)(typescript@5.4.5))
       '@astrojs/sitemap': 3.1.5
       '@pagefind/default-ui': 1.1.0
       '@types/hast': 3.0.4
       '@types/mdast': 4.0.4
-      astro: 4.9.2(sass@1.77.4)(typescript@5.4.5)
-      astro-expressive-code: 0.35.3(astro@4.9.2(sass@1.77.4)(typescript@5.4.5))
+      astro: 4.10.0(sass@1.77.4)(typescript@5.4.5)
+      astro-expressive-code: 0.35.3(astro@4.10.0(sass@1.77.4)(typescript@5.4.5))
       bcp-47: 2.1.0
       hast-util-from-html: 2.0.1
       hast-util-select: 6.0.2
@@ -3179,11 +3179,11 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.4.15
 
-  '@lorenzo_lewis/starlight-utils@0.1.0(@astrojs/starlight@0.23.2(astro@4.9.2(sass@1.77.4)(typescript@5.4.5)))(astro@4.9.2(sass@1.77.4)(typescript@5.4.5))':
+  '@lorenzo_lewis/starlight-utils@0.1.1(@astrojs/starlight@0.23.4(astro@4.10.0(sass@1.77.4)(typescript@5.4.5)))(astro@4.10.0(sass@1.77.4)(typescript@5.4.5))':
     dependencies:
-      '@astrojs/starlight': 0.23.2(astro@4.9.2(sass@1.77.4)(typescript@5.4.5))
-      astro: 4.9.2(sass@1.77.4)(typescript@5.4.5)
-      astro-integration-kit: 0.13.3(astro@4.9.2(sass@1.77.4)(typescript@5.4.5))
+      '@astrojs/starlight': 0.23.4(astro@4.10.0(sass@1.77.4)(typescript@5.4.5))
+      astro: 4.10.0(sass@1.77.4)(typescript@5.4.5)
+      astro-integration-kit: 0.13.3(astro@4.10.0(sass@1.77.4)(typescript@5.4.5))
     transitivePeerDependencies:
       - '@astrojs/db'
 
@@ -3472,18 +3472,18 @@ snapshots:
 
   astring@1.8.6: {}
 
-  astro-expressive-code@0.35.3(astro@4.9.2(sass@1.77.4)(typescript@5.4.5)):
+  astro-expressive-code@0.35.3(astro@4.10.0(sass@1.77.4)(typescript@5.4.5)):
     dependencies:
-      astro: 4.9.2(sass@1.77.4)(typescript@5.4.5)
+      astro: 4.10.0(sass@1.77.4)(typescript@5.4.5)
       rehype-expressive-code: 0.35.3
 
-  astro-integration-kit@0.13.3(astro@4.9.2(sass@1.77.4)(typescript@5.4.5)):
+  astro-integration-kit@0.13.3(astro@4.10.0(sass@1.77.4)(typescript@5.4.5)):
     dependencies:
-      astro: 4.9.2(sass@1.77.4)(typescript@5.4.5)
+      astro: 4.10.0(sass@1.77.4)(typescript@5.4.5)
       pathe: 1.1.2
       recast: 0.23.9
 
-  astro@4.9.2(sass@1.77.4)(typescript@5.4.5):
+  astro@4.10.0(sass@1.77.4)(typescript@5.4.5):
     dependencies:
       '@astrojs/compiler': 2.8.0
       '@astrojs/internal-helpers': 0.4.0
@@ -5338,10 +5338,10 @@ snapshots:
 
   sprintf-js@1.0.3: {}
 
-  starlight-links-validator@0.9.0(@astrojs/starlight@0.23.2(astro@4.9.2(sass@1.77.4)(typescript@5.4.5)))(astro@4.9.2(sass@1.77.4)(typescript@5.4.5)):
+  starlight-links-validator@0.9.0(@astrojs/starlight@0.23.4(astro@4.10.0(sass@1.77.4)(typescript@5.4.5)))(astro@4.10.0(sass@1.77.4)(typescript@5.4.5)):
     dependencies:
-      '@astrojs/starlight': 0.23.2(astro@4.9.2(sass@1.77.4)(typescript@5.4.5))
-      astro: 4.9.2(sass@1.77.4)(typescript@5.4.5)
+      '@astrojs/starlight': 0.23.4(astro@4.10.0(sass@1.77.4)(typescript@5.4.5))
+      astro: 4.10.0(sass@1.77.4)(typescript@5.4.5)
       github-slugger: 2.0.0
       hast-util-from-html: 2.0.1
       hast-util-has-property: 3.0.0
