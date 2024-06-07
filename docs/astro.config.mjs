@@ -5,8 +5,7 @@ import tailwind from "@astrojs/tailwind";
 
 // https://astro.build/config
 export default defineConfig({
-	site: "https://paradoxuum.github.io",
-	base: "/commander",
+	site: "https://commander.paradoxum.dev",
 	integrations: [
 		starlight({
 			title: "Commander",
