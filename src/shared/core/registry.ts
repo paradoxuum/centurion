@@ -29,7 +29,6 @@ export abstract class BaseRegistry {
 	protected static readonly ROOT_KEY = "__root__";
 	protected readonly commands = new Map<string, BaseCommand>();
 	protected readonly groups = new Map<string, CommandGroup>();
-	protected readonly guards: CommandGuard[] = [];
 	protected readonly types = new Map<string, ArgumentType<unknown>>();
 	protected readonly registeredObjects = new Set<object>();
 
@@ -37,8 +36,10 @@ export abstract class BaseRegistry {
 	readonly groupRegistered = new Signal<[group: CommandGroup]>();
 
 	protected cachedPaths = new Map<string, RegistryPath[]>();
+	protected globalGuards = new Array<CommandGuard>();
 
 	init(options: SharedOptions) {
+		this.globalGuards = options.guards ?? [];
 		if (options.registerBuiltInTypes) {
 			const builtInTypes =
 				script.Parent?.Parent?.FindFirstChild("builtin")?.FindFirstChild(
@@ -111,17 +112,6 @@ export abstract class BaseRegistry {
 	registerType(...types: ArgumentType<unknown>[]) {
 		for (const options of types) {
 			this.types.set(options.name, options);
-		}
-	}
-
-	/**
-	 * Register a list of guards. These will be used on all commands.
-	 *
-	 * @param guards The guards to register
-	 */
-	registerGuard(...guards: CommandGuard[]) {
-		for (const guard of guards) {
-			this.guards.push(guard);
 		}
 	}
 
@@ -261,15 +251,6 @@ export abstract class BaseRegistry {
 	}
 
 	/**
-	 * Gets all registered guards.
-	 *
-	 * @returns An array of all registered guards
-	 */
-	getGuards() {
-		return [...this.guards];
-	}
-
-	/**
 	 * Gets the root paths of all registered commands and groups.
 	 *
 	 * @returns An array of all root paths
@@ -347,11 +328,12 @@ export abstract class BaseRegistry {
 				property,
 			);
 
-			const guards = MetadataReflect.getOwnMetadata<CommandGuard[]>(
-				commandClass,
-				MetadataKey.Guard,
-				property,
-			);
+			const guards =
+				MetadataReflect.getOwnMetadata<CommandGuard[]>(
+					commandClass,
+					MetadataKey.Guard,
+					property,
+				) ?? [];
 
 			const name = metadata.options.name;
 
@@ -383,7 +365,7 @@ export abstract class BaseRegistry {
 				(commandGroup?.getPath() ?? ImmutableRegistryPath.empty()).append(name),
 				metadata.options,
 				(...args) => metadata.func(commandClass, ...args),
-				guards !== undefined ? [...classGuards, ...guards] : classGuards,
+				[...this.globalGuards, ...classGuards, ...guards],
 			);
 			this.registerCommand(command, commandGroup);
 		}

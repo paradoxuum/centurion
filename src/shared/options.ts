@@ -1,5 +1,8 @@
+import { CommandGuard } from "./types";
+
 export interface SharedOptions {
 	registerBuiltInTypes: boolean;
+	guards?: CommandGuard[];
 	defaultContextState?: defined;
 }
 
