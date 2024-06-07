@@ -1,0 +1,30 @@
+---
+title: Guards
+description: Learn how to register guards.
+sidebar:
+    order: 3
+---
+
+import { Code } from '@astrojs/starlight/components';
+
+Guards are registered through the
+[BaseRegistry.registerGuard](/reference/registry#registerguardguards) method.
+
+Unlike commands, types and groups, you don't have to register guards. Registering
+a guard is simply a way to assign the guard to all commands. If you want to assign
+a guard to specific commands, you should use the `@Guard` decorator.
+
+Guards are not synchronized to the client - if you register a guard on the server,
+it will only be assigned to the server commands.
+
+<Code lang="ts" code={`
+const logGuard: CommandGuard = (ctx) => {
+	const name = ctx.executor?.Name ?? "Unknown";
+	print(\`\${name}: \${ctx.text}\`);
+	return true;
+};
+
+CommanderServer.start((registry) => {
+    registry.registerGuard(logGuard);
+}).catch((err) => warn("Commander could not be started:", tostring(err)));
+`} />

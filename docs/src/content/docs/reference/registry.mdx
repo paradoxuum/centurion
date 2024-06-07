@@ -16,53 +16,49 @@ This method is called when starting Commander.
 **Parameters**
 - `options` - The options object provided when starting Commander.
 
-### `register(container)`
+### `load(container)`
 
 Loads all child `ModuleScript` instances in the given instance.
 
 If the `ModuleScript` returns a function, it will be called with the
 registry as an argument.
 
-If the `ModuleScript` contains command(s), they will be registered. Classes containing
-commands must be annotated with the `@Commander` decorator to be loaded.
-
 **Parameters**:
 - `container` - The container to iterate over.
 
-### `registerCommands()`
+### `register()`
 
-Registers any currently unregistered commands.
+Registers any loaded commands and types that need to be registered.
 
-The typical use-case for this is to register commands that were loaded through
-another means than the `register` method, such as through `Flamework.addPaths`.
+If the command/type has already been registered, it will be skipped.
 
-### `registerType(argumentTypes)`
+### `registerType(types)`
 
 Registers one or more argument types.
 
 **Parameters**:
 
-- `argumentTypes` - The types to register.
+- `types` - The types to register.
 
-### registerGuard(guards)
+### `registerGuard(guards)`
 
 Registers one or more guards. These are global and will be used for all commands.
 
 **Parameters**:
 - `guards` - The guards to register.
 
-### `registerGroups(groups)`
+### `registerGroup(groups)`
 
 Registers one or more groups.
 
-**Parameters*::
+**Parameters**:
 - `groups` - The groups to register.
 
 ### `getType(name)`
 
 Returns a registered argument type with the given name.
 
-**Parameters*:
+**Parameters**:
 - `name` - The name of the type.
 
 **Returns**:
@@ -97,7 +93,7 @@ An array of `BaseCommand` instances.
 
 Returns a registered group with the given path.
 
-**Parameters*:
+**Parameters**:
 - `path` - The group's path.
 
 **Returns**:
@@ -209,7 +205,7 @@ A `RegistryPath` instance.
 
 Returns a new path from a slice of the current path.
 
-**Parameters*::
+**Parameters**:
 - `start` - The start index.
 - `end` - The end index.
 
@@ -245,7 +241,7 @@ Appends one or more parts to the path.
 
 Removes the part at the given index.
 
-**Parameters*:
+**Parameters**:
 - `index` - The index of the part to remove.
 
 ### `clear()`

@@ -1,0 +1,34 @@
+---
+title: Groups
+description: Learn how to register groups.
+sidebar:
+    order: 2
+---
+
+import { Code } from '@astrojs/starlight/components';
+
+Groups must be registered through the
+[BaseRegistry.registerGroup](/reference/registry#registergroupgroups) method.
+
+Similar to commands, groups are synchronized to the client.
+
+<Code lang="ts" code={`
+CommanderServer.start((registry) => {
+	registry.registerGroup(
+		{
+			name: "info",
+			description: "View info about a user or the server",
+		},
+		{
+			name: "user",
+			description: "View info about a user",
+			parent: ["info"],
+		},
+		{
+			name: "server",
+			description: "View info about the server",
+			parent: ["info"],
+		},
+	);
+}).catch((err) => warn("Commander could not be started:", tostring(err)));
+`} />

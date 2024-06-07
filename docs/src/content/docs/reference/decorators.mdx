@@ -1,0 +1,87 @@
+---
+title: Decorators
+---
+
+## `@Commander`
+
+Specifies that a class should be registered.
+
+### Usage
+
+<Code lang="ts" code={`
+@Commander
+export class MyCommand {
+    // ...
+}
+`} />
+
+## `@Command(options)`
+
+Defines a command.
+
+### Usage
+
+<Code lang="ts" code={`
+@Commander
+class ExampleCommand {
+    @Command({
+        name: "example",
+        description: "An example command",
+    })
+    example() {
+        // ...
+    }
+}
+`} />
+
+## `@Group(groups)`
+
+Assigns a command to a group.
+
+### Usage
+
+<Code lang="ts" code={`
+@Command({
+    name: "view",
+    description: "Displays info about a player",
+})
+@Group("info", "player")
+// Command is executable through "info player view"
+viewPlayer() {}
+
+@Command({
+    name: "view",
+    description: "Displays info about the server",
+})
+@Group("info", "server")
+// Command is executable through "info server view"
+viewServer() {}
+`} />
+
+## `@Guard(guards)`
+
+Assigns a guard to a command.
+
+### Usage
+
+<Code lang="ts" code={`
+@Command({
+    name: "ban",
+    description: "Bans a player",
+})
+@Guard(isAdmin)
+ban() {}
+`} />
+
+## `CommandOptions`
+
+- name: string;
+- aliases?: string[];
+- description?: string;
+- arguments?: ArgumentOptions[];
+
+## `ArgumentOptions`
+
+- name: string;
+- type: string;
+- optional?: boolean;
