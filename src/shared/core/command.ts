@@ -79,7 +79,7 @@ export class ExecutableCommand extends BaseCommand {
 		path: ImmutableRegistryPath,
 		options: CommandOptions,
 		callback: (...args: unknown[]) => unknown,
-		guards: CommandGuard[],
+		guards: CommandGuard[]
 	) {
 		super(registry, path, options);
 		this.callback = callback;

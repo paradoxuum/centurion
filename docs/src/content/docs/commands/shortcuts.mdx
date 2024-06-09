@@ -1,0 +1,46 @@
+---
+title: Shortcuts
+description: Learn how to use shortcuts to execute commands.
+---
+
+import { Aside, Code } from '@astrojs/starlight/components';
+
+## Enabling Shortcuts
+
+Shortcuts can be enabled by adding `shortcutsEnabled: true` to your `CommanderInterface` properties.
+
+<Code lang="ts" code={`
+CommanderInterface.create({
+    shortcutsEnabled: true
+})`
+}
+/>
+
+## Using Shortcuts
+
+<Aside>
+Commands executed by keybinds do not have parameters.
+</Aside>
+
+A shortcut is simply a way to execute commands.
+
+A shortcut can have both single and multiple keys assigned to it.
+
+
+<Code lang="ts" code={`
+@Commander
+export class SayHiCommand {
+    @Command({
+        name: "sayhi",
+        description: "Say hi!",
+        shortcuts: [Enum.Keycode.H, [Enum.KeyCode.LeftAlt, Enum.KeyCode.J]]
+    })
+    run(ctx: CommandContext) {
+        print('Hi 🙂!')
+    }
+}
+`} />
+
+This example code runs when the user presses H *or* presses the LeftAlt modifier & J.
+
+It's important to remember that `@Guard()` decorators still work correctly with shortcuts.

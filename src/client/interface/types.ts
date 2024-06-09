@@ -15,6 +15,7 @@ export interface InterfaceOptions {
 		bold: Font;
 	};
 	palette: InterfacePalette;
+	shortcutsEnabled?: boolean;
 }
 
 export interface HistoryLineData {
@@ -26,6 +27,7 @@ export interface CommandSuggestion {
 	type: "command";
 	title: string;
 	description?: string;
+	keys?: Array<Enum.KeyCode | Enum.KeyCode[]>
 }
 
 export interface ArgumentSuggestion {

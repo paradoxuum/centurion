@@ -8,6 +8,7 @@ import { DEFAULT_INTERFACE_OPTIONS } from "../constants/options";
 import { RootProvider } from "../providers/root-provider";
 import { InterfaceOptions } from "../types";
 import { TerminalApp } from "./terminal-app";
+import { Shortcuts } from "../components/shortcut";
 
 export namespace CommanderInterface {
 	const MAX_PRELOAD_ATTEMPTS = 3;
@@ -51,6 +52,7 @@ export namespace CommanderInterface {
 							optionsChanged={optionsChanged}
 						>
 							<TerminalApp />
+							{options.shortcutsEnabled ? <Shortcuts /> : <></>}
 						</RootProvider>
 					</StrictMode>,
 					target,

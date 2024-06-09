@@ -4,6 +4,7 @@ import {
 	Commander,
 	CommanderType,
 } from "@rbxts/commander";
+import { Players } from "@rbxts/services";
 
 @Commander
 class KillCommand {
@@ -15,10 +16,14 @@ class KillCommand {
 				name: "players",
 				description: "Players to kill",
 				type: CommanderType.Players,
+				optional: true
 			},
 		],
+		shortcuts: [[Enum.KeyCode.F4]]
 	})
-	kill(ctx: CommandContext, players: Player[]) {
+	kill(ctx: CommandContext, players?: Player[]) {
+		players = players ?? Players.GetPlayers();
+
 		for (const player of players) {
 			this.killPlayer(player);
 		}
