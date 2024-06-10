@@ -16,6 +16,8 @@ interface BadgeProps {
 	visible?: BindingOrValue<boolean>;
 
 	onTextBoundsChange?: (textBounds: Vector2) => void;
+
+	children?: JSX.Element;
 }
 
 export function Badge({
@@ -28,6 +30,7 @@ export function Badge({
 	textSize,
 	visible,
 	onTextBoundsChange,
+	children
 }: BadgeProps) {
 	const options = useContext(OptionsContext);
 	const px = usePx();
@@ -52,6 +55,7 @@ export function Badge({
 					TextBounds: (rbx) => onTextBoundsChange?.(rbx.TextBounds),
 				}}
 			/>
+			{children}
 		</Frame>
 	);
 }

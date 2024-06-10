@@ -136,7 +136,7 @@ export function getCommandSuggestion(
 			type: "command",
 			title: mainData.name,
 			description: mainData.description,
-			// keys: (mainData as CommandOptions).shortcuts
+			shortcuts: (mainData as CommandOptions).shortcuts
 		},
 		others: otherNames,
 	};

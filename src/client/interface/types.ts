@@ -27,7 +27,7 @@ export interface CommandSuggestion {
 	type: "command";
 	title: string;
 	description?: string;
-	keys?: Array<Enum.KeyCode | Enum.KeyCode[]>;
+	shortcuts?: Array<Enum.KeyCode | Enum.KeyCode[]>;
 }
 
 export interface ArgumentSuggestion {

@@ -7,14 +7,22 @@ import {
 } from "../../../constants/text";
 import { useMotion } from "../../../hooks/use-motion";
 import { usePx } from "../../../hooks/use-px";
-import { OptionsContext } from "../../../providers/options-provider";
-import { ArgumentSuggestion, Suggestion } from "../../../types";
+import {
+	InterfaceOptionsWithState,
+	OptionsContext,
+} from "../../../providers/options-provider";
+import {
+	ArgumentSuggestion,
+	CommandSuggestion,
+	Suggestion,
+} from "../../../types";
 import { Frame } from "../../interface/frame";
 import { Padding } from "../../interface/padding";
 import { Text } from "../../interface/text";
 import { Badge } from "./badge";
 import { SuggestionTextBounds } from "./types";
 import { highlightMatching } from "./util";
+import { ShortcutGroup } from "../../interface/shortcut-group";
 
 export interface MainSuggestionProps {
 	suggestion?: Suggestion;
@@ -22,6 +30,20 @@ export interface MainSuggestionProps {
 	currentText?: string;
 	size: BindingOrValue<UDim2>;
 	sizes: Binding<SuggestionTextBounds>;
+}
+
+function showKeybindsGui(props: {
+	options: InterfaceOptionsWithState;
+	suggestion: Suggestion | undefined;
+}) {
+	if (
+		props.suggestion &&
+		props.suggestion.main.type === "command" &&
+		(props.suggestion.main as CommandSuggestion).shortcuts !== undefined &&
+		props.options.shortcutsEnabled
+	) {
+		return true;
+	}
 }
 
 export function MainSuggestion({
@@ -80,6 +102,18 @@ export function MainSuggestion({
 					})
 				}
 			/>
+
+			{showKeybindsGui({ options: options, suggestion: suggestion }) ? (
+				<ShortcutGroup
+					shortcuts={
+						suggestion?.main.type === "command"
+							? (suggestion?.main as CommandSuggestion).shortcuts
+							: []
+					}
+				/>
+			) : (
+				<></>
+			)}
 
 			<Text
 				size={sizes.map((val) => val.title)}
