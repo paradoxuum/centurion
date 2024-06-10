@@ -4,11 +4,11 @@ import { Signal } from "@rbxts/beacon";
 import React, { StrictMode } from "@rbxts/react";
 import { createPortal, createRoot } from "@rbxts/react-roblox";
 import { ContentProvider, Players } from "@rbxts/services";
+import { Shortcuts } from "../components/shortcut";
 import { DEFAULT_INTERFACE_OPTIONS } from "../constants/options";
 import { RootProvider } from "../providers/root-provider";
 import { InterfaceOptions } from "../types";
 import { TerminalApp } from "./terminal-app";
-import { Shortcuts } from "../components/shortcut";
 
 export namespace CommanderInterface {
 	const MAX_PRELOAD_ATTEMPTS = 3;

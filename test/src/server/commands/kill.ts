@@ -16,19 +16,19 @@ class KillCommand {
 				name: "players",
 				description: "Players to kill",
 				type: CommanderType.Players,
-				optional: true
+				optional: true,
 			},
 		],
-		shortcuts: [[Enum.KeyCode.F4]]
+		shortcuts: [[Enum.KeyCode.F4]],
 	})
 	kill(ctx: CommandContext, players?: Player[]) {
-		players = players ?? Players.GetPlayers();
+		const playersArray = players ?? Players.GetPlayers();
 
-		for (const player of players) {
+		for (const player of playersArray) {
 			this.killPlayer(player);
 		}
 
-		ctx.reply(`Successfully killed ${players.size()} player(s)`);
+		ctx.reply(`Successfully killed ${playersArray.size()} player(s)`);
 	}
 
 	private killPlayer(player: Player) {

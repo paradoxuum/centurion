@@ -20,7 +20,7 @@ export interface ArgumentOptions {
 	suggestions?: string[];
 }
 
-export type Shortcut = Array<Enum.KeyCode | Enum.KeyCode[]>
+export type Shortcut = Array<Enum.KeyCode | Enum.KeyCode[]>;
 
 export interface CommandOptions {
 	name: string;

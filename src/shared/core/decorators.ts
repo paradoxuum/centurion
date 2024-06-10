@@ -7,7 +7,7 @@ export enum MetadataKey {
 	Command = "command",
 	Group = "group",
 	Guard = "guard",
-	Shortcut = "shortcut"
+	Shortcut = "shortcut",
 }
 
 export function Commander(target: new () => object) {

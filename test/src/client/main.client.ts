@@ -9,7 +9,7 @@ CommanderClient.start(
 	},
 	{
 		interface: CommanderInterface.create({
-			shortcutsEnabled: true
+			shortcutsEnabled: true,
 		}),
 	},
 )
