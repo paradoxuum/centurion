@@ -1,9 +1,9 @@
 import React, { useMemo } from "@rbxts/react";
 import { UserInputService } from "@rbxts/services";
-import { Shortcut } from "../../../shared";
-import { BaseCommand } from "../../../shared/core/command";
-import { CommanderClient } from "../../core";
-import { useStore } from "../hooks/use-store";
+import { Shortcut } from "../shared";
+import { BaseCommand } from "../shared/core/command";
+import { CommanderClient } from "./core";
+import { store } from "./interface/store";
 
 let connections: RBXScriptConnection[] = [];
 
@@ -20,8 +20,6 @@ function disconnectConnections() {
  */
 function registerCommandShortcuts(shortcuts: Shortcut, command: BaseCommand) {
 	const dispatcher = CommanderClient.dispatcher();
-
-	const store = useStore();
 
 	// Loop over each array
 	shortcuts.forEach((shortcut, index) => {
@@ -69,11 +67,11 @@ function registerCommandShortcuts(shortcuts: Shortcut, command: BaseCommand) {
 	});
 }
 
-export function Shortcuts() {
+export function shortcuts() {
 	// Prevent react renders from causing multiple command executions.
 	if (connections.size() !== 0) return;
 
-	const registry = useMemo(() => CommanderClient.registry(), []);
+	const registry = CommanderClient.registry();
 
 	// Update connections when new commands are registered.
 	registry.commandRegistered.Connect((command) => {
@@ -91,6 +89,4 @@ export function Shortcuts() {
 			registerCommandShortcuts(command.options.shortcuts as Shortcut, command);
 		}
 	}
-
-	return <></>;
 }

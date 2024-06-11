@@ -4,11 +4,12 @@ import { Signal } from "@rbxts/beacon";
 import React, { StrictMode } from "@rbxts/react";
 import { createPortal, createRoot } from "@rbxts/react-roblox";
 import { ContentProvider, Players } from "@rbxts/services";
-import { Shortcuts } from "../components/shortcut";
+import { shortcuts } from "../../shortcut";
 import { DEFAULT_INTERFACE_OPTIONS } from "../constants/options";
 import { RootProvider } from "../providers/root-provider";
 import { InterfaceOptions } from "../types";
 import { TerminalApp } from "./terminal-app";
+import { CommanderClient } from "../../core";
 
 export namespace CommanderInterface {
 	const MAX_PRELOAD_ATTEMPTS = 3;
@@ -44,6 +45,10 @@ export namespace CommanderInterface {
 				}
 			});
 
+			if (CommanderClient.options().shortcutsEnabled) {
+				shortcuts();
+			}
+
 			root.render(
 				createPortal(
 					<StrictMode>
@@ -52,7 +57,6 @@ export namespace CommanderInterface {
 							optionsChanged={optionsChanged}
 						>
 							<TerminalApp />
-							{options.shortcutsEnabled ? <Shortcuts /> : <></>}
 						</RootProvider>
 					</StrictMode>,
 					target,
