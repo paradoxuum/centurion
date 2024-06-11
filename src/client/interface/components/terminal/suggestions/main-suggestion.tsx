@@ -18,11 +18,11 @@ import {
 } from "../../../types";
 import { Frame } from "../../interface/frame";
 import { Padding } from "../../interface/padding";
+import { ShortcutGroup } from "../../interface/shortcut-group";
 import { Text } from "../../interface/text";
 import { Badge } from "./badge";
 import { SuggestionTextBounds } from "./types";
 import { highlightMatching } from "./util";
-import { ShortcutGroup } from "../../interface/shortcut-group";
 
 export interface MainSuggestionProps {
 	suggestion?: Suggestion;

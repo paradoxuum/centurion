@@ -1,14 +1,14 @@
+import React, { useContext, useState } from "@rbxts/react";
 import { Shortcut } from "../../../../shared";
+import { usePx } from "../../hooks/use-px";
 import {
 	InterfaceOptionsWithState,
 	OptionsContext,
 } from "../../providers/options-provider";
-import { Frame } from "./frame";
-import React, { useContext, useState } from "@rbxts/react";
-import { Text } from "./text";
-import { usePx } from "../../hooks/use-px";
-import { Padding } from "./padding";
 import { Badge } from "../terminal/suggestions/badge";
+import { Frame } from "./frame";
+import { Padding } from "./padding";
+import { Text } from "./text";
 
 function isModifierKey(key: Enum.KeyCode) {
 	switch (key) {
@@ -20,7 +20,7 @@ function isModifierKey(key: Enum.KeyCode) {
 			return true;
 		case Enum.KeyCode.RightControl:
 			return true;
-			case Enum.KeyCode.LeftShift:
+		case Enum.KeyCode.LeftShift:
 			return true;
 		case Enum.KeyCode.RightShift:
 			return true;
@@ -61,7 +61,7 @@ function Key(props: KeyProps) {
 	const options = props.options;
 	const isModifier = isModifierKey(props.keyCode);
 
-	const [size, setSize] = useState(new UDim2(0,24,0,24))
+	const [size, setSize] = useState(new UDim2(0, 24, 0, 24));
 
 	return (
 		<frame
@@ -79,12 +79,15 @@ function Key(props: KeyProps) {
 				textColor={isModifier ? options.palette.surface : options.palette.text}
 				textSize={16}
 				size={size}
-
 				onTextBoundsChange={(textBounds) => {
-					setSize(new UDim2(0, math.max(24, textBounds.X + 6), 0, 24))
+					setSize(new UDim2(0, math.max(24, textBounds.X + 6), 0, 24));
 				}}
 			>
-				{isModifier ? <uistroke Color={options.palette.highlight} Thickness={2}/> : <></>}
+				{isModifier ? (
+					<uistroke Color={options.palette.highlight} Thickness={2} />
+				) : (
+					<></>
+				)}
 			</Badge>
 		</frame>
 	);

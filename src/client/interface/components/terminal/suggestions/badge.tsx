@@ -30,7 +30,7 @@ export function Badge({
 	textSize,
 	visible,
 	onTextBoundsChange,
-	children
+	children,
 }: BadgeProps) {
 	const options = useContext(OptionsContext);
 	const px = usePx();
