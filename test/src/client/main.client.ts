@@ -11,8 +11,8 @@ CommanderClient.start(
 		shortcutsEnabled: true,
 		interface: CommanderInterface.create({
 			shortcuts: {
-				showInSuggestions: true
-			}
+				showInSuggestions: true,
+			},
 		}),
 	},
 )

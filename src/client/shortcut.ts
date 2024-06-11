@@ -31,7 +31,10 @@ function registerCommandShortcuts(
 
 	// Loop over each array
 	shortcuts.forEach((shortcut, index) => {
-		if (typeIs(shortcut, "table") && (shortcut as ShortcutContext).actionName === undefined) {
+		if (
+			typeIs(shortcut, "table") &&
+			(shortcut as ShortcutContext).actionName === undefined
+		) {
 			// The shortcut is multiple keys.
 			const connection = UserInputService.InputBegan.Connect((input) => {
 				// Get all relevant keys.
@@ -77,12 +80,15 @@ function registerCommandShortcuts(
 			ContextActionService.BindAction(
 				(shortcut as ShortcutContext).actionName,
 				(actionName, inputState, input) => {
-					if (actionName === (shortcut as ShortcutContext).actionName && inputState === Enum.UserInputState.Begin) {
+					if (
+						actionName === (shortcut as ShortcutContext).actionName &&
+						inputState === Enum.UserInputState.Begin
+					) {
 						dispatcher.run(command.getPath());
 					}
 				},
 				createTouchButtons ?? false,
-				...(shortcut as ShortcutContext).activations
+				...(shortcut as ShortcutContext).activations,
 			);
 		}
 	});

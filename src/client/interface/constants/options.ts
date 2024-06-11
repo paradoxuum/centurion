@@ -15,5 +15,5 @@ export const DEFAULT_INTERFACE_OPTIONS: InterfaceOptions = {
 	shortcuts: {
 		showInSuggestions: true,
 		createTouchButtons: false,
-	}
+	},
 };

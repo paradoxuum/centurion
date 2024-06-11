@@ -149,7 +149,10 @@ export function ShortcutGroup(props: ShortcutGroupProps) {
 								index
 							}`}
 						>
-							<Key options={options} keyCode={shortcut as unknown as Enum.KeyCode} />
+							<Key
+								options={options}
+								keyCode={shortcut as unknown as Enum.KeyCode}
+							/>
 						</frame>
 					);
 				}

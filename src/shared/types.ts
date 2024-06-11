@@ -21,8 +21,8 @@ export interface ArgumentOptions {
 }
 
 export interface ShortcutContext {
-	actionName: string,
-	activations: Array<Enum.PlayerActions | Enum.KeyCode | Enum.UserInputType>
+	actionName: string;
+	activations: Array<Enum.PlayerActions | Enum.KeyCode | Enum.UserInputType>;
 }
 
 export type Shortcut = Array<Enum.KeyCode | Enum.KeyCode[] | ShortcutContext>;
