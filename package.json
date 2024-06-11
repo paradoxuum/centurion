@@ -33,20 +33,20 @@
 		"access": "public"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "^1.7.3",
+		"@biomejs/biome": "1.8.1",
 		"@rbxts/compiler-types": "2.3.0-types.1",
 		"@rbxts/jest": "^0.1.0",
 		"@rbxts/jest-globals": "^0.1.0",
-		"@rbxts/types": "^1.0.779",
-		"roblox-ts": "2.3.0-dev-4a3b6b9",
+		"@rbxts/types": "^1.0.780",
+		"roblox-ts": "2.3.0-dev-d7847ea",
 		"typescript": "~5.4"
 	},
 	"dependencies": {
 		"@rbxts/beacon": "^2.1.1",
 		"@rbxts/pretty-react-hooks": "^0.5.0",
-		"@rbxts/react": "^0.3.3",
+		"@rbxts/react": "^0.4.0",
 		"@rbxts/react-reflex": "^0.3.4",
-		"@rbxts/react-roblox": "^0.3.6",
+		"@rbxts/react-roblox": "^0.4.0",
 		"@rbxts/reflex": "^4.3.1",
 		"@rbxts/ripple": "^0.8.1",
 		"@rbxts/services": "^1.5.4",

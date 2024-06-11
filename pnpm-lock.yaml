@@ -15,14 +15,14 @@ importers:
         specifier: ^0.5.0
         version: 0.5.0
       '@rbxts/react':
-        specifier: ^0.3.3
-        version: 0.3.6
+        specifier: ^0.4.0
+        version: 0.4.0
       '@rbxts/react-reflex':
         specifier: ^0.3.4
-        version: 0.3.4(@rbxts/react@0.3.6)(@rbxts/reflex@4.3.1)
+        version: 0.3.4(@rbxts/react@0.4.0)(@rbxts/reflex@4.3.1)
       '@rbxts/react-roblox':
-        specifier: ^0.3.6
-        version: 0.3.6
+        specifier: ^0.4.0
+        version: 0.4.0
       '@rbxts/reflex':
         specifier: ^4.3.1
         version: 4.3.1
@@ -37,8 +37,8 @@ importers:
         version: 3.1.1
     devDependencies:
       '@biomejs/biome':
-        specifier: ^1.7.3
-        version: 1.8.0
+        specifier: 1.8.1
+        version: 1.8.1
       '@rbxts/compiler-types':
         specifier: 2.3.0-types.1
         version: 2.3.0-types.1
@@ -49,66 +49,66 @@ importers:
         specifier: ^0.1.0
         version: 0.1.0
       '@rbxts/types':
-        specifier: ^1.0.779
-        version: 1.0.779
+        specifier: ^1.0.780
+        version: 1.0.780
       roblox-ts:
-        specifier: 2.3.0-dev-4a3b6b9
-        version: 2.3.0-dev-4a3b6b9
+        specifier: 2.3.0-dev-d7847ea
+        version: 2.3.0-dev-d7847ea
       typescript:
         specifier: ~5.4
         version: 5.4.5
 
 packages:
 
-  '@biomejs/biome@1.8.0':
-    resolution: {integrity: sha512-34xcE2z8GWrIz1sCFEmlHT/+4d+SN7YOqqvzlAKXKvaWPRJ2/NUwxPbRsP01P9QODkQ5bvGvc9rpBihmP+7RJQ==}
+  '@biomejs/biome@1.8.1':
+    resolution: {integrity: sha512-fQXGfvq6DIXem12dGQCM2tNF+vsNHH1qs3C7WeOu75Pd0trduoTmoO7G4ntLJ2qDs5wuw981H+cxQhi1uHnAtA==}
     engines: {node: '>=14.21.3'}
     hasBin: true
 
-  '@biomejs/cli-darwin-arm64@1.8.0':
-    resolution: {integrity: sha512-dBAYzfIJ1JmWigKlWourT3sJ3I60LZPjqNwwlsyFjiv5AV7vPeWlHVVIImV2BpINwNjZQhpXnwDfVnGS4vr7AA==}
+  '@biomejs/cli-darwin-arm64@1.8.1':
+    resolution: {integrity: sha512-XLiB7Uu6GALIOBWzQ2aMD0ru4Ly5/qSeQF7kk3AabzJ/kwsEWSe33iVySBP/SS2qv25cgqNiLksjGcw2bHT3mw==}
     engines: {node: '>=14.21.3'}
     cpu: [arm64]
     os: [darwin]
 
-  '@biomejs/cli-darwin-x64@1.8.0':
-    resolution: {integrity: sha512-ZTTSD0bP0nn9UpRDGQrQNTILcYSj+IkxTYr3CAV64DWBDtQBomlk2oVKWzDaA1LOhpAsTh0giLCbPJaVk2jfMQ==}
+  '@biomejs/cli-darwin-x64@1.8.1':
+    resolution: {integrity: sha512-uMTSxVLMfqkBVqyc25hSn83jBbp+wtWjzM/pHFlKXt3htJuw7FErVGW0nmQ9Sxa9vJ7GcqoltLMl28VQRIMYzg==}
     engines: {node: '>=14.21.3'}
     cpu: [x64]
     os: [darwin]
 
-  '@biomejs/cli-linux-arm64-musl@1.8.0':
-    resolution: {integrity: sha512-+ee/pZWsvhDv6eRI00krRNSgAg8DKSxzOv3LUsCjto6N1VzqatTASeQv2HRfG1nitf79rRKM75LkMJbqEfiKww==}
+  '@biomejs/cli-linux-arm64-musl@1.8.1':
+    resolution: {integrity: sha512-UQ8Wc01J0wQL+5AYOc7qkJn20B4PZmQL1KrmDZh7ot0DvD6aX4+8mmfd/dG5b6Zjo/44QvCKcvkFGCMRYuhWZA==}
     engines: {node: '>=14.21.3'}
     cpu: [arm64]
     os: [linux]
 
-  '@biomejs/cli-linux-arm64@1.8.0':
-    resolution: {integrity: sha512-cx725jTlJS6dskvJJwwCQaaMRBKE2Qss7ukzmx27Rn/DXRxz6tnnBix4FUGPf1uZfwrERkiJlbWM05JWzpvvXg==}
+  '@biomejs/cli-linux-arm64@1.8.1':
+    resolution: {integrity: sha512-3SzZRuC/9Oi2P2IBNPsEj0KXxSXUEYRR2kfRF/Ve8QAfGgrt4qnwuWd6QQKKN5R+oYH691qjm+cXBKEcrP1v/Q==}
     engines: {node: '>=14.21.3'}
     cpu: [arm64]
     os: [linux]
 
-  '@biomejs/cli-linux-x64-musl@1.8.0':
-    resolution: {integrity: sha512-VPA4ocrAOak50VYl8gOAVnjuFFDpIUolShntc/aWM0pZfSIMbRucxnrfUfp44EVwayxjK6ruJTR5xEWj93WvDA==}
+  '@biomejs/cli-linux-x64-musl@1.8.1':
+    resolution: {integrity: sha512-fYbP/kNu/rtZ4kKzWVocIdqZOtBSUEg9qUhZaao3dy3CRzafR6u6KDtBeSCnt47O+iLnks1eOR1TUxzr5+QuqA==}
     engines: {node: '>=14.21.3'}
     cpu: [x64]
     os: [linux]
 
-  '@biomejs/cli-linux-x64@1.8.0':
-    resolution: {integrity: sha512-cmgmhlD4QUxMhL1VdaNqnB81xBHb3R7huVNyYnPYzP+AykZ7XqJbPd1KcWAszNjUk2AHdx0aLKEBwCOWemxb2g==}
+  '@biomejs/cli-linux-x64@1.8.1':
+    resolution: {integrity: sha512-AeBycVdNrTzsyYKEOtR2R0Ph0hCD0sCshcp2aOnfGP0hCZbtFg09D0SdKLbyzKntisY41HxKVrydYiaApp+2uw==}
     engines: {node: '>=14.21.3'}
     cpu: [x64]
     os: [linux]
 
-  '@biomejs/cli-win32-arm64@1.8.0':
-    resolution: {integrity: sha512-J31spvlh39FfRHQacYXxJX9PvTCH/a8+2Jx9D1lxw+LSF0JybqZcw/4JrlFUWUl4kF3yv8AuYUK0sENScc3g9w==}
+  '@biomejs/cli-win32-arm64@1.8.1':
+    resolution: {integrity: sha512-6tEd1H/iFKpgpE3OIB7oNgW5XkjiVMzMRPL8zYoZ036YfuJ5nMYm9eB9H/y81+8Z76vL48fiYzMPotJwukGPqQ==}
     engines: {node: '>=14.21.3'}
     cpu: [arm64]
     os: [win32]
 
-  '@biomejs/cli-win32-x64@1.8.0':
-    resolution: {integrity: sha512-uPHHvu76JC1zYe9zZDcOU9PAg+1MZmPuNgWkb5jljaDeATvzLFPB+0nuJTilf603LXL+E8IdPQAO61Wy2VuEJA==}
+  '@biomejs/cli-win32-x64@1.8.1':
+    resolution: {integrity: sha512-g2H31jJzYmS4jkvl6TiyEjEX+Nv79a5km/xn+5DARTp5MBFzC9gwceusSSB2AkJKqZzY131AiACAWjKrVt5Ijw==}
     engines: {node: '>=14.21.3'}
     cpu: [x64]
     os: [win32]
@@ -146,14 +146,17 @@ packages:
       '@rbxts/react': '*'
       '@rbxts/reflex': '*'
 
-  '@rbxts/react-roblox@0.3.6':
-    resolution: {integrity: sha512-4o6UUPXHZMZuUuAl92aTe/b1YoQkuPFsah3iQVV+Ic50cJivX0cBqEs5sGj6GviBUbQI1ZilYBhlc0/uk63iSA==}
+  '@rbxts/react-roblox@0.4.0':
+    resolution: {integrity: sha512-nse7mc7aLS78zfaXNfqeXX0vllRGnGQBKcrnl3FeDJo9+7oMKLF4mLAtrCkQ5ojZOnNKNcDPE7PKmOX7Q8QguQ==}
 
   '@rbxts/react-vendor@0.3.6':
     resolution: {integrity: sha512-q3HilP6ZNHSgWW0lwka+Ft4Iq+fnPBppOeQhGua1XCtM2hEqhmUmME8DI1UlnaK/aGzdYW1bWC7YfHZhHGsIeA==}
 
-  '@rbxts/react@0.3.6':
-    resolution: {integrity: sha512-GeEqKjjyJT3zG85xEVCu3IMQdYRoXk4P9XCua4oriTIfuJaSTOWUukOmQ5ILpG/BpksLqXlpH8zqKKZcZaIs3g==}
+  '@rbxts/react-vendor@0.4.0':
+    resolution: {integrity: sha512-roWs9FmR7CQDK1N6gE/36tiCBQRl8v1S0pUJD2Ly3ZMVvfjAk2gixrkqGcKFGtXQQq6r4dTAtHduAeZJBd640g==}
+
+  '@rbxts/react@0.4.0':
+    resolution: {integrity: sha512-yhqXzfH5YpwfZyiWipQMfQsI//2sC86Jqn2rMkP+l1y4CfhCvoYxpaI5qS7Xum9F+DsBHiwJNeUxm2V2LzXW0A==}
 
   '@rbxts/reflex@4.3.1':
     resolution: {integrity: sha512-S5MbEpHKeRh9NWhwGJ789WbUsmlAlpQziWaNK4+kz1EpaaQ7uHQMZAuN1DYl4+QkqmOSuPlj04COwmArBGWH1Q==}
@@ -170,8 +173,8 @@ packages:
   '@rbxts/t@3.1.1':
     resolution: {integrity: sha512-r+IvHHGLt9ZM8+cJAs5Q7ZyGaSlsbkXTaeat85FxRmjjozykHLbQ24rY/5utJbp63a5uCy3Wyl1fGv/Gk/GnIw==}
 
-  '@rbxts/types@1.0.779':
-    resolution: {integrity: sha512-9vWuZ0khGeLtaPhqWxD/8DBwM/EBNbvnfD/Bo8aZMmQ/jog0vOSbES+vkToWAAIDT4zQn4eF7o28MHAx2/IChQ==}
+  '@rbxts/types@1.0.780':
+    resolution: {integrity: sha512-TmIubajkBXf1kO0XgZdd7gCo7115YmwKJfYWWkycXSNEwcK0DtOtSoChmAFcNvk2cYlYXqdFICbM/GPPc3ZM1g==}
 
   '@roblox-ts/luau-ast@1.0.11':
     resolution: {integrity: sha512-+maoLYpqY0HK8ugLFHS3qz0phMyDaN3i21jjW75T2ZaqJg84heKDUo98iXClvnx3mUDhW10IxqH+cYJ2iftYhQ==}
@@ -353,8 +356,8 @@ packages:
     resolution: {integrity: sha512-oKWePCxqpd6FlLvGV1VU0x7bkPmmCNolxzjMf4NczoDnQcIWrAF+cPtZn5i6n+RfD2d9i0tzpKnG6Yk168yIyw==}
     hasBin: true
 
-  roblox-ts@2.3.0-dev-4a3b6b9:
-    resolution: {integrity: sha512-P81RBuUIpx4e+fPEEzj1GlEHHxYTObJT8Wd4wkjMN7v37jZ7ljZDl/LEzqEF/ApyRYGPiL9Iv56WGOp6FmZY6w==}
+  roblox-ts@2.3.0-dev-d7847ea:
+    resolution: {integrity: sha512-ZD0gs1X+shUIXyvChVZBB40uyRbheLUdQX8lJpzuzepumm0owRASvXMOYScziD2EaJ25eNoSBBkAMBWLQK+4fQ==}
     hasBin: true
 
   string-width@4.2.3:
@@ -414,39 +417,39 @@ packages:
 
 snapshots:
 
-  '@biomejs/biome@1.8.0':
+  '@biomejs/biome@1.8.1':
     optionalDependencies:
-      '@biomejs/cli-darwin-arm64': 1.8.0
-      '@biomejs/cli-darwin-x64': 1.8.0
-      '@biomejs/cli-linux-arm64': 1.8.0
-      '@biomejs/cli-linux-arm64-musl': 1.8.0
-      '@biomejs/cli-linux-x64': 1.8.0
-      '@biomejs/cli-linux-x64-musl': 1.8.0
-      '@biomejs/cli-win32-arm64': 1.8.0
-      '@biomejs/cli-win32-x64': 1.8.0
+      '@biomejs/cli-darwin-arm64': 1.8.1
+      '@biomejs/cli-darwin-x64': 1.8.1
+      '@biomejs/cli-linux-arm64': 1.8.1
+      '@biomejs/cli-linux-arm64-musl': 1.8.1
+      '@biomejs/cli-linux-x64': 1.8.1
+      '@biomejs/cli-linux-x64-musl': 1.8.1
+      '@biomejs/cli-win32-arm64': 1.8.1
+      '@biomejs/cli-win32-x64': 1.8.1
 
-  '@biomejs/cli-darwin-arm64@1.8.0':
+  '@biomejs/cli-darwin-arm64@1.8.1':
     optional: true
 
-  '@biomejs/cli-darwin-x64@1.8.0':
+  '@biomejs/cli-darwin-x64@1.8.1':
     optional: true
 
-  '@biomejs/cli-linux-arm64-musl@1.8.0':
+  '@biomejs/cli-linux-arm64-musl@1.8.1':
     optional: true
 
-  '@biomejs/cli-linux-arm64@1.8.0':
+  '@biomejs/cli-linux-arm64@1.8.1':
     optional: true
 
-  '@biomejs/cli-linux-x64-musl@1.8.0':
+  '@biomejs/cli-linux-x64-musl@1.8.1':
     optional: true
 
-  '@biomejs/cli-linux-x64@1.8.0':
+  '@biomejs/cli-linux-x64@1.8.1':
     optional: true
 
-  '@biomejs/cli-win32-arm64@1.8.0':
+  '@biomejs/cli-win32-arm64@1.8.1':
     optional: true
 
-  '@biomejs/cli-win32-x64@1.8.0':
+  '@biomejs/cli-win32-x64@1.8.1':
     optional: true
 
   '@rbxts/beacon@2.1.1': {}
@@ -483,26 +486,28 @@ snapshots:
   '@rbxts/pretty-react-hooks@0.5.0':
     dependencies:
       '@rbxts/flipper': 2.0.1
-      '@rbxts/react': 0.3.6
-      '@rbxts/react-roblox': 0.3.6
+      '@rbxts/react': 0.4.0
+      '@rbxts/react-roblox': 0.4.0
       '@rbxts/services': 1.5.4
       '@rbxts/set-timeout': 1.1.2
 
-  '@rbxts/react-reflex@0.3.4(@rbxts/react@0.3.6)(@rbxts/reflex@4.3.1)':
+  '@rbxts/react-reflex@0.3.4(@rbxts/react@0.4.0)(@rbxts/reflex@4.3.1)':
     dependencies:
-      '@rbxts/react': 0.3.6
+      '@rbxts/react': 0.4.0
       '@rbxts/reflex': 4.3.1
 
-  '@rbxts/react-roblox@0.3.6':
+  '@rbxts/react-roblox@0.4.0':
     dependencies:
-      '@rbxts/react': 0.3.6
-      '@rbxts/react-vendor': 0.3.6
+      '@rbxts/react': 0.4.0
+      '@rbxts/react-vendor': 0.4.0
 
   '@rbxts/react-vendor@0.3.6': {}
 
-  '@rbxts/react@0.3.6':
+  '@rbxts/react-vendor@0.4.0': {}
+
+  '@rbxts/react@0.4.0':
     dependencies:
-      '@rbxts/react-vendor': 0.3.6
+      '@rbxts/react-vendor': 0.4.0
 
   '@rbxts/reflex@4.3.1': {}
 
@@ -516,7 +521,7 @@ snapshots:
 
   '@rbxts/t@3.1.1': {}
 
-  '@rbxts/types@1.0.779': {}
+  '@rbxts/types@1.0.780': {}
 
   '@roblox-ts/luau-ast@1.0.11': {}
 
@@ -691,7 +696,7 @@ snapshots:
       path-parse: 1.0.7
       supports-preserve-symlinks-flag: 1.0.0
 
-  roblox-ts@2.3.0-dev-4a3b6b9:
+  roblox-ts@2.3.0-dev-d7847ea:
     dependencies:
       '@roblox-ts/luau-ast': 1.0.11
       '@roblox-ts/path-translator': 1.0.0
