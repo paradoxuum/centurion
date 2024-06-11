@@ -76,17 +76,18 @@ function Key(props: KeyProps) {
 						? transformModifierKeyName(props.keyCode.Name)
 						: props.keyCode.Name
 				}
-				textColor={isModifier ? options.palette.surface : options.palette.text}
+				textColor={isModifier ? options.palette.text : options.palette.text}
 				textSize={16}
 				size={size}
 				onTextBoundsChange={(textBounds) => {
-					setSize(new UDim2(0, math.max(24, textBounds.X + 6), 0, 24));
+					setSize(new UDim2(0, math.max(24, textBounds.X + 12), 0, 24));
 				}}
+				backgroundTransparency={isModifier ? 0.5 : 0}
 			>
 				{isModifier ? (
-					<uistroke Color={options.palette.highlight} Thickness={2} />
+					<uistroke Color={options.palette.highlight} Thickness={1} />
 				) : (
-					<></>
+					<uistroke Color={options.palette.subtext} Thickness={1} />
 				)}
 			</Badge>
 		</frame>

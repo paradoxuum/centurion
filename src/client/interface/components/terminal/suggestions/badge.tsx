@@ -18,6 +18,7 @@ interface BadgeProps {
 	onTextBoundsChange?: (textBounds: Vector2) => void;
 
 	children?: JSX.Element;
+	backgroundTransparency?: number;
 }
 
 export function Badge({
@@ -31,6 +32,7 @@ export function Badge({
 	visible,
 	onTextBoundsChange,
 	children,
+	backgroundTransparency
 }: BadgeProps) {
 	const options = useContext(OptionsContext);
 	const px = usePx();
@@ -44,6 +46,7 @@ export function Badge({
 			cornerRadius={new UDim(0, px(4))}
 			visible={visible}
 			clipsDescendants
+			backgroundTransparency={backgroundTransparency}
 		>
 			<Text
 				text={text}
