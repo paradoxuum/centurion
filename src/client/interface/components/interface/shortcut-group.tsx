@@ -1,5 +1,5 @@
 import React, { useContext, useState } from "@rbxts/react";
-import { Shortcut } from "../../../../shared";
+import { Shortcut, ShortcutContext } from "../../../../shared";
 import { usePx } from "../../hooks/use-px";
 import {
 	InterfaceOptionsWithState,
@@ -116,7 +116,7 @@ export function ShortcutGroup(props: ShortcutGroupProps) {
 				Padding={new UDim(0, 8)}
 			/>
 			{props.shortcuts?.map((shortcut, index) => {
-				if (typeIs(shortcut, "table")) {
+				if (typeIs(shortcut, "table") && (shortcut as ShortcutContext).actionName === undefined) {
 					return (
 						<frame
 							BackgroundTransparency={1}

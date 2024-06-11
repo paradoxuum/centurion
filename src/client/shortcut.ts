@@ -88,7 +88,7 @@ function registerCommandShortcuts(
 					}
 				},
 				createTouchButtons ?? false,
-				...(shortcut as ShortcutContext).activations,
+				...(shortcut as ShortcutContext).activations ?? [],
 			);
 		}
 	});

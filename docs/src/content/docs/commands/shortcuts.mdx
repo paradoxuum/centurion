@@ -3,28 +3,41 @@ title: Shortcuts
 description: Learn how to use shortcuts to execute commands.
 ---
 
-import { Aside, Code } from '@astrojs/starlight/components';
+import { Aside, Code, Card } from '@astrojs/starlight/components';
 
 ## Enabling Shortcuts
 
-Shortcuts can be enabled by adding `shortcutsEnabled: true` to your `CommanderInterface` properties.
+Shortcuts can be enabled by adding `shortcutsEnabled: true` to your `CommanderClient` properties.
 
 <Code lang="ts" code={`
-CommanderInterface.create({
-    shortcutsEnabled: true
-})`
+CommanderCline.start((registry) => {}, {
+    shortcutsEnabled: true,
+});`
 }
 />
 
+### Keybinds in UI
+
+You can enable a terminal interface that displays a command's associated keybindings.
+
+This interface can be enabled with:
+
+<Code lang="ts" code={`
+CommanderInterface.create({
+    shortcuts: {
+        showInSuggestions: true,
+});
+`} />
+
+Note that this interface does not display context actions; you will need alternative methods to convey those behaviors.
+
 ## Using Shortcuts
 
-<Aside>
-Commands executed by keybinds do not have parameters.
+<Aside type="caution">
+Commands executed via keybinds do not accept parameters. Ensure your commands are structured accordingly.
 </Aside>
 
-A shortcut is simply a way to execute commands.
-
-A shortcut can have both single and multiple keys assigned to it.
+Shortcuts provide a way to execute commands using key presses. They can be configured with single or multiple key combinations.
 
 
 <Code lang="ts" code={`
@@ -41,6 +54,40 @@ export class SayHiCommand {
 }
 `} />
 
-This example code runs when the user presses H *or* presses the LeftAlt modifier & J.
+In this example, the command executes when the user presses `H` or `LeftAlt + J`.
 
-It's important to remember that `@Guard()` decorators still work correctly with shortcuts.
+Note that `@Guard()` decorators still function correctly with shortcuts.
+
+### Context Action Service
+
+Commands can also interact with the ContextActionService, allowing them to run based on specific criteria, such as "PlayerInCar".
+
+<Code lang="ts" code={`
+@Commander
+export class SayHiCommand {
+    @Command({
+        name: "sayhi",
+        description: "Say hi!",
+        shortcuts: [{ actionName: "WindowFocused", activations: [Enum.UserInputType.Focus] }]
+    })
+    run(ctx: CommandContext) {
+        print('Hi 🙂!')
+    }
+}`}
+/>
+
+This modified example:
+
+- Registers a command named sayhi.
+- Binds this command to the window being focused.
+- Prints "Hi 🙂!" when the user focuses the window.
+
+Activations are optional. Commands can also be controlled via `ContextActionService.BindAction` outside of the commander.
+
+For example, to unbind the `"WindowFocused"` behavior after a short period, you can use the following script:
+
+<Code lang="ts" code={`
+task.wait(5);
+ContextActionService.UnbindAction("WindowFocused");
+`}
+/>
