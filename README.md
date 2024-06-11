@@ -1,6 +1,6 @@
 <div align="center">
   <a href="https://commander.paradoxum.dev/" target="_blank">
-	<img src="docs/src/assets/logo.webp" width="150" />
+    <img src="docs/src/assets/logo.webp" width="150" />
   </a>
 
   <h1>Commander</h1>
@@ -9,9 +9,12 @@
     <strong>A flexible and extensible command framework for roblox-ts</strong>
   </p>
 
-  <h4>
-    <a href="https://commander.paradoxum.dev/">Documentation</a>
-  </h4>
+  [![npm version][npm-badge]][npm-url]
+
+  [npm-badge]: https://badgen.net/npm/v/@rbxts/commander?icon=npm&color=green&label=%40rbxts%2Fcommander
+  [npm-url]: https://www.npmjs.com/package/@rbxts/commander/v/latest
+
+  <a href="https://commander.paradoxum.dev/">📖 Documentation</a>
 </div>
 
 
