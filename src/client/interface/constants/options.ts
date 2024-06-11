@@ -12,4 +12,8 @@ export const DEFAULT_INTERFACE_OPTIONS: InterfaceOptions = {
 	},
 	palette: DefaultPalette.mocha,
 	backgroundTransparency: 0.2,
+	shortcuts: {
+		showInSuggestions: true,
+		createTouchButtons: false,
+	}
 };

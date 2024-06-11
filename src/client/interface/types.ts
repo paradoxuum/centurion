@@ -1,3 +1,4 @@
+import { Shortcut } from "../../shared";
 import { HistoryEntry } from "../types";
 import { InterfacePalette } from "./palette";
 
@@ -17,6 +18,7 @@ export interface InterfaceOptions {
 	palette: InterfacePalette;
 	shortcuts?: {
 		showInSuggestions?: boolean;
+		createTouchButtons?: boolean;
 	};
 }
 
@@ -29,7 +31,7 @@ export interface CommandSuggestion {
 	type: "command";
 	title: string;
 	description?: string;
-	shortcuts?: Array<Enum.KeyCode | Enum.KeyCode[]>;
+	shortcuts?: Shortcut;
 }
 
 export interface ArgumentSuggestion {

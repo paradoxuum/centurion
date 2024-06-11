@@ -46,7 +46,7 @@ export namespace CommanderInterface {
 			});
 
 			if (CommanderClient.options().shortcutsEnabled) {
-				shortcuts();
+				shortcuts(options.shortcuts?.createTouchButtons);
 			}
 
 			root.render(

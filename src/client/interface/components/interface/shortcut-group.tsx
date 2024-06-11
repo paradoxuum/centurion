@@ -139,7 +139,7 @@ export function ShortcutGroup(props: ShortcutGroupProps) {
 						</frame>
 					);
 					// biome-ignore lint/style/noUselessElse: Biome misdiagnoses this as useless
-				} else {
+				} else if (typeIs(shortcut, "Enum")) {
 					return (
 						<frame
 							BackgroundTransparency={1}
@@ -149,7 +149,7 @@ export function ShortcutGroup(props: ShortcutGroupProps) {
 								index
 							}`}
 						>
-							<Key options={options} keyCode={shortcut} />
+							<Key options={options} keyCode={shortcut as unknown as Enum.KeyCode} />
 						</frame>
 					);
 				}
