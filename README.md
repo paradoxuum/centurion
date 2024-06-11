@@ -9,10 +9,13 @@
     <strong>A flexible and extensible command framework for roblox-ts</strong>
   </p>
 
-  [![npm version][npm-badge]][npm-url]
+  [![npm latest version][npm-latest-badge]][npm-latest-url]
+  [![npm dev version][npm-next-badge]][npm-next-url]
 
-  [npm-badge]: https://badgen.net/npm/v/@rbxts/commander?icon=npm&color=green&label=%40rbxts%2Fcommander
-  [npm-url]: https://www.npmjs.com/package/@rbxts/commander/v/latest
+  [npm-latest-badge]: https://img.shields.io/npm/v/%40rbxts%2Fcommander?label=latest&color=green
+  [npm-latest-url]: https://www.npmjs.com/package/@rbxts/commander/v/latest
+  [npm-next-badge]: https://img.shields.io/npm/v/%40rbxts%2Fcommander%2Fnext?label=next
+  [npm-next-url]: https://www.npmjs.com/package/@rbxts/commander/v/next
 
   <a href="https://commander.paradoxum.dev/">📖 Documentation</a>
 </div>
