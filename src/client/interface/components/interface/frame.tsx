@@ -1,5 +1,5 @@
 import { BindingOrValue } from "@rbxts/pretty-react-hooks";
-import React, { Ref, forwardRef } from "@rbxts/react";
+import React, { InferEnumNames, Ref, forwardRef } from "@rbxts/react";
 
 export interface FrameProps<T extends Instance = Frame>
 	extends React.PropsWithChildren {
@@ -17,12 +17,14 @@ export interface FrameProps<T extends Instance = Frame>
 	zIndex?: BindingOrValue<number>;
 	layoutOrder?: BindingOrValue<number>;
 	cornerRadius?: BindingOrValue<UDim>;
+	automaticSize?: InferEnumNames<Enum.AutomaticSize>;
 }
 
 export const Frame = forwardRef((props: FrameProps, ref: Ref<Frame>) => {
 	return (
 		<frame
 			ref={ref}
+			AutomaticSize={props.automaticSize}
 			Size={props.size}
 			Position={props.position}
 			AnchorPoint={props.anchorPoint}

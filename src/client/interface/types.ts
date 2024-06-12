@@ -16,10 +16,7 @@ export interface InterfaceOptions {
 		bold: Font;
 	};
 	palette: InterfacePalette;
-	shortcuts?: {
-		showInSuggestions?: boolean;
-		createTouchButtons?: boolean;
-	};
+	showShortcutSuggestions?: boolean;
 }
 
 export interface HistoryLineData {

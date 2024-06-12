@@ -40,7 +40,7 @@ function showKeybindsGui(props: {
 		props.suggestion &&
 		props.suggestion.main.type === "command" &&
 		(props.suggestion.main as CommandSuggestion).shortcuts !== undefined &&
-		props.options.shortcuts?.showInSuggestions
+		props.options.showShortcutSuggestions
 	) {
 		return true;
 	}

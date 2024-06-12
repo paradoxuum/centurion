@@ -1,4 +1,5 @@
-import { RunService } from "@rbxts/services";
+import { RunService, UserInputService } from "@rbxts/services";
+import { BaseCommand } from "../shared/core/command";
 import { getRemotes } from "../shared/network";
 import { ClientDispatcher } from "./dispatcher";
 import { DEFAULT_CLIENT_OPTIONS } from "./options";
@@ -50,6 +51,7 @@ export namespace CommanderClient {
 
 		dispatcherInstance.init(optionsObject);
 		registryInstance.init(optionsObject);
+		registryInstance.commandRegistered.Connect(registerShortcuts);
 
 		callback?.(registryInstance);
 		await registryInstance.sync();
@@ -75,5 +77,32 @@ export namespace CommanderClient {
 	function assertAccess(name: string) {
 		assert(IS_CLIENT, `Client ${name} cannot be accessed from the server`);
 		assert(started, "Commander has not been started yet");
+	}
+
+	function registerShortcuts(command: BaseCommand) {
+		if (command.options.shortcuts === undefined) return;
+
+		const commandPath = command.getPath();
+		command.options.shortcuts.forEach((shortcuts, index) => {
+			const keys = typeIs(shortcuts, "table")
+				? new Set(shortcuts as Enum.KeyCode[])
+				: new Set([shortcuts as Enum.KeyCode]);
+			const keyCount = keys.size();
+
+			UserInputService.InputBegan.Connect((input, gameProcessed) => {
+				if (gameProcessed) return;
+				if (input.UserInputType !== Enum.UserInputType.Keyboard) return;
+
+				const keysPressed = UserInputService.GetKeysPressed();
+				if (
+					keysPressed.size() !== keyCount ||
+					!keysPressed.every((key) => keys.has(key.KeyCode))
+				) {
+					return;
+				}
+
+				dispatcherInstance.run(commandPath);
+			});
+		});
 	}
 }

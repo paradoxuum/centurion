@@ -25,9 +25,7 @@ export interface ShortcutContext {
 	activations?: Array<Enum.PlayerActions | Enum.KeyCode | Enum.UserInputType>;
 }
 
-export type CommandShortcut = Array<
-	Enum.KeyCode | Enum.KeyCode[] | ShortcutContext
->;
+export type CommandShortcut = Array<Enum.KeyCode | Enum.KeyCode[]>;
 
 export interface CommandOptions {
 	name: string;
