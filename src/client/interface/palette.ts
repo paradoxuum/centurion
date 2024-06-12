@@ -52,6 +52,6 @@ export const DefaultPalette = {
 		subtext: Color3.fromRGB(162, 162, 162),
 		highlight: Color3.fromRGB(239, 122, 54),
 		success: Color3.fromRGB(78, 204, 90),
-		error: Color3.fromRGB(255, 68, 68)
+		error: Color3.fromRGB(255, 68, 68),
 	},
 } as const satisfies { [K: string]: InterfacePalette };

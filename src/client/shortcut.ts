@@ -1,4 +1,3 @@
-import React, { useMemo } from "@rbxts/react";
 import { UserInputService } from "@rbxts/services";
 import { Shortcut, ShortcutContext } from "../shared";
 import { BaseCommand } from "../shared/core/command";
@@ -88,7 +87,7 @@ function registerCommandShortcuts(
 					}
 				},
 				createTouchButtons ?? false,
-				...(shortcut as ShortcutContext).activations ?? [],
+				...((shortcut as ShortcutContext).activations ?? []),
 			);
 		}
 	});

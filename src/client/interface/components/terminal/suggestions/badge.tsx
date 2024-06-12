@@ -32,7 +32,7 @@ export function Badge({
 	visible,
 	onTextBoundsChange,
 	children,
-	backgroundTransparency
+	backgroundTransparency,
 }: BadgeProps) {
 	const options = useContext(OptionsContext);
 	const px = usePx();

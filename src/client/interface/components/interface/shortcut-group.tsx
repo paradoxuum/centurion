@@ -6,9 +6,7 @@ import {
 	OptionsContext,
 } from "../../providers/options-provider";
 import { Badge } from "../terminal/suggestions/badge";
-import { Frame } from "./frame";
 import { Padding } from "./padding";
-import { Text } from "./text";
 
 function isModifierKey(key: Enum.KeyCode) {
 	switch (key) {
@@ -117,7 +115,10 @@ export function ShortcutGroup(props: ShortcutGroupProps) {
 				Padding={new UDim(0, 8)}
 			/>
 			{props.shortcuts?.map((shortcut, index) => {
-				if (typeIs(shortcut, "table") && (shortcut as ShortcutContext).actionName === undefined) {
+				if (
+					typeIs(shortcut, "table") &&
+					(shortcut as ShortcutContext).actionName === undefined
+				) {
 					return (
 						<frame
 							BackgroundTransparency={1}
