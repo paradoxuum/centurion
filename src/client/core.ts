@@ -83,7 +83,7 @@ export namespace CommanderClient {
 		if (command.options.shortcuts === undefined) return;
 
 		const commandPath = command.getPath();
-		command.options.shortcuts.forEach((shortcuts, index) => {
+		for (const shortcuts of command.options.shortcuts) {
 			const keys = typeIs(shortcuts, "table")
 				? new Set(shortcuts as Enum.KeyCode[])
 				: new Set([shortcuts as Enum.KeyCode]);
@@ -103,6 +103,6 @@ export namespace CommanderClient {
 
 				dispatcherInstance.run(commandPath);
 			});
-		});
+		}
 	}
 }
