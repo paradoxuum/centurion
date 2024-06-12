@@ -20,11 +20,19 @@ export interface ArgumentOptions {
 	suggestions?: string[];
 }
 
+export interface ShortcutContext {
+	actionName: string;
+	activations?: Array<Enum.PlayerActions | Enum.KeyCode | Enum.UserInputType>;
+}
+
+export type Shortcut = Array<Enum.KeyCode | Enum.KeyCode[] | ShortcutContext>;
+
 export interface CommandOptions {
 	name: string;
 	aliases?: string[];
 	description?: string;
 	arguments?: ArgumentOptions[];
+	shortcuts?: Shortcut;
 }
 
 export interface GroupOptions {

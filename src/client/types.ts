@@ -6,6 +6,7 @@ export interface ClientOptions extends SharedOptions {
 	historyLength: number;
 	interface?: () => void;
 	network?: ClientNetworkOptions;
+	shortcutsEnabled?: boolean;
 }
 
 export interface ClientNetworkOptions {

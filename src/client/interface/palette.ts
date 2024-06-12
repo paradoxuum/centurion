@@ -45,4 +45,13 @@ export const DefaultPalette = {
 		success: Color3.fromRGB(64, 160, 43),
 		error: Color3.fromRGB(210, 15, 57),
 	},
+	builder: {
+		background: Color3.fromRGB(0, 0, 0),
+		surface: Color3.fromRGB(53, 53, 53),
+		text: Color3.fromRGB(255, 255, 255),
+		subtext: Color3.fromRGB(162, 162, 162),
+		highlight: Color3.fromRGB(239, 122, 54),
+		success: Color3.fromRGB(78, 204, 90),
+		error: Color3.fromRGB(255, 68, 68)
+	},
 } as const satisfies { [K: string]: InterfacePalette };

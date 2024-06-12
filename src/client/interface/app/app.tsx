@@ -4,6 +4,8 @@ import { Signal } from "@rbxts/beacon";
 import React, { StrictMode } from "@rbxts/react";
 import { createPortal, createRoot } from "@rbxts/react-roblox";
 import { ContentProvider, Players } from "@rbxts/services";
+import { CommanderClient } from "../../core";
+import { shortcuts } from "../../shortcut";
 import { DEFAULT_INTERFACE_OPTIONS } from "../constants/options";
 import { RootProvider } from "../providers/root-provider";
 import { InterfaceOptions } from "../types";
@@ -42,6 +44,10 @@ export namespace CommanderInterface {
 					attempts++;
 				}
 			});
+
+			if (CommanderClient.options().shortcutsEnabled) {
+				shortcuts(options.shortcuts?.createTouchButtons);
+			}
 
 			root.render(
 				createPortal(

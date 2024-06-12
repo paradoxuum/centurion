@@ -1,3 +1,4 @@
+import { Shortcut } from "../../shared";
 import { HistoryEntry } from "../types";
 import { InterfacePalette } from "./palette";
 
@@ -15,6 +16,10 @@ export interface InterfaceOptions {
 		bold: Font;
 	};
 	palette: InterfacePalette;
+	shortcuts?: {
+		showInSuggestions?: boolean;
+		createTouchButtons?: boolean;
+	};
 }
 
 export interface HistoryLineData {
@@ -26,6 +31,7 @@ export interface CommandSuggestion {
 	type: "command";
 	title: string;
 	description?: string;
+	shortcuts?: Shortcut;
 }
 
 export interface ArgumentSuggestion {

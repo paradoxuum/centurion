@@ -7,10 +7,18 @@ import {
 } from "../../../constants/text";
 import { useMotion } from "../../../hooks/use-motion";
 import { usePx } from "../../../hooks/use-px";
-import { OptionsContext } from "../../../providers/options-provider";
-import { ArgumentSuggestion, Suggestion } from "../../../types";
+import {
+	InterfaceOptionsWithState,
+	OptionsContext,
+} from "../../../providers/options-provider";
+import {
+	ArgumentSuggestion,
+	CommandSuggestion,
+	Suggestion,
+} from "../../../types";
 import { Frame } from "../../interface/frame";
 import { Padding } from "../../interface/padding";
+import { ShortcutGroup } from "../../interface/shortcut-group";
 import { Text } from "../../interface/text";
 import { Badge } from "./badge";
 import { SuggestionTextBounds } from "./types";
@@ -22,6 +30,20 @@ export interface MainSuggestionProps {
 	currentText?: string;
 	size: BindingOrValue<UDim2>;
 	sizes: Binding<SuggestionTextBounds>;
+}
+
+function showKeybindsGui(props: {
+	options: InterfaceOptionsWithState;
+	suggestion: Suggestion | undefined;
+}) {
+	if (
+		props.suggestion &&
+		props.suggestion.main.type === "command" &&
+		(props.suggestion.main as CommandSuggestion).shortcuts !== undefined &&
+		props.options.shortcuts?.showInSuggestions
+	) {
+		return true;
+	}
 }
 
 export function MainSuggestion({
@@ -50,7 +72,7 @@ export function MainSuggestion({
 			backgroundColor={options.palette.background}
 			backgroundTransparency={options.backgroundTransparency}
 			cornerRadius={new UDim(0, px(8))}
-			clipsDescendants={true}
+			clipsDescendants={false}
 			event={{
 				MouseEnter: () => options.setMouseOnGUI(true),
 				MouseLeave: () => options.setMouseOnGUI(false),
@@ -80,6 +102,18 @@ export function MainSuggestion({
 					})
 				}
 			/>
+
+			{showKeybindsGui({ options: options, suggestion: suggestion }) ? (
+				<ShortcutGroup
+					shortcuts={
+						suggestion?.main.type === "command"
+							? (suggestion?.main as CommandSuggestion).shortcuts
+							: []
+					}
+				/>
+			) : (
+				<></>
+			)}
 
 			<Text
 				size={sizes.map((val) => val.title)}

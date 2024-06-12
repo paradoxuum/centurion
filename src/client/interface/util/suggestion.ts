@@ -1,5 +1,5 @@
 import { Players } from "@rbxts/services";
-import { RegistryPath } from "../../../shared";
+import { CommandOptions, RegistryPath } from "../../../shared";
 import { ArrayUtil } from "../../../shared/util/data";
 import { CommanderClient } from "../../core";
 import { Suggestion } from "../types";
@@ -136,6 +136,7 @@ export function getCommandSuggestion(
 			type: "command",
 			title: mainData.name,
 			description: mainData.description,
+			shortcuts: (mainData as CommandOptions).shortcuts,
 		},
 		others: otherNames,
 	};

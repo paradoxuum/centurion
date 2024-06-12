@@ -8,7 +8,12 @@ CommanderClient.start(
 		registry.register();
 	},
 	{
-		interface: CommanderInterface.create(),
+		shortcutsEnabled: true,
+		interface: CommanderInterface.create({
+			shortcuts: {
+				showInSuggestions: true,
+			},
+		}),
 	},
 )
 	.catch((err) => {
