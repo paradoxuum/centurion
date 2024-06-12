@@ -1,4 +1,4 @@
-import { Shortcut } from "../../shared";
+import { CommandShortcut } from "../../shared";
 import { HistoryEntry } from "../types";
 import { InterfacePalette } from "./palette";
 
@@ -31,7 +31,7 @@ export interface CommandSuggestion {
 	type: "command";
 	title: string;
 	description?: string;
-	shortcuts?: Shortcut;
+	shortcuts?: CommandShortcut;
 }
 
 export interface ArgumentSuggestion {

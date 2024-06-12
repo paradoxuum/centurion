@@ -1,5 +1,5 @@
 import React, { useContext, useState } from "@rbxts/react";
-import { Shortcut, ShortcutContext } from "../../../../shared";
+import { CommandShortcut, ShortcutContext } from "../../../../shared";
 import { usePx } from "../../hooks/use-px";
 import {
 	InterfaceOptionsWithState,
@@ -93,7 +93,7 @@ function Key(props: KeyProps) {
 }
 
 interface ShortcutGroupProps {
-	shortcuts?: Shortcut;
+	shortcuts?: CommandShortcut;
 }
 export function ShortcutGroup(props: ShortcutGroupProps) {
 	const options = useContext(OptionsContext);

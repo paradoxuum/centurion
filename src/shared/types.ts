@@ -25,14 +25,16 @@ export interface ShortcutContext {
 	activations?: Array<Enum.PlayerActions | Enum.KeyCode | Enum.UserInputType>;
 }
 
-export type Shortcut = Array<Enum.KeyCode | Enum.KeyCode[] | ShortcutContext>;
+export type CommandShortcut = Array<
+	Enum.KeyCode | Enum.KeyCode[] | ShortcutContext
+>;
 
 export interface CommandOptions {
 	name: string;
 	aliases?: string[];
 	description?: string;
 	arguments?: ArgumentOptions[];
-	shortcuts?: Shortcut;
+	shortcuts?: CommandShortcut;
 }
 
 export interface GroupOptions {

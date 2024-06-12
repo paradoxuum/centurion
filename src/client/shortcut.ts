@@ -1,5 +1,5 @@
 import { UserInputService } from "@rbxts/services";
-import { Shortcut, ShortcutContext } from "../shared";
+import { CommandShortcut, ShortcutContext } from "../shared";
 import { BaseCommand } from "../shared/core/command";
 import { CommanderClient } from "./core";
 import { store } from "./interface/store";
@@ -20,7 +20,7 @@ function disconnectConnections() {
  * @description Registers the keybind events for commands.
  */
 function registerCommandShortcuts(
-	shortcuts: Shortcut,
+	shortcuts: CommandShortcut,
 	command: BaseCommand,
 	createTouchButtons?: boolean,
 ) {
@@ -104,7 +104,7 @@ export function shortcuts(createTouchButtons?: boolean) {
 		if (command.options.shortcuts !== undefined) {
 			disconnectConnections();
 			registerCommandShortcuts(
-				command.options.shortcuts as Shortcut,
+				command.options.shortcuts as CommandShortcut,
 				command,
 				createTouchButtons,
 			);
@@ -117,7 +117,7 @@ export function shortcuts(createTouchButtons?: boolean) {
 	for (const command of registry.getCommands()) {
 		if (command.options.shortcuts !== undefined) {
 			registerCommandShortcuts(
-				command.options.shortcuts as Shortcut,
+				command.options.shortcuts as CommandShortcut,
 				command,
 				createTouchButtons,
 			);
