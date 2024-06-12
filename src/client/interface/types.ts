@@ -28,7 +28,7 @@ export interface CommandSuggestion {
 	type: "command";
 	title: string;
 	description?: string;
-	shortcuts?: CommandShortcut;
+	shortcuts?: CommandShortcut[];
 }
 
 export interface ArgumentSuggestion {

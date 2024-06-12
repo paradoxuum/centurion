@@ -1,10 +1,12 @@
 import { RunService, UserInputService } from "@rbxts/services";
+import { CommandShortcut } from "../shared";
 import { BaseCommand } from "../shared/core/command";
 import { getRemotes } from "../shared/network";
 import { ClientDispatcher } from "./dispatcher";
 import { DEFAULT_CLIENT_OPTIONS } from "./options";
 import { ClientRegistry } from "./registry";
 import { ClientOptions } from "./types";
+import { getShortcutKeycodes, isShortcutContext } from "./util";
 
 export namespace CommanderClient {
 	let started = false;
@@ -83,11 +85,18 @@ export namespace CommanderClient {
 		if (command.options.shortcuts === undefined) return;
 
 		const commandPath = command.getPath();
-		for (const shortcuts of command.options.shortcuts) {
-			const keys = typeIs(shortcuts, "table")
-				? new Set(shortcuts as Enum.KeyCode[])
-				: new Set([shortcuts as Enum.KeyCode]);
+		const commandInput = commandPath.toString().gsub("/", " ")[0];
+		for (const shortcut of command.options.shortcuts) {
+			const keys = new Set(getShortcutKeycodes(shortcut as CommandShortcut));
 			const keyCount = keys.size();
+			if (keyCount === 0) continue;
+
+			let inputText = commandInput;
+			if (isShortcutContext(shortcut)) {
+				const args =
+					shortcut.arguments?.map((arg) => `\"${arg}\"`).join(" ") ?? "";
+				inputText = `${inputText} ${args}`;
+			}
 
 			UserInputService.InputBegan.Connect((input, gameProcessed) => {
 				if (gameProcessed) return;
@@ -101,7 +110,7 @@ export namespace CommanderClient {
 					return;
 				}
 
-				dispatcherInstance.run(commandPath);
+				dispatcherInstance.run(commandPath, inputText);
 			});
 		}
 	}

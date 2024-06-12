@@ -3,7 +3,7 @@ title: Shortcuts
 description: Learn how to use shortcuts to execute commands.
 ---
 
-import { Aside, Code, Card } from '@astrojs/starlight/components';
+import { Aside, Card, Code } from '@astrojs/starlight/components';
 
 ## Enabling Shortcuts
 
@@ -57,37 +57,3 @@ export class SayHiCommand {
 In this example, the command executes when the user presses `H` or `LeftAlt + J`.
 
 Note that `@Guard()` decorators still function correctly with shortcuts.
-
-### Context Action Service
-
-Commands can also interact with the ContextActionService, allowing them to run based on specific criteria, such as "PlayerInCar".
-
-<Code lang="ts" code={`
-@Commander
-export class SayHiCommand {
-    @Command({
-        name: "sayhi",
-        description: "Say hi!",
-        shortcuts: [{ actionName: "WindowFocused", activations: [Enum.UserInputType.Focus] }]
-    })
-    run(ctx: CommandContext) {
-        print('Hi 🙂!')
-    }
-}`}
-/>
-
-This modified example:
-
-- Registers a command named sayhi.
-- Binds this command to the window being focused.
-- Prints "Hi 🙂!" when the user focuses the window.
-
-Activations are optional. Commands can also be controlled via `ContextActionService.BindAction` outside of the commander.
-
-For example, to unbind the `"WindowFocused"` behavior after a short period, you can use the following script:
-
-<Code lang="ts" code={`
-task.wait(5);
-ContextActionService.UnbindAction("WindowFocused");
-`}
-/>

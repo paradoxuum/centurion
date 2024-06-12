@@ -21,18 +21,18 @@ export interface ArgumentOptions {
 }
 
 export interface ShortcutContext {
-	actionName: string;
-	activations?: Array<Enum.PlayerActions | Enum.KeyCode | Enum.UserInputType>;
+	keys: Enum.KeyCode[];
+	arguments?: string[];
 }
 
-export type CommandShortcut = Array<Enum.KeyCode | Enum.KeyCode[]>;
+export type CommandShortcut = Enum.KeyCode | Enum.KeyCode[] | ShortcutContext;
 
 export interface CommandOptions {
 	name: string;
 	aliases?: string[];
 	description?: string;
 	arguments?: ArgumentOptions[];
-	shortcuts?: CommandShortcut;
+	shortcuts?: CommandShortcut[];
 }
 
 export interface GroupOptions {

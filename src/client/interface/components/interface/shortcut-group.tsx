@@ -1,6 +1,10 @@
 import React, { useContext, useState } from "@rbxts/react";
 import { CommandShortcut } from "../../../../shared";
-import { getModifierKeyName, isModifierKey } from "../../../util";
+import {
+	getModifierKeyName,
+	getShortcutKeycodes,
+	isModifierKey,
+} from "../../../util";
 import { usePx } from "../../hooks/use-px";
 import {
 	InterfaceOptionsWithState,
@@ -51,7 +55,7 @@ function Key(props: KeyProps) {
 }
 
 interface ShortcutGroupProps {
-	shortcuts?: CommandShortcut;
+	shortcuts?: CommandShortcut[];
 }
 export function ShortcutGroup(props: ShortcutGroupProps) {
 	const options = useContext(OptionsContext);
@@ -74,9 +78,8 @@ export function ShortcutGroup(props: ShortcutGroupProps) {
 			/>
 
 			{props.shortcuts?.map((shortcut, index) => {
-				const shortcuts = typeIs(shortcut, "table")
-					? (shortcut as Enum.KeyCode[])
-					: [shortcut as Enum.KeyCode];
+				const shortcuts = getShortcutKeycodes(shortcut);
+
 				return (
 					<Frame
 						automaticSize="XY"
