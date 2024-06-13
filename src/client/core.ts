@@ -53,7 +53,10 @@ export namespace CommanderClient {
 
 		dispatcherInstance.init(optionsObject);
 		registryInstance.init(optionsObject);
-		registryInstance.commandRegistered.Connect(registerShortcuts);
+
+		if (optionsObject.shortcutsEnabled) {
+			registryInstance.commandRegistered.Connect(registerShortcuts);
+		}
 
 		callback?.(registryInstance);
 		await registryInstance.sync();
@@ -85,7 +88,6 @@ export namespace CommanderClient {
 		if (command.options.shortcuts === undefined) return;
 
 		const commandPath = command.getPath();
-		const commandInput = commandPath.toString().gsub("/", " ")[0];
 		for (const shortcut of command.options.shortcuts) {
 			const keys = new Set(getShortcutKeycodes(shortcut as CommandShortcut));
 			const keyCount = keys.size();

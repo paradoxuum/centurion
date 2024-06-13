@@ -8,7 +8,6 @@ CommanderClient.start(
 		registry.register();
 	},
 	{
-		shortcutsEnabled: true,
 		interface: CommanderInterface.create({
 			showShortcutSuggestions: true,
 		}),
