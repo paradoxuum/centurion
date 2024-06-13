@@ -26,9 +26,9 @@ export class ServerCommand extends BaseCommand {
 		super(registry, path, options);
 	}
 
-	execute(context: CommandContext, text: string) {
+	execute(context: CommandContext, args: string[]) {
 		const [success, data] = pcall(() =>
-			this.executeRemote.Invoke(this.path.toString(), text),
+			this.executeRemote.Invoke(this.path.toString(), args),
 		);
 
 		if (!success) {

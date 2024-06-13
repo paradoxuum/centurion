@@ -10,7 +10,8 @@ export class CommandContext<S = unknown> {
 
 	constructor(
 		readonly path: RegistryPath,
-		readonly text: string,
+		readonly args: string[],
+		readonly input: string,
 		readonly executor?: Player,
 	) {}
 
@@ -23,8 +24,9 @@ export class CommandContext<S = unknown> {
 	 */
 	getData(): CommandContextData {
 		return {
+			args: this.args,
+			input: this.input,
 			executor: this.executor,
-			text: this.text,
 			reply: this.replyData,
 		};
 	}

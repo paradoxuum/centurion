@@ -289,7 +289,13 @@ export function TerminalWindow() {
 						});
 						return;
 					}
-					dispatcher.run(commandPath, text);
+
+					const args = ArrayUtil.slice(
+						storeState.text.parts,
+						commandPath.size(),
+					);
+					print(args);
+					dispatcher.run(commandPath, args);
 				}}
 			/>
 		</Frame>

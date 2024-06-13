@@ -5,7 +5,6 @@ import {
 	GroupOptions,
 } from "../types";
 import { ObjectUtil, ReadonlyDeepObject } from "../util/data";
-import { splitString } from "../util/string";
 import { TransformResult } from "../util/type";
 import { CommandContext } from "./context";
 import { ImmutableRegistryPath } from "./path";
@@ -48,7 +47,7 @@ export abstract class BaseCommand {
 		}
 	}
 
-	abstract execute(context: CommandContext, text: string): unknown;
+	abstract execute(context: CommandContext, args: string[]): unknown;
 
 	getPath() {
 		return this.path;
@@ -86,14 +85,14 @@ export class ExecutableCommand extends BaseCommand {
 		this.guards = table.freeze([...guards]);
 	}
 
-	execute(context: CommandContext, text: string) {
+	execute(context: CommandContext, args: string[]) {
 		for (const guard of this.guards) {
 			if (!guard(context)) return;
 		}
 
 		if (context.isReplyReceived()) return;
 
-		const transformedArgs = this.transformArgs(text, context);
+		const transformedArgs = this.transformArgs(args, context);
 		if (!transformedArgs.ok) {
 			context.error(transformedArgs.value);
 			return;
@@ -103,19 +102,15 @@ export class ExecutableCommand extends BaseCommand {
 	}
 
 	transformArgs(
-		text: string,
+		args: string[],
 		context: CommandContext,
 	): TransformResult.Object<unknown[]> {
-		const args = splitString(text, " ");
-
 		const argOptions = this.options.arguments;
 		if (argOptions === undefined || argOptions.isEmpty()) {
 			return TransformResult.ok([]);
 		}
 
-		const startIndex = this.path.size();
-		const endIndex = args.size() - startIndex - 1;
-
+		const endIndex = args.size() - 1;
 		const transformedArgs: unknown[] = [];
 		for (const i of $range(0, this.argTypes.size() - 1)) {
 			const argType = this.argTypes[i];
@@ -129,10 +124,7 @@ export class ExecutableCommand extends BaseCommand {
 				);
 			}
 
-			const transformedArg = argType.transform(
-				args[startIndex + i],
-				context.executor,
-			);
+			const transformedArg = argType.transform(args[i], context.executor);
 			if (!transformedArg.ok) return TransformResult.err(transformedArg.value);
 			transformedArgs[i] = transformedArg.value;
 		}

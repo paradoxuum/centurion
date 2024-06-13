@@ -2,9 +2,12 @@ import { expect, test } from "@rbxts/jest-globals";
 import { CommandContext } from "../core/context";
 import { RegistryPath } from "../core/path";
 import { CommandContextData, CommandReply } from "../types";
+import { getInputText } from "../util/string";
 
-const createContext = () =>
-	new CommandContext(RegistryPath.fromString("test"), "test");
+const createContext = (args: string[] = []) => {
+	const path = RegistryPath.fromString("test");
+	return new CommandContext(path, args, getInputText(path, args));
+};
 
 test("contexts can be replied to", () => {
 	const ctx = createContext();
@@ -27,10 +30,11 @@ test("contexts can receive errors", () => {
 });
 
 test("context data can be retrieved", () => {
-	const ctx = createContext();
+	const ctx = createContext(["arg1", "arg2_1 arg2_2"]);
 	const data = ctx.getData();
 	expect(data).toEqual<CommandContextData>({
-		text: "test",
+		args: ["arg1", "arg2_1 arg2_2"],
+		input: 'test arg1 "arg2_1 arg2_2"',
 	});
 
 	const text = "test";

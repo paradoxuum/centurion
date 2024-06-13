@@ -53,7 +53,8 @@ export interface CommandReply {
 }
 
 export interface CommandContextData {
+	args: string[];
+	input: string;
 	executor?: Player;
-	text: string;
 	reply?: CommandReply;
 }

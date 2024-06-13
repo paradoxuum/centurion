@@ -48,7 +48,7 @@ export function getRemotes() {
 			(data: SyncData) => void
 		>,
 		execute: getRemote("RemoteFunction", "Execute") as RemoteFunction<
-			(path: string, text: string) => CommandContextData
+			(path: string, args: string[]) => CommandContextData
 		>,
 	};
 }

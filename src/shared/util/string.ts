@@ -1,3 +1,5 @@
+import { RegistryPath } from "../core/path";
+
 function charCode(n: string) {
 	return utf8.char(tonumber(n, 16) as number);
 }
@@ -105,4 +107,31 @@ export function endsWithSpace(text: string) {
 
 export function formatPartsAsPath(textParts: string[]) {
 	return textParts.join("/");
+}
+
+/**
+ * Returns the input text of a command with the given arguments.
+ *
+ * @param path The path of the command
+ * @param args The command's arguments
+ * @returns The input text of the command
+ */
+export function getInputText(path: RegistryPath, args: string[]) {
+	const pathText = path.parts().join(" ");
+	if (args.isEmpty()) {
+		return pathText;
+	}
+
+	let argText = "";
+	let index = 0;
+	for (const arg of args) {
+		if (index > 0) {
+			argText += " ";
+		}
+
+		argText += arg.match("%s").isEmpty() ? arg : `"${arg}"`;
+		index++;
+	}
+
+	return `${path} ${argText}`;
 }

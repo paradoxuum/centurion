@@ -46,7 +46,7 @@ export namespace CommanderClient {
 					},
 				},
 				execute: {
-					Invoke: (path, text) => remotes.execute.InvokeServer(path, text),
+					Invoke: (path, args) => remotes.execute.InvokeServer(path, args),
 				},
 			};
 		}
@@ -91,13 +91,7 @@ export namespace CommanderClient {
 			const keyCount = keys.size();
 			if (keyCount === 0) continue;
 
-			let inputText = commandInput;
-			if (isShortcutContext(shortcut)) {
-				const args =
-					shortcut.arguments?.map((arg) => `\"${arg}\"`).join(" ") ?? "";
-				inputText = `${inputText} ${args}`;
-			}
-
+			const args = isShortcutContext(shortcut) ? shortcut.arguments : undefined;
 			UserInputService.InputBegan.Connect((input, gameProcessed) => {
 				if (gameProcessed) return;
 				if (input.UserInputType !== Enum.UserInputType.Keyboard) return;
@@ -110,7 +104,7 @@ export namespace CommanderClient {
 					return;
 				}
 
-				dispatcherInstance.run(commandPath, inputText);
+				dispatcherInstance.run(commandPath, args);
 			});
 		}
 	}

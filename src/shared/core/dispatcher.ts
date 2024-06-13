@@ -17,10 +17,11 @@ export abstract class BaseDispatcher {
 	protected async executeCommand(
 		path: RegistryPath,
 		executor: Player,
-		text: string,
+		inputText: string,
+		args: string[] = [],
 	) {
 		const command = this.registry.getCommand(path);
-		const context = new CommandContext(path, text, executor);
+		const context = new CommandContext(path, args, inputText, executor);
 		context.state = this.defaultContextState;
 
 		if (command === undefined) {
@@ -28,11 +29,10 @@ export abstract class BaseDispatcher {
 			return context;
 		}
 
-		command.execute(context, text);
+		command.execute(context, args);
 		if (!context.isReplyReceived()) {
 			context.reply(DEFAULT_REPLY_TEXT);
 		}
-
 		return context;
 	}
 }

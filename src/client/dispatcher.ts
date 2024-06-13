@@ -2,6 +2,7 @@ import { Signal } from "@rbxts/beacon";
 import { Players } from "@rbxts/services";
 import { RegistryPath } from "../shared";
 import { BaseDispatcher } from "../shared/core/dispatcher";
+import { getInputText } from "../shared/util/string";
 import { DEFAULT_CLIENT_OPTIONS } from "./options";
 import { ClientOptions, HistoryEntry } from "./types";
 
@@ -24,18 +25,20 @@ export class ClientDispatcher extends BaseDispatcher {
 	 * Executes a command.
 	 *
 	 * @param path The path of the command
-	 * @param text The text input used to execute the command
+	 * @param args The command's arguments
 	 * @returns A {@link HistoryEntry} containing the command's response
 	 */
-	async run(path: RegistryPath, text = "") {
+	async run(path: RegistryPath, args: string[] = []) {
+		const inputText = getInputText(path, args);
 		const [success, context] = this.executeCommand(
 			path,
 			Players.LocalPlayer,
-			text,
+			inputText,
+			args,
 		).await();
 
 		if (!success) {
-			warn(`An error occurred while executing '${text}': ${context}`);
+			warn(`An error occurred while executing '${inputText}': ${context}`);
 
 			const errorEntry: HistoryEntry = {
 				text: "An error occurred.",

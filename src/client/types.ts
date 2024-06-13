@@ -31,6 +31,6 @@ export namespace ClientRemotes {
 	}
 
 	export interface Execute {
-		Invoke: (path: string, text: string) => CommandContextData;
+		Invoke: (path: string, args: string[]) => CommandContextData;
 	}
 }
