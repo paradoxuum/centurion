@@ -7,7 +7,7 @@
 		"prepack": "npm run compile && find out -name __tests__ -type d -prune -exec rm -rf {} \\;",
 		"compile": "rm -rf out && rbxtsc --verbose",
 		"postcompile": "echo \"return {}\" > out/client/interface/app/config.lua",
-		"watch": "rbxtsc -w --type=game -p test -i test/include",
+		"dev": "rbxtsc -w --type=game -p test -i test/include",
 		"serve": "rojo serve test"
 	},
 	"keywords": [
