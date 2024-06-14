@@ -3,7 +3,7 @@ import {
 	CommandContext,
 	Commander,
 	CommanderType,
-} from "../../shared";
+} from "@rbxts/commander";
 
 @Commander
 export class EchoCommand {
