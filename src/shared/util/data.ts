@@ -52,7 +52,7 @@ export namespace ObjectUtil {
 		const result = table.freeze(dictionary);
 		for (const [_, v] of pairs(dictionary)) {
 			if (typeIs(v, "table")) {
-				table.freeze(v);
+				freezeDeep(v);
 			}
 		}
 		return result as ReadonlyDeepObject<T>;
