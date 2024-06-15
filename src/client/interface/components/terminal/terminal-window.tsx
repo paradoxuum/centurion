@@ -294,7 +294,6 @@ export function TerminalWindow() {
 						storeState.text.parts,
 						commandPath.size(),
 					);
-					print(args);
 					dispatcher.run(commandPath, args);
 				}}
 			/>
