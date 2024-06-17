@@ -1,4 +1,7 @@
-import "./config";
+const config = script.Parent?.FindFirstChild("config");
+if (config !== undefined && classIs(config, "ModuleScript")) {
+	require(config);
+}
 
 import { Signal } from "@rbxts/beacon";
 import React, { StrictMode } from "@rbxts/react";

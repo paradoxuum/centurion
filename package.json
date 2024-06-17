@@ -4,9 +4,8 @@
 	"description": "A flexible command framework built for roblox-ts",
 	"main": "out/init.lua",
 	"scripts": {
-		"prepack": "npm run compile && find out -name __tests__ -type d -prune -exec rm -rf {} \\;",
-		"compile": "rm -rf out && rbxtsc --verbose",
-		"postcompile": "echo \"return {}\" > out/client/interface/app/config.lua",
+		"prepack": "pnpm build",
+		"build": "shx rm -rf out && rbxtsc --verbose",
 		"dev": "rbxtsc -w --type=game -p test -i test/include",
 		"serve": "rojo serve test"
 	},
@@ -27,7 +26,9 @@
 	},
 	"files": [
 		"out",
-		"!**/*.tsbuildinfo"
+		"!**/*.tsbuildinfo",
+		"!**/__tests__",
+		"!**/app/config*"
 	],
 	"publishConfig": {
 		"access": "public"
@@ -39,6 +40,7 @@
 		"@rbxts/jest-globals": "^0.1.0",
 		"@rbxts/types": "^1.0.780",
 		"roblox-ts": "2.3.0-dev-d7847ea",
+		"shx": "^0.3.4",
 		"typescript": "~5.4"
 	},
 	"dependencies": {
