@@ -17,7 +17,7 @@ export namespace CommanderInterface {
 	const PRELOAD_ATTEMPT_INTERVAL = 3;
 	const optionsChanged = new Signal<[options: Partial<InterfaceOptions>]>();
 
-	export function setOptions(options: Partial<InterfaceOptions>) {
+	export function updateOptions(options: Partial<InterfaceOptions>) {
 		optionsChanged.Fire(options);
 	}
 

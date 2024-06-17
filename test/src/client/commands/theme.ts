@@ -25,7 +25,7 @@ export class ThemeCommand {
 			return;
 		}
 
-		CommanderInterface.setOptions({
+		CommanderInterface.updateOptions({
 			palette: DefaultPalette[theme as never],
 		});
 		ctx.reply(`Set theme to '${theme}'`);
