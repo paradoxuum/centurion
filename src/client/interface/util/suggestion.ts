@@ -134,7 +134,7 @@ export function getCommandSuggestion(
 	return {
 		main: {
 			type: "command",
-			title: mainData.name,
+			title: firstPath.tail(),
 			description: mainData.description,
 			shortcuts: (mainData as CommandOptions).shortcuts,
 		},
