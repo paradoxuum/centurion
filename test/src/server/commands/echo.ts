@@ -25,6 +25,7 @@ export class EchoCommand {
 				arguments: ["Alt + H pressed"],
 			},
 		],
+		aliases: ["print"],
 	})
 	run(_: CommandContext, text?: string) {
 		if (text !== undefined) {

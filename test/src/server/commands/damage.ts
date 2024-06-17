@@ -22,6 +22,7 @@ class DamageCommand {
 				type: CommanderType.Number,
 			},
 		],
+		aliases: ["dmg"],
 	})
 	damage(ctx: CommandContext, player: Player, damage: number) {
 		if (player.Character === undefined) {

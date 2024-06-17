@@ -1,11 +1,13 @@
 import {
 	Command,
 	CommandContext,
+	Commander,
 	CommanderInterface,
 	CommanderType,
 	DefaultPalette,
 } from "@rbxts/commander";
 
+@Commander
 export class ThemeCommand {
 	@Command({
 		name: "theme",
@@ -18,6 +20,7 @@ export class ThemeCommand {
 				suggestions: ["mocha", "macchiato", "frappe", "latte"],
 			},
 		],
+		aliases: ["palette"],
 	})
 	theme(ctx: CommandContext, theme: string) {
 		if (!(theme in DefaultPalette)) {
