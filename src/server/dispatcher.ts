@@ -36,7 +36,7 @@ export class ServerDispatcher extends BaseDispatcher {
 
 			const commandPath = RegistryPath.fromString(path);
 
-			const [success, data] = this.run(commandPath, executor, args)
+			const [success, data] = this.run(commandPath, args, executor)
 				.timeout(5)
 				.await();
 
@@ -45,7 +45,7 @@ export class ServerDispatcher extends BaseDispatcher {
 				contextData = data.getData();
 			} else {
 				const inputText = getInputText(commandPath, args);
-				this.handleError(executor, inputText, data);
+				this.handleError(inputText, data, executor);
 				contextData = {
 					args,
 					input: inputText,
@@ -66,14 +66,14 @@ export class ServerDispatcher extends BaseDispatcher {
 	 * Executes a command.
 	 *
 	 * @param path The path of the command
-	 * @param executor The command executor
 	 * @param args The command's arguments
+	 * @param executor The command executor, or `undefined` if the executor is the server
 	 * @returns A {@link CommandContext} determining the result of execution
 	 */
-	async run(path: RegistryPath, executor: Player, args: string[] = []) {
+	async run(path: RegistryPath, args: string[] = [], executor?: Player) {
 		const inputText = getInputText(path, args);
-		return this.executeCommand(path, executor, inputText, args).catch((err) => {
-			this.handleError(executor, inputText, err);
+		return this.executeCommand(path, inputText, args, executor).catch((err) => {
+			this.handleError(inputText, err, executor);
 
 			const context = new CommandContext(path, args, inputText, executor);
 			context.state = this.defaultContextState;
@@ -82,9 +82,13 @@ export class ServerDispatcher extends BaseDispatcher {
 		});
 	}
 
-	private handleError(executor: Player, input: string, err: unknown) {
-		warn(
-			`${executor.Name} tried to run '${input}' but an error occurred: ${err}`,
-		);
+	private handleError(input: string, err: unknown, executor?: Player) {
+		if (executor === undefined) {
+			warn(`An error occurred while running '${input}': ${err}`);
+		} else {
+			warn(
+				`${executor.Name} tried to run '${input}' but an error occurred: ${err}`,
+			);
+		}
 	}
 }

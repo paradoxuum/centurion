@@ -16,9 +16,9 @@ export abstract class BaseDispatcher {
 
 	protected async executeCommand(
 		path: RegistryPath,
-		executor: Player,
 		inputText: string,
 		args: string[] = [],
+		executor?: Player,
 	) {
 		const command = this.registry.getCommand(path);
 		const context = new CommandContext(path, args, inputText, executor);
