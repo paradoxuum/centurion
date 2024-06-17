@@ -27,5 +27,5 @@ jobs:
             - name: Run Biome
               run: pnpm biome ci .
 
-            - name: Compile
-              run: pnpm compile --verbose
+            - name: Build project
+              run: pnpm build --verbose
