@@ -222,7 +222,7 @@ export const BrickColorType = TypeBuilder.create<BrickColor>(
 	.transform((text) => {
 		if (!brickColorNames.has(text))
 			return TransformResult.err("Invalid BrickColor");
-		return TransformResult.ok(BrickColor[text as never]);
+		return TransformResult.ok(new BrickColor(text as BrickColorsByNumber[keyof BrickColorsByNumber]));
 	})
 	.suggestions(() => brickColorNameArray)
 	.build();
