@@ -227,7 +227,7 @@ export const BrickColorType = TypeBuilder.create<BrickColor>(
 	.suggestions(() => brickColorNameArray)
 	.build();
 
-const HEX_COLOR_PATTERN = "^#[%a%d]+$";
+const HEX_COLOR_PATTERN = "^#?%x%x%x%x%x%x$";
 
 function isHexColor(value: unknown): value is Color3 {
 	if (!typeIs(value, "string")) return false;
