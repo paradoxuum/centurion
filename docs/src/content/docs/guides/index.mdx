@@ -71,6 +71,10 @@ CommanderServer.start(
 
 ## Registration
 
+<Aside>
+Command modules should be loaded from within the start callback to avoid registration errors.
+</Aside>
+
 The way commands and types are registered is the same on the server and client.
 
 <Code lang="ts" code={`
