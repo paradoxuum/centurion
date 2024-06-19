@@ -44,7 +44,7 @@ export const PlayersType = TypeBuilder.create<Player[]>(CommanderType.Players)
 	.validate(t.array(isPlayer))
 	.transform((text, executor) => {
 		let players: Player[] = [];
-		for (const [part] of text.gmatch("[@%w%.%*]+")) {
+		for (const [part] of text.gmatch("[@_%w%.%*]+")) {
 			const textPart = part as string;
 
 			if (textPart === "@all" || textPart === "*") {
