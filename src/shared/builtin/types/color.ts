@@ -222,12 +222,12 @@ export const BrickColorType = TypeBuilder.create<BrickColor>(
 	.transform((text) => {
 		if (!brickColorNames.has(text))
 			return TransformResult.err("Invalid BrickColor");
-		return TransformResult.ok(BrickColor[text as never]);
+		return TransformResult.ok(new BrickColor(text as BrickColorsByNumber[keyof BrickColorsByNumber]));
 	})
 	.suggestions(() => brickColorNameArray)
 	.build();
 
-const HEX_COLOR_PATTERN = "^#[%a%d]+$";
+const HEX_COLOR_PATTERN = "^#?%x%x%x%x%x%x$";
 
 function isHexColor(value: unknown): value is Color3 {
 	if (!typeIs(value, "string")) return false;
