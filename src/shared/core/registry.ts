@@ -55,19 +55,19 @@ export abstract class BaseRegistry {
 	}
 
 	/**
-	 * Requires all {@link ModuleScript}s in the given {@link Instance}.
+	 * Loads all `ModuleScript` instances in the given instance.
 	 *
-	 * If the `recursive` parameter is set to `true`, all descendant {@link ModuleScript}s
-	 * will be loaded.
+	 * By default, only direct children of the container are loaded. If the `descendants`
+	 * parameter is true, all descendants of the container will be loaded.
 	 *
 	 * If the {@link ModuleScript} returns a function, it will be called with the registry
 	 * as an argument.
 	 *
 	 * @param container The container to iterate over
-	 * @param recursive Whether to iterate over all descendants, not just children
+	 * @param descendants Whether to load descendants of the container.
 	 */
-	load(container: Instance, recursive = false) {
-		const instances = recursive
+	load(container: Instance, descendants = false) {
+		const instances = descendants
 			? container.GetDescendants()
 			: container.GetChildren();
 
