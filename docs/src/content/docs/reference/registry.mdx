@@ -16,15 +16,19 @@ This method is called when starting Commander.
 **Parameters**
 - `options` - The options object provided when starting Commander.
 
-### `load(container)`
+### `load(container, descendants)`
 
-Loads all child `ModuleScript` instances in the given instance.
+Loads all `ModuleScript` instances in the given instance.
+
+By default, only direct children of the container are loaded. If the `descendants`
+parameter is true, all descendants of the container will be loaded.
 
 If the `ModuleScript` returns a function, it will be called with the
 registry as an argument.
 
 **Parameters**:
 - `container` - The container to iterate over.
+- `descendants` - Whether to load descendants of the container.
 
 ### `register()`
 
