@@ -7,7 +7,7 @@
     "test"
   ],
   "scripts": {
-    "packages:build": "yarn workspaces foreach -Rpt --from \"{@rbxts/centurion,@rbxts/centurion-ui}\" run build",
+    "packages:build": "yarn workspaces foreach -R --from \"{@rbxts/centurion,@rbxts/centurion-ui}\" run build",
     "test:build": "yarn workspace test build",
     "test:dev": "yarn workspace test dev",
     "test:serve": "yarn workspace test serve"
