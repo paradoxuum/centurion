@@ -2303,6 +2303,7 @@ __metadata:
   resolution: "centurion@workspace:."
   dependencies:
     "@biomejs/biome": "npm:1.8.3"
+    lefthook: "npm:^1.6.18"
   languageName: unknown
   linkType: soft
 
@@ -3933,6 +3934,97 @@ __metadata:
   version: 4.1.5
   resolution: "kleur@npm:4.1.5"
   checksum: 10c0/e9de6cb49657b6fa70ba2d1448fd3d691a5c4370d8f7bbf1c2f64c24d461270f2117e1b0afe8cb3114f13bbd8e51de158c2a224953960331904e636a5e4c0f2a
+  languageName: node
+  linkType: hard
+
+"lefthook-darwin-arm64@npm:1.6.18":
+  version: 1.6.18
+  resolution: "lefthook-darwin-arm64@npm:1.6.18"
+  conditions: os=darwin & cpu=arm64
+  languageName: node
+  linkType: hard
+
+"lefthook-darwin-x64@npm:1.6.18":
+  version: 1.6.18
+  resolution: "lefthook-darwin-x64@npm:1.6.18"
+  conditions: os=darwin & cpu=x64
+  languageName: node
+  linkType: hard
+
+"lefthook-freebsd-arm64@npm:1.6.18":
+  version: 1.6.18
+  resolution: "lefthook-freebsd-arm64@npm:1.6.18"
+  conditions: os=freebsd & cpu=arm64
+  languageName: node
+  linkType: hard
+
+"lefthook-freebsd-x64@npm:1.6.18":
+  version: 1.6.18
+  resolution: "lefthook-freebsd-x64@npm:1.6.18"
+  conditions: os=freebsd & cpu=x64
+  languageName: node
+  linkType: hard
+
+"lefthook-linux-arm64@npm:1.6.18":
+  version: 1.6.18
+  resolution: "lefthook-linux-arm64@npm:1.6.18"
+  conditions: os=linux & cpu=arm64
+  languageName: node
+  linkType: hard
+
+"lefthook-linux-x64@npm:1.6.18":
+  version: 1.6.18
+  resolution: "lefthook-linux-x64@npm:1.6.18"
+  conditions: os=linux & cpu=x64
+  languageName: node
+  linkType: hard
+
+"lefthook-windows-arm64@npm:1.6.18":
+  version: 1.6.18
+  resolution: "lefthook-windows-arm64@npm:1.6.18"
+  conditions: os=win32 & cpu=arm64
+  languageName: node
+  linkType: hard
+
+"lefthook-windows-x64@npm:1.6.18":
+  version: 1.6.18
+  resolution: "lefthook-windows-x64@npm:1.6.18"
+  conditions: os=win32 & cpu=x64
+  languageName: node
+  linkType: hard
+
+"lefthook@npm:^1.6.18":
+  version: 1.6.18
+  resolution: "lefthook@npm:1.6.18"
+  dependencies:
+    lefthook-darwin-arm64: "npm:1.6.18"
+    lefthook-darwin-x64: "npm:1.6.18"
+    lefthook-freebsd-arm64: "npm:1.6.18"
+    lefthook-freebsd-x64: "npm:1.6.18"
+    lefthook-linux-arm64: "npm:1.6.18"
+    lefthook-linux-x64: "npm:1.6.18"
+    lefthook-windows-arm64: "npm:1.6.18"
+    lefthook-windows-x64: "npm:1.6.18"
+  dependenciesMeta:
+    lefthook-darwin-arm64:
+      optional: true
+    lefthook-darwin-x64:
+      optional: true
+    lefthook-freebsd-arm64:
+      optional: true
+    lefthook-freebsd-x64:
+      optional: true
+    lefthook-linux-arm64:
+      optional: true
+    lefthook-linux-x64:
+      optional: true
+    lefthook-windows-arm64:
+      optional: true
+    lefthook-windows-x64:
+      optional: true
+  bin:
+    lefthook: bin/index.js
+  checksum: 10c0/bd76ba3050d805f777a17ef01174e11f538c4e4434dee22e281fcf63a2704d103249f4b606035a0b02af50c77ea589a35d43afaaa8eb1a679c071f2c80e75d97
   languageName: node
   linkType: hard
 

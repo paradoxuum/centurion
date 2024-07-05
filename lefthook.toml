@@ -1,0 +1,4 @@
+[pre-commit.commands.lint]
+run = "yarn biome check --write --unsafe"
+glob = "*.{ts,tsx,toml,json}"
+stage_fixed = true
