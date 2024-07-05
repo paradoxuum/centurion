@@ -1,5 +1,6 @@
 {
-	"name": "commander",
+	"name": "centurion",
+	"globIgnorePaths": ["**/package.json", "**/tsconfig.json"],
 	"tree": {
 		"$className": "DataModel",
 		"ReplicatedStorage": {
@@ -9,10 +10,7 @@
 				"node_modules": {
 					"$className": "Folder",
 					"@rbxts": {
-						"$path": "../node_modules/@rbxts",
-						"commander": {
-							"$path": "out"
-						}
+						"$path": "node_modules/@rbxts"
 					}
 				}
 			}
@@ -21,7 +19,7 @@
 		"ServerScriptService": {
 			"$className": "ServerScriptService",
 			"server": {
-				"$path": "out/test/src/server"
+				"$path": "out/server"
 			}
 		},
 
@@ -30,7 +28,7 @@
 			"StarterPlayerScripts": {
 				"$className": "StarterPlayerScripts",
 				"client": {
-					"$path": "out/test/src/client"
+					"$path": "out/client"
 				}
 			}
 		},

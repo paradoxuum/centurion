@@ -1,57 +1,18 @@
 {
-	"name": "@rbxts/commander",
-	"version": "0.4.0",
-	"description": "A flexible command framework built for roblox-ts",
-	"main": "out/init.lua",
-	"scripts": {
-		"prepack": "pnpm build",
-		"build": "shx rm -rf out && rbxtsc --verbose",
-		"dev": "rbxtsc -w --type=game -p test -i test/include",
-		"serve": "rojo serve test"
-	},
-	"keywords": [
-		"roblox-ts",
-		"rbxts",
-		"command"
-	],
-	"author": "paradoxuum",
-	"license": "MIT",
-	"types": "out/index.d.ts",
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/paradoxuum/commander.git"
-	},
-	"bugs": {
-		"url": "https://github.com/paradoxuum/commander/issues"
-	},
-	"files": [
-		"out",
-		"!**/*.tsbuildinfo",
-		"!**/__tests__",
-		"!**/app/config*"
-	],
-	"publishConfig": {
-		"access": "public"
-	},
-	"devDependencies": {
-		"@biomejs/biome": "1.8.1",
-		"@rbxts/compiler-types": "2.3.0-types.1",
-		"@rbxts/jest": "^0.1.0",
-		"@rbxts/jest-globals": "^0.1.0",
-		"@rbxts/types": "^1.0.780",
-		"roblox-ts": "2.3.0-dev-d7847ea",
-		"shx": "^0.3.4",
-		"typescript": "~5.4"
-	},
-	"dependencies": {
-		"@rbxts/beacon": "^2.1.1",
-		"@rbxts/pretty-react-hooks": "^0.5.0",
-		"@rbxts/react": "^0.4.0",
-		"@rbxts/react-reflex": "^0.3.4",
-		"@rbxts/react-roblox": "^0.4.0",
-		"@rbxts/reflex": "^4.3.1",
-		"@rbxts/ripple": "^0.8.1",
-		"@rbxts/services": "^1.5.4",
-		"@rbxts/t": "^3.1.1"
-	}
+  "name": "centurion",
+  "packageManager": "yarn@4.3.1",
+  "workspaces": [
+    "packages/*",
+    "docs",
+    "test"
+  ],
+  "scripts": {
+    "packages:build": "yarn workspaces foreach -Rpt --from \"{@rbxts/centurion,@rbxts/centurion-ui}\" run build",
+    "test:build": "yarn workspace test build",
+    "test:dev": "yarn workspace test dev",
+    "test:serve": "yarn workspace test serve"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "1.8.3"
+  }
 }

@@ -3,7 +3,7 @@
     <img src="docs/src/assets/logo.webp" width="150" />
   </a>
 
-  <h1>Commander</h1>
+  <h1>Centurion</h1>
 
   <p>
     <strong>A flexible and extensible command framework for roblox-ts</strong>
@@ -28,7 +28,7 @@
 
 ## About
 
-Commander is a command framework built for roblox-ts.
+Centurion is a command framework built for roblox-ts.
 
 - Commands are defined using decorators in an easy and readable manner.
 - Custom argument types can be created, allowing for a great deal of flexibility for your commands.

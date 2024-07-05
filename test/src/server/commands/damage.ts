@@ -1,12 +1,12 @@
 import {
+	Centurion,
+	CenturionType,
 	Command,
 	CommandContext,
-	Commander,
-	CommanderType,
-} from "@rbxts/commander";
+} from "@rbxts/centurion";
 
-@Commander
-class DamageCommand {
+@Centurion
+export class DamageCommand {
 	@Command({
 		name: "damage",
 		description: "Damages a player",
@@ -14,12 +14,12 @@ class DamageCommand {
 			{
 				name: "player",
 				description: "Player to damage",
-				type: CommanderType.Player,
+				type: CenturionType.Player,
 			},
 			{
 				name: "damage",
 				description: "Amount to damage player",
-				type: CommanderType.Number,
+				type: CenturionType.Number,
 			},
 		],
 		aliases: ["dmg"],

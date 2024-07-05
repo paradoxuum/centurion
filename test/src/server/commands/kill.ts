@@ -1,13 +1,13 @@
 import {
+	Centurion,
+	CenturionType,
 	Command,
 	CommandContext,
-	Commander,
-	CommanderType,
-} from "@rbxts/commander";
+} from "@rbxts/centurion";
 import { Players } from "@rbxts/services";
 
-@Commander
-class KillCommand {
+@Centurion
+export class KillCommand {
 	@Command({
 		name: "kill",
 		description: "Kill players",
@@ -15,7 +15,7 @@ class KillCommand {
 			{
 				name: "players",
 				description: "Players to kill",
-				type: CommanderType.Players,
+				type: CenturionType.Players,
 				optional: true,
 			},
 		],
