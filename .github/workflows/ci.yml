@@ -11,21 +11,19 @@ jobs:
             - name: Checkout
               uses: actions/checkout@v4
 
-            - uses: pnpm/action-setup@v4
-              with:
-                  version: 9
+            - name: Enable Corepack
+              run: corepack enable
 
             - uses: actions/setup-node@v4
               with:
                   node-version: 20
-                  cache: pnpm
-                  cache-dependency-path: ./pnpm-lock.yaml
+                  cache: "yarn"
 
             - name: Install dependencies
-              run: pnpm install
+              run: yarn install
 
             - name: Run Biome
-              run: pnpm biome ci .
+              run: yarn biome ci
 
             - name: Build project
-              run: pnpm build --verbose
+              run: yarn packages:build

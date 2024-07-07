@@ -1,11 +1,11 @@
 import {
+	Centurion,
+	CenturionType,
 	Command,
 	CommandContext,
-	Commander,
-	CommanderType,
-} from "@rbxts/commander";
+} from "@rbxts/centurion";
 
-@Commander
+@Centurion
 export class EchoCommand {
 	@Command({
 		name: "echo",
@@ -14,7 +14,7 @@ export class EchoCommand {
 			{
 				name: "text",
 				description: "The text to print",
-				type: CommanderType.String,
+				type: CenturionType.String,
 				optional: true,
 			},
 		],

@@ -17,18 +17,15 @@
 		"moduleDetection": "force",
 		"strict": true,
 		"target": "ESNext",
-		"typeRoots": ["./node_modules/@rbxts", "../node_modules/@rbxts"],
+		"typeRoots": ["node_modules/@rbxts"],
 
 		// configurable
-		"paths": {
-			"@rbxts/commander": ["../../src"]
-		},
-		"rootDirs": ["./src", "../src"],
-		"baseUrl": "./src",
-		"outDir": "./out",
+		"rootDir": "src",
+		"outDir": "out",
 		"incremental": true,
-		"tsBuildInfoFile": "./out/tsconfig.tsbuildinfo",
-		"declaration": true
+		"tsBuildInfoFile": "out/tsconfig.tsbuildinfo",
+		"declaration": true,
+		"plugins": []
 	},
-	"include": ["./src/**/*", "../src/**/*"]
+	"include": ["./src/**/*"]
 }

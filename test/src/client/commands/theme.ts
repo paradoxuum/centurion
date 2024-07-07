@@ -1,13 +1,12 @@
 import {
+	Centurion,
+	CenturionType,
 	Command,
 	CommandContext,
-	Commander,
-	CommanderInterface,
-	CommanderType,
-	DefaultPalette,
-} from "@rbxts/commander";
+} from "@rbxts/centurion";
+import { CenturionUI, DefaultPalette } from "@rbxts/centurion-ui";
 
-@Commander
+@Centurion
 export class ThemeCommand {
 	@Command({
 		name: "theme",
@@ -16,7 +15,7 @@ export class ThemeCommand {
 			{
 				name: "name",
 				description: "The name of the palette to set",
-				type: CommanderType.String,
+				type: CenturionType.String,
 				suggestions: ["mocha", "macchiato", "frappe", "latte"],
 			},
 		],
@@ -28,7 +27,7 @@ export class ThemeCommand {
 			return;
 		}
 
-		CommanderInterface.updateOptions({
+		CenturionUI.updateOptions({
 			palette: DefaultPalette[theme as never],
 		});
 		ctx.reply(`Set theme to '${theme}'`);
