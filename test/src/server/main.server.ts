@@ -1,8 +1,8 @@
-import { CommanderServer } from "@rbxts/commander";
+import { CenturionServer } from "@rbxts/centurion";
 
-// Start commander
-CommanderServer.start((registry) => {
-	registry.registerGroups(
+// Start Centurion
+CenturionServer.start((registry) => {
+	registry.registerGroup(
 		{
 			name: "info",
 			description: "View info about a user or the server",
@@ -21,5 +21,6 @@ CommanderServer.start((registry) => {
 
 	if (script.Parent === undefined) return;
 	const commandContainer = script.Parent.WaitForChild("commands");
-	registry.register(commandContainer);
+	registry.load(commandContainer);
+	registry.register();
 });

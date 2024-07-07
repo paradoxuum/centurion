@@ -15,20 +15,16 @@ jobs:
             - name: Checkout
               uses: actions/checkout@v4
 
-            - uses: pnpm/action-setup@v4
-              with:
-                  version: 9
+            - name: Enable Corepack
+              run: corepack enable
 
             - uses: actions/setup-node@v4
               with:
                   node-version: 20
-                  cache: pnpm
-                  cache-dependency-path: ./docs/pnpm-lock.yaml
+                  cache: "yarn"
 
             - name: Install dependencies
-              working-directory: ./docs
-              run: pnpm install
+              run: yarn install
 
-            - name: Test build website
-              working-directory: ./docs
-              run: pnpm build
+            - name: Build website
+              run: yarn workspace docs build

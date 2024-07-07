@@ -1,12 +1,13 @@
 import {
+	Centurion,
+	CenturionType,
 	Command,
 	CommandContext,
-	Commander,
-	CommanderType,
-} from "@rbxts/commander";
+} from "@rbxts/centurion";
+import { Players } from "@rbxts/services";
 
-@Commander
-class KillCommand {
+@Centurion
+export class KillCommand {
 	@Command({
 		name: "kill",
 		description: "Kill players",
@@ -14,16 +15,20 @@ class KillCommand {
 			{
 				name: "players",
 				description: "Players to kill",
-				type: CommanderType.Players,
+				type: CenturionType.Players,
+				optional: true,
 			},
 		],
+		shortcuts: [[Enum.KeyCode.F4]],
 	})
-	kill(ctx: CommandContext, players: Player[]) {
-		for (const player of players) {
+	kill(ctx: CommandContext, players?: Player[]) {
+		const playersArray = players ?? Players.GetPlayers();
+
+		for (const player of playersArray) {
 			this.killPlayer(player);
 		}
 
-		ctx.reply(`Successfully killed ${players.size()} player(s)`);
+		ctx.reply(`Successfully killed ${playersArray.size()} player(s)`);
 	}
 
 	private killPlayer(player: Player) {

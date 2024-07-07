@@ -1,17 +1,26 @@
 <div align="center">
-  <a href="https://paradoxuum.github.io/commander/" target="_blank">
-	<img src="docs/src/assets/logo.webp" width="150" />
+  <a href="https://commander.paradoxum.dev/" target="_blank">
+    <img src="docs/src/assets/logo.webp" width="150" />
   </a>
 
-  <h1>Commander</h1>
+  <h1>Centurion</h1>
 
   <p>
     <strong>A flexible and extensible command framework for roblox-ts</strong>
   </p>
 
-  <h4>
-    <a href="https://paradoxuum.github.io/commander/">Documentation</a>
-  </h4>
+  [![CI status][ci-badge]][ci-url]
+  [![npm latest version][npm-latest-badge]][npm-latest-url]
+  [![npm dev version][npm-next-badge]][npm-next-url]
+
+  [npm-latest-badge]: https://img.shields.io/npm/v/%40rbxts%2Fcommander?logo=npm&label=latest&color=green
+  [npm-latest-url]: https://www.npmjs.com/package/@rbxts/commander/v/latest
+  [npm-next-badge]: https://img.shields.io/npm/v/%40rbxts%2Fcommander%2Fnext?logo=npm&label=next
+  [npm-next-url]: https://www.npmjs.com/package/@rbxts/commander/v/next
+  [ci-badge]: https://github.com/paradoxuum/commander/actions/workflows/ci.yml/badge.svg?branch=main
+  [ci-url]: https://github.com/paradoxuum/commander/actions/workflows/ci.yml
+
+  <a href="https://commander.paradoxum.dev/">📖 Documentation</a>
 </div>
 
 
@@ -19,7 +28,7 @@
 
 ## About
 
-Commander is a command framework built for roblox-ts.
+Centurion is a command framework built for roblox-ts.
 
 - Commands are defined using decorators in an easy and readable manner.
 - Custom argument types can be created, allowing for a great deal of flexibility for your commands.
