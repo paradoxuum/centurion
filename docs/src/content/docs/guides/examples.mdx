@@ -1,6 +1,6 @@
 ---
 title: Examples
-description: Learn the basic usage of Commander through examples
+description: Learn the basic usage of Centurion through examples
 ---
 
 import { Code, TabItem, Tabs } from '@astrojs/starlight/components';
@@ -8,7 +8,7 @@ import { Code, TabItem, Tabs } from '@astrojs/starlight/components';
 ## Kick Command
 
 <Code lang="ts" code={`
-import { Command, CommandGuard, CommandContext, Commander, CommanderType, Guard } from "@rbxts/commander";
+import { Command, CommandGuard, CommandContext, Centurion, CenturionType, Guard } from "@rbxts/centurion";
 
 const isAdmin: CommandGuard = (ctx) => {
     if (ctx.executor.UserId !== 1) {
@@ -19,7 +19,7 @@ const isAdmin: CommandGuard = (ctx) => {
     return true;
 };
 
-@Commander
+@Centurion
 class KickCommand {
     @Command({
         name: "kick",
@@ -28,7 +28,7 @@ class KickCommand {
             {
                 name: "player",
                 description: "Player to kick",
-                type: CommanderType.Player
+                type: CenturionType.Player
             }
         ]
     })
@@ -54,7 +54,7 @@ const isAdmin: CommandGuard = (ctx) => {
     return true;
 };
 
-@Commander
+@Centurion
 // Assigning a group to the class will
 // make all commands in the class belong to that group
 @Group("info")
@@ -70,7 +70,7 @@ class InfoCommand {
 			{
 				name: "player",
 				description: "Player to display information about",
-				type: CommanderType.Player,
+				type: CenturionType.Player,
 			},
 		],
 	})
@@ -95,7 +95,7 @@ class InfoCommand {
 	</TabItem>
 	<TabItem label="main.client.ts">
 	<Code lang="ts" code={`
-CommanderServer.start((registry) => {
+CenturionServer.start((registry) => {
 	registry.registerGroup(
 		{
 			name: "info",

@@ -6,13 +6,13 @@ import starlightLinksValidator from "starlight-links-validator";
 
 // https://astro.build/config
 export default defineConfig({
-	site: "https://commander.paradoxum.dev",
+	site: "https://centurion.paradoxum.dev",
 	integrations: [
 		starlight({
-			title: "Commander",
+			title: "Centurion",
 			description: "Flexible command framework for roblox-ts",
 			social: {
-				github: "https://github.com/paradoxuum/commander",
+				github: "https://github.com/paradoxuum/centurion",
 				discord: "https://discord.roblox-ts.com/",
 			},
 			logo: {

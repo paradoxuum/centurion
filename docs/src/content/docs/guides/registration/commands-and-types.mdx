@@ -20,21 +20,21 @@ which will require all child ModuleScripts in the container, or a similar method
 such as `addPaths`,
 provided by [Flamework](https://flamework.fireboltofdeath.dev/).
 
-For commands to be registered, the parent class must be decorated with [@Commander](/reference/decorators#commander).
+For commands to be registered, the parent class must be decorated with [@Centurion](/reference/decorators#centurion).
 For types, they are marked for registration automatically in the
 `TypeBuilder.build()` method.
 
 <Code lang="ts" code={`
 const types = ReplicatedStorage.types;
 
-CommanderServer.start((registry) => {
+CenturionServer.start((registry) => {
     // Load command/type modules
     registry.load(script.Parent.commands);
     registry.load(types);
 
     // Register commands and types
     registry.register();
-}).catch((err) => warn("Commander could not be started:", tostring(err)));
+}).catch((err) => warn("Centurion could not be started:", tostring(err)));
 `} />
 
 Types can also be registered manually through the

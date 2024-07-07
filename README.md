@@ -1,5 +1,5 @@
 <div align="center">
-  <a href="https://commander.paradoxum.dev/" target="_blank">
+  <a href="https://centurion.paradoxum.dev/" target="_blank">
     <img src="docs/src/assets/logo.webp" width="150" />
   </a>
 
@@ -17,10 +17,10 @@
   [npm-latest-url]: https://www.npmjs.com/package/@rbxts/commander/v/latest
   [npm-next-badge]: https://img.shields.io/npm/v/%40rbxts%2Fcommander%2Fnext?logo=npm&label=next
   [npm-next-url]: https://www.npmjs.com/package/@rbxts/commander/v/next
-  [ci-badge]: https://github.com/paradoxuum/commander/actions/workflows/ci.yml/badge.svg?branch=main
-  [ci-url]: https://github.com/paradoxuum/commander/actions/workflows/ci.yml
+  [ci-badge]: https://github.com/paradoxuum/centurion/actions/workflows/ci.yml/badge.svg?branch=main
+  [ci-url]: https://github.com/paradoxuum/centurion/actions/workflows/ci.yml
 
-  <a href="https://commander.paradoxum.dev/">📖 Documentation</a>
+  <a href="https://centurion.paradoxum.dev/">📖 Documentation</a>
 </div>
 
 

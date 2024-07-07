@@ -11,12 +11,12 @@ They can be configured with one or more key combinations.
 ## Configuration
 
 Shortcuts can be enabled or disabled by configuring the `shortcutsEnabled` option when starting
-`CommanderClient`.
+`CenturionClient`.
 
 Shortcuts are **enabled** by default.
 
 <Code lang="ts" code={`
-CommanderClient.start((registry) => {}, {
+CenturionClient.start((registry) => {}, {
     shortcutsEnabled: false,
 });`
 } />
@@ -27,7 +27,7 @@ the `showShortcutSuggestions` option.
 Shortcut suggestions are **enabled** by default.
 
 <Code lang="ts" code={`
-CommanderInterface.create({
+CenturionUI.create({
     showShortcutSuggestions: false,
 });
 `} />
@@ -42,7 +42,7 @@ In the following example, the command is configured to execute when the user
 presses `E` or `LeftAlt + E`.
 
 <Code lang="ts" code={`
-@Commander
+@Centurion
 export class EchoCommand {
     @Command({
         name: "echo",
@@ -63,7 +63,7 @@ to the command, printing `Hello, world!`.
 If the user presses `E`, no arguments will be provided and `Echo!` will be printed.
 
 <Code lang="ts" code={`
-@Commander
+@Centurion
 export class EchoCommand {
     @Command({
         name: "echo",

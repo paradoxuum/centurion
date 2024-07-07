@@ -1,6 +1,6 @@
 ---
 title: Getting Started
-description: Learn how to install, start and register commands with Commander
+description: Learn how to install, start and register commands with Centurion
 sidebar:
     order: 0
 ---
@@ -11,31 +11,34 @@ import Install from '@fragments/install.mdx';
 export const clientCode = `
 `;
 
-Commander is a flexible and extensible command framework for roblox-ts that
+Centurion is a flexible and extensible command framework for roblox-ts that
 makes defining commands easy and readable.
 
 <Card title="Installation" icon="rocket">
 	<Install />
 </Card>
 
-## Starting Commander
+## Starting Centurion
 
-Commander needs to be started **once** on the client and server.
+Centurion needs to be started **once** on the client and server.
 
 <Tabs>
     <TabItem label="Client">
         <Aside type="caution" title="Usage with React">
             When using React in development mode (`_G.__DEV__` set to true),
-            you must set `_G.__DEV__` to true **before importing** Commander.
+            you must set `_G.__DEV__` to true **before importing** Centurion.
         </Aside>
 
         <Code lang="ts" code={`
-CommanderClient.start(
+import { CenturionClient } from "@rbxts/centurion";
+import { CenturionUI } from "@rbxts/centurion-ui";
+
+CenturionClient.start(
     (registry) => {
         // Register commands or types here
     },
     {
-        interface: CommanderInterface({
+        interface: CenturionUI.create({
             // You can configure the interface here, such as changing activation keys
         }),
 
@@ -48,13 +51,15 @@ CommanderClient.start(
         // This is set to true by default
         registerBuiltInTypes: true,
     },
-).catch((err) => warn("Commander could not be started:", tostring(err)));
+).catch((err) => warn("Centurion could not be started:", tostring(err)));
         `} />
     </TabItem>
 
     <TabItem label="Server">
         <Code lang="ts" code={`
-CommanderServer.start(
+import { CenturionServer } from "@rbxts/centurion";
+
+CenturionServer.start(
     (registry) => {
         // Register commands or types here
     },
@@ -63,7 +68,7 @@ CommanderServer.start(
         // This is set to true by default.
         registerBuiltInTypes: true,
     },
-).catch((err) => warn("Commander could not be started:", tostring(err)));
+).catch((err) => warn("Centurion could not be started:", tostring(err)));
         `} />
     </TabItem>
 </Tabs>
@@ -78,7 +83,7 @@ Command modules should be loaded from within the start callback to avoid registr
 The way commands and types are registered is the same on the server and client.
 
 <Code lang="ts" code={`
-CommanderServer.start((registry) => {
+CenturionServer.start((registry) => {
     // Load all child ModuleScripts under the given Instance
     const commandContainer = script.Parent.commands;
     registry.load(commandContainer);
@@ -107,5 +112,5 @@ CommanderServer.start((registry) => {
     // To register the loaded commands and types, you then
     // call the register method:
     registry.register();
-}).catch((err) => warn("Commander could not be started:", tostring(err)));
+}).catch((err) => warn("Centurion could not be started:", tostring(err)));
 `} />

@@ -12,7 +12,7 @@ Groups must be registered through the [registerGroup](/reference/registry#regist
 Similar to commands, groups are synchronized to the client.
 
 <Code lang="ts" code={`
-CommanderServer.start((registry) => {
+CenturionServer.start((registry) => {
 	registry.registerGroup(
 		{
 			name: "info",
@@ -29,5 +29,5 @@ CommanderServer.start((registry) => {
 			parent: ["info"],
 		},
 	);
-}).catch((err) => warn("Commander could not be started:", tostring(err)));
+}).catch((err) => warn("Centurion could not be started:", tostring(err)));
 `} />

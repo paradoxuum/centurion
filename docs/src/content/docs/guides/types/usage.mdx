@@ -13,9 +13,9 @@ requires.
 Let's say you have a kill command that requires a Player argument:
 
 <Code lang="ts" code={`
-import { CommanderType } from "@rbxts/commander";
+import { CenturionType } from "@rbxts/centurion";
 
-@Commander
+@Centurion
 class KillCommand {
     @Command({
         name: "kill",
@@ -24,7 +24,7 @@ class KillCommand {
             {
                 name: "player",
                 description: "Player to kill",
-                type: CommanderType.Player, // Specify the name of the type here
+                type: CenturionType.Player, // Specify the name of the type here
             },
         ],
     })
