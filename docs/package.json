@@ -12,12 +12,11 @@
   "dependencies": {
     "@astrojs/check": "^0.7.0",
     "@astrojs/starlight": "^0.25.0",
-    "@astrojs/starlight-tailwind": "^2.0.3",
-    "@astrojs/tailwind": "^5.1.0",
     "@fontsource-variable/jetbrains-mono": "^5.0.21",
+    "@lorenzo_lewis/starlight-utils": "^0.1.1",
     "astro": "^4.11.5",
     "sharp": "^0.33.4",
-    "tailwindcss": "^3.4.4",
+    "starlight-links-validator": "^0.9.1",
     "typescript": "^5.5.3"
   },
   "devDependencies": {
