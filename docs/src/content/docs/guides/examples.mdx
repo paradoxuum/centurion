@@ -1,0 +1,122 @@
+---
+title: Examples
+description: Learn the basic usage of Centurion through examples
+---
+
+import { Code, TabItem, Tabs } from '@astrojs/starlight/components';
+
+## Kick Command
+
+<Code lang="ts" code={`
+import { Command, CommandGuard, CommandContext, Centurion, CenturionType, Guard } from "@rbxts/centurion";
+
+const isAdmin: CommandGuard = (ctx) => {
+    if (ctx.executor.UserId !== 1) {
+        ctx.error("Insufficient permission!");
+        return false;
+    }
+
+    return true;
+};
+
+@Centurion
+class KickCommand {
+    @Command({
+        name: "kick",
+        description: "Kick a player",
+        arguments: [
+            {
+                name: "player",
+                description: "Player to kick",
+                type: CenturionType.Player
+            }
+        ]
+    })
+    @Guard(isAdmin)
+    kick(ctx: CommandContext, player: Player) {
+        player.Kick("You have been kicked from the server.");
+        ctx.reply(\`Successfully kicked \${player.Name}\`);
+    }
+}
+`} />
+
+## Info Command
+
+<Tabs>
+	<TabItem label="commands/ban.ts">
+		<Code lang="ts" code={`
+const isAdmin: CommandGuard = (ctx) => {
+    if (ctx.executor.UserId !== 1) {
+        ctx.error("Insufficient permission!");
+        return false;
+    }
+
+    return true;
+};
+
+@Centurion
+// Assigning a group to the class will
+// make all commands in the class belong to that group
+@Group("info")
+// Similar to the above, this assigns the
+// provided guard(s) to all commands in the class
+@Guard(isAdmin)
+class InfoCommand {
+	// This command will be executable through
+	// "info user view" once registered!
+	@Command({
+		name: "view",
+		arguments: [
+			{
+				name: "player",
+				description: "Player to display information about",
+				type: CenturionType.Player,
+			},
+		],
+	})
+	@Group("user")
+	userView(ctx: CommandContext, player: Player) {
+		ctx.reply(\`<Random data about \${player.Name}...>\`);
+	}
+
+	// This command can have the same name as the above command, because it
+	// is grouped under "server" instead.
+	// This command will be executable through
+	// "info server view" once registered!
+	@Command({
+		name: "view",
+	})
+	@Group("server")
+	serverView(ctx: CommandContext) {
+		ctx.error("Not implemented!");
+	}
+}
+		`} />
+	</TabItem>
+	<TabItem label="main.client.ts">
+	<Code lang="ts" code={`
+CenturionServer.start((registry) => {
+	registry.registerGroup(
+		{
+			name: "info",
+			description: "View info about a user or the server",
+		},
+		{
+			name: "user",
+			description: "View info about a user",
+			parent: ["info"],
+		},
+		{
+			name: "server",
+			description: "View info about the server",
+			parent: ["info"],
+		},
+	);
+
+	if (script.Parent === undefined) return;
+	const commandContainer = script.Parent.WaitForChild("commands");
+	registry.register(commandContainer);
+});
+	`} />
+	</TabItem>
+</Tabs>

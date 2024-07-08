@@ -1,0 +1,106 @@
+---
+title: Decorators
+---
+
+import { Code } from "@astrojs/starlight/components"
+
+## `@Centurion`
+
+Specifies that a class should be registered.
+
+### Usage
+
+<Code lang="ts" code={`
+@Centurion
+export class MyCommand {
+    // ...
+}
+`} />
+
+## `@Command(options)`
+
+Defines a command.
+
+**Parameters**:
+- **options**: `CommandOptions` The command's options.
+
+### Usage
+
+<Code lang="ts" code={`
+@Centurion
+class ExampleCommand {
+    @Command({
+        name: "example",
+        description: "An example command",
+    })
+    example() {
+        // ...
+    }
+}
+`} />
+
+## `@Group(groups)`
+
+Assigns a command to one or more groups.
+
+When a class is decorated with this decorator, all commands within the
+class will be assigned to the group.
+
+**Parameters**:
+- **groups**: `...string[]` The groups to assign to the command.
+
+### Usage
+
+<Code lang="ts" code={`
+@Command({
+    name: "view",
+    description: "Displays info about a player",
+})
+@Group("info", "player")
+// Command is executable through "info player view"
+viewPlayer() {}
+
+@Command({
+    name: "view",
+    description: "Displays info about the server",
+})
+@Group("info", "server")
+// Command is executable through "info server view"
+viewServer() {}
+`} />
+
+## `@Guard(guards)`
+
+Assigns one or more guards to a command.
+
+When a class is decorated with this decorator, the provided guard(s) will
+be assigned to all commands within the class.
+
+**Parameters**:
+- **guards**: `...CommandGuard[]` The guards to assign to the command.
+
+### Usage
+
+<Code lang="ts" code={`
+@Command({
+    name: "ban",
+    description: "Bans a player",
+})
+@Guard(isAdmin)
+ban() {}
+`} />
+
+## `CommandOptions`
+
+- **name**: `string` - The name of the command.
+- **aliases**: `string[]?` - An array of aliases for the command.
+- **description**: `string?` - The command's description.
+- **arguments**: `ArgumentOptions[]?` - The command's arguments.
+
+## `ArgumentOptions`
+
+- **name**: `string` - The name of the argument.
+- **type**: `string` - The argument's type. Must be the name of a registered type.
+- **optional**: `boolean?` - Whether the argument is optional.
+- **suggestions**: `string[]?` - An array of suggestions for the argument.
+These will be added to the suggestions returned by the argument's type.

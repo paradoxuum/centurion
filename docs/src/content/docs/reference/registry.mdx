@@ -1,0 +1,271 @@
+---
+title: Registry
+---
+
+## BaseRegistry
+
+`BaseRegistry` is an abstract class. `ServerRegistry` and `ClientRegistry` inherit from it.
+
+### `load(container, descendants)`
+
+Loads all `ModuleScript` instances in the given instance.
+
+By default, only direct children of the container are loaded. If the `descendants`
+parameter is true, all descendants of the container will be loaded.
+
+If the `ModuleScript` returns a function, it will be called with the
+registry as an argument.
+
+**Parameters**:
+- `container` - The container to iterate over.
+- `descendants` - Whether to load descendants of the container.
+
+### `register()`
+
+Registers any loaded commands and types that need to be registered.
+
+If the command/type has already been registered, it will be skipped.
+
+### `registerType(types)`
+
+Registers one or more argument types.
+
+**Parameters**:
+
+- `types` - The types to register.
+
+### `registerGroup(groups)`
+
+Registers one or more groups.
+
+**Parameters**:
+- `groups` - The groups to register.
+
+### `getType(name)`
+
+Returns a registered argument type with the given name.
+
+**Parameters**:
+- `name` - The name of the type.
+
+**Returns**:
+An `ArgumentType`, or `undefined` if no type with the given name is registered.
+
+### `getTypes()`
+
+Returns all registered types.
+
+**Returns**:
+
+An array of `ArgumentType` objects.
+
+### `getCommand(path)`
+
+Returns a registered command with the given path.
+
+**Parameters**:
+- `path` - The command's path.
+
+**Returns**:
+A `BaseCommand`, or `undefined` if no command with the given path is registered.
+
+### `getCommand(path)`
+
+Returns a registered command with the given path as a string.
+
+**Parameters**:
+- `path` - The command's path as a string.
+
+**Returns**:
+A `BaseCommand`, or `undefined` if no command with the given path is registered.
+
+
+### `getCommands()`
+
+Returns all registered commands.
+
+**Returns**:
+An array of `BaseCommand` instances.
+
+### `getGroup(path)`
+
+Returns a registered group with the given path.
+
+**Parameters**:
+- `path` - The group's path.
+
+**Returns**:
+A `CommandGroup`, or `undefined` if no group with the given path is registered.
+
+### `getGroup(path)`
+
+Returns a registered group with the given path as a string.
+
+**Parameters**:
+- `path` - The group's path as a string.
+
+**Returns**:
+A `CommandGroup`, or `undefined` if no group with the given path is registered.
+
+### `getGroups()`
+
+Returns all registered groups.
+
+**Returns**:
+An array of `CommandGroup` instances.
+
+### `getRootPaths()`
+
+Returns all registered root paths - paths made up of a single part.
+
+**Returns**:
+An array of `RegistryPath` instances.
+
+### `getChildPaths(path)`
+
+Returns all paths that are children of the given path.
+
+**Parameters**:
+
+- `path` - The path to get the children of.
+
+**Returns**:
+An array of `RegistryPath` instances.
+
+
+## RegistryPath
+
+A class representing a path to a command or group.
+
+### `constructor(pathParts)`
+
+Creates a new `RegistryPath` instance from an array of strings.
+
+### `RegistryPath.fromString()`
+
+Creates a new `RegistryPath` instance from a string.
+
+### `RegistryPath.empty()`
+
+Creates an empty `RegistryPath` instance.
+
+### `parts()`
+
+Returns a copy of the path's parts.
+
+**Returns**:
+An array of strings.
+
+### `part(index)`
+
+Returns the part of the path at the given index.
+
+**Parameters**:
+- `index` - The index of the part to return.
+
+**Throws**:
+If the index is out of bounds.
+
+**Returns**:
+The part at the given index.
+
+
+### `root()`
+
+Returns the root (first) part of the path.
+
+**Returns**:
+The root part of the path.
+
+### `tail()`
+
+Gets the tail (last element) of the path.
+
+**Returns**:
+The tail of the path.
+
+
+### `size()`
+
+Returns the number of parts in the path.
+
+**Returns**:
+The number of parts in the path.
+
+
+### `parent()`
+
+Gets the parent path of the path.
+
+If the path has no parent, i.e. made up of one part, it will return an empty path.
+
+**Returns**:
+A `RegistryPath` instance.
+
+### `slice()`
+
+Returns a new path from a slice of the current path.
+
+**Parameters**:
+- `start` - The start index.
+- `end` - The end index.
+
+**Returns**:
+A new `RegistryPath` instance containing a slice of the current path.
+
+### `equals(other)`
+
+Checks if the path is equal to another path.
+
+**Parameters**:
+- `other` - The other path to compare to.
+
+**Returns**:
+`true` if the paths are equal, `false` if not.
+
+### `toString()`
+
+Returns a string representation of the path.
+
+**Returns**:
+A string representation of the path.
+
+
+### `append(parts)`
+
+Appends one or more parts to the path.
+
+**Parameters**:
+- `parts` - The parts to append.
+
+### `remove(index)`
+
+Removes the part at the given index.
+
+**Parameters**:
+- `index` - The index of the part to remove.
+
+### `clear()`
+
+Removes all parts from the path.
+
+### `isEmpty()`
+
+Checks if the path is empty.
+
+**Returns**:
+`true` if the path is empty, `false` if not.
+
+## `GroupOptions`
+
+- name: `string`;
+
+The name of the group.
+
+- description?: `string`;
+
+The group's description.
+
+- (**optional**) parent: `string[]`;
+
+An array of parent groups.

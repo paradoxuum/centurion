@@ -1,0 +1,50 @@
+---
+title: Commands and types
+description: Learn how to register commands and types.
+sidebar:
+    order: 1
+---
+
+import { Aside, Code } from '@astrojs/starlight/components';
+
+<Aside>
+Command modules should be loaded from within the start callback to avoid registration errors.
+</Aside>
+
+If your commands and types are organized into ModuleScripts, they should be registered
+through the [register](/reference/registry#register) method.
+
+To be registered, they need to be loaded first. This can be done through the
+[load](/reference/registry#loadcontainer-descendants) method,
+which will require all child ModuleScripts in the container, or a similar method
+such as `addPaths`,
+provided by [Flamework](https://flamework.fireboltofdeath.dev/).
+
+For commands to be registered, the parent class must be decorated with [@Centurion](/reference/decorators#centurion).
+For types, they are marked for registration automatically in the
+`TypeBuilder.build()` method.
+
+<Code lang="ts" code={`
+const types = ReplicatedStorage.types;
+
+CenturionServer.start((registry) => {
+    // Load command/type modules
+    registry.load(script.Parent.commands);
+    registry.load(types);
+
+    // Register commands and types
+    registry.register();
+}).catch((err) => warn("Centurion could not be started:", tostring(err)));
+`} />
+
+Types can also be registered manually through the
+[registerType](/reference/registry#registertypetypes) method.
+
+## Registry synchronization
+
+Commands registered on the server will be synced to the client. You can filter
+commands by providing a callback to the `filter` option.
+
+Types are **not** synchronized as functions cannot be sent across the network, so you will
+have to register them on both the server and client. Due to this limitation, it is recommended
+to store your types in a shared folder you can easily load from both sides.

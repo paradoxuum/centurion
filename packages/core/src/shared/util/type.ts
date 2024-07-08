@@ -10,9 +10,10 @@ export namespace TransformResult {
 	export type Object<T> = { ok: true; value: T } | { ok: false; value: string };
 
 	/**
-	 * Produces a successful `Result`, indicating that a transformation was successful.
+	 * Creates a successful result object, indicating a transformation was successful.
 	 *
-	 * @param value - The resulting value of the transformation
+	 * @param value - The transformed value.
+	 * @returns A {@link TransformResult.Object} object.
 	 */
 	export function ok<T>(value: T): Object<T> {
 		return {
@@ -22,9 +23,10 @@ export namespace TransformResult {
 	}
 
 	/**
-	 * Produces a failed `Result`, indicating that a transformation was not successful.
+	 * Creates an error result object, indicating a transformation was not successful.
 	 *
 	 * @param text - The error message
+	 * @returns A {@link TransformResult.Object} object.
 	 */
 	export function err<T>(text: string): Object<T> {
 		return {
@@ -34,6 +36,9 @@ export namespace TransformResult {
 	}
 }
 
+/**
+ * A helper class for building argument types.
+ */
 export class TypeBuilder<T> {
 	protected expensive = false;
 	protected validationFn?: t.check<T>;
@@ -43,54 +48,56 @@ export class TypeBuilder<T> {
 	protected constructor(protected readonly name: string) {}
 
 	/**
-	 * Creates a {@link TypeBuilder}.
+	 * Instantiates a {@link TypeBuilder} with the given name.
 	 *
-	 * @param name - The name of the type
-	 * @returns A type builder
+	 * @param name - The name of the type.
+	 * @returns A {@link TypeBuilder} instance.
 	 */
 	static create<T>(name: string) {
 		return new TypeBuilder<T>(name);
 	}
 
 	/**
-	 * @param name - The name of the type
-	 * @param options - The type to extend from
-	 * @returns A builder extended from the given type
+	 * Creates a new `TypeBuilder` with the given name, extending
+	 * from the provided type.
+	 *
+	 * @param name - The name of the type.
+	 * @param argumentType - The type to extend from.
+	 * @returns A {@link TypeBuilder} instance.
 	 */
-	static extend<T>(name: string, options: ArgumentType<T>) {
+	static extend<T>(name: string, argumentType: ArgumentType<T>) {
 		const builder = new TypeBuilder<T>(name);
-		builder.expensive = options.expensive;
-		builder.validationFn = options.validate;
-		builder.transformFn = options.transform;
-		builder.suggestionFn = options.suggestions;
+		builder.expensive = argumentType.expensive;
+		builder.validationFn = argumentType.validate;
+		builder.transformFn = argumentType.transform;
+		builder.suggestionFn = argumentType.suggestions;
 		return builder;
 	}
 
 	/**
 	 * Sets the validation function for this type.
 	 *
-	 * @param validationFn - The type guard used to validate this type
-	 * @returns The type builder
+	 * @param fn - The validation function.
+	 * @returns The {@link TypeBuilder} instance.
 	 */
-	validate(validationFn: t.check<T>) {
-		this.validationFn = validationFn;
+	validate(fn: t.check<T>) {
+		this.validationFn = fn;
 		return this;
 	}
 
 	/**
 	 * Sets the transformation function for this type.
 	 *
-	 * If the `expensive` parameter is set to true, it indicates that
-	 * the transform function will be expensive to compute. If the default
-	 * interface is being used in this case, it will disable real-time
-	 * checking while the user is typing the command.
+	 * If the `expensive` parameter is `true`, it indicates the transformation
+	 * function is expensive to compute. If the default interface is used, type-checking
+	 * will be disabled while typing an argument.
 	 *
-	 * @param callback - The transformation function for this type
-	 * @param expensive - Whether the function is expensive to compute
-	 * @returns The type builder
+	 * @param fn - The transformation function.
+	 * @param expensive - Whether the function is expensive.
+	 * @returns The {@link TypeBuilder} instance.
 	 */
-	transform(callback: TransformFn<T>, expensive = false) {
-		this.transformFn = callback;
+	transform(fn: TransformFn<T>, expensive = false) {
+		this.transformFn = fn;
 		this.expensive = expensive;
 		return this;
 	}
@@ -98,22 +105,24 @@ export class TypeBuilder<T> {
 	/**
 	 * Sets the suggestion function for this type.
 	 *
-	 * This function should provide a list of suggestions for this type.
+	 * This function provides a list of suggestions for the type.
 	 *
-	 * @param callback - The suggestion function for this type
-	 * @returns The type builder
+	 * @param fn - The suggestions function.
+	 * @returns The {@link TypeBuilder} instance.
 	 */
-	suggestions(callback: SuggestionFn<T>) {
-		this.suggestionFn = callback;
+	suggestions(fn: SuggestionFn<T>) {
+		this.suggestionFn = fn;
 		return this;
 	}
 
 	/**
-	 * Creates a {@link ArgumentType} using the options that were provided to the builder.
+	 * Builds the type, returning an {@link ArgumentType} object.
 	 *
-	 * @throws Will throw an error if the required options were not provided
+	 * This function marks the type for registration, meaning it will be registered
+	 * when calling `register` if the module was loaded.
 	 *
-	 * @returns A {@link ArgumentType} created from the options provided to the builder
+	 * @throws Will throw an error if the required functions were not defined
+	 * @returns An {@link ArgumentType} object.
 	 */
 	build(): ArgumentType<T> {
 		assert(this.validationFn !== undefined, "Validation function is required");

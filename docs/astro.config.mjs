@@ -1,60 +1,88 @@
 import starlight from "@astrojs/starlight";
 import { defineConfig } from "astro/config";
 
-import tailwind from "@astrojs/tailwind";
+import starlightUtils from "@lorenzo_lewis/starlight-utils";
+import starlightLinksValidator from "starlight-links-validator";
 
 // https://astro.build/config
 export default defineConfig({
-	site: "https://commander.paradoxum.dev",
+	site: "https://centurion.paradoxum.dev",
+	redirects: {
+		"/reference": "/reference/decorators",
+	},
 	integrations: [
 		starlight({
-			title: "Commander",
+			title: "Centurion",
 			description: "Flexible command framework for roblox-ts",
 			social: {
-				github: "https://github.com/paradoxuum/commander",
+				github: "https://github.com/paradoxuum/centurion",
 				discord: "https://discord.roblox-ts.com/",
 			},
 			logo: {
 				dark: "src/assets/logo-dark.svg",
 				light: "src/assets/logo-light.svg",
+				replacesTitle: true,
 			},
 			sidebar: [
 				{
-					label: "Quick Start",
+					label: "Guides",
+					collapsed: true,
 					items: [
 						{
-							label: "Getting Started",
-							link: "getting-started",
+							label: "Quick Start",
+							items: [
+								{
+									label: "Getting Started",
+									link: "/guides",
+								},
+								{
+									label: "Examples",
+									link: "/guides/examples",
+								},
+							],
 						},
 						{
-							label: "Examples",
-							link: "examples",
+							label: "Commands",
+							autogenerate: {
+								directory: "/guides/commands",
+							},
+						},
+						{
+							label: "Types",
+							autogenerate: {
+								directory: "/guides/types",
+							},
+						},
+						{
+							label: "Registration",
+							autogenerate: {
+								directory: "/guides/registration",
+							},
 						},
 					],
 				},
 				{
-					label: "Commands",
+					label: "Reference",
+					collapsed: true,
 					autogenerate: {
-						directory: "commands",
-					},
-				},
-				{
-					label: "Types",
-					autogenerate: {
-						directory: "types",
-					},
-				},
-				{
-					label: "Registration",
-					autogenerate: {
-						directory: "registration",
+						directory: "/reference",
 					},
 				},
 			],
-			customCss: ["./src/tailwind.css", "./src/custom.scss"],
-		}),
-		tailwind({
-			applyBaseStyles: false,
+			customCss: ["./src/custom.scss"],
+			components: {
+				Header: "/src/components/Header.astro",
+			},
+			plugins: [
+				starlightLinksValidator({
+					errorOnRelativeLinks: false,
+				}),
+				starlightUtils({
+					multiSidebar: {
+						switcherStyle: "horizontalList",
+					},
+				}),
+			],
 		}),
 	],
 });

@@ -68,10 +68,11 @@ export class ServerDispatcher extends BaseDispatcher {
 	/**
 	 * Executes a command.
 	 *
-	 * @param path The path of the command
-	 * @param args The command's arguments
-	 * @param executor The command executor, or `undefined` if the executor is the server
-	 * @returns A {@link CommandContext} determining the result of execution
+	 * @param path The command's path.
+	 * @param args The arguments to pass to the command.
+	 * @param executor The command's executor, or `undefined` if the executor is the server.
+	 * @returns A {@link Promise} that resolves when the command has been executed. The value contained in the
+	 * Promise is a {@link CommandContext} instance containing the execution result.
 	 */
 	async run(path: RegistryPath, args: string[] = [], executor?: Player) {
 		const inputText = getInputText(path, args);

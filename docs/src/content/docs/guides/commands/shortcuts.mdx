@@ -1,0 +1,87 @@
+---
+title: Shortcuts
+description: Learn how to use shortcuts to execute commands.
+---
+
+import { Aside, Card, Code } from '@astrojs/starlight/components';
+
+Shortcuts provide a way to execute commands using key combinations.
+They can be configured with one or more key combinations.
+
+## Configuration
+
+Shortcuts can be enabled or disabled by configuring the `shortcutsEnabled` option when starting
+`CenturionClient`.
+
+Shortcuts are **enabled** by default.
+
+<Code lang="ts" code={`
+CenturionClient.start((registry) => {}, {
+    shortcutsEnabled: false,
+});`
+} />
+
+You can also configure whether shortcut suggestions show up in the default interface by configuring
+the `showShortcutSuggestions` option.
+
+Shortcut suggestions are **enabled** by default.
+
+<Code lang="ts" code={`
+CenturionUI.create({
+    showShortcutSuggestions: false,
+});
+`} />
+
+## Usage
+
+<Aside type="caution">
+Commands executed through shortcuts do not execute the command with arguments by default.
+</Aside>
+
+In the following example, the command is configured to execute when the user
+presses `E` or `LeftAlt + E`.
+
+<Code lang="ts" code={`
+@Centurion
+export class EchoCommand {
+    @Command({
+        name: "echo",
+        description: "Prints a message",
+        shortcuts: [Enum.KeyCode.E, [Enum.KeyCode.LeftAlt, Enum.KeyCode.E]]
+    })
+    run(ctx: CommandContext) {
+        print("Echo!");
+    }
+}
+`} />
+
+Shortcuts can also be configured to execute the command with arguments.
+
+In this example, when the user presses `LeftAlt + E`, it will pass the given argument(s)
+to the command, printing `Hello, world!`.
+
+If the user presses `E`, no arguments will be provided and `Echo!` will be printed.
+
+<Code lang="ts" code={`
+@Centurion
+export class EchoCommand {
+    @Command({
+        name: "echo",
+        description: "Prints a message",
+        shortcuts: [
+            Enum.KeyCode.E,
+            {
+                keys: [Enum.KeyCode.LeftAlt, Enum.KeyCode.E],
+                args: ["Hello, world!"]
+            },
+        }]
+    })
+    run(ctx: CommandContext, text?: string) {
+        if (text !== undefined) {
+            print(text);
+        } else {
+            print("Echo!");
+        }
+    }
+}
+`} />

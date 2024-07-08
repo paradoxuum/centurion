@@ -1,0 +1,118 @@
+---
+title: Types
+---
+
+## `ArgumentType`
+
+- name: `string` - The name of the type.
+- expensive: `boolean` - Whether the type's transformation function is expensive.
+If `true`, type-checking will be disabled in the interface.
+- validate: `(value) => boolean` - A function that validates a string as the type.
+- transform: `(text, executor) => TransformResult.Object` - A function that transforms
+a string into the type.
+- suggestions: `(text, executor) => string[]` - A function that returns suggestions
+for the type.
+
+## `TypeBuilder`
+
+A helper class for building argument types.
+
+### `create(name)`
+
+Instantiates a `TypeBuilder` with the given name.
+
+**Parameters**:
+- `name` - The name of the type.
+
+**Returns**:
+A `TypeBuilder` instance.
+
+### `extend(name, argumentType)`
+
+Creates a new `TypeBuilder` with the given name, extending
+from the provided type.
+
+**Parameters**:
+- `name` - The name of the type.
+- `argumentType` - The type to extend from.
+
+**Returns**:
+A `TypeBuilder` instance.
+
+### `validate(fn)`
+
+Sets the validation function for the type.
+
+**Parameters**:
+- `fn` - The validation function.
+
+**Returns**:
+The `TypeBuilder` instance.
+
+### `transform(fn, expensive)`
+
+Sets the transformation function for the type.
+
+If the `expensive` parameter is `true`, it indicates the transformation
+function is expensive to compute. If the default interface is used, type-checking
+will be disabled while typing an argument.
+
+**Parameters**:
+- `fn` - The transformation function.
+- `expensive` - Whether the transformation function is expensive.
+
+**Returns**:
+The `TypeBuilder` instance.
+
+### `suggestions(fn)`
+
+Sets the suggestions function for the type.
+
+This function provides a list of suggestions for the type.
+
+**Parameters**:
+- `fn` - The suggestions function.
+
+**Returns**:
+The `TypeBuilder` instance.
+
+### `build()`
+
+Builds the type, returning an [ArgumentType](#argumenttype) object.
+
+This function marks the type for registration, meaning it will be registered
+when calling `register` if the module was loaded.
+
+**Throws**:
+Will throw an error if the required functions were not defined
+
+**Returns**:
+An [ArgumentType](#argumenttype) object.
+
+## `TransformResult`
+
+### `Object`
+
+- `ok` - Whether the transformation was successful.
+- `value` - The transformed value. If `ok` is false, this will be a `string`,
+representing the error message.
+
+### `ok(value)`
+
+Creates a successful result object, indicating a transformation was successful.
+
+**Parameters**:
+- `value` - The transformed value.
+
+**Returns**:
+[TransformResult.Object](#object).
+
+### `err(text)`
+
+Creates an error result object, indicating a transformation was not successful.
+
+**Parameters**:
+- `text` - The error message.
+
+**Returns**:
+[TransformResult.Object](#object).

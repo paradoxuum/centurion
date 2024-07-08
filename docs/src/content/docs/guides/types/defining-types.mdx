@@ -12,7 +12,7 @@ This is a helper class to make defining types easier.
 This object is used to register the type.
 
 <Code lang="ts" code={`
-import { TransformResult, TypeBuilder } from "@rbxts/commander";
+import { TransformResult, TypeBuilder } from "@rbxts/centurion";
 import { t } from "@rbxts/t";
 
 const playerType = TypeBuilder.create<Player>("player")
@@ -34,7 +34,7 @@ const playerType = TypeBuilder.create<Player>("player")
 
 The `string` you provide to `TypeBuilder.create` will be the name of the type.
 It may be useful to store your type names in an enum or constant to make them
-more accessible - see [CommanderType](https://github.com/paradoxuum/commander/blob/main/src/shared/builtin/types/index.ts)
+more accessible - see [CenturionType](https://github.com/paradoxuum/centurion/blob/main/src/shared/builtin/types/index.ts)
 for an example.
 
 ## Methods

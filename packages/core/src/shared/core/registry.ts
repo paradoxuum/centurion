@@ -55,7 +55,7 @@ export abstract class BaseRegistry {
 	}
 
 	/**
-	 * Loads all `ModuleScript` instances in the given instance.
+	 * Loads all {@link ModuleScript} instances in the given instance.
 	 *
 	 * By default, only direct children of the container are loaded. If the `descendants`
 	 * parameter is true, all descendants of the container will be loaded.
@@ -105,7 +105,7 @@ export abstract class BaseRegistry {
 	}
 
 	/**
-	 * Registers one or more types from a list of {@link ArgumentType} objects.
+	 * Registers one or more argument types.
 	 *
 	 * @param types The types to register
 	 */
@@ -116,7 +116,7 @@ export abstract class BaseRegistry {
 	}
 
 	/**
-	 * Registers a list of groups.
+	 * Registers one or more groups.
 	 *
 	 * @param groups The groups to register
 	 */
@@ -162,39 +162,39 @@ export abstract class BaseRegistry {
 	}
 
 	/**
-	 * Gets a registered type.
+	 * Returns a registered argument type with the given name.
 	 *
-	 * @param name The name of the type
-	 * @returns The registered {@link ArgumentType}, or `undefined` if it is not registered
+	 * @param name The name of the type.
+	 * @returns An {@link ArgumentType}, or `undefined` if no type with the given name is registered.
 	 */
 	getType(name: string) {
 		return this.types.get(name);
 	}
 
 	/**
-	 * Gets a registered command.
+	 * Returns a registered command with the given path.
 	 *
-	 * @param path The path of the command
-	 * @returns A {@link BaseCommand} or `undefined` if no command with the given path is registered
+	 * @param path The command's path.
+	 * @returns A {@link BaseCommand}, or `undefined` if no command with the given path is registered.
 	 */
 	getCommand(path: RegistryPath) {
 		return this.commands.get(path.toString());
 	}
 
 	/**
-	 * Gets a registered command.
+	 * Returns a registered command with the given path as a string.
 	 *
-	 * @param path The path of the command as a string
-	 * @returns A {@link BaseCommand} or `undefined` if no command with the given path is registered
+	 * @param path The command's path as a string.
+	 * @returns A {@link BaseCommand}, or `undefined` if no command with the given path is registered.
 	 */
-	getCommandByString(pathString: string) {
-		return this.commands.get(pathString);
+	getCommandByString(path: string) {
+		return this.commands.get(path);
 	}
 
 	/**
-	 * Gets all registered commands.
+	 * Returns all registered commands.
 	 *
-	 * @returns An array of all registered commands
+	 * @returns An array of {@link BaseCommand} instances.
 	 */
 	getCommands() {
 		const commands: BaseCommand[] = [];
@@ -205,29 +205,29 @@ export abstract class BaseRegistry {
 	}
 
 	/**
-	 * Gets a registered {@link CommandGroup} from a given {@link RegistryPath}.
+	 * Returns a registered group with the given path.
 	 *
-	 * @param path The path of the group
-	 * @returns A {@link CommandGroup} or `undefined` if no group is registered at the given path
+	 * @param path The group's path.
+	 * @returns A {@link CommandGroup}, or `undefined` if no group with the given path is registered.
 	 */
 	getGroup(path: RegistryPath) {
 		return this.groups.get(path.toString());
 	}
 
 	/**
-	 * Gets a registered {@link GroupOptions} from a given path string.
+	 * Returns a registered group with the given path as a string.
 	 *
-	 * @param pathString The path of the group as a string
-	 * @returns A {@link CommandGroup} or `undefined` if no group is registered at the given path
+	 * @param path The group's path as a string.
+	 * @returns A {@link CommandGroup}, or `undefined` if no group with the given path is registered.
 	 */
-	getGroupByString(pathString: string) {
-		return this.groups.get(pathString);
+	getGroupByString(path: string) {
+		return this.groups.get(path);
 	}
 
 	/**
-	 * Gets all registered groups.
+	 * Returns all registered groups.
 	 *
-	 * @returns An array of all registered groups
+	 * @returns An array of {@link CommandGroup} instances.
 	 */
 	getGroups() {
 		const groups: CommandGroup[] = [];
@@ -238,9 +238,9 @@ export abstract class BaseRegistry {
 	}
 
 	/**
-	 * Gets all registered types.
+	 * Returns all registered types.
 	 *
-	 * @returns An array of all registered types
+	 * @returns An array of {@link ArgumentType} objects.
 	 */
 	getTypes() {
 		const types: ArgumentType<unknown>[] = [];
@@ -251,19 +251,19 @@ export abstract class BaseRegistry {
 	}
 
 	/**
-	 * Gets the root paths of all registered commands and groups.
+	 * Returns all registered root paths - paths made up of a single part.
 	 *
-	 * @returns An array of all root paths
+	 * @returns An array of {@linkeRegistryPath} instances.
 	 */
 	getRootPaths() {
 		return this.cachedPaths.get(BaseRegistry.ROOT_KEY) ?? [];
 	}
 
 	/**
-	 * Gets all paths that are children of the given {@link RegistryPath}.
+	 * Returns all paths that are children of the given path.
 	 *
-	 * @param path The path to get the children of
-	 * @returns The paths that are children of the given path
+	 * @param path The path to get the children of.
+	 * @returns An array of {@link RegistryPath} instances.
 	 */
 	getChildPaths(path: RegistryPath) {
 		return this.cachedPaths.get(path.toString()) ?? [];

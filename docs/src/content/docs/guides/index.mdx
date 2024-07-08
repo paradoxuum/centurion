@@ -1,0 +1,116 @@
+---
+title: Getting Started
+description: Learn how to install, start and register commands with Centurion
+sidebar:
+    order: 0
+---
+
+import { Aside, Card, Code, TabItem, Tabs } from '@astrojs/starlight/components';
+import Install from '@fragments/install.mdx';
+
+export const clientCode = `
+`;
+
+Centurion is a flexible and extensible command framework for roblox-ts that
+makes defining commands easy and readable.
+
+<Card title="Installation" icon="rocket">
+	<Install />
+</Card>
+
+## Starting Centurion
+
+Centurion needs to be started **once** on the client and server.
+
+<Tabs>
+    <TabItem label="Client">
+        <Aside type="caution" title="Usage with React">
+            When using React in development mode (`_G.__DEV__` set to true),
+            you must set `_G.__DEV__` to true **before importing** Centurion.
+        </Aside>
+
+        <Code lang="ts" code={`
+import { CenturionClient } from "@rbxts/centurion";
+import { CenturionUI } from "@rbxts/centurion-ui";
+
+CenturionClient.start(
+    (registry) => {
+        // Register commands or types here
+    },
+    {
+        interface: CenturionUI.create({
+            // You can configure the interface here, such as changing activation keys
+        }),
+
+        // The options below are optional
+
+        // The maximum terminal and command history length, default length is 1000
+        historyLength: 1000,
+
+        // If you don't want to register built-in types, you can change this option
+        // This is set to true by default
+        registerBuiltInTypes: true,
+    },
+).catch((err) => warn("Centurion could not be started:", tostring(err)));
+        `} />
+    </TabItem>
+
+    <TabItem label="Server">
+        <Code lang="ts" code={`
+import { CenturionServer } from "@rbxts/centurion";
+
+CenturionServer.start(
+    (registry) => {
+        // Register commands or types here
+    },
+    {
+        // If you don't want to register built-in types, you can change this option
+        // This is set to true by default.
+        registerBuiltInTypes: true,
+    },
+).catch((err) => warn("Centurion could not be started:", tostring(err)));
+        `} />
+    </TabItem>
+</Tabs>
+
+
+## Registration
+
+<Aside>
+Command modules should be loaded from within the start callback to avoid registration errors.
+</Aside>
+
+The way commands and types are registered is the same on the server and client.
+
+<Code lang="ts" code={`
+CenturionServer.start((registry) => {
+    // Load all child ModuleScripts under the given Instance
+    const commandContainer = script.Parent.commands;
+    registry.load(commandContainer);
+
+    const typeContainer = ReplicatedStorage.types;
+    registry.load(typeContainer);
+
+    // Register groups - this must be done before register() is called!
+    registry.registerGroup(
+        {
+            name: "info",
+            description: "View info about a user or the server",
+        },
+        {
+            name: "user",
+            description: "View info about a user",
+            parent: ["info"],
+        },
+        {
+            name: "server",
+            description: "View info about the server",
+            parent: ["info"],
+        },
+    );
+
+    // To register the loaded commands and types, you then
+    // call the register method:
+    registry.register();
+}).catch((err) => warn("Centurion could not be started:", tostring(err)));
+`} />

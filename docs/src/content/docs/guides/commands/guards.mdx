@@ -10,26 +10,33 @@ If a response is sent in a guard (through reply or error), the command will not 
 </Aside>
 
 A command guard is simply a function that can be used to determine if a command
-should be executed. You can use the `@Guard` decorator to assign guards to a command.
+should be executed.
 
-A guard function is passed the same `CommandInteraction` that will be passed to the command.
+Guards can be assigned in three ways:
+- At the class-level, which assigns the guard to all commands in the class.
+  Guards assigned at the class-level will be executed before method-level guards.
+- At the method-level, which assigns the guard to a single command.
+- Through the `guards` option when starting Centurion, which assigns the guard
+to all commands.
+
+A guard function is passed the same `CommandContext` that will be passed to the command.
 You can use this to access data such as the command path or executor, and you
 can send a reply using its `reply` and `error` methods.
 
-A guard function should return a `boolean`: `true` if the command should be executed,
+A guard function should return a `boolean` - `true` if the command should be executed,
 `false` if not.
 
 <Code lang="ts" code={`
-const isAdmin: CommandGuard = (interaction) => {
-    if (interaction.executor.UserId !== 1) {
-        interaction.error("Insufficient permission!");
+const isAdmin: CommandGuard = (ctx) => {
+    if (ctx.executor.UserId !== 1) {
+        ctx.error("Insufficient permission!");
         return false;
     }
 
     return true;
 };
 
-@Commander()
+@Centurion
 class KickCommand {
     @Command({
         name: "kick",
@@ -38,14 +45,14 @@ class KickCommand {
             {
                 name: "player",
                 description: "Player to kick",
-                type: CommanderType.Player
+                type: CenturionType.Player
             }
         ]
     })
     @Guard(isAdmin)
-    kick(interaction: CommandInteraction, player: Player) {
+    kick(ctx: CommandContext, player: Player) {
 		player.Kick("You have been kicked from the server.");
-        interaction.reply(\`Successfully kicked \${player.Name}\`);
+        ctx.reply(\`Successfully kicked \${player.Name}\`);
     }
 }
 `} />
