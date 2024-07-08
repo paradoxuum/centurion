@@ -21,6 +21,9 @@ export class MyCommand {
 
 Defines a command.
 
+**Parameters**:
+- **options**: `CommandOptions` The command's options.
+
 ### Usage
 
 <Code lang="ts" code={`
@@ -42,6 +45,9 @@ Assigns a command to one or more groups.
 
 When a class is decorated with this decorator, all commands within the
 class will be assigned to the group.
+
+**Parameters**:
+- **groups**: `...string[]` The groups to assign to the command.
 
 ### Usage
 
@@ -70,6 +76,9 @@ Assigns one or more guards to a command.
 When a class is decorated with this decorator, the provided guard(s) will
 be assigned to all commands within the class.
 
+**Parameters**:
+- **guards**: `...CommandGuard[]` The guards to assign to the command.
+
 ### Usage
 
 <Code lang="ts" code={`
@@ -83,26 +92,15 @@ ban() {}
 
 ## `CommandOptions`
 
-- name: string;
-
-The name of the command.
-
-- aliases?: string[];
-
-An array of aliases for the command.
-
-- description?: string;
-
-The command's description.
-
-- arguments?: ArgumentOptions[];
-
-The command's arguments.
+- **name**: `string` - The name of the command.
+- **aliases**: `string[]?` - An array of aliases for the command.
+- **description**: `string?` - The command's description.
+- **arguments**: `ArgumentOptions[]?` - The command's arguments.
 
 ## `ArgumentOptions`
 
-- name: `string` - The name of the argument.
-- type: `string` - The argument's type. Must be the name of a registered type.
-- (**optional**) optional: `boolean` - Whether the argument is optional.
-- (**optional**) suggestions: `string[]` - An array of suggestions for the argument.
+- **name**: `string` - The name of the argument.
+- **type**: `string` - The argument's type. Must be the name of a registered type.
+- **optional**: `boolean?` - Whether the argument is optional.
+- **suggestions**: `string[]?` - An array of suggestions for the argument.
 These will be added to the suggestions returned by the argument's type.

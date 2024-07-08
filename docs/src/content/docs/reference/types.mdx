@@ -15,7 +15,7 @@ for the type.
 
 ## `TypeBuilder`
 
-A helper class for creating argument types.
+A helper class for building argument types.
 
 ### `create(name)`
 
@@ -27,14 +27,14 @@ Instantiates a `TypeBuilder` with the given name.
 **Returns**:
 A `TypeBuilder` instance.
 
-### `extend(name, options)`
+### `extend(name, argumentType)`
 
 Creates a new `TypeBuilder` with the given name, extending
 from the provided type.
 
 **Parameters**:
 - `name` - The name of the type.
-- `options` - The type to extend from.
+- `argumentType` - The type to extend from.
 
 **Returns**:
 A `TypeBuilder` instance.
@@ -78,14 +78,16 @@ The `TypeBuilder` instance.
 
 ### `build()`
 
-Builds the type, returning an `ArgumentType` object.
+Builds the type, returning an [ArgumentType](#argumenttype) object.
 
-This function also marks the type for registration, so it will be registered
-when calling [BaseRegistry.register](../registry#register), as long as the module
-is loaded.
+This function marks the type for registration, meaning it will be registered
+when calling `register` if the module was loaded.
+
+**Throws**:
+Will throw an error if the required functions were not defined
 
 **Returns**:
-An `ArgumentType` object.
+An [ArgumentType](#argumenttype) object.
 
 ## `TransformResult`
 
