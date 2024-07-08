@@ -7,6 +7,9 @@ import starlightLinksValidator from "starlight-links-validator";
 // https://astro.build/config
 export default defineConfig({
 	site: "https://centurion.paradoxum.dev",
+	redirects: {
+		"/reference": "/reference/decorators",
+	},
 	integrations: [
 		starlight({
 			title: "Centurion",
@@ -18,6 +21,7 @@ export default defineConfig({
 			logo: {
 				dark: "src/assets/logo-dark.svg",
 				light: "src/assets/logo-light.svg",
+				replacesTitle: true,
 			},
 			sidebar: [
 				{
@@ -64,18 +68,11 @@ export default defineConfig({
 						directory: "/reference",
 					},
 				},
-				{
-					label: "leading",
-					items: [
-						{ label: "Guides", link: "/guides" },
-						{
-							label: "Reference",
-							link: "/reference/decorators",
-						},
-					],
-				},
 			],
 			customCss: ["./src/custom.scss"],
+			components: {
+				Header: "/src/components/Header.astro",
+			},
 			plugins: [
 				starlightLinksValidator({
 					errorOnRelativeLinks: false,
@@ -83,11 +80,6 @@ export default defineConfig({
 				starlightUtils({
 					multiSidebar: {
 						switcherStyle: "horizontalList",
-					},
-					navLinks: {
-						leading: {
-							useSidebarLabelled: "leading",
-						},
 					},
 				}),
 			],
