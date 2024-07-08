@@ -7,9 +7,6 @@ import starlightLinksValidator from "starlight-links-validator";
 // https://astro.build/config
 export default defineConfig({
 	site: "https://centurion.paradoxum.dev",
-	redirects: {
-		"/reference": "/reference/decorators",
-	},
 	integrations: [
 		starlight({
 			title: "Centurion",
