@@ -6,16 +6,6 @@ title: Registry
 
 `BaseRegistry` is an abstract class. `ServerRegistry` and `ClientRegistry` inherit from it.
 
-### `init(options)`
-
-Initializes the registry and registers built-in types if the `registerBuiltInTypes`
-option is true.
-
-This method is called when starting Centurion.
-
-**Parameters**
-- `options` - The options object provided when starting Centurion.
-
 ### `load(container, descendants)`
 
 Loads all `ModuleScript` instances in the given instance.
@@ -46,7 +36,7 @@ Registers one or more argument types.
 
 ### `registerGroup(groups)`
 
-Takes one or more [GroupOptions](#groupoptions) objects and registers them.
+Registers one or more groups.
 
 **Parameters**:
 - `groups` - The groups to register.
@@ -59,7 +49,7 @@ Returns a registered argument type with the given name.
 - `name` - The name of the type.
 
 **Returns**:
-An `ArgumentType`, or `undefined` if it does not exist.
+An `ArgumentType`, or `undefined` if no type with the given name is registered.
 
 ### `getTypes()`
 
@@ -79,6 +69,17 @@ Returns a registered command with the given path.
 **Returns**:
 A `BaseCommand`, or `undefined` if no command with the given path is registered.
 
+### `getCommand(path)`
+
+Returns a registered command with the given path as a string.
+
+**Parameters**:
+- `path` - The command's path as a string.
+
+**Returns**:
+A `BaseCommand`, or `undefined` if no command with the given path is registered.
+
+
 ### `getCommands()`
 
 Returns all registered commands.
@@ -92,6 +93,16 @@ Returns a registered group with the given path.
 
 **Parameters**:
 - `path` - The group's path.
+
+**Returns**:
+A `CommandGroup`, or `undefined` if no group with the given path is registered.
+
+### `getGroup(path)`
+
+Returns a registered group with the given path as a string.
+
+**Parameters**:
+- `path` - The group's path as a string.
 
 **Returns**:
 A `CommandGroup`, or `undefined` if no group with the given path is registered.
@@ -116,7 +127,7 @@ Returns all paths that are children of the given path.
 
 **Parameters**:
 
-- `path` - The path to get children for.
+- `path` - The path to get the children of.
 
 **Returns**:
 An array of `RegistryPath` instances.

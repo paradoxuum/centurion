@@ -2,48 +2,23 @@
 title: Dispatcher
 ---
 
-## BaseDispatcher
-
-`BaseDispatcher` is an abstract class.
-`ServerDispatcher` and `ClientDispatcher` inherit from it.
-
-### `init(options)`
-
-Initializes the dispatcher.
-
-**Parameters**:
-- `options` - The options object provided when starting Centurion.
-
 ## ServerDispatcher
-
-### `init(options)`
-
-Initializes the server dispatcher. Listens to remote events to handle
-server command execution.
-
-**Parameters**:
-- `options` - The options object provided when starting Centurion.
 
 ### `run(path, executor, text)`
 
 Executes a command.
 
 **Parameters**:
-- `path` - The path of the command.
-- `executor` - The executor of the command.
-- `text` - The input text
+- `path` - The command's path
+- `args` - The arguments to pass to the command
+- `executor` - The command's executor, or `undefined` if the executor is the server
 
 **Returns**:
-A promise that resolves when the command is executed.
+A `Promise` that resolves when the command has been executed.
+
+The value contained in the Promise is a `CommandContext` instance containing the execution result.
 
 ## ClientDispatcher
-
-### `init(options)`
-
-Initializes the client dispatcher.
-
-**Parameters**:
-- `options` - The options object provided when starting Centurion.
 
 ### `run(path, text)`
 
@@ -51,12 +26,17 @@ Executes a command.
 
 If the path points to a server command, the command will be executed on the server.
 
+If `runAsPlayer` is set to `false`, the command will be executed with no executor. This only
+applies to commands registered on the client - commands registered on the server will always
+execute with the local player as the executor.
+
 **Parameters**:
-- `path` - The path of the command.
-- `text` - The input text
+- `path` - The command's path
+- `args` - The arguments to pass to the command
+- `runAsPlayer` - Whether to run the command as the local player.
 
 **Returns**:
-A promise that resolves when the command is executed.
+A `Promise` that resolves when the command has been executed.
 
-The value contained in the Promise is a HistoryEntry object containing
+The value contained in the Promise is a `HistoryEntry` object containing
 the command's response and the time it was executed.
