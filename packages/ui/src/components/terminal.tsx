@@ -1,10 +1,10 @@
 import React, { useContext } from "@rbxts/react";
 import { GuiService } from "@rbxts/services";
-import { usePx } from "../../hooks/use-px";
-import { OptionsContext } from "../../providers/options-provider";
-import { Group } from "../interface/group";
+import { usePx } from "../hooks/use-px";
+import { OptionsContext } from "../providers/options-provider";
 import { Suggestions } from "./suggestions";
 import { TerminalWindow } from "./terminal-window";
+import { Group } from "./ui/group";
 
 export default function Terminal() {
 	const px = usePx();

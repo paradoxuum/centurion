@@ -13,21 +13,21 @@ import {
 import { useEventListener, useLatestCallback } from "@rbxts/pretty-react-hooks";
 import React, { useContext, useEffect, useMemo, useState } from "@rbxts/react";
 import { TextService } from "@rbxts/services";
-import { HISTORY_TEXT_SIZE } from "../../constants/text";
-import { useMotion } from "../../hooks/use-motion";
-import { usePx } from "../../hooks/use-px";
-import { useStore } from "../../hooks/use-store";
-import { ApiContext } from "../../providers/api-provider";
-import { OptionsContext } from "../../providers/options-provider";
-import { HistoryLineData, Suggestion } from "../../types";
+import { HISTORY_TEXT_SIZE } from "../constants/text";
+import { useMotion } from "../hooks/use-motion";
+import { usePx } from "../hooks/use-px";
+import { useStore } from "../hooks/use-store";
+import { ApiContext } from "../providers/api-provider";
+import { OptionsContext } from "../providers/options-provider";
+import { HistoryLineData, Suggestion } from "../types";
 import {
 	getArgumentSuggestion,
 	getCommandSuggestion,
-} from "../../util/suggestion";
-import { Frame } from "../interface/frame";
-import { Padding } from "../interface/padding";
+} from "../util/suggestion";
 import { HistoryData, HistoryList } from "./history";
 import { TerminalTextField } from "./terminal-text-field";
+import { Frame } from "./ui/frame";
+import { Padding } from "./ui/padding";
 
 const MAX_HEIGHT = HISTORY_TEXT_SIZE * 10;
 const TEXT_FIELD_HEIGHT = 40;

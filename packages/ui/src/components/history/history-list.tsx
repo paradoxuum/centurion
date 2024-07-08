@@ -1,9 +1,9 @@
 import { BindingOrValue, mapBinding } from "@rbxts/pretty-react-hooks";
 import React, { useBinding, useContext, useEffect } from "@rbxts/react";
-import { usePx } from "../../../hooks/use-px";
-import { OptionsContext } from "../../../providers/options-provider";
-import { HistoryLineData } from "../../../types";
-import { ScrollingFrame } from "../../interface/scrolling-frame";
+import { usePx } from "../../hooks/use-px";
+import { OptionsContext } from "../../providers/options-provider";
+import { HistoryLineData } from "../../types";
+import { ScrollingFrame } from "../ui/scrolling-frame";
 import { HistoryLine } from "./history-line";
 
 export interface HistoryData {

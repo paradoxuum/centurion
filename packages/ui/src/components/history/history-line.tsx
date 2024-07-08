@@ -1,14 +1,14 @@
 import { HistoryEntry } from "@rbxts/centurion";
 import { BindingOrValue } from "@rbxts/pretty-react-hooks";
 import React, { useContext, useMemo } from "@rbxts/react";
-import { HISTORY_TEXT_SIZE } from "../../../constants/text";
-import { usePx } from "../../../hooks/use-px";
-import { OptionsContext } from "../../../providers/options-provider";
-import { Frame } from "../../interface/frame";
-import { Group } from "../../interface/group";
-import { Outline } from "../../interface/outline";
-import { Text } from "../../interface/text";
-import { TextField } from "../../interface/text-field";
+import { HISTORY_TEXT_SIZE } from "../../constants/text";
+import { usePx } from "../../hooks/use-px";
+import { OptionsContext } from "../../providers/options-provider";
+import { Frame } from "../ui/frame";
+import { Group } from "../ui/group";
+import { Outline } from "../ui/outline";
+import { Text } from "../ui/text";
+import { TextField } from "../ui/text-field";
 
 interface HistoryLineProps {
 	data: HistoryEntry;

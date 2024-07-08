@@ -6,17 +6,17 @@ import React, {
 } from "@rbxts/react";
 import { useSelector } from "@rbxts/react-reflex";
 import { TextService } from "@rbxts/services";
-import { springs } from "../../../constants/springs";
+import { springs } from "../../constants/springs";
 import {
 	SUGGESTION_TEXT_SIZE,
 	SUGGESTION_TITLE_TEXT_SIZE,
-} from "../../../constants/text";
-import { useMotion } from "../../../hooks/use-motion";
-import { usePx } from "../../../hooks/use-px";
-import { OptionsContext } from "../../../providers/options-provider";
-import { selectSuggestion } from "../../../store/suggestion";
-import { selectText } from "../../../store/text";
-import { Group } from "../../interface/group";
+} from "../../constants/text";
+import { useMotion } from "../../hooks/use-motion";
+import { usePx } from "../../hooks/use-px";
+import { OptionsContext } from "../../providers/options-provider";
+import { selectSuggestion } from "../../store/suggestion";
+import { selectText } from "../../store/text";
+import { Group } from "../ui/group";
 import { MainSuggestion } from "./main-suggestion";
 import { SuggestionList } from "./suggestion-list";
 import { SuggestionTextBounds } from "./types";

@@ -18,19 +18,19 @@ import React, {
 } from "@rbxts/react";
 import { useSelector } from "@rbxts/react-reflex";
 import { UserInputService } from "@rbxts/services";
-import { usePx } from "../../hooks/use-px";
-import { useStore } from "../../hooks/use-store";
-import { ApiContext } from "../../providers/api-provider";
-import { OptionsContext } from "../../providers/options-provider";
-import { selectVisible } from "../../store/app";
-import { selectCommand } from "../../store/command";
-import { selectSuggestion } from "../../store/suggestion";
-import { selectValid } from "../../store/text";
-import { getArgumentNames } from "../../util/argument";
-import { Frame } from "../interface/frame";
-import { Padding } from "../interface/padding";
-import { Text } from "../interface/text";
-import { TextField } from "../interface/text-field";
+import { usePx } from "../hooks/use-px";
+import { useStore } from "../hooks/use-store";
+import { ApiContext } from "../providers/api-provider";
+import { OptionsContext } from "../providers/options-provider";
+import { selectVisible } from "../store/app";
+import { selectCommand } from "../store/command";
+import { selectSuggestion } from "../store/suggestion";
+import { selectValid } from "../store/text";
+import { getArgumentNames } from "../util/argument";
+import { Frame } from "./ui/frame";
+import { Padding } from "./ui/padding";
+import { Text } from "./ui/text";
+import { TextField } from "./ui/text-field";
 
 interface TerminalTextFieldProps {
 	anchorPoint?: BindingOrValue<Vector2>;

@@ -3,7 +3,7 @@ import {
 	ArgumentSuggestion,
 	CommandSuggestion,
 	InterfaceOptions,
-} from "../../../types";
+} from "../../types";
 import { SuggestionTextBounds } from "./types";
 
 const TEXT_BOUNDS_PARAMS = new Instance("GetTextBoundsParams");

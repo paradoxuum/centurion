@@ -10,7 +10,7 @@ import {
 	InterfaceOptionsWithState,
 	OptionsContext,
 } from "../../providers/options-provider";
-import { Badge } from "../terminal/suggestions/badge";
+import { Badge } from "../suggestions/badge";
 import { Frame } from "./frame";
 import { Padding } from "./padding";
 

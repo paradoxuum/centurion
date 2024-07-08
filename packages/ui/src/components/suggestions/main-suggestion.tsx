@@ -1,25 +1,21 @@
 import { BindingOrValue, lerpBinding } from "@rbxts/pretty-react-hooks";
 import React, { Binding, useContext, useEffect } from "@rbxts/react";
-import { springs } from "../../../constants/springs";
+import { springs } from "../../constants/springs";
 import {
 	SUGGESTION_TEXT_SIZE,
 	SUGGESTION_TITLE_TEXT_SIZE,
-} from "../../../constants/text";
-import { useMotion } from "../../../hooks/use-motion";
-import { usePx } from "../../../hooks/use-px";
+} from "../../constants/text";
+import { useMotion } from "../../hooks/use-motion";
+import { usePx } from "../../hooks/use-px";
 import {
 	InterfaceOptionsWithState,
 	OptionsContext,
-} from "../../../providers/options-provider";
-import {
-	ArgumentSuggestion,
-	CommandSuggestion,
-	Suggestion,
-} from "../../../types";
-import { Frame } from "../../interface/frame";
-import { Padding } from "../../interface/padding";
-import { ShortcutGroup } from "../../interface/shortcut-group";
-import { Text } from "../../interface/text";
+} from "../../providers/options-provider";
+import { ArgumentSuggestion, CommandSuggestion, Suggestion } from "../../types";
+import { Frame } from "../ui/frame";
+import { Padding } from "../ui/padding";
+import { ShortcutGroup } from "../ui/shortcut-group";
+import { Text } from "../ui/text";
 import { Badge } from "./badge";
 import { SuggestionTextBounds } from "./types";
 import { highlightMatching } from "./util";
