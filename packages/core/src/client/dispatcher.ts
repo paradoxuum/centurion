@@ -12,9 +12,10 @@ export class ClientDispatcher extends BaseDispatcher {
 	readonly historyUpdated = new Signal<[history: HistoryEntry[]]>();
 
 	/**
-	 * Initialises the client dispatcher.
+	 * Initializes the client dispatcher.
 	 *
-	 * @param options The client options provided when starting Centurion
+	 * @param options Client options
+	 * @ignore
 	 */
 	init(options: ClientOptions) {
 		super.init(options);

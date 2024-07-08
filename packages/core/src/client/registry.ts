@@ -14,6 +14,12 @@ export class ClientRegistry extends BaseRegistry {
 	private syncDispatch: ClientRemotes.SyncDispatch;
 	private execute: ClientRemotes.Execute;
 
+	/**
+	 * Initializes the client registry.
+	 *
+	 * @param options Client options
+	 * @ignore
+	 */
 	init(options: ClientOptions) {
 		super.init(options);
 		this.options = options;

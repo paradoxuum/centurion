@@ -11,6 +11,12 @@ export class ServerRegistry extends BaseRegistry {
 	private syncStart: ServerRemotes.SyncStart;
 	private syncDispatch: ServerRemotes.SyncDispatch;
 
+	/**
+	 * Initializes the server registry.
+	 *
+	 * @param options Server options
+	 * @ignore
+	 */
 	init(options: ServerOptions) {
 		super.init(options);
 		this.options = options;

@@ -8,10 +8,13 @@ const isStringArray = t.array(t.string);
 
 export class ServerDispatcher extends BaseDispatcher {
 	/**
-	 * Initialises the server dispatcher.
+	 * Initializes the server dispatcher.
 	 *
 	 * This handles any connections to dispatcher remotes. It is
 	 * required in order to handle server command execution from clients.
+	 *
+	 * @param options Server options
+	 * @ignore
 	 */
 	init(options: ServerOptions) {
 		super.init(options);
