@@ -14,9 +14,8 @@ Executes a command.
 - `executor` - The command's executor, or `undefined` if the executor is the server
 
 **Returns**:
-A `Promise` that resolves when the command has been executed.
-
-The value contained in the Promise is a `CommandContext` instance containing the execution result.
+A `Promise` that resolves when the command has been executed. The value contained in the Promise is
+a `CommandContext` instance containing the execution result.
 
 ## ClientDispatcher
 
@@ -36,7 +35,5 @@ execute with the local player as the executor.
 - `runAsPlayer` - Whether to run the command as the local player.
 
 **Returns**:
-A `Promise` that resolves when the command has been executed.
-
-The value contained in the Promise is a `HistoryEntry` object containing
-the command's response and the time it was executed.
+A `Promise` that resolves when the command has been executed. The value contained in the Promise is
+a `HistoryEntry` object containing the command's response and the time it was executed.
