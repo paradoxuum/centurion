@@ -1231,7 +1231,7 @@ __metadata:
     "@rbxts/beacon": "npm:^2.1.1"
     "@rbxts/centurion": "workspace:^"
     "@rbxts/compiler-types": "npm:2.3.0-types.1"
-    "@rbxts/pretty-react-hooks": "npm:^0.5.1"
+    "@rbxts/pretty-react-hooks": "npm:^0.5.2"
     "@rbxts/react": "npm:^0.4.0"
     "@rbxts/react-reflex": "npm:^0.3.4"
     "@rbxts/react-roblox": "npm:^0.4.0"
@@ -1327,16 +1327,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@rbxts/pretty-react-hooks@npm:^0.5.1":
-  version: 0.5.1
-  resolution: "@rbxts/pretty-react-hooks@npm:0.5.1"
+"@rbxts/pretty-react-hooks@npm:^0.5.2":
+  version: 0.5.2
+  resolution: "@rbxts/pretty-react-hooks@npm:0.5.2"
   dependencies:
     "@rbxts/flipper": "npm:^2.0.1"
     "@rbxts/react": "npm:*"
     "@rbxts/react-roblox": "npm:*"
     "@rbxts/services": "npm:^1.5.1"
     "@rbxts/set-timeout": "npm:^1.1.2"
-  checksum: 10c0/95cc80f83cf1f69c70a7ce341b9675d14ab4c8144ce9cc51e3c0aa1642b36694e05eb40a769cd48eeb1013c6329865c5c634d079736acaa0c49c258b08da1e6b
+  checksum: 10c0/5327a7a6282ac008b6ea7aad5005ae4e4e0c6145658cc279d67456268c99a65b9a40dce803c31eeaed166171fc4b5e0f2b4754852ffae0c49542708273fdf54d
   languageName: node
   linkType: hard
 
