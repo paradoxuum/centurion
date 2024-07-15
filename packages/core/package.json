@@ -7,8 +7,8 @@
     "types": "out/index.d.ts",
     "files": [
         "out",
-		"!**/*.tsbuildinfo",
-		"!**/__tests__"
+        "!**/*.tsbuildinfo",
+        "!**/__tests__"
     ],
     "keywords": [
         "roblox",
@@ -16,12 +16,12 @@
         "command"
     ],
     "repository": {
-		"type": "git",
-		"url": "https://github.com/paradoxuum/centurion.git"
-	},
-	"bugs": {
-		"url": "https://github.com/paradoxuum/centurion/issues"
-	},
+        "type": "git",
+        "url": "https://github.com/paradoxuum/centurion.git"
+    },
+    "bugs": {
+        "url": "https://github.com/paradoxuum/centurion/issues"
+    },
     "publishConfig": {
         "access": "public"
     },
