@@ -1,6 +1,6 @@
 {
     "name": "@rbxts/centurion",
-    "version": "0.4.0",
+    "version": "1.0.0",
     "author": "paradoxuum",
     "license": "MIT",
     "main": "out/init.lua",
@@ -17,7 +17,7 @@
     ],
     "repository": {
         "type": "git",
-        "url": "https://github.com/paradoxuum/centurion.git"
+        "url": "git+https://github.com/paradoxuum/centurion.git"
     },
     "bugs": {
         "url": "https://github.com/paradoxuum/centurion/issues"
@@ -32,7 +32,7 @@
         "@rbxts/compiler-types": "^2.3.0-types.1",
         "@rbxts/jest": "^0.1.0",
         "@rbxts/jest-globals": "^0.1.0",
-        "@rbxts/types": "^1.0.788",
+        "@rbxts/types": "^1.0.789",
         "roblox-ts": "2.3.0-dev-26ec859",
         "typescript": "~5.5.3"
     },

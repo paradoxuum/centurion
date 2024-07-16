@@ -1,6 +1,6 @@
 {
     "name": "@rbxts/centurion-ui",
-    "version": "0.1.0",
+    "version": "1.0.0",
     "author": "paradoxuum",
     "license": "MIT",
     "main": "out/init.lua",
@@ -18,7 +18,7 @@
     ],
     "repository": {
         "type": "git",
-        "url": "https://github.com/paradoxuum/centurion.git"
+        "url": "git+https://github.com/paradoxuum/centurion.git"
     },
     "bugs": {
         "url": "https://github.com/paradoxuum/centurion/issues"
@@ -32,7 +32,7 @@
     "devDependencies": {
         "@rbxts/centurion": "workspace:^",
         "@rbxts/compiler-types": "2.3.0-types.1",
-        "@rbxts/types": "^1.0.788",
+        "@rbxts/types": "^1.0.789",
         "rbxts-transformer-services": "^1.1.1",
         "roblox-ts": "2.3.0-dev-26ec859",
         "typescript": "~5.5.3"
@@ -44,10 +44,11 @@
         "@rbxts/react-reflex": "^0.3.4",
         "@rbxts/react-roblox": "^0.4.0",
         "@rbxts/reflex": "^4.3.1",
-        "@rbxts/ripple": "^0.8.1",
+        "@rbxts/ripple": "^0.8.2",
         "@rbxts/services": "^1.5.4"
     },
     "peerDependencies": {
         "@rbxts/centurion": "workspace:^"
-    }
+    },
+    "stableVersion": "0.1.0"
 }
