@@ -26,7 +26,8 @@
         "access": "public"
     },
     "scripts": {
-        "build": "rbxtsc --verbose"
+        "prepack": "yarn build",
+        "build": "shx rm -rf out && rbxtsc --verbose"
     },
     "devDependencies": {
         "@rbxts/compiler-types": "^2.3.0-types.1",
@@ -34,6 +35,7 @@
         "@rbxts/jest-globals": "^0.1.0",
         "@rbxts/types": "^1.0.789",
         "roblox-ts": "2.3.0-dev-26ec859",
+        "shx": "^0.3.4",
         "typescript": "~5.5.3"
     },
     "dependencies": {

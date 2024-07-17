@@ -2,8 +2,8 @@
     "name": "test",
     "private": true,
     "scripts": {
-        "build": "rbxtsc --type=game && rojo build -o place.rbxl",
-        "dev": "rbxtsc -w --type=game",
+        "build": "shx rm -rf out && rbxtsc --type=game && rojo build -o place.rbxl",
+        "dev": "shx rm -rf out && rbxtsc -w --type=game",
         "serve": "rojo serve"
     },
     "devDependencies": {
@@ -15,6 +15,7 @@
     "dependencies": {
         "@rbxts/centurion": "workspace:^",
         "@rbxts/centurion-ui": "workspace:^",
-        "@rbxts/services": "^1.5.4"
+        "@rbxts/services": "^1.5.4",
+        "shx": "^0.3.4"
     }
 }
