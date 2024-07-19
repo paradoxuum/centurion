@@ -28,6 +28,7 @@ export function Suggestions() {
 	const textPart = useAtom(currentTextPart);
 
 	const textBoundsParams = new Instance("GetTextBoundsParams");
+	textBoundsParams.RichText = true;
 	cleanup(() => {
 		textBoundsParams.Destroy();
 	});

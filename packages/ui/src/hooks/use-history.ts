@@ -18,6 +18,7 @@ export function useHistory() {
 
 	const textBoundsParams = new Instance("GetTextBoundsParams");
 	textBoundsParams.Width = math.huge;
+	textBoundsParams.RichText = true;
 	cleanup(() => {
 		textBoundsParams.Destroy();
 	});

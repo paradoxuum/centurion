@@ -3,6 +3,8 @@ import { InterfaceOptions, Suggestion } from "../../types";
 import { SuggestionTextBounds } from "./types";
 
 const TEXT_BOUNDS_PARAMS = new Instance("GetTextBoundsParams");
+TEXT_BOUNDS_PARAMS.RichText = true;
+
 const DEFAULT_BOUNDS = new Vector2();
 
 let prevColor: Color3 | undefined;
