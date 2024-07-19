@@ -8,8 +8,7 @@
     "files": [
         "out",
         "!**/*.tsbuildinfo",
-        "!**/__tests__",
-        "!**/app/config*"
+        "!**/__tests__"
     ],
     "keywords": [
         "roblox",

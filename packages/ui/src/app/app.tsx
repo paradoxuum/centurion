@@ -1,5 +1,3 @@
-import "./config";
-
 import { Signal } from "@rbxts/beacon";
 import { ClientAPI } from "@rbxts/centurion";
 import { ContentProvider, Players } from "@rbxts/services";
