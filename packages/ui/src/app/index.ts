@@ -1,18 +1,17 @@
-import { Signal } from "@rbxts/beacon";
 import { ClientAPI } from "@rbxts/centurion";
 import { ContentProvider, Players } from "@rbxts/services";
 import { mount } from "@rbxts/vide";
 import { DEFAULT_INTERFACE_OPTIONS } from "../constants/options";
+import { interfaceOptions } from "../store";
 import { InterfaceOptions } from "../types";
 import { CenturionApp } from "./centurion-app";
 
 export namespace CenturionUI {
 	const MAX_PRELOAD_ATTEMPTS = 3;
 	const PRELOAD_ATTEMPT_INTERVAL = 3;
-	const optionsChanged = new Signal<[options: Partial<InterfaceOptions>]>();
 
 	export function updateOptions(options: Partial<InterfaceOptions>) {
-		optionsChanged.Fire(options);
+		interfaceOptions((prev) => ({ ...prev, ...options }));
 	}
 
 	export function create(

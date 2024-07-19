@@ -40,7 +40,6 @@
         "typescript": "~5.5.3"
     },
     "dependencies": {
-        "@rbxts/beacon": "^2.1.1",
         "@rbxts/charm": "^0.5.2",
         "@rbxts/ripple": "^0.8.2",
         "@rbxts/services": "^1.5.4",
