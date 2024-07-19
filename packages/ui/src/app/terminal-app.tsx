@@ -1,9 +1,12 @@
+import { ClientAPI } from "@rbxts/centurion";
 import { UserInputService } from "@rbxts/services";
 import Vide, { derive } from "@rbxts/vide";
 import Terminal from "../components/terminal";
 import { Layer } from "../components/ui/layer";
+import { useAPI } from "../hooks/use-api";
 import { useAtom } from "../hooks/use-atom";
 import { useEvent } from "../hooks/use-event";
+import { usePx } from "../hooks/use-px";
 import {
 	interfaceOptions,
 	interfaceVisible,
@@ -16,7 +19,10 @@ const MOUSE_INPUT_TYPES = new Set<Enum.UserInputType>([
 	Enum.UserInputType.Touch,
 ]);
 
-export function TerminalApp() {
+export function TerminalApp(api: ClientAPI) {
+	useAPI(api);
+	usePx();
+
 	const options = useAtom(interfaceOptions);
 	const visible = useAtom(interfaceVisible);
 
