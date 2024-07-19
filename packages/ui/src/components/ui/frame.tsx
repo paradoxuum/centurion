@@ -1,29 +1,27 @@
-import { BindingOrValue } from "@rbxts/pretty-react-hooks";
-import React, { InferEnumNames, Ref, forwardRef } from "@rbxts/react";
+import Vide, { ActionAttributes, Derivable, InferEnumNames } from "@rbxts/vide";
 
 export interface FrameProps<T extends Instance = Frame>
-	extends React.PropsWithChildren {
-	ref?: React.Ref<T>;
-	event?: React.InstanceEvent<T>;
-	change?: React.InstanceChangeEvent<T>;
-	size?: BindingOrValue<UDim2>;
-	position?: BindingOrValue<UDim2>;
-	anchorPoint?: BindingOrValue<Vector2>;
-	rotation?: BindingOrValue<number>;
-	backgroundColor?: BindingOrValue<Color3>;
-	backgroundTransparency?: BindingOrValue<number>;
-	clipsDescendants?: BindingOrValue<boolean>;
-	visible?: BindingOrValue<boolean>;
-	zIndex?: BindingOrValue<number>;
-	layoutOrder?: BindingOrValue<number>;
-	cornerRadius?: BindingOrValue<UDim>;
+	extends ActionAttributes<T> {
+	size?: Derivable<UDim2>;
+	position?: Derivable<UDim2>;
+	anchorPoint?: Derivable<Vector2>;
+	rotation?: Derivable<number>;
+	backgroundColor?: Derivable<Color3>;
+	backgroundTransparency?: Derivable<number>;
+	clipsDescendants?: Derivable<boolean>;
+	visible?: Derivable<boolean>;
+	zIndex?: Derivable<number>;
+	layoutOrder?: Derivable<number>;
+	cornerRadius?: Derivable<UDim>;
 	automaticSize?: InferEnumNames<Enum.AutomaticSize>;
+	children?: Vide.Node;
+	mouseEnter?: () => void;
+	mouseLeave?: () => void;
 }
 
-export const Frame = forwardRef((props: FrameProps, ref: Ref<Frame>) => {
+export function Frame(props: FrameProps) {
 	return (
 		<frame
-			ref={ref}
 			AutomaticSize={props.automaticSize}
 			Size={props.size}
 			Position={props.position}
@@ -36,11 +34,12 @@ export const Frame = forwardRef((props: FrameProps, ref: Ref<Frame>) => {
 			ZIndex={props.zIndex}
 			LayoutOrder={props.layoutOrder}
 			BorderSizePixel={0}
-			Event={props.event || {}}
-			Change={props.change || {}}
+			MouseEnter={props.mouseEnter}
+			MouseLeave={props.mouseLeave}
+			action={props.action}
 		>
 			{props.cornerRadius && <uicorner CornerRadius={props.cornerRadius} />}
 			{props.children}
 		</frame>
 	);
-});
+}

@@ -26,6 +26,7 @@ export interface HistoryLineData {
 export interface CommandSuggestion {
 	type: "command";
 	title: string;
+	others: string[];
 	description?: string;
 	shortcuts?: CommandShortcut[];
 }
@@ -33,13 +34,11 @@ export interface CommandSuggestion {
 export interface ArgumentSuggestion {
 	type: "argument";
 	title: string;
+	others: string[];
 	description?: string;
 	dataType: string;
 	optional: boolean;
 	error?: string;
 }
 
-export interface Suggestion {
-	main: ArgumentSuggestion | CommandSuggestion;
-	others: string[];
-}
+export type Suggestion = CommandSuggestion | ArgumentSuggestion;

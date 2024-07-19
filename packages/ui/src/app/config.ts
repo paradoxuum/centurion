@@ -1,7 +1,6 @@
-declare const _G: { __DEV__: boolean };
-
-const RunService = game.GetService("RunService");
+import { RunService } from "@rbxts/services";
+import Vide from "@rbxts/vide";
 
 if (RunService.IsStudio() && RunService.IsClient()) {
-	_G.__DEV__ = true;
+	Vide.strict = true;
 }

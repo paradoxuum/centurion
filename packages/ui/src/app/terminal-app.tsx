@@ -1,43 +1,41 @@
-import { useEventListener } from "@rbxts/pretty-react-hooks";
-import React, { useContext, useMemo } from "@rbxts/react";
-import { useSelector } from "@rbxts/react-reflex";
 import { UserInputService } from "@rbxts/services";
+import Vide, { derive } from "@rbxts/vide";
 import Terminal from "../components/terminal";
 import { Layer } from "../components/ui/layer";
-import { OptionsContext } from "../providers/options-provider";
-import { store } from "../store";
-import { selectVisible } from "../store/app";
+import { useAtom } from "../hooks/use-atom";
+import { useEvent } from "../hooks/use-event";
+import {
+	interfaceOptions,
+	interfaceVisible,
+	mouseOverInterface,
+} from "../store";
+
+const MOUSE_INPUT_TYPES = new Set<Enum.UserInputType>([
+	Enum.UserInputType.MouseButton1,
+	Enum.UserInputType.MouseButton2,
+	Enum.UserInputType.Touch,
+]);
 
 export function TerminalApp() {
-	const options = useContext(OptionsContext);
-	const visible = useSelector(selectVisible);
+	const options = useAtom(interfaceOptions);
+	const visible = useAtom(interfaceVisible);
 
-	const validKeys = useMemo(() => {
-		return new Set(options.activationKeys);
-	}, [options]);
+	const validKeys = derive(() => new Set(options().activationKeys));
 
-	const mouseInputTypes = useMemo(() => {
-		return new Set<Enum.UserInputType>([
-			Enum.UserInputType.MouseButton1,
-			Enum.UserInputType.MouseButton2,
-			Enum.UserInputType.Touch,
-		]);
-	}, []);
-
-	useEventListener(UserInputService.InputBegan, (input, gameProcessed) => {
-		if (validKeys.has(input.KeyCode) && !gameProcessed) {
-			store.setVisible(!visible);
+	useEvent(UserInputService.InputBegan, (input, gameProcessed) => {
+		if (validKeys().has(input.KeyCode) && !gameProcessed) {
+			interfaceVisible(!visible());
 		} else if (
-			options.hideOnLostFocus &&
-			mouseInputTypes.has(input.UserInputType) &&
-			!options.isMouseOnGUI
+			options().hideOnLostFocus &&
+			MOUSE_INPUT_TYPES.has(input.UserInputType) &&
+			!mouseOverInterface()
 		) {
-			store.setVisible(false);
+			interfaceVisible(false);
 		}
 	});
 
 	return (
-		<Layer displayOrder={options.displayOrder} visible={visible}>
+		<Layer displayOrder={() => options().displayOrder ?? 0} visible={visible}>
 			<Terminal />
 		</Layer>
 	);

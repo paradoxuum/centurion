@@ -1,7 +1,7 @@
 import { BaseRegistry, CommandOptions, RegistryPath } from "@rbxts/centurion";
 import { ArrayUtil } from "@rbxts/centurion/out/shared/util/data";
 import { Players } from "@rbxts/services";
-import { Suggestion } from "../types";
+import { ArgumentSuggestion, Suggestion } from "../types";
 
 const MAX_OTHER_SUGGESTIONS = 3;
 
@@ -41,7 +41,7 @@ export function getArgumentSuggestion(
 	path: RegistryPath,
 	index: number,
 	text?: string,
-): Suggestion | undefined {
+): ArgumentSuggestion | undefined {
 	const command = registry.getCommand(path);
 	if (command === undefined) return;
 
@@ -90,15 +90,13 @@ export function getArgumentSuggestion(
 	).map((index) => argSuggestions[index]);
 
 	return {
-		main: {
-			type: "argument",
-			title: arg.name,
-			description: arg.description,
-			dataType: typeObject.name,
-			optional: arg.optional ?? false,
-			error: errorText,
-		},
+		type: "argument",
+		title: arg.name,
 		others: otherSuggestions,
+		description: arg.description,
+		dataType: typeObject.name,
+		optional: arg.optional ?? false,
+		error: errorText,
 	};
 }
 
@@ -133,12 +131,10 @@ export function getCommandSuggestion(
 			: [];
 
 	return {
-		main: {
-			type: "command",
-			title: firstPath.tail(),
-			description: mainData.description,
-			shortcuts: (mainData as CommandOptions).shortcuts,
-		},
+		type: "command",
+		title: firstPath.tail(),
 		others: otherNames,
+		description: mainData.description,
+		shortcuts: (mainData as CommandOptions).shortcuts,
 	};
 }

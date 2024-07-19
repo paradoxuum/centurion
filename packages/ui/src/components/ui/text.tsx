@@ -1,36 +1,34 @@
-import { BindingOrValue } from "@rbxts/pretty-react-hooks";
-import React, { Ref, forwardRef, useContext } from "@rbxts/react";
-import { usePx } from "../../hooks/use-px";
-import { OptionsContext } from "../../providers/options-provider";
+import Vide, { Derivable, InferEnumNames, read } from "@rbxts/vide";
+import { useAtom } from "../../hooks/use-atom";
+import { px } from "../../hooks/use-px";
+import { interfaceOptions } from "../../store";
 import { FrameProps } from "./frame";
 
 export interface TextProps<T extends Instance = TextLabel>
 	extends FrameProps<T> {
-	font?: Font;
-	text?: BindingOrValue<string>;
-	textColor?: BindingOrValue<Color3>;
-	textSize?: BindingOrValue<number>;
-	textTransparency?: BindingOrValue<number>;
-	textWrapped?: BindingOrValue<boolean>;
-	textXAlignment?: React.InferEnumNames<Enum.TextXAlignment>;
-	textYAlignment?: React.InferEnumNames<Enum.TextYAlignment>;
-	textTruncate?: React.InferEnumNames<Enum.TextTruncate>;
-	textScaled?: BindingOrValue<boolean>;
-	textHeight?: BindingOrValue<number>;
+	font?: Derivable<Font>;
+	text?: Derivable<string>;
+	textColor?: Derivable<Color3>;
+	textSize?: Derivable<number>;
+	textTransparency?: Derivable<number>;
+	textWrapped?: Derivable<boolean>;
+	textXAlignment?: InferEnumNames<Enum.TextXAlignment>;
+	textYAlignment?: InferEnumNames<Enum.TextYAlignment>;
+	textTruncate?: InferEnumNames<Enum.TextTruncate>;
+	textScaled?: Derivable<boolean>;
+	textHeight?: Derivable<number>;
 	textAutoResize?: "X" | "Y" | "XY";
-	richText?: BindingOrValue<boolean>;
-	maxVisibleGraphemes?: BindingOrValue<number>;
+	richText?: Derivable<boolean>;
+	maxVisibleGraphemes?: Derivable<number>;
+	textBoundsChanged?: (textBounds: Vector2) => void;
 }
 
-export const Text = forwardRef((props: TextProps, ref: Ref<TextLabel>) => {
-	const px = usePx();
-	const options = useContext(OptionsContext);
+export function Text(props: TextProps) {
+	const options = useAtom(interfaceOptions);
 
 	return (
 		<textlabel
-			ref={ref}
-			Font={Enum.Font.Unknown}
-			FontFace={props.font ?? options.font.regular}
+			FontFace={() => read(props.font) ?? options().font.regular}
 			Text={props.text}
 			TextColor3={props.textColor}
 			TextSize={props.textSize ?? px(16)}
@@ -53,11 +51,11 @@ export const Text = forwardRef((props: TextProps, ref: Ref<TextLabel>) => {
 			Visible={props.visible}
 			ZIndex={props.zIndex}
 			LayoutOrder={props.layoutOrder}
-			Change={props.change || {}}
-			Event={props.event || {}}
+			action={props.action}
+			TextBoundsChanged={props.textBoundsChanged}
 		>
 			{props.cornerRadius && <uicorner CornerRadius={props.cornerRadius} />}
 			{props.children}
 		</textlabel>
 	);
-});
+}

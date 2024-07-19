@@ -28,7 +28,8 @@
     },
     "scripts": {
         "prepack": "yarn build",
-        "build": "shx rm -rf out && rbxtsc --verbose"
+        "build": "shx rm -rf out && rbxtsc --verbose",
+        "dev": "rbxtsc --watch"
     },
     "devDependencies": {
         "@rbxts/centurion": "workspace:^",
@@ -40,13 +41,11 @@
     },
     "dependencies": {
         "@rbxts/beacon": "^2.1.1",
-        "@rbxts/pretty-react-hooks": "^0.5.2",
-        "@rbxts/react": "^0.4.0",
-        "@rbxts/react-reflex": "^0.3.4",
-        "@rbxts/react-roblox": "^0.4.0",
-        "@rbxts/reflex": "^4.3.1",
+        "@rbxts/charm": "^0.5.2",
         "@rbxts/ripple": "^0.8.2",
-        "@rbxts/services": "^1.5.4"
+        "@rbxts/services": "^1.5.4",
+        "@rbxts/set-timeout": "^1.1.2",
+        "@rbxts/vide": "^0.4.1"
     },
     "peerDependencies": {
         "@rbxts/centurion": "workspace:^"

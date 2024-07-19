@@ -1,5 +1,4 @@
 import {
-	CommandOptions,
 	HistoryEntry,
 	ImmutableRegistryPath,
 	RegistryPath,
@@ -8,18 +7,27 @@ import { ArrayUtil } from "@rbxts/centurion/out/shared/util/data";
 import {
 	endsWithSpace,
 	formatPartsAsPath,
-	splitString,
 } from "@rbxts/centurion/out/shared/util/string";
-import { useEventListener, useLatestCallback } from "@rbxts/pretty-react-hooks";
-import React, { useContext, useEffect, useMemo, useState } from "@rbxts/react";
 import { TextService } from "@rbxts/services";
+import Vide, { cleanup, effect, source } from "@rbxts/vide";
 import { HISTORY_TEXT_SIZE } from "../constants/text";
+import { getAPI } from "../hooks/use-api";
+import { useAtom } from "../hooks/use-atom";
+import { useEvent } from "../hooks/use-event";
 import { useMotion } from "../hooks/use-motion";
-import { usePx } from "../hooks/use-px";
-import { useStore } from "../hooks/use-store";
-import { ApiContext } from "../providers/api-provider";
-import { OptionsContext } from "../providers/options-provider";
+import { px } from "../hooks/use-px";
+import {
+	currentArgIndex,
+	currentCommandPath,
+	currentSuggestion,
+	interfaceOptions,
+	mouseOverInterface,
+	terminalText,
+	terminalTextParts,
+	terminalTextValid,
+} from "../store";
 import { HistoryLineData, Suggestion } from "../types";
+import { getMissingArgs } from "../util/argument";
 import {
 	getArgumentSuggestion,
 	getCommandSuggestion,
@@ -33,75 +41,36 @@ const MAX_HEIGHT = HISTORY_TEXT_SIZE * 10;
 const TEXT_FIELD_HEIGHT = 40;
 
 export function TerminalWindow() {
-	const px = usePx();
-	const store = useStore();
-	const api = useContext(ApiContext);
-	const options = useContext(OptionsContext);
+	const api = getAPI();
+	const options = useAtom(interfaceOptions);
+	const missingArgs = source<string[]>([]);
 
-	const [history, setHistory] = useState<HistoryEntry[]>(
-		api.dispatcher.getHistory(),
-	);
-	const [historyData, setHistoryData] = useState<HistoryData>({
+	const history = source<HistoryEntry[]>(api.dispatcher.getHistory());
+	const historyData = source<HistoryData>({
 		lines: [],
 		height: 0,
 	});
 	const [historyHeight, historyHeightMotion] = useMotion(0);
 
-	const textBoundsParams = useMemo(() => {
-		const params = new Instance("GetTextBoundsParams");
-		params.Width = math.huge;
-		params.Font = options.font.regular;
-		return params;
-	}, []);
+	useEvent(api.dispatcher.historyUpdated, (entries) => history([...entries]));
 
-	const windowHeightBinding = useMemo(() => {
-		return historyHeight.map((y) => {
-			return new UDim2(1, 0, 0, math.ceil(px(TEXT_FIELD_HEIGHT + 16) + y));
-		});
-	}, [px]);
-
-	const checkMissingArgs = useLatestCallback(
-		(path: ImmutableRegistryPath, command: CommandOptions) => {
-			if (command.arguments === undefined || command.arguments.isEmpty()) {
-				return undefined;
-			}
-
-			const storeState = store.getState();
-			const lastPartIndex = storeState.text.parts.size() - path.size() - 1;
-			const missingArgs: string[] = [];
-
-			let index = 0;
-			for (const arg of command.arguments) {
-				if (arg.optional) break;
-				if (index > lastPartIndex) {
-					missingArgs.push(`<b>${arg.name}</b>`);
-				}
-				index++;
-			}
-
-			if (missingArgs.isEmpty()) return undefined;
-
-			let text = "Missing required argument";
-			if (missingArgs.size() !== 1) {
-				text += "s";
-			}
-			return `${text}: ${missingArgs.join(", ")}`;
-		},
-	);
-
-	useEventListener(api.dispatcher.historyUpdated, (entries) => {
-		setHistory([...entries]);
+	const textBoundsParams = new Instance("GetTextBoundsParams");
+	textBoundsParams.Width = math.huge;
+	textBoundsParams.Font = options().font.regular;
+	cleanup(() => {
+		textBoundsParams.Destroy();
 	});
 
 	// Handle history updates
-	useEffect(() => {
-		const historySize = history.size();
+	effect(() => {
+		const entries = history();
+		const historySize = entries.size();
 		let totalHeight = historySize > 0 ? px(8) + (historySize - 1) * px(8) : 0;
 
 		textBoundsParams.Size = HISTORY_TEXT_SIZE;
 
 		const historyLines: HistoryLineData[] = [];
-		for (const entry of history) {
+		for (const entry of entries) {
 			textBoundsParams.Text = entry.text;
 			const textSize = TextService.GetTextBoundsAsync(textBoundsParams);
 			const lineHeight = px(textSize.Y + 4);
@@ -116,22 +85,27 @@ export function TerminalWindow() {
 			tension: 300,
 			friction: 15,
 		});
-		setHistoryData({
+		historyData({
 			lines: historyLines,
 			height: totalHeight,
 		});
-	}, [history, px]);
+	});
 
 	return (
 		<Frame
-			size={windowHeightBinding}
-			backgroundColor={options.palette.background}
-			backgroundTransparency={options.backgroundTransparency}
-			cornerRadius={new UDim(0, px(8))}
-			event={{
-				MouseEnter: () => options.setMouseOnGUI(true),
-				MouseLeave: () => options.setMouseOnGUI(false),
+			size={() => {
+				return new UDim2(
+					1,
+					0,
+					0,
+					math.ceil(px(TEXT_FIELD_HEIGHT + 16) + historyHeight()),
+				);
 			}}
+			backgroundColor={() => options().palette.background}
+			backgroundTransparency={() => options().backgroundTransparency ?? 0}
+			cornerRadius={new UDim(0, px(8))}
+			mouseEnter={() => mouseOverInterface(true)}
+			mouseLeave={() => mouseOverInterface(false)}
 		>
 			<Padding all={new UDim(0, px(8))} />
 
@@ -145,25 +119,25 @@ export function TerminalWindow() {
 				anchorPoint={new Vector2(0, 1)}
 				size={new UDim2(1, 0, 0, px(TEXT_FIELD_HEIGHT))}
 				position={UDim2.fromScale(0, 1)}
-				backgroundTransparency={options.backgroundTransparency}
+				backgroundTransparency={() => options().backgroundTransparency ?? 0}
 				onTextChange={(text) => {
-					const parts = splitString(text, " ");
-					store.setText(text, parts);
+					terminalText(text);
+					terminalTextValid(false);
 
+					const parts = terminalTextParts();
 					if (parts.isEmpty()) {
-						store.setSuggestion(undefined);
-						store.setCommand(undefined);
-						store.setArgIndex(undefined);
+						currentCommandPath(undefined);
+						currentSuggestion(undefined);
+						currentArgIndex(undefined);
 						return;
 					}
 
-					store.flush();
 					// If the text ends in a space, we want to count that as having traversed
 					// to the next "part" of the text. This means we should include the previous
 					// text part as part of the parent path.
 					const atNextPart = endsWithSpace(text);
 
-					let commandPath = store.getState().command.path;
+					let commandPath = currentCommandPath();
 					let atCommand = false;
 					if (
 						commandPath !== undefined &&
@@ -197,15 +171,11 @@ export function TerminalWindow() {
 						commandPath = ImmutableRegistryPath.fromPath(currentPath);
 					}
 
-					if (!atCommand && store.getState().command.path !== undefined) {
-						store.setCommand(undefined);
-						store.flush();
-					} else if (
-						atCommand &&
-						commandPath !== store.getState().command.path
-					) {
-						store.setCommand(commandPath);
-						store.flush();
+					const currentPath = currentCommandPath();
+					if (!atCommand && currentPath !== undefined) {
+						currentCommandPath(undefined);
+					} else if (atCommand && commandPath !== currentPath) {
+						currentCommandPath(commandPath);
 					}
 
 					const command =
@@ -213,12 +183,17 @@ export function TerminalWindow() {
 							? api.registry.getCommand(commandPath)?.options
 							: undefined;
 					if (commandPath !== undefined && command !== undefined) {
-						store.setTextValid(
-							checkMissingArgs(commandPath, command as CommandOptions) ===
-								undefined,
+						const missing = getMissingArgs(api.registry, commandPath, parts);
+						missingArgs(missing);
+
+						const noArgs = command.arguments?.isEmpty() ?? true;
+						terminalTextValid(
+							noArgs ||
+								missing.isEmpty() ||
+								(atNextPart && missing.size() === 1),
 						);
 					} else {
-						store.setTextValid(false);
+						terminalTextValid(false);
 					}
 
 					// Update suggestions
@@ -253,20 +228,23 @@ export function TerminalWindow() {
 							parts.size() - commandPath.size() - (atNextPart ? 0 : 1);
 						if (argIndex >= argCount) return;
 
-						store.setArgIndex(argIndex);
+						currentArgIndex(argIndex);
 						suggestion = getArgumentSuggestion(
 							api.registry,
 							commandPath,
 							argIndex,
 							currentTextPart,
 						);
+
+						if (suggestion?.error !== undefined) {
+							terminalTextValid(false);
+						}
 					}
 
-					store.setSuggestion(suggestion);
+					currentSuggestion(suggestion);
 				}}
-				onSubmit={(text) => {
-					const storeState = store.getState();
-					const commandPath = storeState.command.path;
+				onSubmit={() => {
+					const commandPath = currentCommandPath();
 					const command =
 						commandPath !== undefined
 							? api.registry.getCommand(commandPath)
@@ -281,23 +259,17 @@ export function TerminalWindow() {
 						return;
 					}
 
-					const argCheckMessage = checkMissingArgs(
-						commandPath,
-						command.options as CommandOptions,
-					);
-					if (argCheckMessage !== undefined) {
+					const missing = missingArgs();
+					if (!missing.isEmpty()) {
 						api.dispatcher.addHistoryEntry({
 							success: false,
-							text: argCheckMessage,
+							text: `Missing arguments: ${missing.join(", ")}`,
 							sentAt: os.time(),
 						});
 						return;
 					}
 
-					const args = ArrayUtil.slice(
-						storeState.text.parts,
-						commandPath.size(),
-					);
+					const args = ArrayUtil.slice(terminalTextParts(), commandPath.size());
 					api.dispatcher.run(commandPath, args);
 				}}
 			/>

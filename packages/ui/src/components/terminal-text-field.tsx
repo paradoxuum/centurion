@@ -2,30 +2,25 @@ import {
 	endsWithSpace,
 	formatPartsAsPath,
 } from "@rbxts/centurion/out/shared/util/string";
-import {
-	BindingOrValue,
-	getBindingValue,
-	useEventListener,
-	useMountEffect,
-} from "@rbxts/pretty-react-hooks";
-import React, {
-	useBinding,
-	useCallback,
-	useContext,
-	useEffect,
-	useRef,
-	useState,
-} from "@rbxts/react";
-import { useSelector } from "@rbxts/react-reflex";
+import { subscribe } from "@rbxts/charm";
 import { UserInputService } from "@rbxts/services";
-import { usePx } from "../hooks/use-px";
-import { useStore } from "../hooks/use-store";
-import { ApiContext } from "../providers/api-provider";
-import { OptionsContext } from "../providers/options-provider";
-import { selectVisible } from "../store/app";
-import { selectCommand } from "../store/command";
-import { selectSuggestion } from "../store/suggestion";
-import { selectValid } from "../store/text";
+import Vide, { Derivable, effect, source } from "@rbxts/vide";
+import { getAPI } from "../hooks/use-api";
+import { useAtom } from "../hooks/use-atom";
+import { useEvent } from "../hooks/use-event";
+import { px } from "../hooks/use-px";
+import {
+	commandHistory,
+	commandHistoryIndex,
+	currentArgIndex,
+	currentCommandPath,
+	currentSuggestion,
+	interfaceOptions,
+	interfaceVisible,
+	terminalText,
+	terminalTextParts,
+	terminalTextValid,
+} from "../store";
 import { getArgumentNames } from "../util/argument";
 import { Frame } from "./ui/frame";
 import { Padding } from "./ui/padding";
@@ -33,10 +28,10 @@ import { Text } from "./ui/text";
 import { TextField } from "./ui/text-field";
 
 interface TerminalTextFieldProps {
-	anchorPoint?: BindingOrValue<Vector2>;
-	size?: BindingOrValue<UDim2>;
-	position?: BindingOrValue<UDim2>;
-	backgroundTransparency?: BindingOrValue<number>;
+	anchorPoint?: Derivable<Vector2>;
+	size?: Derivable<UDim2>;
+	position?: Derivable<UDim2>;
+	backgroundTransparency?: Derivable<number>;
 	onTextChange?: (text: string) => void;
 	onSubmit?: (text: string) => void;
 }
@@ -51,23 +46,29 @@ export function TerminalTextField({
 	onTextChange,
 	onSubmit,
 }: TerminalTextFieldProps) {
-	const px = usePx();
-	const ref = useRef<TextBox>();
-	const api = useContext(ApiContext);
-	const options = useContext(OptionsContext);
-	const store = useStore();
+	const api = getAPI();
+	const options = useAtom(interfaceOptions);
+	const visible = useAtom(interfaceVisible);
+	const valid = useAtom(terminalTextValid);
 
-	const appVisible = useSelector(selectVisible);
-	const currentSuggestion = useSelector(selectSuggestion);
-	const [text, setText] = useBinding("");
-	const [suggestionText, setSuggestionText] = useBinding("");
-	const [valid, setValid] = useState(false);
+	const ref = source<TextBox | undefined>(undefined);
+	const text = source("");
+	const suggestionText = source("");
 
-	const traverseHistory = useCallback((up: boolean) => {
-		const history = store.getState().history.commandHistory;
+	// Focus text field when terminal becomes visible
+	effect(() => {
+		if (visible()) {
+			ref()?.CaptureFocus();
+		} else {
+			ref()?.ReleaseFocus();
+		}
+	});
+
+	const traverseHistory = (up: boolean) => {
+		const history = commandHistory();
 		if (history.isEmpty()) return;
 
-		const historyIndex = store.getState().history.commandHistoryIndex;
+		const historyIndex = commandHistoryIndex();
 		if ((up && historyIndex === 0) || (!up && historyIndex === -1)) return;
 
 		let newIndex: number;
@@ -78,78 +79,50 @@ export function TerminalTextField({
 		}
 
 		const newText = newIndex !== -1 ? history[newIndex] : "";
-		setText(newText);
-		setSuggestionText("");
-		store.setCommandHistoryIndex(newIndex);
+		text(newText);
+		suggestionText("");
+		commandHistoryIndex(newIndex);
 
-		if (ref.current !== undefined) {
-			ref.current.CursorPosition = newText.size() + 1;
+		const textBox = ref();
+		if (textBox !== undefined) {
+			textBox.CursorPosition = newText.size() + 1;
 		}
-	}, []);
+	};
 
-	useEffect(() => {
-		if (ref.current === undefined) return;
-
-		if (appVisible) {
-			ref.current.CaptureFocus();
-		} else {
-			ref.current.ReleaseFocus();
-		}
-	}, [appVisible]);
-
-	useMountEffect(() => {
-		store.subscribe(selectValid, (valid) => {
-			setValid(valid);
-		});
-
-		store.subscribe(selectCommand, (command) => {
-			if (!store.getState().text.valid) return;
-			setValid(command !== undefined);
-		});
-	});
-
-	useEffect(() => {
-		if (currentSuggestion === undefined) {
-			setSuggestionText("");
+	subscribe(currentSuggestion, (suggestion) => {
+		if (suggestion === undefined) {
+			suggestionText("");
 			return;
 		}
 
-		const state = store.getState();
-		const atNextPart = endsWithSpace(state.text.value);
+		const atNextPart = endsWithSpace(terminalText());
+		const textParts = terminalTextParts();
 		const suggestionStartIndex =
-			state.text.parts.size() > 0
-				? (!atNextPart
-						? state.text.parts[state.text.parts.size() - 1].size()
-						: 0) + 1
+			textParts.size() > 0
+				? (!atNextPart ? textParts[textParts.size() - 1].size() : 0) + 1
 				: -1;
 
-		const command = state.command.path;
-		const argIndex = state.command.argIndex;
-		if (
-			currentSuggestion.main.type === "command" &&
-			suggestionStartIndex > -1
-		) {
-			setSuggestionText(
-				getBindingValue(text) +
-					currentSuggestion.main.title.sub(suggestionStartIndex),
-			);
+		if (suggestion.type === "command" && suggestionStartIndex > -1) {
+			suggestionText(text() + suggestion.title.sub(suggestionStartIndex));
 			return;
 		}
 
+		const command = currentCommandPath();
+		const argIndex = currentArgIndex();
 		if (
-			currentSuggestion.main.type !== "argument" ||
+			suggestion.type !== "argument" ||
 			command === undefined ||
 			argIndex === undefined
 		) {
 			return;
 		}
 
-		let newText = getBindingValue(text);
+		let newText = text();
 		const argNames = getArgumentNames(api.registry, command);
 		for (const i of $range(argIndex, argNames.size() - 1)) {
 			if (i === argIndex && !atNextPart) {
-				if (!currentSuggestion.others.isEmpty()) {
-					newText += currentSuggestion.others[0].sub(suggestionStartIndex);
+				if (!suggestion.others.isEmpty()) {
+					newText += suggestion.others[0].sub(suggestionStartIndex);
 				}
 
 				newText += " ";
@@ -158,11 +131,12 @@ export function TerminalTextField({
 
 			newText = `${newText}${argNames[i]} `;
 		}
-		setSuggestionText(newText);
-	}, [currentSuggestion]);
+		suggestionText(newText);
+	});
 
-	useEventListener(UserInputService.InputBegan, (input) => {
-		if (ref.current === undefined || !ref.current.IsFocused()) return;
+	useEvent(UserInputService.InputBegan, (input) => {
+		const textBox = ref();
+		if (textBox === undefined || !textBox?.IsFocused()) return;
 
 		if (input.KeyCode === Enum.KeyCode.Up) {
 			traverseHistory(true);
@@ -172,28 +146,27 @@ export function TerminalTextField({
 
 		if (input.KeyCode !== Enum.KeyCode.Tab) return;
 
-		const state = store.getState();
-		const commandPath = state.command.path;
-
 		// Handle command suggestions
+		const commandPath = currentCommandPath();
+		const suggestion = currentSuggestion();
 		if (commandPath === undefined) {
-			const suggestionTitle = currentSuggestion?.main.title;
+			const suggestionTitle = suggestion?.title;
 			if (suggestionTitle === undefined) return;
 
-			const currentText = text.getValue();
+			const currentText = text();
+			const textParts = terminalTextParts();
+
 			let newText = "";
 			if (endsWithSpace(currentText)) {
 				newText = currentText + suggestionTitle;
-			} else if (!state.text.parts.isEmpty()) {
-				const textPartSize =
-					state.text.parts[state.text.parts.size() - 1].size();
+			} else if (!textParts.isEmpty()) {
+				const textPartSize = textParts[textParts.size() - 1].size();
 				newText =
 					currentText.sub(0, currentText.size() - textPartSize) +
 					suggestionTitle;
 			}
 
-			const suggestionTextParts = suggestionText
-				.getValue()
+			const suggestionTextParts = suggestionText()
 				.gsub("%s+", " ")[0]
 				.split(" ");
 			const nextCommand = api.registry.getCommandByString(
@@ -206,46 +179,45 @@ export function TerminalTextField({
 				newText += " ";
 			}
 
-			setSuggestionText("");
-			setText(newText);
-			ref.current.CursorPosition = newText.size() + 1;
+			suggestionText("");
+			text(newText);
+			textBox.CursorPosition = newText.size() + 1;
 			return;
 		}
 
 		// Handle argument suggestions
 		if (
 			commandPath === undefined ||
-			currentSuggestion === undefined ||
-			currentSuggestion.others.isEmpty()
+			suggestion === undefined ||
+			suggestion.others.isEmpty()
 		) {
 			return;
 		}
 
-		const argIndex = state.command.argIndex;
+		const argIndex = currentArgIndex();
 		const commandArgs = api.registry.getCommand(commandPath)?.options.arguments;
 		if (argIndex === undefined || commandArgs === undefined) return;
 
-		let newText = getBindingValue(text);
+		let newText = text();
 
-		const parts = state.text.parts;
+		const parts = terminalTextParts();
 		if (!endsWithSpace(newText) && !parts.isEmpty()) {
 			newText = newText.sub(0, newText.size() - parts[parts.size() - 1].size());
 		}
 
-		let suggestion = currentSuggestion.others[0];
-
-		if (string.match(suggestion, "%s")[0] !== undefined) {
-			suggestion = `"${suggestion}"`;
+		let otherSuggestion = suggestion.others[0];
+		if (string.match(otherSuggestion, "%s")[0] !== undefined) {
+			otherSuggestion = `"${otherSuggestion}"`;
 		}
 
-		newText += suggestion;
+		newText += otherSuggestion;
 		if (argIndex < commandArgs.size() - 1) {
 			newText += " ";
 		}
 
-		setSuggestionText("");
-		setText(newText);
-		ref.current.CursorPosition = newText.size() + 1;
+		suggestionText("");
+		text(newText);
+		textBox.CursorPosition = newText.size() + 1;
 	});
 
 	return (
@@ -253,55 +225,56 @@ export function TerminalTextField({
 			anchorPoint={anchorPoint}
 			size={size}
 			position={position}
-			backgroundColor={options.palette.surface}
+			backgroundColor={() => options().palette.surface}
 			backgroundTransparency={backgroundTransparency}
 			cornerRadius={new UDim(0, px(4))}
 		>
 			<Padding all={new UDim(0, px(8))} />
 
 			<TextField
+				action={(instance) => ref(instance)}
 				size={UDim2.fromScale(1, 1)}
-				placeholderText="Enter command..."
-				text={text}
-				textSize={px(TEXT_SIZE)}
-				textColor={valid ? options.palette.success : options.palette.error}
-				placeholderColor={options.palette.subtext}
-				textXAlignment="Left"
-				clearTextOnFocus={false}
-				font={options.font.medium}
-				ref={ref}
-				event={{
-					FocusLost: (rbx, enterPressed) => {
-						if (!enterPressed) return;
-						store.addCommandHistory(rbx.Text, api.options.historyLength);
-						store.setCommandHistoryIndex(-1);
-						onSubmit?.(rbx.Text);
-						ref.current?.CaptureFocus();
-						setText("");
-					},
+				text={() => {
+					let value = text();
+
+					// Remove line breaks
+					if (value.match("[\n\r]")[0] !== undefined) {
+						value = value.gsub("[\n\r]", "")[0];
+					}
+
+					// Remove all tabs from text input - we use these for autocompletion
+					if (value.match("\t")[0] !== undefined) {
+						value = value.gsub("\t", "")[0];
+					}
+
+					onTextChange?.(value);
+					return value;
 				}}
-				change={{
-					Text: (rbx) => {
-						let newText = rbx.Text;
+				textSize={px(TEXT_SIZE)}
+				textColor={() => {
+					return valid() ? options().palette.success : options().palette.error;
+				}}
+				textXAlignment="Left"
+				placeholderText="Enter command..."
+				placeholderColor={() => options().palette.subtext}
+				font={() => options().font.medium}
+				clearTextOnFocus={false}
+				focusLost={(enterPressed) => {
+					if (!enterPressed) return;
 
-						// Remove line breaks
-						if (newText.match("[\n\r]")[0] !== undefined) {
-							newText = newText.gsub("[\n\r]", "")[0];
-						}
+					const textBox = ref();
+					if (textBox === undefined) return;
 
-						// Remove all tabs from text input - we use these for autocompletion
-						if (newText.match("\t")[0] !== undefined) {
-							newText = newText.gsub("\t", "")[0];
-						}
-
-						// Reset command history index
-						if (store.getState().history.commandHistoryIndex !== -1) {
-							store.setCommandHistoryIndex(-1);
-						}
-
-						setText(newText);
-						onTextChange?.(newText);
-					},
+					// TODO Limit
+					commandHistory((prev) => [...prev, textBox.Text]);
+					commandHistoryIndex(-1);
+					onSubmit?.(textBox.Text);
+					textBox.CaptureFocus();
+					text("");
+				}}
+				textChanged={(currentText) => {
+					if (commandHistoryIndex() !== -1) commandHistoryIndex(-1);
+					text(currentText);
 				}}
 				zIndex={2}
 			/>
@@ -309,10 +282,10 @@ export function TerminalTextField({
 			<Text
 				size={UDim2.fromScale(1, 1)}
 				text={suggestionText}
-				textColor={options.palette.subtext}
+				textColor={() => options().palette.subtext}
 				textSize={px(TEXT_SIZE)}
 				textXAlignment="Left"
-				font={options.font.medium}
+				font={() => options().font.medium}
 			/>
 		</Frame>
 	);

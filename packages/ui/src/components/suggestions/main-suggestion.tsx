@@ -1,45 +1,26 @@
-import { BindingOrValue, lerpBinding } from "@rbxts/pretty-react-hooks";
-import React, { Binding, useContext, useEffect } from "@rbxts/react";
+import Vide, { Derivable, effect, read } from "@rbxts/vide";
 import { springs } from "../../constants/springs";
 import {
 	SUGGESTION_TEXT_SIZE,
 	SUGGESTION_TITLE_TEXT_SIZE,
 } from "../../constants/text";
+import { useAtom } from "../../hooks/use-atom";
 import { useMotion } from "../../hooks/use-motion";
-import { usePx } from "../../hooks/use-px";
-import {
-	InterfaceOptionsWithState,
-	OptionsContext,
-} from "../../providers/options-provider";
-import { ArgumentSuggestion, CommandSuggestion, Suggestion } from "../../types";
+import { px } from "../../hooks/use-px";
+import { interfaceOptions, mouseOverInterface } from "../../store";
+import { Suggestion } from "../../types";
 import { Frame } from "../ui/frame";
 import { Padding } from "../ui/padding";
-import { ShortcutGroup } from "../ui/shortcut-group";
 import { Text } from "../ui/text";
 import { Badge } from "./badge";
 import { SuggestionTextBounds } from "./types";
 import { highlightMatching } from "./util";
 
 export interface MainSuggestionProps {
-	suggestion?: Suggestion;
-	argument: BindingOrValue<boolean>;
-	currentText?: string;
-	size: BindingOrValue<UDim2>;
-	sizes: Binding<SuggestionTextBounds>;
-}
-
-function showKeybindsGui(props: {
-	options: InterfaceOptionsWithState;
-	suggestion: Suggestion | undefined;
-}) {
-	if (
-		props.suggestion &&
-		props.suggestion.main.type === "command" &&
-		(props.suggestion.main as CommandSuggestion).shortcuts !== undefined &&
-		props.options.showShortcutSuggestions
-	) {
-		return true;
-	}
+	suggestion: Derivable<Suggestion | undefined>;
+	currentText?: Derivable<string | undefined>;
+	size: Derivable<UDim2>;
+	sizes: Derivable<SuggestionTextBounds>;
 }
 
 export function MainSuggestion({
@@ -47,50 +28,54 @@ export function MainSuggestion({
 	currentText,
 	size,
 	sizes,
-	argument,
 }: MainSuggestionProps) {
-	const px = usePx();
-	const options = useContext(OptionsContext);
+	const options = useAtom(interfaceOptions);
 
 	const [titleHeight, titleHeightMotion] = useMotion(0);
 	const [badgeWidth, badgeWidthMotion] = useMotion(0);
 
-	useEffect(() => {
+	effect(() => {
 		titleHeightMotion.spring(
-			suggestion?.main.description !== undefined ? 1 : 0,
+			read(suggestion)?.description !== undefined ? 1 : 0,
 			springs.responsive,
 		);
-	}, [suggestion]);
+	});
 
 	return (
 		<Frame
 			size={size}
-			backgroundColor={options.palette.background}
-			backgroundTransparency={options.backgroundTransparency}
+			backgroundColor={() => options().palette.background}
+			backgroundTransparency={() => options().backgroundTransparency ?? 0}
 			cornerRadius={new UDim(0, px(8))}
 			clipsDescendants={false}
-			event={{
-				MouseEnter: () => options.setMouseOnGUI(true),
-				MouseLeave: () => options.setMouseOnGUI(false),
-			}}
+			mouseEnter={() => mouseOverInterface(true)}
+			mouseLeave={() => mouseOverInterface(false)}
 		>
 			<Padding all={new UDim(0, px(8))} />
 
 			<Badge
 				anchorPoint={new Vector2(1, 0)}
-				size={badgeWidth.map((width) =>
-					UDim2.fromOffset(math.round(width), px(24)),
-				)}
+				size={() => {
+					return UDim2.fromOffset(badgeWidth(), px(24));
+				}}
 				position={UDim2.fromScale(1, 0)}
-				color={options.palette.highlight}
-				text={
-					argument && suggestion !== undefined
-						? (suggestion.main as ArgumentSuggestion).dataType
-						: ""
-				}
-				textColor={options.palette.surface}
+				color={() => options().palette.highlight}
+				text={() => {
+					const currentSuggestion = read(suggestion);
+					return currentSuggestion !== undefined &&
+						currentSuggestion.type === "argument"
+						? currentSuggestion.dataType
+						: "";
+				}}
+				textColor={() => options().palette.surface}
 				textSize={px(SUGGESTION_TEXT_SIZE)}
-				visible={argument}
+				visible={() => {
+					const currentSuggestion = read(suggestion);
+					return (
+						currentSuggestion !== undefined &&
+						currentSuggestion.type === "argument"
+					);
+				}}
 				onTextBoundsChange={(textBounds) =>
 					badgeWidthMotion.spring(textBounds.X + px(8), {
 						mass: 0.5,
@@ -99,48 +84,38 @@ export function MainSuggestion({
 				}
 			/>
 
-			{showKeybindsGui({ options: options, suggestion: suggestion }) ? (
-				<ShortcutGroup
-					shortcuts={
-						suggestion?.main.type === "command"
-							? (suggestion?.main as CommandSuggestion).shortcuts
-							: []
-					}
-				/>
-			) : (
-				<></>
-			)}
-
 			<Text
-				size={sizes.map((val) => val.title)}
-				position={lerpBinding(
-					titleHeight,
-					UDim2.fromOffset(0, 0),
-					UDim2.fromOffset(0, px(-4)),
-				)}
-				text={
-					argument
-						? suggestion?.main.title
+				size={() => read(sizes).title}
+				position={() => {
+					return UDim2.fromOffset(0, 0).Lerp(
+						UDim2.fromOffset(0, px(-4)),
+						titleHeight(),
+					);
+				}}
+				text={() => {
+					const currentSuggestion = read(suggestion);
+					return currentSuggestion?.type === "argument"
+						? currentSuggestion.title
 						: highlightMatching(
-								options.palette.highlight,
-								suggestion?.main.title,
-								currentText,
-							)
-				}
+								options().palette.highlight,
+								currentSuggestion?.title,
+								read(currentText),
+							);
+				}}
 				textSize={px(SUGGESTION_TITLE_TEXT_SIZE)}
-				textColor={options.palette.text}
+				textColor={() => options().palette.text}
 				textXAlignment="Left"
 				textYAlignment="Top"
 				richText={true}
-				font={options.font.bold}
+				font={() => options().font.bold}
 			/>
 
 			<Text
-				size={sizes.map((val) => val.description)}
+				size={() => read(sizes).description}
 				position={UDim2.fromOffset(0, px(SUGGESTION_TITLE_TEXT_SIZE))}
-				text={suggestion?.main.description ?? ""}
+				text={() => read(suggestion)?.description ?? ""}
 				textSize={px(SUGGESTION_TEXT_SIZE)}
-				textColor={options.palette.subtext}
+				textColor={() => options().palette.subtext}
 				textXAlignment="Left"
 				textYAlignment="Top"
 				textWrapped={true}
@@ -149,14 +124,16 @@ export function MainSuggestion({
 
 			<Text
 				anchorPoint={new Vector2(0, 1)}
-				size={sizes.map((val) => new UDim2(1, 0, 0, val.errorTextHeight))}
+				size={() => new UDim2(1, 0, 0, read(sizes).errorTextHeight)}
 				position={UDim2.fromScale(0, 1)}
-				text={
-					argument && suggestion !== undefined
-						? (suggestion.main as ArgumentSuggestion).error ?? ""
-						: ""
-				}
-				textColor={options.palette.error}
+				text={() => {
+					const currentSuggestion = read(suggestion);
+					return currentSuggestion !== undefined &&
+						currentSuggestion.type === "argument"
+						? currentSuggestion.error ?? ""
+						: "";
+				}}
+				textColor={() => options().palette.error}
 				textSize={px(SUGGESTION_TEXT_SIZE)}
 				textWrapped={true}
 				textXAlignment="Left"

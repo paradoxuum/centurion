@@ -1,12 +1,11 @@
-import { BindingOrValue } from "@rbxts/pretty-react-hooks";
-import React from "@rbxts/react";
+import Vide, { Derivable } from "@rbxts/vide";
 
 interface Props {
-	all?: BindingOrValue<UDim>;
-	left?: BindingOrValue<UDim>;
-	right?: BindingOrValue<UDim>;
-	top?: BindingOrValue<UDim>;
-	bottom?: BindingOrValue<UDim>;
+	all?: Derivable<UDim>;
+	left?: Derivable<UDim>;
+	right?: Derivable<UDim>;
+	top?: Derivable<UDim>;
+	bottom?: Derivable<UDim>;
 }
 
 export function Padding({ all, left, right, top, bottom }: Props) {

@@ -1,15 +1,12 @@
-const config = script.Parent?.FindFirstChild("config");
-if (config !== undefined && classIs(config, "ModuleScript")) {
-	require(config);
-}
+import "./config";
 
 import { Signal } from "@rbxts/beacon";
 import { ClientAPI } from "@rbxts/centurion";
-import React, { StrictMode } from "@rbxts/react";
-import { createPortal, createRoot } from "@rbxts/react-roblox";
 import { ContentProvider, Players } from "@rbxts/services";
+import Vide, { mount } from "@rbxts/vide";
 import { DEFAULT_INTERFACE_OPTIONS } from "../constants/options";
-import { RootProvider } from "../providers/root-provider";
+import { useAPI } from "../hooks/use-api";
+import { usePx } from "../hooks/use-px";
 import { InterfaceOptions } from "../types";
 import { TerminalApp } from "./terminal-app";
 
@@ -26,9 +23,6 @@ export namespace CenturionUI {
 		options: Partial<InterfaceOptions> = {},
 	): (api: ClientAPI) => void {
 		return (api) => {
-			const root = createRoot(new Instance("Folder"));
-			const target = Players.LocalPlayer.WaitForChild("PlayerGui");
-
 			// Attempt to preload font
 			task.spawn(() => {
 				const fontFamily = (
@@ -49,20 +43,12 @@ export namespace CenturionUI {
 				}
 			});
 
-			root.render(
-				createPortal(
-					<StrictMode>
-						<RootProvider
-							api={api}
-							options={{ ...DEFAULT_INTERFACE_OPTIONS, ...options }}
-							optionsChanged={optionsChanged}
-						>
-							<TerminalApp />
-						</RootProvider>
-					</StrictMode>,
-					target,
-				),
-			);
+			const target = Players.LocalPlayer.WaitForChild("PlayerGui");
+			mount(() => {
+				useAPI(api);
+				usePx();
+				return <TerminalApp />;
+			}, target);
 		};
 	}
 }

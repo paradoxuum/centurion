@@ -1231,15 +1231,13 @@ __metadata:
   dependencies:
     "@rbxts/beacon": "npm:^2.1.1"
     "@rbxts/centurion": "workspace:^"
+    "@rbxts/charm": "npm:^0.5.2"
     "@rbxts/compiler-types": "npm:2.3.0-types.1"
-    "@rbxts/pretty-react-hooks": "npm:^0.5.2"
-    "@rbxts/react": "npm:^0.4.0"
-    "@rbxts/react-reflex": "npm:^0.3.4"
-    "@rbxts/react-roblox": "npm:^0.4.0"
-    "@rbxts/reflex": "npm:^4.3.1"
     "@rbxts/ripple": "npm:^0.8.2"
     "@rbxts/services": "npm:^1.5.4"
+    "@rbxts/set-timeout": "npm:^1.1.2"
     "@rbxts/types": "npm:^1.0.789"
+    "@rbxts/vide": "npm:^0.4.1"
     roblox-ts: "npm:2.3.0-dev-26ec859"
     shx: "npm:^0.3.4"
     typescript: "npm:~5.5.3"
@@ -1265,17 +1263,22 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@rbxts/charm@npm:^0.5.2":
+  version: 0.5.2
+  resolution: "@rbxts/charm@npm:0.5.2"
+  peerDependencies:
+    "@rbxts/react": "*"
+  peerDependenciesMeta:
+    "@rbxts/react":
+      optional: true
+  checksum: 10c0/9c8701000e6a935348a90b37c6c30116ea4a9e474f32aea238e017f41a596a4855bd99799185f887d5b2b163710cc9dab45507e276e2f2fcd206132f1ff1b1b2
+  languageName: node
+  linkType: hard
+
 "@rbxts/compiler-types@npm:2.3.0-types.1, @rbxts/compiler-types@npm:^2.3.0-types.1":
   version: 2.3.0-types.1
   resolution: "@rbxts/compiler-types@npm:2.3.0-types.1"
   checksum: 10c0/49d395927f786928c87ca580e918fefe38a54e46c279ebe6b3d03ab9ea58fc09f463c349685c3ccdaa26b49f5564dedab73c9f09a44bc093049dd35c6e3e6209
-  languageName: node
-  linkType: hard
-
-"@rbxts/flipper@npm:^2.0.1":
-  version: 2.0.1
-  resolution: "@rbxts/flipper@npm:2.0.1"
-  checksum: 10c0/ac32b7bb1ac92516cc5b0efca9a60be3a3dd536281f3bf5d66ec1b7a62f6b2e28ef0802639b8ad3abb3928b545d476bfe9e820a3cb7654f539bfc7452f9893d3
   languageName: node
   linkType: hard
 
@@ -1329,59 +1332,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@rbxts/pretty-react-hooks@npm:^0.5.2":
-  version: 0.5.2
-  resolution: "@rbxts/pretty-react-hooks@npm:0.5.2"
-  dependencies:
-    "@rbxts/flipper": "npm:^2.0.1"
-    "@rbxts/react": "npm:*"
-    "@rbxts/react-roblox": "npm:*"
-    "@rbxts/services": "npm:^1.5.1"
-    "@rbxts/set-timeout": "npm:^1.1.2"
-  checksum: 10c0/5327a7a6282ac008b6ea7aad5005ae4e4e0c6145658cc279d67456268c99a65b9a40dce803c31eeaed166171fc4b5e0f2b4754852ffae0c49542708273fdf54d
-  languageName: node
-  linkType: hard
-
-"@rbxts/react-reflex@npm:^0.3.4":
-  version: 0.3.4
-  resolution: "@rbxts/react-reflex@npm:0.3.4"
-  peerDependencies:
-    "@rbxts/react": "*"
-    "@rbxts/reflex": "*"
-  checksum: 10c0/2869f78dc990dfadcd4abe87267aea938432844444f26f2085c8a151195684851043df88f997919dadee917ab0e8ddd1b54e4927c80cfdf26c8c9c1af6305cad
-  languageName: node
-  linkType: hard
-
-"@rbxts/react-roblox@npm:*, @rbxts/react-roblox@npm:^0.4.0":
-  version: 0.4.0
-  resolution: "@rbxts/react-roblox@npm:0.4.0"
-  dependencies:
-    "@rbxts/react": "npm:0.4.0"
-    "@rbxts/react-vendor": "npm:0.4.0"
-  checksum: 10c0/144dcf8d1cfe9a513f9bb08d851e0d1cff211be640a126bf1808599507b99382226cbd3561f7e2a2aa2810ac0bcd630a207e284da380c01a6e69055041bf3325
-  languageName: node
-  linkType: hard
-
-"@rbxts/react-vendor@npm:*, @rbxts/react-vendor@npm:0.4.0":
+"@rbxts/react-vendor@npm:*":
   version: 0.4.0
   resolution: "@rbxts/react-vendor@npm:0.4.0"
   checksum: 10c0/e1f3fccb13a55dc8751f93e5bfb66d40ffd188e296f351801fdce25bd3df5cb5ed2d4ae67b8b067e950875ff49b6349c44c4d8b09b448e446e102c5735a9a388
-  languageName: node
-  linkType: hard
-
-"@rbxts/react@npm:*, @rbxts/react@npm:0.4.0, @rbxts/react@npm:^0.4.0":
-  version: 0.4.0
-  resolution: "@rbxts/react@npm:0.4.0"
-  dependencies:
-    "@rbxts/react-vendor": "npm:0.4.0"
-  checksum: 10c0/bbb0612019af214e43ed427478e255992a6b3b58322937d17a6af442a8e1b6578ce945d382a5f460fc393897fed9d649698c2838450347265ebef592ec8cfdf5
-  languageName: node
-  linkType: hard
-
-"@rbxts/reflex@npm:^4.3.1":
-  version: 4.3.1
-  resolution: "@rbxts/reflex@npm:4.3.1"
-  checksum: 10c0/7c45f2e9ebc223e6ffc792a1b2bf8899883455b0717fca58306cbe6fc62f2acafb2421e45bafaccd7b851ffb752b7febcdbd9734f59ad96a8fae2935faf2aa0e
   languageName: node
   linkType: hard
 
@@ -1419,6 +1373,13 @@ __metadata:
   version: 1.0.789
   resolution: "@rbxts/types@npm:1.0.789"
   checksum: 10c0/e37a6043d1392962fec6bab2f8fc181a36bba95d8554272069ef4117f6d02666f3876c16da7dbafcf22a36f6483f976261d5cf311e8f1b981eac1df961d79d44
+  languageName: node
+  linkType: hard
+
+"@rbxts/vide@npm:^0.4.1":
+  version: 0.4.1
+  resolution: "@rbxts/vide@npm:0.4.1"
+  checksum: 10c0/8b5f02fc16dcd800cedabbb71c4fd652746aa293b8ee73330c2c1bd2ab104211d808b995f41232096711689be606085d8dbf14b1d4cdc178320a7b41d0911330
   languageName: node
   linkType: hard
 
