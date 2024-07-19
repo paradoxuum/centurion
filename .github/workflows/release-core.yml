@@ -65,13 +65,13 @@ jobs:
                   yarn workspace @rbxts/centurion version $VERSION
 
             - name: Publish @latest
-              if: !env.nightly
+              if: env.nightly == 'false'
               run: yarn workspace @rbxts/centurion npm publish
               env:
                   NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
             - name: Publish @next
-              if: env.nightly
+              if: env.nightly == 'true'
               run: yarn workspace @rbxts/centurion npm publish --tag next
               env:
                   NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
