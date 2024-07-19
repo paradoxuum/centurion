@@ -24,11 +24,6 @@ Centurion needs to be started **once** on the client and server.
 
 <Tabs>
     <TabItem label="Client">
-        <Aside type="caution" title="Usage with React">
-            When using React in development mode (`_G.__DEV__` set to true),
-            you must set `_G.__DEV__` to true **before importing** Centurion.
-        </Aside>
-
         <Code lang="ts" code={`
 import { CenturionClient } from "@rbxts/centurion";
 import { CenturionUI } from "@rbxts/centurion-ui";
@@ -113,4 +108,5 @@ CenturionServer.start((registry) => {
     // call the register method:
     registry.register();
 }).catch((err) => warn("Centurion could not be started:", tostring(err)));
-`} />
+`} />import { Aside, Card, Code, TabItem, Tabs } from '@astrojs/starlight/components';
+import Install from '@fragments/install.mdx';
