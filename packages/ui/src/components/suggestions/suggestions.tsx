@@ -41,10 +41,11 @@ export function Suggestions() {
 		return terminalText.parts[terminalText.index];
 	}, [terminalText]);
 
-	const textBoundsParams = useMemo(
-		() => new Instance("GetTextBoundsParams"),
-		[],
-	);
+	const textBoundsParams = useMemo(() => {
+		const params = new Instance("GetTextBoundsParams");
+		params.RichText = true;
+		return params;
+	}, []);
 
 	// Suggestions
 	const currentSuggestion = useSelector(selectSuggestion);
