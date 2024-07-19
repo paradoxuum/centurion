@@ -1,0 +1,77 @@
+name: Release core
+
+on:
+    workflow_dispatch:
+    schedule:
+        - cron: "0 7 * * *"
+    push:
+        branches:
+            - main
+        paths:
+            - packages/core/package.json
+
+jobs:
+    check:
+        name: Check version
+        runs-on: ubuntu-latest
+        outputs:
+            version_changed: ${{ steps.check.outputs.version_changed }}
+            nightly: ${{steps.nightly.outputs.nightly }}
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Enable Corepack
+              run: corepack enable
+
+            - name: Check nightly status
+              id: nightly
+              run: echo "nightly=${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}" >> "$GITHUB_OUTPUT"
+
+            - name: Check version
+              id: check
+              run: |
+                  CHANGED=$(node .github/scripts/check-changed.mjs packages/core ${{ steps.nightly.outputs.nightly }})
+                  echo "version_changed=$CHANGED" >> "$GITHUB_OUTPUT"
+
+    publish:
+        runs-on: ubuntu-latest
+        needs: check
+        if: needs.check.outputs.version_changed == 'true'
+        env:
+            nightly: ${{ needs.check.outputs.nightly }}
+        permissions:
+            id-token: write
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Enable Corepack
+              run: corepack enable
+
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: 20
+                  registry-url: "https://registry.npmjs.org"
+                  cache: "yarn"
+
+            - name: Install dependencies
+              run: yarn install
+
+            - name: Set nightly version
+              if: env.nightly
+              run: |
+                  VERSION=$(node .github/scripts/get-version.mjs @rbxts/centurion ${{ env.nightly }})
+                  yarn workspace @rbxts/centurion version $VERSION
+
+            - name: Publish @latest
+              if: !env.nightly
+              run: yarn workspace @rbxts/centurion npm publish
+              env:
+                  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+            - name: Publish @next
+              if: env.nightly
+              run: yarn workspace @rbxts/centurion npm publish --tag next
+              env:
+                  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
