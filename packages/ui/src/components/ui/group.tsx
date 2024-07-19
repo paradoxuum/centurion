@@ -1,24 +1,21 @@
-import { BindingOrValue } from "@rbxts/pretty-react-hooks";
-import React, { forwardRef } from "@rbxts/react";
+import Vide, { Derivable } from "@rbxts/vide";
 
-interface GroupProps extends React.PropsWithChildren {
-	ref?: React.Ref<Frame>;
-	event?: React.InstanceEvent<Frame>;
-	change?: React.InstanceChangeEvent<Frame>;
-	size?: BindingOrValue<UDim2>;
-	position?: BindingOrValue<UDim2>;
-	anchorPoint?: BindingOrValue<Vector2>;
-	rotation?: BindingOrValue<number>;
-	clipsDescendants?: BindingOrValue<boolean>;
-	layoutOrder?: BindingOrValue<number>;
-	visible?: BindingOrValue<boolean>;
-	zIndex?: BindingOrValue<number>;
+interface GroupProps extends Vide.PropsWithChildren {
+	size?: Derivable<UDim2>;
+	position?: Derivable<UDim2>;
+	anchorPoint?: Derivable<Vector2>;
+	rotation?: Derivable<number>;
+	clipsDescendants?: Derivable<boolean>;
+	layoutOrder?: Derivable<number>;
+	visible?: Derivable<boolean>;
+	zIndex?: Derivable<number>;
+	mouseEnter?: () => void;
+	mouseLeave?: () => void;
 }
 
-export const Group = forwardRef((props: GroupProps, ref: React.Ref<Frame>) => {
+export function Group(props: GroupProps) {
 	return (
 		<frame
-			ref={ref}
 			Size={props.size || UDim2.fromScale(1, 1)}
 			Position={props.position}
 			AnchorPoint={props.anchorPoint}
@@ -28,10 +25,10 @@ export const Group = forwardRef((props: GroupProps, ref: React.Ref<Frame>) => {
 			Visible={props.visible}
 			ZIndex={props.zIndex}
 			BackgroundTransparency={1}
-			Event={props.event || {}}
-			Change={props.change || {}}
+			MouseEnter={props.mouseEnter}
+			MouseLeave={props.mouseLeave}
 		>
 			{props.children}
 		</frame>
 	);
-});
+}

@@ -1,21 +1,18 @@
-import React, {
-	useBinding,
-	useContext,
-	useEffect,
-	useMemo,
-} from "@rbxts/react";
-import { useSelector } from "@rbxts/react-reflex";
 import { TextService } from "@rbxts/services";
+import Vide, { cleanup, effect, source } from "@rbxts/vide";
 import { springs } from "../../constants/springs";
 import {
 	SUGGESTION_TEXT_SIZE,
 	SUGGESTION_TITLE_TEXT_SIZE,
 } from "../../constants/text";
+import { useAtom } from "../../hooks/use-atom";
 import { useMotion } from "../../hooks/use-motion";
-import { usePx } from "../../hooks/use-px";
-import { OptionsContext } from "../../providers/options-provider";
-import { selectSuggestion } from "../../store/suggestion";
-import { selectText } from "../../store/text";
+import { px } from "../../hooks/use-px";
+import {
+	currentSuggestion,
+	currentTextPart,
+	interfaceOptions,
+} from "../../store";
 import { Group } from "../ui/group";
 import { MainSuggestion } from "./main-suggestion";
 import { SuggestionList } from "./suggestion-list";
@@ -27,29 +24,18 @@ const MAX_BADGE_WIDTH = 80;
 const PADDING = 8;
 
 export function Suggestions() {
-	const options = useContext(OptionsContext);
-	const px = usePx();
+	const options = useAtom(interfaceOptions);
+	const textPart = useAtom(currentTextPart);
 
-	const terminalText = useSelector(selectText);
-	const currentTextPart = useMemo(() => {
-		if (
-			terminalText.index === -1 ||
-			terminalText.index >= terminalText.parts.size()
-		) {
-			return;
-		}
-		return terminalText.parts[terminalText.index];
-	}, [terminalText]);
-
-	const textBoundsParams = useMemo(() => {
-		const params = new Instance("GetTextBoundsParams");
-		params.RichText = true;
-		return params;
-	}, []);
+	const textBoundsParams = new Instance("GetTextBoundsParams");
+	textBoundsParams.RichText = true;
+	cleanup(() => {
+		textBoundsParams.Destroy();
+	});
 
 	// Suggestions
-	const currentSuggestion = useSelector(selectSuggestion);
-	const [sizes, setSizes] = useBinding<SuggestionTextBounds>({
+	const suggestion = useAtom(currentSuggestion);
+	const sizes = source<SuggestionTextBounds>({
 		title: UDim2.fromOffset(0, px(SUGGESTION_TITLE_TEXT_SIZE)),
 		description: UDim2.fromOffset(0, px(SUGGESTION_TEXT_SIZE)),
 		errorTextHeight: 0,
@@ -62,29 +48,29 @@ export function Suggestions() {
 	);
 
 	// Resize window based on suggestions
-	useEffect(() => {
-		if (currentSuggestion === undefined) {
+	effect(() => {
+		const current = suggestion();
+		if (current === undefined) {
 			suggestionSizeMotion.spring(new UDim2());
 			otherSuggestionSizeMotion.spring(new UDim2());
 			return;
 		}
 
-		const mainSuggestion = currentSuggestion.main;
-		const otherSuggestions = currentSuggestion.others;
+		const otherSuggestions = current.others;
 		if (otherSuggestions.isEmpty()) {
 			otherSuggestionSizeMotion.spring(new UDim2());
 		}
 
 		const textBounds = getSuggestionTextBounds(
-			options,
-			mainSuggestion,
+			options(),
+			current,
 			px(SUGGESTION_TITLE_TEXT_SIZE),
 			px(SUGGESTION_TEXT_SIZE),
 			px(MAX_SUGGESTION_WIDTH),
 			px(MAX_BADGE_WIDTH),
 		);
 
-		setSizes(textBounds);
+		sizes(textBounds);
 
 		let windowWidth =
 			math.max(textBounds.title.X.Offset, textBounds.description.X.Offset) +
@@ -109,7 +95,7 @@ export function Suggestions() {
 		if (!otherSuggestions.isEmpty()) {
 			let maxSuggestionWidth = 0;
 
-			textBoundsParams.Font = options.font.regular;
+			textBoundsParams.Font = options().font.regular;
 			textBoundsParams.Size = px(SUGGESTION_TEXT_SIZE);
 			textBoundsParams.Width = math.huge;
 
@@ -137,7 +123,7 @@ export function Suggestions() {
 			UDim2.fromOffset(windowWidth, windowHeight),
 			springs.responsive,
 		);
-	}, [currentSuggestion, px]);
+	});
 
 	return (
 		<Group
@@ -145,22 +131,21 @@ export function Suggestions() {
 			visible={currentSuggestion !== undefined}
 		>
 			<MainSuggestion
-				suggestion={currentSuggestion}
-				argument={currentSuggestion?.main.type === "argument"}
-				currentText={currentTextPart}
+				suggestion={suggestion}
+				currentText={textPart}
 				size={suggestionSize}
 				sizes={sizes}
 			/>
 
 			<SuggestionList
-				suggestion={currentSuggestion}
-				currentText={currentTextPart}
+				suggestion={suggestion}
+				currentText={textPart}
 				size={otherSuggestionSize}
 			/>
 
 			<uilistlayout
 				SortOrder="LayoutOrder"
-				Padding={new UDim(0, px(PADDING))}
+				Padding={() => new UDim(0, px(PADDING))}
 			/>
 		</Group>
 	);

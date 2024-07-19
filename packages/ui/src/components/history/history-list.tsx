@@ -1,22 +1,17 @@
-import { BindingOrValue, mapBinding } from "@rbxts/pretty-react-hooks";
-import React, { useBinding, useContext, useEffect } from "@rbxts/react";
-import { usePx } from "../../hooks/use-px";
-import { OptionsContext } from "../../providers/options-provider";
-import { HistoryLineData } from "../../types";
+import Vide, { Derivable, effect, For, read, source } from "@rbxts/vide";
+import { useAtom } from "../../hooks/use-atom";
+import { px } from "../../hooks/use-px";
+import { interfaceOptions } from "../../store";
+import { HistoryData, HistoryLineData } from "../../types";
 import { ScrollingFrame } from "../ui/scrolling-frame";
 import { HistoryLine } from "./history-line";
 
-export interface HistoryData {
-	lines: HistoryLineData[];
-	height: number;
-}
-
 interface HistoryListProps {
-	data: HistoryData;
-	size?: BindingOrValue<UDim2>;
-	position?: BindingOrValue<UDim2>;
-	maxHeight?: number;
-	scrollingEnabled?: BindingOrValue<boolean>;
+	data: Derivable<HistoryData>;
+	size?: Derivable<UDim2>;
+	position?: Derivable<UDim2>;
+	maxHeight?: Derivable<number>;
+	scrollingEnabled?: Derivable<boolean>;
 }
 
 export function HistoryList({
@@ -25,44 +20,45 @@ export function HistoryList({
 	position,
 	maxHeight,
 }: HistoryListProps) {
-	const px = usePx();
-	const options = useContext(OptionsContext);
+	const options = useAtom(interfaceOptions);
 
-	const [scrollingEnabled, setScrollingEnabled] = useBinding(false);
-	const [canvasSize, setCanvasSize] = useBinding(new UDim2());
-	const [canvasPosition, setCanvasPosition] = useBinding(new Vector2());
+	const scrollingEnabled = source(false);
+	const canvasSize = source(new UDim2());
+	const canvasPos = source(new Vector2());
 
-	useEffect(() => {
-		const height = data.height - px(8);
-		setCanvasSize(new UDim2(0, 0, 0, height));
-		setCanvasPosition(new Vector2(0, height));
-
-		if (maxHeight !== undefined) setScrollingEnabled(height > maxHeight);
-	}, [data, px]);
+	effect(() => {
+		const height = read(data).height - px(8);
+		canvasSize(new UDim2(0, 0, 0, height));
+		canvasPos(new Vector2(0, height));
+		if (maxHeight !== undefined) scrollingEnabled(height > read(maxHeight));
+	});
 
 	return (
 		<ScrollingFrame
 			size={size}
 			position={position}
 			canvasSize={canvasSize}
-			canvasPosition={canvasPosition}
-			scrollBarColor={options.palette.subtext}
-			scrollBarThickness={mapBinding(scrollingEnabled, (val) => {
-				return val ? 10 : 0;
-			})}
+			canvasPosition={canvasPos}
+			scrollBarColor={() => options().palette.subtext}
+			scrollBarThickness={() => (scrollingEnabled() ? 10 : 0)}
 			scrollingEnabled={scrollingEnabled}
 		>
-			{data.lines.map((data, i) => {
-				return (
-					<HistoryLine
-						key={`${data.entry.sentAt}-${i}`}
-						size={new UDim2(1, 0, 0, data.height)}
-						data={data.entry}
-					/>
-				);
-			})}
+			<For each={() => read(data).lines}>
+				{(line: HistoryLineData, index: () => number) => {
+					return (
+						<HistoryLine
+							size={new UDim2(1, 0, 0, line.height)}
+							data={line.entry}
+							order={index}
+						/>
+					);
+				}}
+			</For>
 
-			<uilistlayout Padding={new UDim(0, px(8))} SortOrder="LayoutOrder" />
+			<uilistlayout
+				Padding={() => new UDim(0, px(8))}
+				SortOrder="LayoutOrder"
+			/>
 		</ScrollingFrame>
 	);
 }

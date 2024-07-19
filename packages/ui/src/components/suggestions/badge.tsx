@@ -1,23 +1,21 @@
-import { BindingOrValue } from "@rbxts/pretty-react-hooks";
-import React, { useContext } from "@rbxts/react";
-import { usePx } from "../../hooks/use-px";
-import { OptionsContext } from "../../providers/options-provider";
+import Vide, { Derivable } from "@rbxts/vide";
+import { useAtom } from "../../hooks/use-atom";
+import { px } from "../../hooks/use-px";
+import { interfaceOptions } from "../../store";
 import { Frame } from "../ui/frame";
 import { Text } from "../ui/text";
 
 interface BadgeProps {
-	anchorPoint?: BindingOrValue<Vector2>;
-	size?: BindingOrValue<UDim2>;
-	position?: BindingOrValue<UDim2>;
-	color?: BindingOrValue<Color3>;
-	text?: BindingOrValue<string>;
-	textColor?: BindingOrValue<Color3>;
-	textSize?: BindingOrValue<number>;
-	visible?: BindingOrValue<boolean>;
-
+	anchorPoint?: Derivable<Vector2>;
+	size?: Derivable<UDim2>;
+	position?: Derivable<UDim2>;
+	color?: Derivable<Color3>;
+	text?: Derivable<string>;
+	textColor?: Derivable<Color3>;
+	textSize?: Derivable<number>;
+	visible?: Derivable<boolean>;
 	onTextBoundsChange?: (textBounds: Vector2) => void;
-
-	children?: JSX.Element;
+	children?: Vide.Node;
 	backgroundTransparency?: number;
 }
 
@@ -34,8 +32,7 @@ export function Badge({
 	children,
 	backgroundTransparency,
 }: BadgeProps) {
-	const options = useContext(OptionsContext);
-	const px = usePx();
+	const options = useAtom(interfaceOptions);
 
 	return (
 		<Frame
@@ -43,7 +40,7 @@ export function Badge({
 			size={size}
 			position={position}
 			backgroundColor={color}
-			cornerRadius={new UDim(0, px(4))}
+			cornerRadius={() => new UDim(0, px(4))}
 			visible={visible}
 			clipsDescendants
 			backgroundTransparency={backgroundTransparency}
@@ -53,10 +50,8 @@ export function Badge({
 				textColor={textColor}
 				textSize={textSize}
 				size={UDim2.fromScale(1, 1)}
-				font={options.font.bold}
-				change={{
-					TextBounds: (rbx) => onTextBoundsChange?.(rbx.TextBounds),
-				}}
+				font={() => options().font.bold}
+				textBoundsChanged={onTextBoundsChange}
 			/>
 			{children}
 		</Frame>

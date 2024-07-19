@@ -1,60 +1,60 @@
-import { Ref, forwardRef, useContext } from "@rbxts/react";
-
-import { BindingOrValue } from "@rbxts/pretty-react-hooks";
-import React from "@rbxts/react";
-import { OptionsContext } from "../../providers/options-provider";
+import Vide, { Derivable, read } from "@rbxts/vide";
+import { useAtom } from "../../hooks/use-atom";
+import { interfaceOptions } from "../../store";
 import { TextProps } from "./text";
 
 interface TextFieldProps extends TextProps<TextBox> {
-	text?: BindingOrValue<string>;
-	placeholderText?: BindingOrValue<string>;
-	placeholderColor?: BindingOrValue<Color3>;
-	clearTextOnFocus?: BindingOrValue<boolean>;
-	multiLine?: BindingOrValue<boolean>;
-	textEditable?: BindingOrValue<boolean>;
+	text?: Derivable<string>;
+	placeholderText?: Derivable<string>;
+	placeholderColor?: Derivable<Color3>;
+	clearTextOnFocus?: Derivable<boolean>;
+	multiLine?: Derivable<boolean>;
+	textEditable?: Derivable<boolean>;
+	focusLost?: (enterPressed: boolean) => void;
+	textChanged?: (text: string) => void;
 }
 
-export const TextField = forwardRef(
-	(props: TextFieldProps, ref: Ref<TextBox>) => {
-		const options = useContext(OptionsContext);
+export function TextField(props: TextFieldProps) {
+	const options = useAtom(interfaceOptions);
 
-		return (
-			<textbox
-				ref={ref}
-				PlaceholderText={props.placeholderText}
-				PlaceholderColor3={props.placeholderColor}
-				ClearTextOnFocus={props.clearTextOnFocus}
-				MultiLine={props.multiLine}
-				TextEditable={props.textEditable}
-				Font={Enum.Font.Unknown}
-				FontFace={props.font ?? options.font.regular}
-				Text={props.text}
-				TextColor3={props.textColor}
-				TextSize={props.textSize}
-				TextTransparency={props.textTransparency}
-				TextTruncate={props.textTruncate}
-				TextWrapped={props.textWrapped}
-				TextXAlignment={props.textXAlignment}
-				TextYAlignment={props.textYAlignment}
-				TextScaled={props.textScaled}
-				RichText={props.richText}
-				AutomaticSize={props.textAutoResize}
-				Size={props.size}
-				Position={props.position}
-				AnchorPoint={props.anchorPoint}
-				BackgroundColor3={props.backgroundColor}
-				BackgroundTransparency={props.backgroundTransparency ?? 1}
-				ClipsDescendants={props.clipsDescendants}
-				Visible={props.visible}
-				ZIndex={props.zIndex}
-				LayoutOrder={props.layoutOrder}
-				BorderSizePixel={0}
-				Event={props.event ?? {}}
-				Change={props.change ?? {}}
-			>
-				{props.cornerRadius && <uicorner CornerRadius={props.cornerRadius} />}
-				{props.children}
-			</textbox>
-		);
-	},
-);
+	return (
+		<textbox
+			PlaceholderText={props.placeholderText}
+			PlaceholderColor3={props.placeholderColor}
+			ClearTextOnFocus={props.clearTextOnFocus}
+			MultiLine={props.multiLine}
+			TextEditable={props.textEditable}
+			Font={Enum.Font.Unknown}
+			FontFace={() => {
+				return read(props.font) ?? options().font.regular;
+			}}
+			Text={props.text}
+			TextColor3={props.textColor}
+			TextSize={props.textSize}
+			TextTransparency={props.textTransparency}
+			TextTruncate={props.textTruncate}
+			TextWrapped={props.textWrapped}
+			TextXAlignment={props.textXAlignment}
+			TextYAlignment={props.textYAlignment}
+			TextScaled={props.textScaled}
+			RichText={props.richText}
+			AutomaticSize={props.textAutoResize}
+			Size={props.size}
+			Position={props.position}
+			AnchorPoint={props.anchorPoint}
+			BackgroundColor3={props.backgroundColor}
+			BackgroundTransparency={props.backgroundTransparency ?? 1}
+			ClipsDescendants={props.clipsDescendants}
+			Visible={props.visible}
+			ZIndex={props.zIndex}
+			LayoutOrder={props.layoutOrder}
+			BorderSizePixel={0}
+			FocusLost={props.focusLost}
+			TextChanged={props.textChanged}
+			action={props.action}
+		>
+			{props.cornerRadius && <uicorner CornerRadius={props.cornerRadius} />}
+			{props.children}
+		</textbox>
+	);
+}

@@ -1,25 +1,31 @@
-import {
-	BindingOrValue,
-	blend,
-	composeBindings,
-} from "@rbxts/pretty-react-hooks";
-import React, { useMemo } from "@rbxts/react";
-import { usePx } from "../../hooks/use-px";
+import Vide, { Derivable, derive, read } from "@rbxts/vide";
+import { px } from "../../hooks/use-px";
 import { Group } from "./group";
 
-interface OutlineProps extends React.PropsWithChildren {
-	readonly outlineTransparency?: BindingOrValue<number>;
-	readonly innerColor?: BindingOrValue<Color3>;
-	readonly outerColor?: BindingOrValue<Color3>;
-	readonly innerTransparency?: BindingOrValue<number>;
-	readonly outerTransparency?: BindingOrValue<number>;
-	readonly innerThickness?: BindingOrValue<number>;
-	readonly outerThickness?: BindingOrValue<number>;
-	readonly cornerRadius?: BindingOrValue<UDim>;
+interface OutlineProps {
+	outlineTransparency?: Derivable<number>;
+	innerColor?: Derivable<Color3>;
+	outerColor?: Derivable<Color3>;
+	innerTransparency?: Derivable<number>;
+	outerTransparency?: Derivable<number>;
+	innerThickness?: Derivable<number>;
+	outerThickness?: Derivable<number>;
+	cornerRadius?: Derivable<UDim>;
+	children?: Vide.Node;
 }
 
 function ceilEven(n: number) {
 	return math.ceil(n / 2) * 2;
+}
+
+export function blend(...transparencies: number[]) {
+	let result = 1;
+
+	for (const transparency of transparencies) {
+		result *= 1 - transparency;
+	}
+
+	return 1 - result;
 }
 
 const DEFAULT_INNER_COLOR = new Color3(1, 1, 1);
@@ -36,72 +42,53 @@ export function Outline({
 	cornerRadius,
 	children,
 }: OutlineProps) {
-	const px = usePx();
-
-	const properties = {
+	const properties = derive(() => ({
 		innerThickness: innerThickness ?? px(3),
 		outerThickness: outerThickness ?? px(1.5),
 		cornerRadius: cornerRadius ?? new UDim(0, px(8)),
-	};
+	}));
 
-	const innerStyle = useMemo(() => {
-		const size = composeBindings(properties.innerThickness, (thickness) => {
-			return new UDim2(
-				1,
-				ceilEven(-2 * thickness),
-				1,
-				ceilEven(-2 * thickness),
-			);
-		});
-
-		const position = composeBindings(properties.innerThickness, (thickness) => {
-			return new UDim2(0, thickness, 0, thickness);
-		});
-
-		const radius = composeBindings(
-			properties.cornerRadius,
-			properties.innerThickness,
-			(radius, thickness) => {
-				return radius.sub(new UDim(0, thickness));
-			},
+	const innerStyle = derive(() => {
+		const outlineProps = properties();
+		const thickness = read(outlineProps.innerThickness);
+		const size = new UDim2(
+			1,
+			ceilEven(-2 * thickness),
+			1,
+			ceilEven(-2 * thickness),
 		);
 
-		const transparency = composeBindings(
-			outlineTransparency,
-			innerTransparency,
-			(a, b) => {
-				return math.clamp(blend(a, b), 0, 1);
-			},
+		const position = new UDim2(0, thickness, 0, thickness);
+		const radius = read(outlineProps.cornerRadius).sub(new UDim(0, thickness));
+		const transparency = math.clamp(
+			blend(read(outlineTransparency), read(innerTransparency)),
+			0,
+			1,
 		);
 
 		return { size, position, radius, transparency };
-	}, [
-		properties.innerThickness,
-		innerTransparency,
-		properties.cornerRadius,
-		outlineTransparency,
-		px,
-	]);
+	});
 
-	const outerStyle = useMemo(() => {
-		const transparency = composeBindings(
-			outlineTransparency,
-			outerTransparency,
-			(a, b) => {
-				return math.clamp(blend(a, b), 0, 1);
-			},
+	const outerStyle = derive(() => {
+		const transparency = math.clamp(
+			blend(read(outlineTransparency), read(outerTransparency)),
+			0,
+			1,
 		);
 
 		return { transparency };
-	}, [outlineTransparency, outerTransparency]);
+	});
 
 	return (
 		<>
-			<Group size={innerStyle.size} position={innerStyle.position}>
-				<uicorner CornerRadius={innerStyle.radius} />
+			<Group
+				size={() => innerStyle().size}
+				position={() => innerStyle().position}
+			>
+				<uicorner CornerRadius={() => innerStyle().radius} />
 				<uistroke
 					Color={innerColor}
-					Transparency={innerStyle.transparency}
+					Transparency={() => innerStyle().transparency}
 					Thickness={innerThickness}
 				>
 					{children}
@@ -112,7 +99,7 @@ export function Outline({
 				<uicorner CornerRadius={cornerRadius} />
 				<uistroke
 					Color={outerColor}
-					Transparency={outerStyle.transparency}
+					Transparency={() => outerStyle().transparency}
 					Thickness={outerThickness}
 				>
 					{children}

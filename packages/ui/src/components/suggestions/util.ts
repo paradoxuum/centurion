@@ -1,9 +1,5 @@
 import { TextService } from "@rbxts/services";
-import {
-	ArgumentSuggestion,
-	CommandSuggestion,
-	InterfaceOptions,
-} from "../../types";
+import { InterfaceOptions, Suggestion } from "../../types";
 import { SuggestionTextBounds } from "./types";
 
 const TEXT_BOUNDS_PARAMS = new Instance("GetTextBoundsParams");
@@ -38,7 +34,7 @@ export function highlightMatching(
 
 export function getSuggestionTextBounds(
 	options: InterfaceOptions,
-	suggestion: ArgumentSuggestion | CommandSuggestion,
+	suggestion: Suggestion,
 	titleTextSize: number,
 	textSize: number,
 	maxWidth: number,
