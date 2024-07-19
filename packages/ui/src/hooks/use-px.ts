@@ -1,5 +1,6 @@
 import { Workspace } from "@rbxts/services";
-import { source } from "@rbxts/vide";
+import { debounce } from "@rbxts/set-timeout";
+import { cleanup, source } from "@rbxts/vide";
 import { useEvent } from "./use-event";
 
 const BASE_RESOLUTION = new Vector2(1280, 832);
@@ -58,13 +59,24 @@ export function usePx() {
 	const camera = Workspace.CurrentCamera;
 	assert(camera, "CurrentCamera is not set");
 
-	const updateScale = () => {
-		const width = math.log(camera.ViewportSize.X / BASE_RESOLUTION.X, 2);
-		const height = math.log(camera.ViewportSize.Y / BASE_RESOLUTION.Y, 2);
-		const centered = width + (height - width) * DOMINANT_AXIS;
+	const updateScale = debounce(
+		() => {
+			const viewport = camera.ViewportSize;
+			const width = math.log(viewport.X / BASE_RESOLUTION.X, 2);
+			const height = math.log(viewport.Y / BASE_RESOLUTION.Y, 2);
+			const centered = width + (height - width) * DOMINANT_AXIS;
 
-		scale(math.max(2 ** centered, MIN_SCALE));
-	};
+			scale(math.max(2 ** centered, MIN_SCALE));
+		},
+		0.2,
+		{
+			leading: true,
+		},
+	);
+
+	cleanup(() => {
+		updateScale.cancel();
+	});
 
 	useEvent(camera.GetPropertyChangedSignal("ViewportSize"), () => {
 		updateScale();
