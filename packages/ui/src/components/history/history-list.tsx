@@ -2,14 +2,9 @@ import Vide, { Derivable, effect, For, read, source } from "@rbxts/vide";
 import { useAtom } from "../../hooks/use-atom";
 import { px } from "../../hooks/use-px";
 import { interfaceOptions } from "../../store";
-import { HistoryLineData } from "../../types";
+import { HistoryData, HistoryLineData } from "../../types";
 import { ScrollingFrame } from "../ui/scrolling-frame";
 import { HistoryLine } from "./history-line";
-
-export interface HistoryData {
-	lines: HistoryLineData[];
-	height: number;
-}
 
 interface HistoryListProps {
 	data: Derivable<HistoryData>;

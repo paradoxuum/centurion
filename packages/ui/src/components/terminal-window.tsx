@@ -1,19 +1,14 @@
-import {
-	HistoryEntry,
-	ImmutableRegistryPath,
-	RegistryPath,
-} from "@rbxts/centurion";
+import { ImmutableRegistryPath, RegistryPath } from "@rbxts/centurion";
 import { ArrayUtil } from "@rbxts/centurion/out/shared/util/data";
 import {
 	endsWithSpace,
 	formatPartsAsPath,
 } from "@rbxts/centurion/out/shared/util/string";
-import { TextService } from "@rbxts/services";
-import Vide, { cleanup, effect, source } from "@rbxts/vide";
+import Vide, { effect, source } from "@rbxts/vide";
 import { HISTORY_TEXT_SIZE } from "../constants/text";
 import { getAPI } from "../hooks/use-api";
 import { useAtom } from "../hooks/use-atom";
-import { useEvent } from "../hooks/use-event";
+import { useHistory } from "../hooks/use-history";
 import { useMotion } from "../hooks/use-motion";
 import { px } from "../hooks/use-px";
 import {
@@ -26,13 +21,13 @@ import {
 	terminalTextParts,
 	terminalTextValid,
 } from "../store";
-import { HistoryLineData, Suggestion } from "../types";
+import { Suggestion } from "../types";
 import { getMissingArgs } from "../util/argument";
 import {
 	getArgumentSuggestion,
 	getCommandSuggestion,
 } from "../util/suggestion";
-import { HistoryData, HistoryList } from "./history";
+import { HistoryList } from "./history";
 import { TerminalTextField } from "./terminal-text-field";
 import { Frame } from "./ui/frame";
 import { Padding } from "./ui/padding";
@@ -44,50 +39,17 @@ export function TerminalWindow() {
 	const api = getAPI();
 	const options = useAtom(interfaceOptions);
 	const missingArgs = source<string[]>([]);
-
-	const history = source<HistoryEntry[]>(api.dispatcher.getHistory());
-	const historyData = source<HistoryData>({
-		lines: [],
-		height: 0,
-	});
+	const history = useHistory();
 	const [historyHeight, historyHeightMotion] = useMotion(0);
 
-	useEvent(api.dispatcher.historyUpdated, (entries) => history([...entries]));
-
-	const textBoundsParams = new Instance("GetTextBoundsParams");
-	textBoundsParams.Width = math.huge;
-	textBoundsParams.Font = options().font.regular;
-	cleanup(() => {
-		textBoundsParams.Destroy();
-	});
-
-	// Handle history updates
 	effect(() => {
-		const entries = history();
-		const historySize = entries.size();
-		let totalHeight = historySize > 0 ? px(8) + (historySize - 1) * px(8) : 0;
-
-		textBoundsParams.Size = HISTORY_TEXT_SIZE;
-
-		const historyLines: HistoryLineData[] = [];
-		for (const entry of entries) {
-			textBoundsParams.Text = entry.text;
-			const textSize = TextService.GetTextBoundsAsync(textBoundsParams);
-			const lineHeight = px(textSize.Y + 4);
-			totalHeight += lineHeight;
-			historyLines.push({ entry, height: lineHeight });
-		}
-
+		const totalHeight = history().height;
 		const isClamped = totalHeight > px(MAX_HEIGHT);
 		const clampedHeight = isClamped ? px(MAX_HEIGHT) : totalHeight;
 		historyHeightMotion.spring(clampedHeight, {
 			mass: 0.1,
 			tension: 300,
 			friction: 15,
-		});
-		historyData({
-			lines: historyLines,
-			height: totalHeight,
 		});
 	});
 
@@ -111,7 +73,7 @@ export function TerminalWindow() {
 
 			<HistoryList
 				size={new UDim2(1, 0, 1, -px(TEXT_FIELD_HEIGHT + 8))}
-				data={historyData}
+				data={history}
 				maxHeight={px(MAX_HEIGHT)}
 			/>
 

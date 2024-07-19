@@ -23,6 +23,11 @@ export interface HistoryLineData {
 	height: number;
 }
 
+export interface HistoryData {
+	lines: HistoryLineData[];
+	height: number;
+}
+
 export interface CommandSuggestion {
 	type: "command";
 	title: string;
