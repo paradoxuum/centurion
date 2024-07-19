@@ -27,7 +27,8 @@
     },
     "scripts": {
         "prepack": "yarn build",
-        "build": "shx rm -rf out && rbxtsc --verbose"
+        "build": "shx rm -rf out && rbxtsc --verbose",
+        "dev": "shx rm -rf out && rbxtsc -w"
     },
     "devDependencies": {
         "@rbxts/compiler-types": "^2.3.0-types.1",

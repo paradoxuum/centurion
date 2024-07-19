@@ -28,7 +28,7 @@
     "scripts": {
         "prepack": "yarn build",
         "build": "shx rm -rf out && rbxtsc --verbose",
-        "dev": "rbxtsc --watch"
+        "dev": "shx rm -rf out && rbxtsc -w"
     },
     "devDependencies": {
         "@rbxts/centurion": "workspace:^",
