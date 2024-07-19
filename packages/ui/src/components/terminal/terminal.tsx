@@ -5,12 +5,12 @@ import {
 	formatPartsAsPath,
 } from "@rbxts/centurion/out/shared/util/string";
 import Vide, { effect, source } from "@rbxts/vide";
-import { HISTORY_TEXT_SIZE } from "../constants/text";
-import { getAPI } from "../hooks/use-api";
-import { useAtom } from "../hooks/use-atom";
-import { useHistory } from "../hooks/use-history";
-import { useMotion } from "../hooks/use-motion";
-import { px } from "../hooks/use-px";
+import { HISTORY_TEXT_SIZE } from "../../constants/text";
+import { getAPI } from "../../hooks/use-api";
+import { useAtom } from "../../hooks/use-atom";
+import { useHistory } from "../../hooks/use-history";
+import { useMotion } from "../../hooks/use-motion";
+import { px } from "../../hooks/use-px";
 import {
 	currentArgIndex,
 	currentCommandPath,
@@ -20,22 +20,22 @@ import {
 	terminalText,
 	terminalTextParts,
 	terminalTextValid,
-} from "../store";
-import { Suggestion } from "../types";
-import { getMissingArgs } from "../util/argument";
+} from "../../store";
+import { Suggestion } from "../../types";
+import { getMissingArgs } from "../../util/argument";
 import {
 	getArgumentSuggestion,
 	getCommandSuggestion,
-} from "../util/suggestion";
-import { HistoryList } from "./history";
+} from "../../util/suggestion";
+import { HistoryList } from "../history";
+import { Frame } from "../ui/frame";
+import { Padding } from "../ui/padding";
 import { TerminalTextField } from "./terminal-text-field";
-import { Frame } from "./ui/frame";
-import { Padding } from "./ui/padding";
 
 const MAX_HEIGHT = HISTORY_TEXT_SIZE * 10;
 const TEXT_FIELD_HEIGHT = 40;
 
-export function TerminalWindow() {
+export function Terminal() {
 	const api = getAPI();
 	const options = useAtom(interfaceOptions);
 	const missingArgs = source<string[]>([]);

@@ -5,10 +5,10 @@ import {
 import { subscribe } from "@rbxts/charm";
 import { UserInputService } from "@rbxts/services";
 import Vide, { Derivable, effect, source } from "@rbxts/vide";
-import { getAPI } from "../hooks/use-api";
-import { useAtom } from "../hooks/use-atom";
-import { useEvent } from "../hooks/use-event";
-import { px } from "../hooks/use-px";
+import { getAPI } from "../../hooks/use-api";
+import { useAtom } from "../../hooks/use-atom";
+import { useEvent } from "../../hooks/use-event";
+import { px } from "../../hooks/use-px";
 import {
 	commandHistory,
 	commandHistoryIndex,
@@ -20,12 +20,12 @@ import {
 	terminalText,
 	terminalTextParts,
 	terminalTextValid,
-} from "../store";
-import { getArgumentNames } from "../util/argument";
-import { Frame } from "./ui/frame";
-import { Padding } from "./ui/padding";
-import { Text } from "./ui/text";
-import { TextField } from "./ui/text-field";
+} from "../../store";
+import { getArgumentNames } from "../../util/argument";
+import { Frame } from "../ui/frame";
+import { Padding } from "../ui/padding";
+import { Text } from "../ui/text";
+import { TextField } from "../ui/text-field";
 
 interface TerminalTextFieldProps {
 	anchorPoint?: Derivable<Vector2>;

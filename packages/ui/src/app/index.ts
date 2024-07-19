@@ -4,7 +4,7 @@ import { ContentProvider, Players } from "@rbxts/services";
 import { mount } from "@rbxts/vide";
 import { DEFAULT_INTERFACE_OPTIONS } from "../constants/options";
 import { InterfaceOptions } from "../types";
-import { TerminalApp } from "./terminal-app";
+import { CenturionApp } from "./centurion-app";
 
 export namespace CenturionUI {
 	const MAX_PRELOAD_ATTEMPTS = 3;
@@ -40,7 +40,7 @@ export namespace CenturionUI {
 			});
 
 			const target = Players.LocalPlayer.WaitForChild("PlayerGui");
-			mount(() => TerminalApp(api), target);
+			mount(() => CenturionApp(api), target);
 		};
 	}
 }
