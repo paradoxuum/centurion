@@ -1,5 +1,6 @@
 {
     "name": "@rbxts/centurion-ui",
+    "description": "Terminal UI for the Centurion command framework",
     "version": "1.0.0",
     "author": "paradoxuum",
     "license": "MIT",

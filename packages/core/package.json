@@ -1,5 +1,6 @@
 {
     "name": "@rbxts/centurion",
+    "description": "A flexible and extensible command framework for roblox-ts",
     "version": "1.0.0",
     "author": "paradoxuum",
     "license": "MIT",
