@@ -65,21 +65,21 @@ export function Terminal() {
 			}}
 			backgroundColor={() => options().palette.background}
 			backgroundTransparency={() => options().backgroundTransparency ?? 0}
-			cornerRadius={new UDim(0, px(8))}
+			cornerRadius={() => new UDim(0, px(8))}
 			mouseEnter={() => mouseOverInterface(true)}
 			mouseLeave={() => mouseOverInterface(false)}
 		>
-			<Padding all={new UDim(0, px(8))} />
+			<Padding all={() => new UDim(0, px(8))} />
 
 			<HistoryList
-				size={new UDim2(1, 0, 1, -px(TEXT_FIELD_HEIGHT + 8))}
+				size={() => new UDim2(1, 0, 1, -px(TEXT_FIELD_HEIGHT + 8))}
 				data={history}
-				maxHeight={px(MAX_HEIGHT)}
+				maxHeight={() => px(MAX_HEIGHT)}
 			/>
 
 			<TerminalTextField
 				anchorPoint={new Vector2(0, 1)}
-				size={new UDim2(1, 0, 0, px(TEXT_FIELD_HEIGHT))}
+				size={() => new UDim2(1, 0, 0, px(TEXT_FIELD_HEIGHT))}
 				position={UDim2.fromScale(0, 1)}
 				backgroundTransparency={() => options().backgroundTransparency ?? 0}
 				onTextChange={(text) => {

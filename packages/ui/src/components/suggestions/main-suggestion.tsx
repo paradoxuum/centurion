@@ -46,12 +46,12 @@ export function MainSuggestion({
 			size={size}
 			backgroundColor={() => options().palette.background}
 			backgroundTransparency={() => options().backgroundTransparency ?? 0}
-			cornerRadius={new UDim(0, px(8))}
+			cornerRadius={() => new UDim(0, px(8))}
 			clipsDescendants={false}
 			mouseEnter={() => mouseOverInterface(true)}
 			mouseLeave={() => mouseOverInterface(false)}
 		>
-			<Padding all={new UDim(0, px(8))} />
+			<Padding all={() => new UDim(0, px(8))} />
 
 			<Badge
 				anchorPoint={new Vector2(1, 0)}
@@ -68,7 +68,7 @@ export function MainSuggestion({
 						: "";
 				}}
 				textColor={() => options().palette.surface}
-				textSize={px(SUGGESTION_TEXT_SIZE)}
+				textSize={() => px(SUGGESTION_TEXT_SIZE)}
 				visible={() => {
 					const currentSuggestion = read(suggestion);
 					return (
@@ -102,7 +102,7 @@ export function MainSuggestion({
 								read(currentText),
 							);
 				}}
-				textSize={px(SUGGESTION_TITLE_TEXT_SIZE)}
+				textSize={() => px(SUGGESTION_TITLE_TEXT_SIZE)}
 				textColor={() => options().palette.text}
 				textXAlignment="Left"
 				textYAlignment="Top"
@@ -112,9 +112,9 @@ export function MainSuggestion({
 
 			<Text
 				size={() => read(sizes).description}
-				position={UDim2.fromOffset(0, px(SUGGESTION_TITLE_TEXT_SIZE))}
+				position={() => UDim2.fromOffset(0, px(SUGGESTION_TITLE_TEXT_SIZE))}
 				text={() => read(suggestion)?.description ?? ""}
-				textSize={px(SUGGESTION_TEXT_SIZE)}
+				textSize={() => px(SUGGESTION_TEXT_SIZE)}
 				textColor={() => options().palette.subtext}
 				textXAlignment="Left"
 				textYAlignment="Top"
@@ -134,7 +134,7 @@ export function MainSuggestion({
 						: "";
 				}}
 				textColor={() => options().palette.error}
-				textSize={px(SUGGESTION_TEXT_SIZE)}
+				textSize={() => px(SUGGESTION_TEXT_SIZE)}
 				textWrapped={true}
 				textXAlignment="Left"
 			/>

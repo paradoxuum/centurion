@@ -40,7 +40,7 @@ export function Badge({
 			size={size}
 			position={position}
 			backgroundColor={color}
-			cornerRadius={new UDim(0, px(4))}
+			cornerRadius={() => new UDim(0, px(4))}
 			visible={visible}
 			clipsDescendants
 			backgroundTransparency={backgroundTransparency}

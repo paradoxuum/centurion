@@ -31,7 +31,7 @@ export function Text(props: TextProps) {
 			FontFace={() => read(props.font) ?? options().font.regular}
 			Text={props.text}
 			TextColor3={props.textColor}
-			TextSize={props.textSize ?? px(16)}
+			TextSize={() => read(props.textSize) ?? px(16)}
 			TextTransparency={props.textTransparency}
 			TextWrapped={props.textWrapped}
 			TextXAlignment={props.textXAlignment}

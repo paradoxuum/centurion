@@ -33,8 +33,8 @@ export function HistoryLine({ data, size, position, order }: HistoryLineProps) {
 		<Group size={size} position={position} layoutOrder={order}>
 			<Frame
 				backgroundColor={() => options().palette.surface}
-				size={UDim2.fromOffset(px(76), px(HISTORY_TEXT_SIZE + 4))}
-				cornerRadius={new UDim(0, px(4))}
+				size={() => UDim2.fromOffset(px(76), px(HISTORY_TEXT_SIZE + 4))}
+				cornerRadius={() => new UDim(0, px(4))}
 			>
 				<Text
 					size={UDim2.fromScale(1, 1)}
@@ -53,7 +53,7 @@ export function HistoryLine({ data, size, position, order }: HistoryLineProps) {
 							: options().palette.error;
 					}}
 					outerThickness={0}
-					cornerRadius={new UDim(0, px(4))}
+					cornerRadius={() => new UDim(0, px(4))}
 				/>
 			</Frame>
 
@@ -62,7 +62,7 @@ export function HistoryLine({ data, size, position, order }: HistoryLineProps) {
 				size={() => new UDim2(1, -px(84), 1, 0)}
 				position={UDim2.fromScale(1, 0)}
 				text={data.text}
-				textSize={px(HISTORY_TEXT_SIZE)}
+				textSize={() => px(HISTORY_TEXT_SIZE)}
 				textColor={() => {
 					const palette = options().palette;
 					return data.success ? palette.text : palette.error;

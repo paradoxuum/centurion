@@ -29,24 +29,27 @@ export function SuggestionList({
 			mouseEnter={() => mouseOverInterface(true)}
 			mouseLeave={() => mouseOverInterface(false)}
 		>
-			<uilistlayout SortOrder="LayoutOrder" Padding={new UDim(0, px(8))} />
+			<uilistlayout
+				SortOrder="LayoutOrder"
+				Padding={() => new UDim(0, px(8))}
+			/>
 
 			<For each={() => read(suggestion)?.others ?? []}>
 				{(name: string, i: () => number) => {
 					return (
 						<Frame
-							size={new UDim2(1, 0, 0, px(SUGGESTION_TEXT_SIZE + 6))}
+							size={() => new UDim2(1, 0, 0, px(SUGGESTION_TEXT_SIZE + 6))}
 							backgroundColor={() => options().palette.background}
 							backgroundTransparency={() =>
 								options().backgroundTransparency ?? 0
 							}
-							cornerRadius={new UDim(0, px(8))}
+							cornerRadius={() => new UDim(0, px(8))}
 							clipsDescendants={true}
 						>
-							<Padding all={new UDim(0, px(4))} />
+							<Padding all={() => new UDim(0, px(4))} />
 
 							<Text
-								size={new UDim2(1, 0, 1, 0)}
+								size={() => new UDim2(1, 0, 1, 0)}
 								text={() =>
 									highlightMatching(
 										options().palette.highlight,
@@ -55,7 +58,7 @@ export function SuggestionList({
 									)
 								}
 								textColor={() => options().palette.text}
-								textSize={px(SUGGESTION_TEXT_SIZE)}
+								textSize={() => px(SUGGESTION_TEXT_SIZE)}
 								textXAlignment="Left"
 								richText={true}
 							/>

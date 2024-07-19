@@ -144,7 +144,7 @@ export function Suggestions() {
 
 			<uilistlayout
 				SortOrder="LayoutOrder"
-				Padding={new UDim(0, px(PADDING))}
+				Padding={() => new UDim(0, px(PADDING))}
 			/>
 		</Group>
 	);

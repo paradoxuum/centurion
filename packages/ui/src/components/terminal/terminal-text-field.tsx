@@ -227,9 +227,9 @@ export function TerminalTextField({
 			position={position}
 			backgroundColor={() => options().palette.surface}
 			backgroundTransparency={backgroundTransparency}
-			cornerRadius={new UDim(0, px(4))}
+			cornerRadius={() => new UDim(0, px(4))}
 		>
-			<Padding all={new UDim(0, px(8))} />
+			<Padding all={() => new UDim(0, px(8))} />
 
 			<TextField
 				action={(instance) => ref(instance)}
@@ -250,7 +250,7 @@ export function TerminalTextField({
 					onTextChange?.(value);
 					return value;
 				}}
-				textSize={px(TEXT_SIZE)}
+				textSize={() => px(TEXT_SIZE)}
 				textColor={() => {
 					return valid() ? options().palette.success : options().palette.error;
 				}}
@@ -291,7 +291,7 @@ export function TerminalTextField({
 				size={UDim2.fromScale(1, 1)}
 				text={suggestionText}
 				textColor={() => options().palette.subtext}
-				textSize={px(TEXT_SIZE)}
+				textSize={() => px(TEXT_SIZE)}
 				textXAlignment="Left"
 				font={() => options().font.medium}
 			/>

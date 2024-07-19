@@ -54,7 +54,10 @@ export function CenturionApp(api: ClientAPI) {
 				<Terminal />
 				<Suggestions />
 
-				<uilistlayout Padding={new UDim(0, px(8))} SortOrder={"LayoutOrder"} />
+				<uilistlayout
+					Padding={() => new UDim(0, px(8))}
+					SortOrder={"LayoutOrder"}
+				/>
 			</Group>
 		</Layer>
 	);

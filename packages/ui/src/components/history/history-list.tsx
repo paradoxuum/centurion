@@ -10,7 +10,7 @@ interface HistoryListProps {
 	data: Derivable<HistoryData>;
 	size?: Derivable<UDim2>;
 	position?: Derivable<UDim2>;
-	maxHeight?: number;
+	maxHeight?: Derivable<number>;
 	scrollingEnabled?: Derivable<boolean>;
 }
 
@@ -30,8 +30,7 @@ export function HistoryList({
 		const height = read(data).height - px(8);
 		canvasSize(new UDim2(0, 0, 0, height));
 		canvasPos(new Vector2(0, height));
-
-		if (maxHeight !== undefined) scrollingEnabled(height > maxHeight);
+		if (maxHeight !== undefined) scrollingEnabled(height > read(maxHeight));
 	});
 
 	return (
@@ -56,7 +55,10 @@ export function HistoryList({
 				}}
 			</For>
 
-			<uilistlayout Padding={new UDim(0, px(8))} SortOrder="LayoutOrder" />
+			<uilistlayout
+				Padding={() => new UDim(0, px(8))}
+				SortOrder="LayoutOrder"
+			/>
 		</ScrollingFrame>
 	);
 }

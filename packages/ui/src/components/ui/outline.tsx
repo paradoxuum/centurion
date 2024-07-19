@@ -42,14 +42,15 @@ export function Outline({
 	cornerRadius,
 	children,
 }: OutlineProps) {
-	const properties = {
+	const properties = derive(() => ({
 		innerThickness: innerThickness ?? px(3),
 		outerThickness: outerThickness ?? px(1.5),
 		cornerRadius: cornerRadius ?? new UDim(0, px(8)),
-	};
+	}));
 
 	const innerStyle = derive(() => {
-		const thickness = read(properties.innerThickness);
+		const outlineProps = properties();
+		const thickness = read(outlineProps.innerThickness);
 		const size = new UDim2(
 			1,
 			ceilEven(-2 * thickness),
@@ -58,7 +59,7 @@ export function Outline({
 		);
 
 		const position = new UDim2(0, thickness, 0, thickness);
-		const radius = read(properties.cornerRadius).sub(new UDim(0, thickness));
+		const radius = read(outlineProps.cornerRadius).sub(new UDim(0, thickness));
 		const transparency = math.clamp(
 			blend(read(outlineTransparency), read(innerTransparency)),
 			0,
