@@ -265,15 +265,23 @@ export function TerminalTextField({
 					const textBox = ref();
 					if (textBox === undefined) return;
 
-					// TODO Limit
-					commandHistory((prev) => [...prev, textBox.Text]);
+					const currentText = textBox.Text;
+					const history = commandHistory();
+					if (
+						currentText !== "" &&
+						(history.isEmpty() || history[history.size() - 1] !== currentText)
+					) {
+						commandHistory((prev) => {
+							return [...prev, textBox.Text];
+						});
+					}
 					commandHistoryIndex(-1);
-					onSubmit?.(textBox.Text);
+					onSubmit?.(currentText);
 					textBox.CaptureFocus();
 					text("");
 				}}
 				textChanged={(currentText) => {
-					if (commandHistoryIndex() !== -1) commandHistoryIndex(-1);
+					commandHistoryIndex(-1);
 					text(currentText);
 				}}
 				zIndex={2}
