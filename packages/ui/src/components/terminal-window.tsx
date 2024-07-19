@@ -49,6 +49,7 @@ export function TerminalWindow() {
 
 	const textBoundsParams = useMemo(() => {
 		const params = new Instance("GetTextBoundsParams");
+		params.RichText = true;
 		params.Width = math.huge;
 		params.Font = options.font.regular;
 		return params;

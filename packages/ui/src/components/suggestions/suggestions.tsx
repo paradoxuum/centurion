@@ -42,7 +42,11 @@ export function Suggestions() {
 	}, [terminalText]);
 
 	const textBoundsParams = useMemo(
-		() => new Instance("GetTextBoundsParams"),
+		() => {
+			const instance = new Instance("GetTextBoundsParams");
+			instance.RichText = true;
+			return instance
+		},
 		[],
 	);
 
