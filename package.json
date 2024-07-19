@@ -9,6 +9,10 @@
   ],
   "scripts": {
     "packages:build": "yarn workspaces foreach -R --from \"{@rbxts/centurion,@rbxts/centurion-ui}\" run build",
+    "core:build": "yarn workspace @rbxts/centurion build",
+    "core:dev": "yarn workspace @rbxts/centurion dev",
+    "ui:build": "yarn workspace @rbxts/centurion build",
+    "ui:dev": "yarn workspace @rbxts/centurion dev",
     "test:build": "yarn workspace test build",
     "test:dev": "yarn workspace test dev",
     "test:serve": "yarn workspace test serve"
