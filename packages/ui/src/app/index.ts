@@ -18,6 +18,8 @@ export namespace CenturionUI {
 		options: Partial<InterfaceOptions> = {},
 	): (api: ClientAPI) => void {
 		return (api) => {
+			updateOptions(options);
+
 			// Attempt to preload font
 			task.spawn(() => {
 				const fontFamily = (
