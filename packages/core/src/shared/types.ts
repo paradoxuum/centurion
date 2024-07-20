@@ -33,6 +33,7 @@ export interface CommandOptions {
 	description?: string;
 	arguments?: ArgumentOptions[];
 	shortcuts?: CommandShortcut[];
+	disableDefaultReply?: boolean;
 }
 
 export interface GroupOptions {

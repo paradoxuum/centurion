@@ -30,7 +30,7 @@ export abstract class BaseDispatcher {
 		}
 
 		command.execute(context, args);
-		if (!context.isReplyReceived()) {
+		if (!context.isReplyReceived() && !command.options.disableDefaultReply) {
 			context.reply(DEFAULT_REPLY_TEXT);
 		}
 		return context;

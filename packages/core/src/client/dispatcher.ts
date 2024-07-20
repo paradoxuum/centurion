@@ -60,7 +60,7 @@ export class ClientDispatcher extends BaseDispatcher {
 		}
 
 		const reply = context.getData().reply;
-		assert(reply !== undefined, "Reply not received");
+		if (reply === undefined) return;
 
 		const entry: HistoryEntry = {
 			text: reply.text,
@@ -90,6 +90,14 @@ export class ClientDispatcher extends BaseDispatcher {
 		}
 
 		this.history.push(entry);
+		this.historyUpdated.Fire(this.history);
+	}
+
+	/**
+	 * Removes all history entries.
+	 */
+	clearHistory() {
+		this.history.clear();
 		this.historyUpdated.Fire(this.history);
 	}
 }
