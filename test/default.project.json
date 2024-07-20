@@ -10,7 +10,37 @@
 				"node_modules": {
 					"$className": "Folder",
 					"@rbxts": {
-						"$path": "node_modules/@rbxts"
+						"$className": "Folder",
+
+						"centurion": {
+							"$className": "Folder",
+							"out": {
+								"$path": "node_modules/@rbxts/centurion/out"
+							},
+							"node_modules": {
+								"$className": "Folder",
+								"@rbxts": {
+									"$path": "node_modules/@rbxts/centurion/node_modules/@rbxts"
+								}
+							}
+						},
+
+						"centurion-ui": {
+							"$className": "Folder",
+							"out": {
+								"$path": "node_modules/@rbxts/centurion-ui/out"
+							},
+							"node_modules": {
+								"$className": "Folder",
+								"@rbxts": {
+									"$path": "node_modules/@rbxts/centurion-ui/node_modules/@rbxts"
+								}
+							}
+						},
+
+						"services": {
+							"$path": "node_modules/@rbxts/services"
+						}
 					}
 				}
 			}
