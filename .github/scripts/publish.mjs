@@ -21,6 +21,11 @@ for (const pkg of getChangedPackages(nightly)) {
 		console.log(`Set ${pkgName} version to ${version}`);
 	}
 
-	execSync(`yarn workspace ${pkgName} npm publish --tag ${tag}`);
-	console.log(`Published ${pkgName}@${tag} to npm`);
+	try {
+		execSync(`yarn workspace ${pkgName} npm publish --tag ${tag}`);
+		console.log(`Published ${pkgName}@${tag} to npm`);
+	} catch (err) {
+		console.error(`Failed to publish ${pkgName}@${tag} to npm`);
+		throw err.stdout.toString();
+	}
 }
