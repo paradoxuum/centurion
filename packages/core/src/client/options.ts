@@ -4,5 +4,6 @@ import { ClientOptions } from "./types";
 export const DEFAULT_CLIENT_OPTIONS: ClientOptions = {
 	...DEFAULT_SHARED_OPTIONS,
 	historyLength: 1000,
+	registerBuiltInCommands: true,
 	shortcutsEnabled: true,
 };

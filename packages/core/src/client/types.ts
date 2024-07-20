@@ -6,9 +6,10 @@ import { ClientRegistry } from "./registry";
 
 export interface ClientOptions extends SharedOptions {
 	historyLength: number;
+	registerBuiltInCommands: boolean;
+	shortcutsEnabled: boolean;
 	interface?: (api: ClientAPI) => void;
 	network?: ClientNetworkOptions;
-	shortcutsEnabled?: boolean;
 }
 
 export interface ClientAPI {

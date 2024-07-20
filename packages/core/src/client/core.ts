@@ -54,6 +54,14 @@ export namespace CenturionClient {
 		dispatcherInstance.init(optionsObject);
 		registryInstance.init(optionsObject);
 
+		if (optionsObject.registerBuiltInCommands) {
+			const commands =
+				script.Parent?.WaitForChild("builtin").WaitForChild("commands");
+			assert(commands !== undefined, "Could not find built-in commands");
+			registryInstance.load(commands);
+			registryInstance.register();
+		}
+
 		if (optionsObject.shortcutsEnabled) {
 			registryInstance.commandRegistered.Connect(registerShortcuts);
 		}
