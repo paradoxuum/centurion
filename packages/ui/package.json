@@ -48,6 +48,5 @@
     },
     "peerDependencies": {
         "@rbxts/centurion": "workspace:^"
-    },
-    "stableVersion": "0.1.0"
+    }
 }

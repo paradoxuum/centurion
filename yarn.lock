@@ -1339,7 +1339,7 @@ __metadata:
     "@rbxts/services": "npm:^1.5.4"
     "@rbxts/t": "npm:^3.1.1"
     "@rbxts/types": "npm:^1.0.790"
-    roblox-ts: "npm:2.3.0-dev-26ec859"
+    roblox-ts: "npm:2.3.0"
     shx: "npm:^0.3.4"
     typescript: "npm:~5.5.3"
   languageName: unknown
@@ -1472,7 +1472,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@roblox-ts/path-translator@npm:=1.0.0":
+"@roblox-ts/luau-ast@npm:^1.0.11":
+  version: 1.0.11
+  resolution: "@roblox-ts/luau-ast@npm:1.0.11"
+  checksum: 10c0/eec72fe5283eed750d2a22bf50fc30b284bd25dd4d47ae119f9ebdb359676b81aa01cba9ddbbfc30db42cf22b3868209b5ac2b1e23ec4048e3430d9fe2291766
+  languageName: node
+  linkType: hard
+
+"@roblox-ts/path-translator@npm:=1.0.0, @roblox-ts/path-translator@npm:^1.0.0":
   version: 1.0.0
   resolution: "@roblox-ts/path-translator@npm:1.0.0"
   dependencies:
@@ -1482,7 +1489,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@roblox-ts/rojo-resolver@npm:=1.0.6":
+"@roblox-ts/rojo-resolver@npm:=1.0.6, @roblox-ts/rojo-resolver@npm:^1.0.6":
   version: 1.0.6
   resolution: "@roblox-ts/rojo-resolver@npm:1.0.6"
   dependencies:
@@ -5862,6 +5869,25 @@ __metadata:
   languageName: node
   linkType: hard
 
+"roblox-ts@npm:2.3.0":
+  version: 2.3.0
+  resolution: "roblox-ts@npm:2.3.0"
+  dependencies:
+    "@roblox-ts/luau-ast": "npm:^1.0.11"
+    "@roblox-ts/path-translator": "npm:^1.0.0"
+    "@roblox-ts/rojo-resolver": "npm:^1.0.6"
+    chokidar: "npm:^3.6.0"
+    fs-extra: "npm:^11.2.0"
+    kleur: "npm:^4.1.5"
+    resolve: "npm:^1.22.6"
+    typescript: "npm:=5.2.2"
+    yargs: "npm:^17.7.2"
+  bin:
+    rbxtsc: out/CLI/cli.js
+  checksum: 10c0/318b43f723746ffde6f74877e626eb6d1a81d7c548eac25c27e925cddb66514304ab49c6cad8b456738b165015b5cb47110ddf0a4e56dfa62b3bdaba6a2ef07e
+  languageName: node
+  linkType: hard
+
 "roblox-ts@npm:2.3.0-dev-26ec859":
   version: 2.3.0-dev-26ec859
   resolution: "roblox-ts@npm:2.3.0-dev-26ec859"
@@ -6519,6 +6545,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"typescript@npm:=5.2.2":
+  version: 5.2.2
+  resolution: "typescript@npm:5.2.2"
+  bin:
+    tsc: bin/tsc
+    tsserver: bin/tsserver
+  checksum: 10c0/91ae3e6193d0ddb8656d4c418a033f0f75dec5e077ebbc2bd6d76439b93f35683936ee1bdc0e9cf94ec76863aa49f27159b5788219b50e1cd0cd6d110aa34b07
+  languageName: node
+  linkType: hard
+
 "typescript@npm:=5.5.3, typescript@npm:^5.5.3, typescript@npm:~5.5.3":
   version: 5.5.3
   resolution: "typescript@npm:5.5.3"
@@ -6526,6 +6562,16 @@ __metadata:
     tsc: bin/tsc
     tsserver: bin/tsserver
   checksum: 10c0/f52c71ccbc7080b034b9d3b72051d563601a4815bf3e39ded188e6ce60813f75dbedf11ad15dd4d32a12996a9ed8c7155b46c93a9b9c9bad1049766fe614bbdd
+  languageName: node
+  linkType: hard
+
+"typescript@patch:typescript@npm%3A=5.2.2#optional!builtin<compat/typescript>":
+  version: 5.2.2
+  resolution: "typescript@patch:typescript@npm%3A5.2.2#optional!builtin<compat/typescript>::version=5.2.2&hash=f3b441"
+  bin:
+    tsc: bin/tsc
+    tsserver: bin/tsserver
+  checksum: 10c0/062c1cee1990e6b9419ce8a55162b8dc917eb87f807e4de0327dbc1c2fa4e5f61bc0dd4e034d38ff541d1ed0479b53bcee8e4de3a4075c51a1724eb6216cb6f5
   languageName: node
   linkType: hard
 
