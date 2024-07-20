@@ -41,3 +41,5 @@ jobs:
 
             - name: Publish changed packages
               run: node .github/scripts/publish.mjs ${{ steps.nightly.outputs.nightly }}
+              env:
+                  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
