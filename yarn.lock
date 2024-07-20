@@ -1312,7 +1312,6 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@rbxts/centurion-ui@workspace:packages/ui"
   dependencies:
-    "@rbxts/beacon": "npm:^2.1.1"
     "@rbxts/centurion": "workspace:^"
     "@rbxts/charm": "npm:^0.5.2"
     "@rbxts/compiler-types": "npm:2.3.0-types.1"
