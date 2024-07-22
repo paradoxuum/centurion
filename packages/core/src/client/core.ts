@@ -58,6 +58,10 @@ export namespace CenturionClient {
 			const commands =
 				script.Parent?.WaitForChild("builtin").WaitForChild("commands");
 			assert(commands !== undefined, "Could not find built-in commands");
+			registryInstance.registerGroup({
+				name: "centurion",
+				description: "Commands relating to Centurion",
+			});
 			registryInstance.load(commands);
 			registryInstance.register();
 		}

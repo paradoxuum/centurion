@@ -36,6 +36,7 @@
         "@rbxts/jest": "^0.1.0",
         "@rbxts/jest-globals": "^0.1.0",
         "@rbxts/types": "^1.0.790",
+        "rbxts-transform-debug": "https://github.com/paradoxuum/rbxts-transform-debug",
         "roblox-ts": "2.3.0",
         "shx": "^0.3.4",
         "typescript": "~5.5.3"
