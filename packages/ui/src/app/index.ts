@@ -1,7 +1,9 @@
-import { ClientAPI } from "@rbxts/centurion";
+import { CenturionType, ClientAPI } from "@rbxts/centurion";
+import { ClientRegistry } from "@rbxts/centurion/out/client/registry";
 import { ContentProvider, Players } from "@rbxts/services";
 import { mount } from "@rbxts/vide";
 import { DEFAULT_INTERFACE_OPTIONS } from "../constants/options";
+import { DefaultPalette } from "../palette";
 import { interfaceOptions } from "../store";
 import { InterfaceOptions } from "../types";
 import { CenturionApp } from "./centurion-app";
@@ -14,10 +16,40 @@ export namespace CenturionUI {
 		interfaceOptions((prev) => ({ ...prev, ...options }));
 	}
 
+	function registerCommands(registry: ClientRegistry) {
+		registry.registerCommand(
+			{
+				name: "theme",
+				description: "Change the terminal's theme",
+				arguments: [
+					{
+						name: "name",
+						description: "The name of the theme",
+						type: CenturionType.String,
+						suggestions: ["mocha", "macchiato", "frappe", "latte"],
+					},
+				],
+			},
+			(ctx, theme: string) => {
+				if (!((theme as string) in DefaultPalette)) {
+					ctx.error("Invalid theme");
+					return;
+				}
+
+				updateOptions({
+					palette: DefaultPalette[theme as never],
+				});
+				ctx.reply(`Set theme to '${theme}'`);
+			},
+			["centurion"],
+		);
+	}
+
 	export function create(
 		options: Partial<InterfaceOptions> = {},
 	): (api: ClientAPI) => void {
 		return (api) => {
+			if (api.options.registerBuiltInCommands) registerCommands(api.registry);
 			updateOptions(options);
 
 			// Attempt to preload font
