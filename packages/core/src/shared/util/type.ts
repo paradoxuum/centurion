@@ -41,6 +41,7 @@ export namespace TransformResult {
  */
 export class TypeBuilder<T> {
 	protected expensive = false;
+	protected marked = false;
 	protected validationFn?: t.check<T>;
 	protected transformFn?: TransformFn<T>;
 	protected suggestionFn?: SuggestionFn<T>;
@@ -49,6 +50,7 @@ export class TypeBuilder<T> {
 
 	/**
 	 * Instantiates a {@link TypeBuilder} with the given name.
+	 *
 	 *
 	 * @param name - The name of the type.
 	 * @returns A {@link TypeBuilder} instance.
@@ -116,10 +118,20 @@ export class TypeBuilder<T> {
 	}
 
 	/**
+	 * Marks the type for registration.
+	 *
+	 * @returns The {@link TypeBuilder} instance.
+	 */
+	markForRegistration() {
+		this.marked = true;
+		return this;
+	}
+
+	/**
 	 * Builds the type, returning an {@link ArgumentType} object.
 	 *
-	 * This function marks the type for registration, meaning it will be registered
-	 * when calling `register` if the module was loaded.
+	 * If the type has been marked for registration through {@link markForRegistration}, it will be added to
+	 * the list of objects that will be registered when `register()` is called.
 	 *
 	 * @throws Will throw an error if the required functions were not defined
 	 * @returns An {@link ArgumentType} object.
@@ -136,7 +148,9 @@ export class TypeBuilder<T> {
 			suggestions: this.suggestionFn,
 		} as ArgumentType<T>;
 
-		MetadataReflect.defineMetadata(argType, MetadataKey.Type, true);
+		if (this.marked) {
+			MetadataReflect.defineMetadata(argType, MetadataKey.Type, true);
+		}
 
 		return argType;
 	}

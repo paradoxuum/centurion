@@ -76,12 +76,19 @@ This function provides a list of suggestions for the type.
 **Returns**:
 The `TypeBuilder` instance.
 
+### `markForRegistration()`
+
+Marks the type for registration.
+
+**Returns**:
+The `TypeBuilder` instance.
+
 ### `build()`
 
 Builds the type, returning an [ArgumentType](#argumenttype) object.
 
-This function marks the type for registration, meaning it will be registered
-when calling `register` if the module was loaded.
+If the type has been marked for registration through [markForRegistration](#markforregistration), it will
+be added to the list of objects that will be registered when [register](/reference/registry#register) is called.
 
 **Throws**:
 Will throw an error if the required functions were not defined
