@@ -3,13 +3,16 @@ import { t } from "@rbxts/t";
 import { SharedOptions } from "../options";
 import {
 	ArgumentType,
+	CommandCallback,
 	CommandGuard,
 	CommandMetadata,
+	CommandOptions,
 	GroupOptions,
 } from "../types";
 import { importModule } from "../util/import";
 import { MetadataReflect } from "../util/reflect";
 import { BaseCommand, CommandGroup, ExecutableCommand } from "./command";
+import { CommandContext } from "./context";
 import { MetadataKey } from "./decorators";
 import { ImmutableRegistryPath, RegistryPath } from "./path";
 
@@ -102,6 +105,33 @@ export abstract class BaseRegistry {
 				this.registerType(obj);
 			}
 		}
+	}
+
+	/**
+	 * Registers a command with the given options and callback.
+	 *
+	 * Groups and guards can optionally be provided.
+	 *
+	 * @param options The command's options.
+	 * @param callback The command callback.
+	 * @param group The group to register the command under.
+	 * @param guards The guards to apply to the command.
+	 */
+	registerCommand(
+		options: CommandOptions,
+		// biome-ignore lint/suspicious/noExplicitAny: Type checking is not possible for command callbacks and unknown is too restrictive in this case.
+		callback: (ctx: CommandContext, ...args: any[]) => void,
+		group?: string[],
+		guards?: CommandGuard[],
+	) {
+		this.addCommand(
+			this.createCommand(
+				options,
+				callback,
+				group !== undefined ? new ImmutableRegistryPath(group) : undefined,
+				guards,
+			),
+		);
 	}
 
 	/**
@@ -284,7 +314,7 @@ export abstract class BaseRegistry {
 		}
 	}
 
-	protected registerCommand(command: BaseCommand, group?: CommandGroup) {
+	protected addCommand(command: BaseCommand, group?: CommandGroup) {
 		for (const path of command.getPaths()) {
 			this.validatePath(path.toString(), true);
 			this.commands.set(path.toString(), command);
@@ -296,6 +326,34 @@ export abstract class BaseRegistry {
 		}
 
 		this.commandRegistered.Fire(command);
+	}
+
+	private createCommand(
+		options: CommandOptions,
+		callback: CommandCallback,
+		group?: ImmutableRegistryPath,
+		guards: CommandGuard[] = [],
+	) {
+		const commandPath =
+			group !== undefined
+				? group.append(options.name)
+				: new ImmutableRegistryPath([options.name]);
+
+		let commandGroup: CommandGroup | undefined;
+		if (group !== undefined) {
+			commandGroup = this.getGroup(group);
+			if (commandGroup === undefined) {
+				throw `Cannot assign group '${group}' to command '${commandPath}' as it is not registered`;
+			}
+		}
+
+		return new ExecutableCommand(
+			this,
+			commandPath,
+			options,
+			callback,
+			guards !== undefined ? [...guards] : [],
+		);
 	}
 
 	private registerCommandClass(commandClass: object) {
@@ -335,39 +393,24 @@ export abstract class BaseRegistry {
 					property,
 				) ?? [];
 
-			const name = metadata.options.name;
-
 			// Get registered command group
-			let groupPath =
-				classGroups !== undefined
-					? new RegistryPath([...classGroups])
-					: undefined;
+			const groupParts = classGroups !== undefined ? [...classGroups] : [];
 			if (group !== undefined && !group.isEmpty()) {
-				if (groupPath !== undefined) {
-					for (const part of group) {
-						groupPath.append(part);
-					}
-				} else {
-					groupPath = new RegistryPath(group);
+				for (const part of group) {
+					groupParts.push(part);
 				}
 			}
 
-			let commandGroup: CommandGroup | undefined;
-			if (groupPath !== undefined) {
-				commandGroup = this.getGroup(groupPath);
-				if (commandGroup === undefined) {
-					throw `Cannot assign group '${groupPath}' to command '${name}' as it is not registered`;
-				}
-			}
-
-			const command = new ExecutableCommand(
-				this,
-				(commandGroup?.getPath() ?? ImmutableRegistryPath.empty()).append(name),
-				metadata.options,
-				(...args) => metadata.func(commandClass, ...args),
-				[...this.globalGuards, ...classGuards, ...guards],
+			this.addCommand(
+				this.createCommand(
+					metadata.options,
+					(ctx, ...args) => metadata.func(commandClass, ctx, ...args),
+					!groupParts.isEmpty()
+						? new ImmutableRegistryPath(groupParts)
+						: undefined,
+					[...this.globalGuards, ...classGuards, ...guards],
+				),
 			);
-			this.registerCommand(command, commandGroup);
 		}
 	}
 

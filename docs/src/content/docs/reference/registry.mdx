@@ -26,6 +26,19 @@ Registers any loaded commands and types that need to be registered.
 
 If the command/type has already been registered, it will be skipped.
 
+### `registerCommand(options, callback, group, guards)`
+
+Registers a command with the given options and callback.
+
+Groups and guards can optionally be provided.
+
+**Parameters**:
+
+- `options` - The command options.
+- `callback` - The command callback.
+- `group` - The group to register the command under.
+- `guards` - The guards to apply to the command.
+
 ### `registerType(types)`
 
 Registers one or more argument types.

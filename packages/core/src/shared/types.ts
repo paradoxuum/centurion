@@ -2,6 +2,11 @@ import { t } from "@rbxts/t";
 import { CommandContext } from "./core/context";
 import { TransformResult } from "./util/type";
 
+export type CommandCallback = (
+	context: CommandContext,
+	...args: unknown[]
+) => void;
+
 export type CommandGuard = (context: CommandContext) => boolean;
 
 export interface ArgumentType<T> {

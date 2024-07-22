@@ -1,5 +1,6 @@
 import {
 	ArgumentType,
+	CommandCallback,
 	CommandGuard,
 	CommandOptions,
 	GroupOptions,
@@ -70,14 +71,14 @@ export abstract class BaseCommand {
 }
 
 export class ExecutableCommand extends BaseCommand {
-	private readonly callback: (...args: unknown[]) => unknown;
+	private readonly callback: CommandCallback;
 	private readonly guards: ReadonlyArray<CommandGuard>;
 
 	constructor(
 		registry: BaseRegistry,
 		path: ImmutableRegistryPath,
 		options: CommandOptions,
-		callback: (...args: unknown[]) => unknown,
+		callback: CommandCallback,
 		guards: CommandGuard[],
 	) {
 		super(registry, path, options);

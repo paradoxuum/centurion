@@ -102,7 +102,7 @@ export class ClientRegistry extends BaseRegistry {
 				continue;
 			}
 
-			this.registerCommand(
+			this.addCommand(
 				ServerCommand.create(this, path, options, this.execute),
 				group,
 			);

@@ -32,11 +32,8 @@ export class ServerRegistry extends BaseRegistry {
 		});
 	}
 
-	protected registerCommand(
-		command: BaseCommand,
-		group?: CommandGroup | undefined,
-	) {
-		super.registerCommand(command, group);
+	protected addCommand(command: BaseCommand, group?: CommandGroup | undefined) {
+		super.addCommand(command, group);
 		for (const player of Players.GetPlayers()) {
 			this.syncDispatch.Fire(player, this.getSyncData(player));
 		}
