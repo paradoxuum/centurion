@@ -1,5 +1,6 @@
 import { t } from "@rbxts/t";
 import { CenturionType } from ".";
+import { BaseRegistry } from "../../core/registry";
 import { TransformResult, TypeBuilder } from "../../util/type";
 
 const transformToNumber = (text: string) => {
@@ -11,17 +12,17 @@ const transformToNumber = (text: string) => {
 	return TransformResult.ok(num);
 };
 
-export const StringType = TypeBuilder.create<string>(CenturionType.String)
+const stringType = TypeBuilder.create<string>(CenturionType.String)
 	.validate(t.string)
 	.transform((text) => TransformResult.ok(text))
 	.build();
 
-export const NumberType = TypeBuilder.create<number>(CenturionType.Number)
+const numberType = TypeBuilder.create<number>(CenturionType.Number)
 	.validate(t.number)
 	.transform(transformToNumber)
 	.build();
 
-export const IntegerType = TypeBuilder.create<number>(CenturionType.Integer)
+const integerType = TypeBuilder.create<number>(CenturionType.Integer)
 	.validate(t.integer)
 	.transform((text) => {
 		const numResult = transformToNumber(text);
@@ -38,7 +39,7 @@ export const IntegerType = TypeBuilder.create<number>(CenturionType.Integer)
 
 const truthyValues = new Set<string>(["true", "yes", "y"]);
 const falsyValues = new Set<string>(["false", "no", "n"]);
-export const BooleanType = TypeBuilder.create<boolean>(CenturionType.Boolean)
+const booleanType = TypeBuilder.create<boolean>(CenturionType.Boolean)
 	.validate(t.boolean)
 	.transform((text) => {
 		const textLower = text.lower();
@@ -48,3 +49,7 @@ export const BooleanType = TypeBuilder.create<boolean>(CenturionType.Boolean)
 		return TransformResult.err("Invalid boolean");
 	})
 	.build();
+
+export = (registry: BaseRegistry) => {
+	registry.registerType(stringType, numberType, integerType, booleanType);
+};

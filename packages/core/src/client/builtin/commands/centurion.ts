@@ -1,16 +1,21 @@
 import { $package } from "rbxts-transform-debug";
-import { Centurion, Command, CommandContext, Group } from "../../../shared";
+import { BaseRegistry } from "../../../shared";
 
-const VERSION = $package.version;
+export = (registry: BaseRegistry) => {
+	registry.registerGroup({
+		name: "centurion",
+		description: "Commands relating to Centurion",
+	});
 
-@Centurion
-@Group("centurion")
-export class CenturionCommand {
-	@Command({
-		name: "version",
-		description: "Display the current version of Centurion",
-	})
-	version(ctx: CommandContext) {
-		ctx.reply(`Centurion v${VERSION}`);
-	}
-}
+	const version = $package.version;
+	registry.registerCommand(
+		{
+			name: "version",
+			description: "Display the current version of Centurion",
+		},
+		(ctx) => {
+			ctx.reply(`Centurion v${version}`);
+		},
+		["centurion"],
+	);
+};

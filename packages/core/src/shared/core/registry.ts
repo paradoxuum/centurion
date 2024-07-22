@@ -53,7 +53,6 @@ export abstract class BaseRegistry {
 				"Built-in type container does not exist",
 			);
 			this.load(builtInTypes);
-			this.register();
 		}
 	}
 

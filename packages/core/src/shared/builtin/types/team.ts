@@ -1,9 +1,10 @@
 import { Teams } from "@rbxts/services";
 import { t } from "@rbxts/t";
 import { CenturionType } from ".";
+import { BaseRegistry } from "../../core/registry";
 import { TransformResult, TypeBuilder } from "../../util/type";
 
-export const TeamType = TypeBuilder.create<Team>(CenturionType.Team)
+const teamType = TypeBuilder.create<Team>(CenturionType.Team)
 	.validate(t.instanceOf("Team"))
 	.transform((text) => {
 		const team = Teams.FindFirstChild(text);
@@ -14,3 +15,7 @@ export const TeamType = TypeBuilder.create<Team>(CenturionType.Team)
 	})
 	.suggestions(() => Teams.GetChildren().map((team) => team.Name))
 	.build();
+
+export = (registry: BaseRegistry) => {
+	registry.registerType(teamType);
+};
