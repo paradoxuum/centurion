@@ -69,16 +69,15 @@ export function TerminalTextField({
 		if (history.isEmpty()) return;
 
 		const historyIndex = commandHistoryIndex();
-		if ((up && historyIndex === 0) || (!up && historyIndex === -1)) return;
+		if (!up && historyIndex === undefined) return;
 
-		let newIndex: number;
-		if (up) {
-			newIndex = historyIndex === -1 ? history.size() - 1 : historyIndex - 1;
-		} else {
-			newIndex = historyIndex !== history.size() - 1 ? historyIndex + 1 : -1;
-		}
+		const newIndex = math.clamp(
+			(historyIndex ?? history.size()) + (up ? -1 : 1),
+			0,
+			history.size() - 1,
+		);
 
-		const newText = newIndex !== -1 ? history[newIndex] : "";
+		const newText = history[newIndex];
 		text(newText);
 		suggestionText("");
 		commandHistoryIndex(newIndex);
@@ -275,13 +274,20 @@ export function TerminalTextField({
 							return [...prev, textBox.Text];
 						});
 					}
-					commandHistoryIndex(-1);
+					commandHistoryIndex(undefined);
 					onSubmit?.(currentText);
 					textBox.CaptureFocus();
 					text("");
 				}}
 				textChanged={(currentText) => {
-					commandHistoryIndex(-1);
+					const historyIndex = commandHistoryIndex();
+					if (
+						historyIndex !== undefined &&
+						currentText !== commandHistory()[historyIndex]
+					) {
+						commandHistoryIndex(undefined);
+					}
+
 					text(currentText);
 				}}
 				zIndex={2}

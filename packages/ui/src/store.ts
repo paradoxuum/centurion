@@ -16,7 +16,7 @@ export const currentCommandPath = atom<ImmutableRegistryPath | undefined>(
 export const currentArgIndex = atom<number | undefined>(undefined);
 
 export const commandHistory = atom<string[]>([]);
-export const commandHistoryIndex = atom(-1);
+export const commandHistoryIndex = atom<number | undefined>(undefined);
 
 export const currentSuggestion = atom<Suggestion | undefined>(undefined);
 export const terminalText = atom("");
