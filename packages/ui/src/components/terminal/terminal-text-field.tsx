@@ -71,10 +71,18 @@ export function TerminalTextField({
 		const historyIndex = commandHistoryIndex();
 		if (!up && historyIndex === undefined) return;
 
+		const lastIndex = history.size() - 1;
+		if (!up && historyIndex === lastIndex) {
+			text("");
+			suggestionText("");
+			commandHistoryIndex(undefined);
+			return;
+		}
+
 		const newIndex = math.clamp(
 			(historyIndex ?? history.size()) + (up ? -1 : 1),
 			0,
-			history.size() - 1,
+			lastIndex,
 		);
 
 		const newText = history[newIndex];
