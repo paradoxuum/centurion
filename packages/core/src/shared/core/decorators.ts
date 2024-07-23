@@ -9,7 +9,7 @@ export enum MetadataKey {
 	Guard = "guard",
 }
 
-export function Centurion(target: new () => object) {
+export function Register(target: new () => object) {
 	MetadataReflect.defineMetadata(target, MetadataKey.CommandClass, true);
 }
 

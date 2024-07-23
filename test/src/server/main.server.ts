@@ -1,7 +1,7 @@
-import { CenturionServer } from "@rbxts/centurion";
+import { Centurion } from "@rbxts/centurion";
 
 // Start Centurion
-CenturionServer.start((registry) => {
+Centurion.server().start((registry) => {
 	registry.registerGroup(
 		{
 			name: "info",

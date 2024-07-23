@@ -8,8 +8,6 @@ import { Code, TabItem, Tabs } from '@astrojs/starlight/components';
 ## Kick Command
 
 <Code lang="ts" code={`
-import { Command, CommandGuard, CommandContext, Centurion, CenturionType, Guard } from "@rbxts/centurion";
-
 const isAdmin: CommandGuard = (ctx) => {
     if (ctx.executor.UserId !== 1) {
         ctx.error("Insufficient permission!");
@@ -19,7 +17,7 @@ const isAdmin: CommandGuard = (ctx) => {
     return true;
 };
 
-@Centurion
+@Register
 class KickCommand {
     @Command({
         name: "kick",
@@ -54,7 +52,7 @@ const isAdmin: CommandGuard = (ctx) => {
     return true;
 };
 
-@Centurion
+@Register
 // Assigning a group to the class will
 // make all commands in the class belong to that group
 @Group("info")
@@ -95,7 +93,7 @@ class InfoCommand {
 	</TabItem>
 	<TabItem label="main.client.ts">
 	<Code lang="ts" code={`
-CenturionServer.start((registry) => {
+Centurion.server().start((registry) => {
 	registry.registerGroup(
 		{
 			name: "info",
@@ -113,7 +111,7 @@ CenturionServer.start((registry) => {
 		},
 	);
 
-	if (script.Parent === undefined) return;
+	assert(script.Parent !== undefined);
 	const commandContainer = script.Parent.WaitForChild("commands");
 	registry.register(commandContainer);
 });

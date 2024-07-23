@@ -17,7 +17,7 @@ You can assign groups in two ways:
 For example, let's say you want to organize view and delete commands under a profile group:
 
 <Code lang="ts" code={`
-@Centurion
+@Register
 // Assigning a group at the class level assigns the group to all
 // commands in the class.
 // You can also do this at the method level, but it's recommended to do it this
@@ -60,7 +60,7 @@ cannot have child groups. This limitation means the maximum nesting level is 2, 
 To define a group as a child of another group, you specify its name using the root key:
 
 <Code lang="ts" code={`
-@Centurion
+@Register
 @Group("info")
 class InfoCommand {
 	@Command({

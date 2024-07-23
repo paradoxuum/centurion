@@ -1,12 +1,12 @@
 import {
-	Centurion,
 	CenturionType,
 	Command,
 	CommandContext,
+	Register,
 } from "@rbxts/centurion";
 import { Players } from "@rbxts/services";
 
-@Centurion
+@Register
 export class KillCommand {
 	@Command({
 		name: "kill",

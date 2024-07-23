@@ -1,5 +1,5 @@
+import { Centurion } from "../../..";
 import { BaseRegistry } from "../../../shared";
-import { CenturionClient } from "../../core";
 
 export = (registry: BaseRegistry) => {
 	registry.registerCommand(
@@ -9,7 +9,7 @@ export = (registry: BaseRegistry) => {
 			disableDefaultReply: true,
 		},
 		() => {
-			CenturionClient.dispatcher().clearHistory();
+			Centurion.client().dispatcher().clearHistory();
 		},
 	);
 };

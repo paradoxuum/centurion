@@ -1,11 +1,11 @@
 import {
-	Centurion,
 	CenturionType,
 	Command,
 	CommandContext,
+	Register,
 } from "@rbxts/centurion";
 
-@Centurion
+@Register
 export class EchoCommand {
 	@Command({
 		name: "echo",

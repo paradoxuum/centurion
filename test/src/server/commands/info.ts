@@ -1,12 +1,12 @@
 import {
-	Centurion,
 	CenturionType,
 	Command,
 	CommandContext,
 	Group,
+	Register,
 } from "@rbxts/centurion";
 
-@Centurion
+@Register
 @Group("info")
 export class InfoCommand {
 	@Command({

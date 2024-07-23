@@ -8,13 +8,22 @@ import { ClientRegistry } from "./registry";
 import { ClientOptions } from "./types";
 import { getShortcutKeycodes, isShortcutContext } from "./util";
 
-export namespace CenturionClient {
-	let started = false;
-	const registryInstance = new ClientRegistry();
-	const dispatcherInstance = new ClientDispatcher(registryInstance);
-	let optionsObject = DEFAULT_CLIENT_OPTIONS;
+export class CenturionClient {
+	private started = false;
+	private registryInstance = new ClientRegistry();
+	private dispatcherInstance = new ClientDispatcher(this.registryInstance);
+	private optionsObject = DEFAULT_CLIENT_OPTIONS;
 
-	const IS_CLIENT = RunService.IsClient();
+	constructor(options: Partial<ClientOptions> = {}) {
+		assert(
+			RunService.IsClient(),
+			"CenturionClient can only be created from the client",
+		);
+		this.optionsObject = {
+			...DEFAULT_CLIENT_OPTIONS,
+			...options,
+		};
+	}
 
 	/**
 	 * Starts {@link CenturionClient}.
@@ -22,21 +31,11 @@ export namespace CenturionClient {
 	 * @param callback The run callback
 	 * @param options Client options
 	 */
-	export async function start(
-		callback?: (registry: ClientRegistry) => void,
-		options: Partial<ClientOptions> = {},
-	) {
-		assert(IS_CLIENT, "CenturionClient can only be started from the client");
-		assert(!started, "Centurion has already been started");
-
-		optionsObject = {
-			...DEFAULT_CLIENT_OPTIONS,
-			...options,
-		};
-
-		if (optionsObject.network === undefined) {
+	async start(callback?: (registry: ClientRegistry) => void) {
+		assert(!this.started, "Centurion has already been started");
+		if (this.optionsObject.network === undefined) {
 			const remotes = getRemotes();
-			optionsObject.network = {
+			this.optionsObject.network = {
 				syncStart: {
 					Fire: () => remotes.syncStart.FireServer(),
 				},
@@ -51,51 +50,56 @@ export namespace CenturionClient {
 			};
 		}
 
-		dispatcherInstance.init(optionsObject);
-		registryInstance.init(optionsObject);
+		const dispatcher = this.dispatcherInstance;
+		const registry = this.registryInstance;
+		const options = this.optionsObject;
 
-		if (optionsObject.registerBuiltInCommands) {
+		dispatcher.init(options);
+		registry.init(options);
+
+		if (this.optionsObject.registerBuiltInCommands) {
 			const commands =
 				script.Parent?.WaitForChild("builtin").WaitForChild("commands");
 			assert(commands !== undefined, "Could not find built-in commands");
-			registryInstance.load(commands);
+			this.registryInstance.load(commands);
 		}
 
-		if (optionsObject.shortcutsEnabled) {
-			registryInstance.commandRegistered.Connect(registerShortcuts);
+		if (this.optionsObject.shortcutsEnabled) {
+			registry.commandRegistered.Connect((command) =>
+				this.registerShortcuts(command),
+			);
 		}
 
-		callback?.(registryInstance);
-		await registryInstance.sync();
-		started = true;
+		callback?.(this.registryInstance);
+		await this.registryInstance.sync();
+		this.started = true;
 		options.interface?.({
-			registry: registryInstance,
-			dispatcher: dispatcherInstance,
-			options: optionsObject,
+			registry,
+			dispatcher,
+			options,
 		});
 	}
 
-	export function registry() {
-		assertAccess("registry");
-		return registryInstance;
+	registry() {
+		this.assertAccess("registry");
+		return this.registryInstance;
 	}
 
-	export function dispatcher() {
-		assertAccess("dispatcher");
-		return dispatcherInstance;
+	dispatcher() {
+		this.assertAccess("dispatcher");
+		return this.dispatcherInstance;
 	}
 
-	export function options() {
-		assertAccess("options");
-		return optionsObject;
+	options() {
+		this.assertAccess("options");
+		return this.optionsObject;
 	}
 
-	function assertAccess(name: string) {
-		assert(IS_CLIENT, `Client ${name} cannot be accessed from the server`);
-		assert(started, "Centurion has not been started yet");
+	private assertAccess(name: string) {
+		assert(this.started, "Centurion has not been started yet");
 	}
 
-	function registerShortcuts(command: BaseCommand) {
+	private registerShortcuts(command: BaseCommand) {
 		if (command.options.shortcuts === undefined) return;
 
 		const commandPath = command.getPath();
@@ -117,7 +121,7 @@ export namespace CenturionClient {
 					return;
 				}
 
-				dispatcherInstance.run(commandPath, args);
+				this.dispatcherInstance.run(commandPath, args);
 			});
 		}
 	}

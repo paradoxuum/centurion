@@ -25,45 +25,31 @@ Centurion needs to be started **once** on the client and server.
 <Tabs>
     <TabItem label="Client">
         <Code lang="ts" code={`
-import { CenturionClient } from "@rbxts/centurion";
+import { Centurion } from "@rbxts/centurion";
 import { CenturionUI } from "@rbxts/centurion-ui";
 
-CenturionClient.start(
-    (registry) => {
+Centurion.client({
+    interface: CenturionUI.create({
+        // You can configure the interface here, such as changing activation keys
+    }),
+})
+    .start((registry) => {
         // Register commands or types here
-    },
-    {
-        interface: CenturionUI.create({
-            // You can configure the interface here, such as changing activation keys
-        }),
-
-        // The options below are optional
-
-        // The maximum terminal and command history length, default length is 1000
-        historyLength: 1000,
-
-        // If you don't want to register built-in types, you can change this option
-        // This is set to true by default
-        registerBuiltInTypes: true,
-    },
-).catch((err) => warn("Centurion could not be started:", tostring(err)));
-        `} />
+    })
+    .catch((err) => warn("Centurion could not be started:", tostring(err)));
+`} />
     </TabItem>
 
     <TabItem label="Server">
         <Code lang="ts" code={`
-import { CenturionServer } from "@rbxts/centurion";
+import { Centurion } from "@rbxts/centurion";
 
-CenturionServer.start(
-    (registry) => {
+Centurion.server()
+    .start((registry) => {
         // Register commands or types here
-    },
-    {
-        // If you don't want to register built-in types, you can change this option
-        // This is set to true by default.
-        registerBuiltInTypes: true,
-    },
-).catch((err) => warn("Centurion could not be started:", tostring(err)));
+    })
+    .catch((err) => warn("Centurion could not be started:", tostring(err)));
+`} />
         `} />
     </TabItem>
 </Tabs>
@@ -71,14 +57,10 @@ CenturionServer.start(
 
 ## Registration
 
-<Aside>
-Command modules should be loaded from within the start callback to avoid registration errors.
-</Aside>
-
 The way commands and types are registered is the same on the server and client.
 
 <Code lang="ts" code={`
-CenturionServer.start((registry) => {
+Centurion.server().start((registry) => {
     // Load all child ModuleScripts under the given Instance
     const commandContainer = script.Parent.commands;
     registry.load(commandContainer);

@@ -14,7 +14,7 @@ Commands are defined using [decorators](https://www.typescriptlang.org/docs/hand
 
 Centurion has four decorators:
 
-- `@Centurion` - Classes containing commands must be decorated with this to be registered
+- `@Register` - Classes containing commands must be decorated with this to be registered
 - `@Command` - Used to define commands
 - `@Group` - Used to assign groups to a command
 - `@Guard` - Used to assign guards to a command
@@ -22,7 +22,7 @@ Centurion has four decorators:
 A command can be defined like so:
 
 <Code lang="ts" code={`
-@Centurion
+@Register
 class EchoCommand {
     @Command({
         name: "echo",

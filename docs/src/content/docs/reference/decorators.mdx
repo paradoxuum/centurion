@@ -4,14 +4,15 @@ title: Decorators
 
 import { Code } from "@astrojs/starlight/components"
 
-## `@Centurion`
+## `@Register`
 
-Specifies that a class should be registered.
+Marks a class for registration. The next time [register](/reference/registry#register)
+is called, any commands within the class will be registered.
 
 ### Usage
 
 <Code lang="ts" code={`
-@Centurion
+@Register
 export class MyCommand {
     // ...
 }
@@ -27,7 +28,7 @@ Defines a command.
 ### Usage
 
 <Code lang="ts" code={`
-@Centurion
+@Register
 class ExampleCommand {
     @Command({
         name: "example",
