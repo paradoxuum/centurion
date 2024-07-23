@@ -4,14 +4,12 @@ import {
 } from "@rbxts/centurion/out/shared/util/string";
 import { subscribe } from "@rbxts/charm";
 import { UserInputService } from "@rbxts/services";
-import Vide, { Derivable, effect, source } from "@rbxts/vide";
+import Vide, { cleanup, Derivable, effect, source } from "@rbxts/vide";
 import { getAPI } from "../../hooks/use-api";
 import { useAtom } from "../../hooks/use-atom";
 import { useEvent } from "../../hooks/use-event";
 import { px } from "../../hooks/use-px";
 import {
-	commandHistory,
-	commandHistoryIndex,
 	currentArgIndex,
 	currentCommandPath,
 	currentSuggestion,
@@ -52,6 +50,8 @@ export function TerminalTextField({
 	const valid = useAtom(terminalTextValid);
 
 	const ref = source<TextBox | undefined>(undefined);
+	const commandHistory = source<string[]>([]);
+	const commandHistoryIndex = source<number | undefined>(undefined);
 	const text = source("");
 	const suggestionText = source("");
 
@@ -88,7 +88,7 @@ export function TerminalTextField({
 		}
 	};
 
-	subscribe(currentSuggestion, (suggestion) => {
+	const suggestionConnection = subscribe(currentSuggestion, (suggestion) => {
 		if (suggestion === undefined) {
 			suggestionText("");
 			return;
@@ -132,6 +132,8 @@ export function TerminalTextField({
 		}
 		suggestionText(newText);
 	});
+
+	cleanup(suggestionConnection);
 
 	useEvent(UserInputService.InputBegan, (input) => {
 		const textBox = ref();
@@ -270,9 +272,7 @@ export function TerminalTextField({
 						currentText !== "" &&
 						(history.isEmpty() || history[history.size() - 1] !== currentText)
 					) {
-						commandHistory((prev) => {
-							return [...prev, textBox.Text];
-						});
+						commandHistory([...history, textBox.Text]);
 					}
 					commandHistoryIndex(undefined);
 					onSubmit?.(currentText);
