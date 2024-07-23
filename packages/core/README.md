@@ -1,6 +1,6 @@
 <div align="center">
   <a href="https://centurion.paradoxum.dev/" target="_blank">
-    <img src="../../docs/src/assets/logo.webp" width="150" />
+    <img src="https://raw.githubusercontent.com/paradoxuum/centurion/main/docs/src/assets/logo.webp" width="150" />
   </a>
 
   <h1>Centurion</h1>
@@ -23,4 +23,4 @@
   <a href="https://centurion.paradoxum.dev/">📖 Documentation</a>
 </div>
 
-<img src="../../public/banner.png" />
+<img src="https://raw.githubusercontent.com/paradoxuum/centurion/main/public/banner.png" />
