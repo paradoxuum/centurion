@@ -87,13 +87,14 @@ export abstract class BaseRegistry {
 	 * If the command/type has already been registered, it will be skipped.
 	 */
 	register() {
+		const commandObjects: object[] = [];
 		for (const [obj] of MetadataReflect.metadata) {
 			if (this.registeredObjects.has(obj)) continue;
-			this.registeredObjects.add(obj);
+
 			if (
 				MetadataReflect.getOwnMetadata<boolean>(obj, MetadataKey.CommandClass)
 			) {
-				this.registerCommandClass(obj);
+				commandObjects.push(obj);
 				continue;
 			}
 
@@ -102,7 +103,13 @@ export abstract class BaseRegistry {
 				isArgumentType(obj)
 			) {
 				this.registerType(obj);
+				this.registeredObjects.add(obj);
 			}
+		}
+
+		for (const obj of commandObjects) {
+			this.registerCommandClass(obj);
+			this.registeredObjects.add(obj);
 		}
 	}
 
