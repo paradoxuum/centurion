@@ -9,7 +9,6 @@ export namespace MetadataReflect {
 		object,
 		Map<string | typeof NO_PROP_MARKER, Map<string, unknown>>
 	>();
-	export const decorators = new Map<string, Array<object>>();
 	export const idToObj = new Map<string, object>();
 	export const objToId = new Map<object, string>();
 
