@@ -68,24 +68,6 @@ Centurion.server().start((registry) => {
     const typeContainer = ReplicatedStorage.types;
     registry.load(typeContainer);
 
-    // Register groups - this must be done before register() is called!
-    registry.registerGroup(
-        {
-            name: "info",
-            description: "View info about a user or the server",
-        },
-        {
-            name: "user",
-            description: "View info about a user",
-            parent: ["info"],
-        },
-        {
-            name: "server",
-            description: "View info about the server",
-            parent: ["info"],
-        },
-    );
-
     // To register the loaded commands and types, you then
     // call the register method:
     registry.register();
