@@ -5,7 +5,7 @@ import {
 	Register,
 } from "@rbxts/centurion";
 
-@Register
+@Register()
 export class DamageCommand {
 	@Command({
 		name: "damage",

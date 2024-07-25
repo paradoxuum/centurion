@@ -8,6 +8,7 @@ import {
 	CommandMetadata,
 	CommandOptions,
 	GroupOptions,
+	RegisterOptions,
 } from "../types";
 import { importModule } from "../util/import";
 import { MetadataReflect } from "../util/reflect";
@@ -91,15 +92,13 @@ export abstract class BaseRegistry {
 		for (const [obj] of MetadataReflect.metadata) {
 			if (this.registeredObjects.has(obj)) continue;
 
-			if (
-				MetadataReflect.getOwnMetadata<boolean>(obj, MetadataKey.CommandClass)
-			) {
+			if (MetadataReflect.hasOwnMetadata(obj, MetadataKey.Register)) {
 				commandObjects.push(obj);
 				continue;
 			}
 
 			if (
-				MetadataReflect.getOwnMetadata<boolean>(obj, MetadataKey.Type) &&
+				MetadataReflect.hasOwnMetadata(obj, MetadataKey.Type) &&
 				isArgumentType(obj)
 			) {
 				this.registerType(obj);
@@ -363,10 +362,24 @@ export abstract class BaseRegistry {
 	}
 
 	private registerCommandClass(commandClass: object) {
-		const classGroups = MetadataReflect.getOwnMetadata<string[]>(
+		const registerOptions = MetadataReflect.getOwnMetadata<RegisterOptions>(
 			commandClass,
-			MetadataKey.Group,
+			MetadataKey.Register,
 		);
+		assert(
+			registerOptions !== undefined,
+			`Metadata not found for @Register: ${commandClass}`,
+		);
+
+		if (registerOptions.groups !== undefined) {
+			this.registerGroup(...registerOptions.groups);
+		}
+
+		const classGroups =
+			MetadataReflect.getOwnMetadata<string[]>(
+				commandClass,
+				MetadataKey.Group,
+			) ?? [];
 
 		const classGuards =
 			MetadataReflect.getOwnMetadata<CommandGuard[]>(
@@ -383,7 +396,7 @@ export abstract class BaseRegistry {
 			);
 			assert(
 				metadata !== undefined,
-				`Command metadata not found: ${commandClass}/${property}`,
+				`Metadata not found for @Command: ${commandClass}/${property}`,
 			);
 
 			const group = MetadataReflect.getOwnMetadata<string[]>(
@@ -399,8 +412,7 @@ export abstract class BaseRegistry {
 					property,
 				) ?? [];
 
-			// Get registered command group
-			const groupParts = classGroups !== undefined ? [...classGroups] : [];
+			const groupParts = [...classGroups];
 			if (group !== undefined && !group.isEmpty()) {
 				for (const part of group) {
 					groupParts.push(part);

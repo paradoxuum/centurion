@@ -6,7 +6,7 @@ import {
 } from "@rbxts/centurion";
 import { Players } from "@rbxts/services";
 
-@Register
+@Register()
 export class KillCommand {
 	@Command({
 		name: "kill",

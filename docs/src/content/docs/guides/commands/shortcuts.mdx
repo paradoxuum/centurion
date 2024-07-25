@@ -42,7 +42,7 @@ In the following example, the command is configured to execute when the user
 presses `E` or `LeftAlt + E`.
 
 <Code lang="ts" code={`
-@Register
+@Register()
 export class EchoCommand {
     @Command({
         name: "echo",
@@ -63,7 +63,7 @@ to the command, printing `Hello, world!`.
 If the user presses `E`, no arguments will be provided and `Echo!` will be printed.
 
 <Code lang="ts" code={`
-@Register
+@Register()
 export class EchoCommand {
     @Command({
         name: "echo",

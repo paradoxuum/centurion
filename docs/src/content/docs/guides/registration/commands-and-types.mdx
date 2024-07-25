@@ -17,8 +17,13 @@ such as `addPaths`,
 provided by [Flamework](https://flamework.fireboltofdeath.dev/).
 
 For commands to be registered, the parent class must be decorated with [@Register](/reference/decorators#register).
-For types, they are marked for registration automatically in the
-`TypeBuilder.build()` method.
+
+For types, you have two options:
+- Mark the type for registration with [markForRegistration](/reference/types#markforregistration). The type
+will be registered when the [register](/reference/registry#register) method is called, similar to commands.
+- Export a function from the module (`export = (registry: BaseRegistry) => { ... }`) and register the type
+manually using [registerType](/reference/registry#registertypetypes). One caveat here is that you must use
+the [load](/reference/registry#loadcontainer-descendants) method for the exported function to be called.
 
 <Code lang="ts" code={`
 const types = ReplicatedStorage.types;

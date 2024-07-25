@@ -17,7 +17,7 @@ const isAdmin: CommandGuard = (ctx) => {
     return true;
 };
 
-@Register
+@Register()
 class KickCommand {
     @Command({
         name: "kick",
@@ -40,9 +40,7 @@ class KickCommand {
 
 ## Info Command
 
-<Tabs>
-	<TabItem label="commands/ban.ts">
-		<Code lang="ts" code={`
+<Code lang="ts" code={`
 const isAdmin: CommandGuard = (ctx) => {
     if (ctx.executor.UserId !== 1) {
         ctx.error("Insufficient permission!");
@@ -52,7 +50,22 @@ const isAdmin: CommandGuard = (ctx) => {
     return true;
 };
 
-@Register
+@Register({
+	{
+		name: "info",
+		description: "View info about a user or the server",
+	},
+	{
+		name: "user",
+		description: "View info about a user",
+		parent: ["info"],
+	},
+	{
+		name: "server",
+		description: "View info about the server",
+		parent: ["info"],
+	},
+})
 // Assigning a group to the class will
 // make all commands in the class belong to that group
 @Group("info")
@@ -90,31 +103,3 @@ class InfoCommand {
 	}
 }
 		`} />
-	</TabItem>
-	<TabItem label="main.client.ts">
-	<Code lang="ts" code={`
-Centurion.server().start((registry) => {
-	registry.registerGroup(
-		{
-			name: "info",
-			description: "View info about a user or the server",
-		},
-		{
-			name: "user",
-			description: "View info about a user",
-			parent: ["info"],
-		},
-		{
-			name: "server",
-			description: "View info about the server",
-			parent: ["info"],
-		},
-	);
-
-	assert(script.Parent !== undefined);
-	const commandContainer = script.Parent.WaitForChild("commands");
-	registry.register(commandContainer);
-});
-	`} />
-	</TabItem>
-</Tabs>

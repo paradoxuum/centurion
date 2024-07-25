@@ -9,6 +9,10 @@ export type CommandCallback = (
 
 export type CommandGuard = (context: CommandContext) => boolean;
 
+export interface RegisterOptions {
+	groups?: GroupOptions[];
+}
+
 export interface ArgumentType<T> {
 	name: string;
 	expensive: boolean;

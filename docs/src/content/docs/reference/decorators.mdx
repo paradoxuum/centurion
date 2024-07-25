@@ -6,13 +6,23 @@ import { Code } from "@astrojs/starlight/components"
 
 ## `@Register`
 
-Marks a class for registration. The next time [register](/reference/registry#register)
+Marks a class for registration. You can also register groups from here.
+
+The next time [register](/reference/registry#register)
 is called, any commands within the class will be registered.
+Any groups defined in the decorator will be registered before the commands.
 
 ### Usage
 
 <Code lang="ts" code={`
-@Register
+@Register({
+    groups: [
+        {
+            name: "example",
+            description: "Example group"
+        }
+    ]
+})
 export class MyCommand {
     // ...
 }
@@ -28,7 +38,7 @@ Defines a command.
 ### Usage
 
 <Code lang="ts" code={`
-@Register
+@Register()
 class ExampleCommand {
     @Command({
         name: "example",

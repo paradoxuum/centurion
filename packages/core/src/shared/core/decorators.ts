@@ -1,16 +1,26 @@
-import { CommandGuard, CommandMetadata, CommandOptions } from "../types";
+import {
+	CommandGuard,
+	CommandMetadata,
+	CommandOptions,
+	RegisterOptions,
+} from "../types";
 import { MetadataReflect } from "../util/reflect";
 
 export enum MetadataKey {
-	CommandClass = "class",
+	Register = "register",
 	Type = "type",
 	Command = "command",
 	Group = "group",
 	Guard = "guard",
 }
 
-export function Register(target: new () => object) {
-	MetadataReflect.defineMetadata(target, MetadataKey.CommandClass, true);
+export function Register(options?: Partial<RegisterOptions>) {
+	return (target: new () => object) => {
+		MetadataReflect.defineMetadata(target, MetadataKey.Register, {
+			groups: [],
+			...options,
+		} satisfies RegisterOptions);
+	};
 }
 
 export function Command(options?: Partial<CommandOptions>) {

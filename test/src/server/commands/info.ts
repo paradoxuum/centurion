@@ -6,7 +6,24 @@ import {
 	Register,
 } from "@rbxts/centurion";
 
-@Register
+@Register({
+	groups: [
+		{
+			name: "info",
+			description: "View info about a user or the server",
+		},
+		{
+			name: "user",
+			description: "View info about a user",
+			parent: ["info"],
+		},
+		{
+			name: "server",
+			description: "View info about the server",
+			parent: ["info"],
+		},
+	],
+})
 @Group("info")
 export class InfoCommand {
 	@Command({
@@ -22,7 +39,7 @@ export class InfoCommand {
 	})
 	@Group("user")
 	userView(ctx: CommandContext, player: Player) {
-		ctx.reply(`<Random data about ${player.Name} here>`);
+		ctx.reply(`(Random data about ${player.Name} here)`);
 	}
 
 	@Command({
@@ -31,6 +48,6 @@ export class InfoCommand {
 	})
 	@Group("server")
 	serverView(ctx: CommandContext) {
-		ctx.reply("<Random data about the server here>");
+		ctx.reply("(Random data about the server here)");
 	}
 }
