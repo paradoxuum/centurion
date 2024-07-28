@@ -6,4 +6,5 @@ export const DEFAULT_CLIENT_OPTIONS: ClientOptions = {
 	historyLength: 1000,
 	registerBuiltInCommands: true,
 	shortcutsEnabled: true,
+	syncTimeout: 10,
 };

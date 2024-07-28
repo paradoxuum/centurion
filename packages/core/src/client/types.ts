@@ -8,6 +8,7 @@ export interface ClientOptions extends SharedOptions {
 	historyLength: number;
 	registerBuiltInCommands: boolean;
 	shortcutsEnabled: boolean;
+	syncTimeout: number;
 	interface?: (api: ClientAPI) => void;
 	network?: ClientNetworkOptions;
 }

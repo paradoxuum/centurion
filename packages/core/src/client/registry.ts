@@ -73,7 +73,7 @@ export class ClientRegistry extends BaseRegistry {
 			while (!this.initialSyncReceived) RunService.Heartbeat.Wait();
 			resolve(undefined);
 		})
-			.timeout(5)
+			.timeout(this.options.syncTimeout)
 			.catch(() => {
 				throw "Server did not respond in time";
 			});
