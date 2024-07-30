@@ -1,41 +1,31 @@
 import { RunService, UserInputService } from "@rbxts/services";
 import { CommandShortcut } from "../shared";
+import { DEFAULT_CONFIG } from "../shared/config";
 import { BaseCommand } from "../shared/core/command";
 import { getRemotes } from "../shared/network";
+import { CenturionLogger } from "../shared/util/log";
 import { ClientDispatcher } from "./dispatcher";
-import { DEFAULT_CLIENT_OPTIONS } from "./options";
 import { ClientRegistry } from "./registry";
-import { ClientOptions } from "./types";
+import { ClientConfig } from "./types";
 import { getShortcutKeycodes, isShortcutContext } from "./util";
 
 export class CenturionClient {
 	private started = false;
-	private registryInstance = new ClientRegistry();
-	private dispatcherInstance = new ClientDispatcher(this.registryInstance);
-	private optionsObject = DEFAULT_CLIENT_OPTIONS;
+	private readonly logger: CenturionLogger;
+	readonly registry: ClientRegistry;
+	readonly dispatcher: ClientDispatcher;
+	readonly config: ClientConfig;
 
-	constructor(options: Partial<ClientOptions> = {}) {
+	constructor(config: Partial<ClientConfig> = {}) {
 		assert(
 			RunService.IsClient(),
 			"CenturionClient can only be created from the client",
 		);
-		this.optionsObject = {
-			...DEFAULT_CLIENT_OPTIONS,
-			...options,
-		};
-	}
 
-	/**
-	 * Starts {@link CenturionClient}.
-	 *
-	 * @param callback The run callback
-	 * @param options Client options
-	 */
-	async start(callback?: (registry: ClientRegistry) => void) {
-		assert(!this.started, "Centurion has already been started");
-		if (this.optionsObject.network === undefined) {
+		let networkConfig = config.network;
+		if (networkConfig === undefined) {
 			const remotes = getRemotes();
-			this.optionsObject.network = {
+			networkConfig = {
 				syncStart: {
 					Fire: () => remotes.syncStart.FireServer(),
 				},
@@ -50,53 +40,53 @@ export class CenturionClient {
 			};
 		}
 
-		const dispatcher = this.dispatcherInstance;
-		const registry = this.registryInstance;
-		const options = this.optionsObject;
+		this.config = {
+			...DEFAULT_CONFIG,
+			historyLength: 1000,
+			registerBuiltInCommands: true,
+			shortcutsEnabled: true,
+			syncTimeout: 10,
+			network: networkConfig,
+			...config,
+		};
+		this.registry = new ClientRegistry(this.config);
+		this.dispatcher = new ClientDispatcher(this.config, this.registry);
+		this.logger = new CenturionLogger(this.config.logLevel, "Core");
+	}
 
-		dispatcher.init(options);
-		registry.init(options);
+	/**
+	 * Starts {@link CenturionClient}.
+	 *
+	 * @param callback The run callback.
+	 */
+	async start(callback?: (registry: ClientRegistry) => void) {
+		this.logger.assert(!this.started, "Centurion has already been started");
 
-		if (this.optionsObject.registerBuiltInCommands) {
+		this.registry.init();
+		if (this.config.registerBuiltInCommands) {
 			const commands =
 				script.Parent?.WaitForChild("builtin").WaitForChild("commands");
-			assert(commands !== undefined, "Could not find built-in commands");
-			this.registryInstance.load(commands);
+			this.logger.assert(
+				commands !== undefined,
+				"Failed to locate built-in commands",
+			);
+			this.registry.load(commands);
 		}
 
-		if (this.optionsObject.shortcutsEnabled) {
-			registry.commandRegistered.Connect((command) =>
+		if (this.config.shortcutsEnabled) {
+			this.registry.commandRegistered.Connect((command) =>
 				this.registerShortcuts(command),
 			);
 		}
 
-		callback?.(this.registryInstance);
-		await this.registryInstance.sync();
+		callback?.(this.registry);
+		await this.registry.sync();
 		this.started = true;
-		options.interface?.({
-			registry,
-			dispatcher,
-			options,
+		this.config.interface?.({
+			registry: this.registry,
+			dispatcher: this.dispatcher,
+			config: this.config,
 		});
-	}
-
-	registry() {
-		this.assertAccess("registry");
-		return this.registryInstance;
-	}
-
-	dispatcher() {
-		this.assertAccess("dispatcher");
-		return this.dispatcherInstance;
-	}
-
-	options() {
-		this.assertAccess("options");
-		return this.optionsObject;
-	}
-
-	private assertAccess(name: string) {
-		assert(this.started, "Centurion has not been started yet");
 	}
 
 	private registerShortcuts(command: BaseCommand) {
@@ -121,7 +111,7 @@ export class CenturionClient {
 					return;
 				}
 
-				this.dispatcherInstance.run(commandPath, args);
+				this.dispatcher.run(commandPath, args);
 			});
 		}
 	}

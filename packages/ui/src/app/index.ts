@@ -49,7 +49,7 @@ export namespace CenturionUI {
 		options: Partial<InterfaceOptions> = {},
 	): (api: ClientAPI) => void {
 		return (api) => {
-			if (api.options.registerBuiltInCommands) registerCommands(api.registry);
+			if (api.config.registerBuiltInCommands) registerCommands(api.registry);
 			updateOptions(options);
 
 			// Attempt to preload font

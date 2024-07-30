@@ -2,36 +2,13 @@ import { RunService } from "@rbxts/services";
 import { CommandOptions, GroupOptions, ImmutableRegistryPath } from "../shared";
 import { CommandGroup } from "../shared/core/command";
 import { BaseRegistry } from "../shared/core/registry";
+import { CenturionLogLevel } from "../shared/util/log";
 import { ServerCommand } from "./command";
-import { DEFAULT_CLIENT_OPTIONS } from "./options";
-import { ClientOptions, ClientRemotes } from "./types";
+import { ClientConfig } from "./types";
 
-export class ClientRegistry extends BaseRegistry {
-	private options: ClientOptions = DEFAULT_CLIENT_OPTIONS;
+export class ClientRegistry extends BaseRegistry<ClientConfig> {
 	private initialSyncReceived = false;
 	private syncedPaths = new Set<string>();
-	private syncStart: ClientRemotes.SyncStart;
-	private syncDispatch: ClientRemotes.SyncDispatch;
-	private execute: ClientRemotes.Execute;
-
-	/**
-	 * Initializes the client registry.
-	 *
-	 * @param options Client options
-	 * @ignore
-	 */
-	init(options: ClientOptions) {
-		super.init(options);
-		this.options = options;
-
-		assert(
-			this.options.network !== undefined,
-			"Client options must include network options",
-		);
-		this.syncStart = this.options.network.syncStart;
-		this.syncDispatch = this.options.network.syncDispatch;
-		this.execute = this.options.network.execute;
-	}
 
 	/**
 	 * Begins registry synchronisation to the server.
@@ -41,8 +18,14 @@ export class ClientRegistry extends BaseRegistry {
 	 * @returns A promise that will be resolved when the initial sync is received
 	 */
 	async sync() {
-		this.syncDispatch.Connect((data) => {
-			if (!this.initialSyncReceived) this.initialSyncReceived = true;
+		let startTime = 0;
+		this.config.network.syncDispatch.Connect((data) => {
+			if (!this.initialSyncReceived) {
+				this.logger.info(
+					`Initial sync received in ${math.round((os.clock() - startTime) * 1000)}ms`,
+				);
+				this.initialSyncReceived = true;
+			}
 
 			for (const path of this.syncedPaths) {
 				data.commands.delete(path);
@@ -54,6 +37,9 @@ export class ClientRegistry extends BaseRegistry {
 				groups.push(group);
 			}
 
+			this.logger.debug(
+				`Received sync data from server (commands: ${data.commands.size()}, groups: ${groups.size()})`,
+			);
 			this.registerGroup(...groups);
 			this.registerServerCommands(data.commands);
 
@@ -64,16 +50,24 @@ export class ClientRegistry extends BaseRegistry {
 			for (const [path] of data.groups) {
 				this.syncedPaths.add(path);
 			}
+
+			if (this.logger.level <= CenturionLogLevel.Info) {
+				const commandCount = data.commands.size();
+				const groupCount = groups.size();
+				this.logger.info(
+					`Registered ${commandCount} command${commandCount === 1 ? "" : "s"} and ${groupCount} group${groupCount === 1 ? "" : "s"} from the server!`,
+				);
+			}
 		});
 
-		this.syncStart.Fire();
+		startTime = os.clock();
+		this.config.network.syncStart.Fire();
 
 		return new Promise((resolve) => {
-			// Wait until dispatch has been received
 			while (!this.initialSyncReceived) RunService.Heartbeat.Wait();
 			resolve(undefined);
 		})
-			.timeout(this.options.syncTimeout)
+			.timeout(this.config.syncTimeout)
 			.catch(() => {
 				throw "Server did not respond in time";
 			});
@@ -86,7 +80,7 @@ export class ClientRegistry extends BaseRegistry {
 			if (path.size() > 1) {
 				const groupPath = path.remove(path.size() - 1);
 				group = this.getGroup(groupPath);
-				assert(
+				this.logger.assert(
 					group !== undefined,
 					`Group '${groupPath}' for server command '${path}' is not registered`,
 				);
@@ -98,12 +92,12 @@ export class ClientRegistry extends BaseRegistry {
 				// - Use the client command's return value to determine whether the
 				//   server command should be executed
 				// - Maybe log a warning if the description is different on the client
-				warn(`Skipping shared command ${path}`);
+				this.logger.warn(`Shared commands are not yet supported: ${path}`);
 				continue;
 			}
 
 			this.addCommand(
-				ServerCommand.create(this, path, options, this.execute),
+				new ServerCommand(this.config, this, path, options),
 				group,
 			);
 		}

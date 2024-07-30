@@ -57,7 +57,7 @@ export const px = setmetatable(
  */
 export function usePx() {
 	const camera = Workspace.CurrentCamera;
-	assert(camera, "CurrentCamera is not set");
+	assert(camera !== undefined, "CurrentCamera is not set");
 
 	const updateScale = debounce(
 		() => {

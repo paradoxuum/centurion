@@ -1,43 +1,28 @@
 import { RunService } from "@rbxts/services";
+import { DEFAULT_CONFIG } from "../shared/config";
 import { getRemotes } from "../shared/network";
+import { CenturionLogger } from "../shared/util/log";
 import { ServerDispatcher } from "./dispatcher";
-import { DEFAULT_SERVER_OPTIONS } from "./options";
 import { ServerRegistry } from "./registry";
-import { ServerOptions } from "./types";
+import { ServerConfig } from "./types";
 
 export class CenturionServer {
 	private started = false;
-	private registryInstance = new ServerRegistry();
-	private dispatcherInstance = new ServerDispatcher(this.registryInstance);
-	private optionsObject = DEFAULT_SERVER_OPTIONS;
+	private readonly logger: CenturionLogger;
+	readonly registry: ServerRegistry;
+	readonly dispatcher: ServerDispatcher;
+	readonly config: Readonly<ServerConfig>;
 
-	constructor(options: Partial<ServerOptions> = {}) {
+	constructor(config: Partial<ServerConfig> = {}) {
 		assert(
 			RunService.IsServer(),
 			"CenturionServer can only be created from the server",
 		);
-		this.optionsObject = {
-			...DEFAULT_SERVER_OPTIONS,
-			...options,
-		};
-	}
 
-	/**
-	 * Starts {@link CenturionServer}.
-	 *
-	 * @param callback The run callback
-	 * @param options Server options
-	 */
-	async start(callback?: (registry: ServerRegistry) => void) {
-		assert(!this.started, "Centurion has already been started");
-
-		const dispatcher = this.dispatcherInstance;
-		const registry = this.registryInstance;
-		const options = this.optionsObject;
-
-		if (options.network === undefined) {
+		let networkConfig = config.network;
+		if (networkConfig === undefined) {
 			const remotes = getRemotes();
-			this.optionsObject.network = {
+			networkConfig = {
 				syncStart: {
 					Connect: (player) => {
 						return remotes.syncStart.OnServerEvent.Connect(player);
@@ -54,28 +39,26 @@ export class CenturionServer {
 			};
 		}
 
-		dispatcher.init(options);
-		registry.init(options);
-		callback?.(registry);
+		this.config = table.freeze({
+			...DEFAULT_CONFIG,
+			network: networkConfig,
+			commandFilter: () => true,
+			...config,
+		});
+		this.registry = new ServerRegistry(this.config);
+		this.dispatcher = new ServerDispatcher(this.config, this.registry);
+		this.logger = new CenturionLogger(this.config.logLevel, "Core");
+	}
+
+	/**
+	 * Starts {@link CenturionServer}.
+	 */
+	async start(callback?: (registry: ServerRegistry) => void) {
+		this.logger.assert(!this.started, "Centurion has already been started");
+
+		this.dispatcher.init();
+		this.registry.init();
+		callback?.(this.registry);
 		this.started = true;
-	}
-
-	registry() {
-		this.assertAccess("registry");
-		return this.registryInstance;
-	}
-
-	dispatcher() {
-		this.assertAccess("dispatcher");
-		return this.dispatcherInstance;
-	}
-
-	options() {
-		this.assertAccess("options");
-		return this.optionsObject;
-	}
-
-	assertAccess(name: string) {
-		assert(this.started, "Centurion has not been started yet");
 	}
 }

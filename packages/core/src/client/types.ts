@@ -1,25 +1,24 @@
-import { CommandContextData } from "../shared";
+import { CommandContextData, SharedConfig } from "../shared";
 import { SyncData } from "../shared/network";
-import { SharedOptions } from "../shared/options";
 import { ClientDispatcher } from "./dispatcher";
 import { ClientRegistry } from "./registry";
 
-export interface ClientOptions extends SharedOptions {
+export interface ClientConfig extends SharedConfig {
 	historyLength: number;
 	registerBuiltInCommands: boolean;
 	shortcutsEnabled: boolean;
 	syncTimeout: number;
+	network: ClientNetworkConfig;
 	interface?: (api: ClientAPI) => void;
-	network?: ClientNetworkOptions;
 }
 
 export interface ClientAPI {
 	registry: ClientRegistry;
 	dispatcher: ClientDispatcher;
-	options: ClientOptions;
+	config: ClientConfig;
 }
 
-export interface ClientNetworkOptions {
+export interface ClientNetworkConfig {
 	syncStart: ClientRemotes.SyncStart;
 	syncDispatch: ClientRemotes.SyncDispatch;
 	execute: ClientRemotes.Execute;

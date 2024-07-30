@@ -1,6 +1,5 @@
 import { Signal } from "@rbxts/beacon";
 import { t } from "@rbxts/t";
-import { SharedOptions } from "../options";
 import {
 	ArgumentType,
 	CommandCallback,
@@ -9,8 +8,9 @@ import {
 	CommandOptions,
 	GroupOptions,
 	RegisterOptions,
+	SharedConfig,
 } from "../types";
-import { importModule } from "../util/import";
+import { CenturionLogger } from "../util/log";
 import { MetadataReflect } from "../util/reflect";
 import { BaseCommand, CommandGroup, ExecutableCommand } from "./command";
 import { CommandContext } from "./context";
@@ -29,29 +29,42 @@ function isArgumentType(value: unknown): value is ArgumentType<unknown> {
 	return argTypeSchema(value);
 }
 
-export abstract class BaseRegistry {
-	protected static readonly ROOT_KEY = "__root__";
+export abstract class BaseRegistry<C extends SharedConfig = SharedConfig> {
+	private static readonly ROOT_KEY = "__root__";
+	private readonly loadModule: (module: ModuleScript) => unknown;
+
 	protected readonly commands = new Map<string, BaseCommand>();
 	protected readonly groups = new Map<string, CommandGroup>();
 	protected readonly types = new Map<string, ArgumentType<unknown>>();
 	protected readonly registeredObjects = new Set<object>();
+	protected readonly logger: CenturionLogger;
+	protected cachedPaths = new Map<string, RegistryPath[]>();
+	protected globalGuards = new Array<CommandGuard>();
 
 	readonly commandRegistered = new Signal<[command: BaseCommand]>();
 	readonly groupRegistered = new Signal<[group: CommandGroup]>();
 
-	protected cachedPaths = new Map<string, RegistryPath[]>();
-	protected globalGuards = new Array<CommandGuard>();
+	constructor(protected readonly config: C) {
+		this.logger = new CenturionLogger(config.logLevel, "Registry");
+		this.globalGuards = config.guards ?? [];
 
-	init(options: SharedOptions) {
-		this.globalGuards = options.guards ?? [];
-		if (options.registerBuiltInTypes) {
+		const tsImpl = (_G as Map<unknown, unknown>).get(script);
+		this.loadModule = t.interface({
+			import: t.callback,
+		})(tsImpl)
+			? (module) => tsImpl.import(script, module)
+			: require;
+	}
+
+	init() {
+		if (this.config.registerBuiltInTypes) {
 			const builtInTypes =
 				script.Parent?.Parent?.FindFirstChild("builtin")?.FindFirstChild(
 					"types",
 				);
-			assert(
+			this.logger.assert(
 				builtInTypes !== undefined,
-				"Built-in type container does not exist",
+				"Failed to locate built-in types",
 			);
 			this.load(builtInTypes);
 		}
@@ -77,8 +90,22 @@ export abstract class BaseRegistry {
 		for (const obj of instances) {
 			if (!obj.IsA("ModuleScript")) continue;
 
-			const value = importModule(obj);
-			if (typeIs(value, "function")) value(this);
+			const [success, value] = pcall(() => this.loadModule(obj));
+			if (!success) {
+				this.logger.warn(
+					`Failed to load module ${obj.GetFullName()}: ${value}`,
+				);
+				continue;
+			}
+
+			if (typeIs(value, "function")) {
+				this.logger.debug(
+					`Loaded module ${obj.GetFullName()}, calling returned function...`,
+				);
+				value(this);
+			} else {
+				this.logger.debug(`Loaded module ${obj.GetFullName()}`);
+			}
 		}
 	}
 
@@ -147,6 +174,7 @@ export abstract class BaseRegistry {
 	registerType(...types: ArgumentType<unknown>[]) {
 		for (const options of types) {
 			this.types.set(options.name, options);
+			this.logger.debug(`Registered type: ${options.name}`);
 		}
 	}
 
@@ -156,15 +184,14 @@ export abstract class BaseRegistry {
 	 * @param groups The groups to register
 	 */
 	registerGroup(...groups: GroupOptions[]) {
-		const commandGroups: CommandGroup[] = [];
-		for (const options of groups) {
-			commandGroups.push(
+		const commandGroups = groups.map(
+			(options) =>
 				new CommandGroup(
+					this.config,
 					new ImmutableRegistryPath([...(options.parent ?? []), options.name]),
 					options,
 				),
-			);
-		}
+		);
 
 		// Sort groups by path size so parent groups are registered first
 		commandGroups.sort((a, b) => a.getPath().size() < b.getPath().size());
@@ -177,11 +204,14 @@ export abstract class BaseRegistry {
 				const parentPath = group.getPath().parent();
 				const parentGroup = this.groups.get(parentPath.toString());
 				if (parentGroup === undefined) {
-					throw `Parent group '${parentPath}' for group '${pathString}' is not registered`;
+					this.logger.error(
+						`Parent group '${parentPath}' for group '${pathString}' is not registered`,
+					);
+					return;
 				}
 
 				if (parentGroup.hasGroup(group.options.name)) {
-					warn(
+					this.logger.warn(
 						`Skipping duplicate child group in ${parentPath}: ${group.options.name}`,
 					);
 					continue;
@@ -193,6 +223,7 @@ export abstract class BaseRegistry {
 			this.groups.set(pathString, group);
 			this.cachePath(group.getPath());
 			this.groupRegistered.Fire(group);
+			this.logger.debug(`Registered group: ${pathString}`);
 		}
 	}
 
@@ -331,6 +362,7 @@ export abstract class BaseRegistry {
 		}
 
 		this.commandRegistered.Fire(command);
+		this.logger.debug(`Registered command: ${command.getPath()}`);
 	}
 
 	private createCommand(
@@ -347,12 +379,14 @@ export abstract class BaseRegistry {
 		let commandGroup: CommandGroup | undefined;
 		if (group !== undefined) {
 			commandGroup = this.getGroup(group);
-			if (commandGroup === undefined) {
-				throw `Cannot assign group '${group}' to command '${commandPath}' as it is not registered`;
-			}
+			this.logger.assert(
+				commandGroup !== undefined,
+				`Cannot assign group '${group}' to command '${commandPath}' as it is not registered`,
+			);
 		}
 
 		return new ExecutableCommand(
+			this.config,
 			this,
 			commandPath,
 			options,
@@ -366,7 +400,7 @@ export abstract class BaseRegistry {
 			commandClass,
 			MetadataKey.Register,
 		);
-		assert(
+		this.logger.assert(
 			registerOptions !== undefined,
 			`Metadata not found for @Register: ${commandClass}`,
 		);
@@ -394,7 +428,7 @@ export abstract class BaseRegistry {
 				MetadataKey.Command,
 				property,
 			);
-			assert(
+			this.logger.assert(
 				metadata !== undefined,
 				`Metadata not found for @Command: ${commandClass}/${property}`,
 			);
@@ -433,17 +467,29 @@ export abstract class BaseRegistry {
 	}
 
 	protected validatePath(path: string, isCommand: boolean) {
-		const hasCommand = this.commands.has(path);
-		if (hasCommand && isCommand) throw `Duplicate command: ${path}`;
-
-		if (hasCommand) {
-			throw `A command already exists with the same name as this group: ${path}`;
+		const commandRegistered = this.commands.has(path);
+		if (commandRegistered && isCommand) {
+			this.logger.error(`Duplicate command: ${path}`);
+			return;
 		}
 
-		const hasGroup = this.groups.has(path);
-		if (hasGroup && isCommand)
-			throw `A group already exists with the same name as this command: ${path}`;
+		if (commandRegistered) {
+			this.logger.error(
+				`A command already exists with the same name as this group: ${path}`,
+			);
+			return;
+		}
 
-		if (hasGroup) throw `Duplicate group: ${path}`;
+		const groupRegistered = this.groups.has(path);
+		if (groupRegistered && isCommand) {
+			this.logger.error(
+				`A group already exists with the same name as this command: ${path}`,
+			);
+			return;
+		}
+
+		if (groupRegistered) {
+			this.logger.error(`Duplicate group: ${path}`);
+		}
 	}
 }

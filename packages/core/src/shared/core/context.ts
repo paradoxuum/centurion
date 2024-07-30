@@ -1,4 +1,5 @@
 import { CommandContextData, CommandReply } from "../types";
+import { CenturionLogger } from "../util/log";
 import { RegistryPath } from "./path";
 
 /**
@@ -9,6 +10,7 @@ export class CommandContext<S = unknown> {
 	state: S;
 
 	constructor(
+		private readonly logger: CenturionLogger,
 		readonly path: RegistryPath,
 		readonly args: string[],
 		readonly input: string,
@@ -56,7 +58,7 @@ export class CommandContext<S = unknown> {
 	 * @throws Will throw if a reply has already been set
 	 */
 	setReply(reply: CommandReply) {
-		assert(
+		this.logger.assert(
 			this.replyData === undefined,
 			"This CommandContext has already received a reply",
 		);

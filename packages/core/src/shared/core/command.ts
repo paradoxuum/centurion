@@ -1,11 +1,14 @@
 import {
+	ArgumentOptions,
 	ArgumentType,
 	CommandCallback,
 	CommandGuard,
 	CommandOptions,
 	GroupOptions,
+	SharedConfig,
 } from "../types";
 import { ObjectUtil, ReadonlyDeepObject } from "../util/data";
+import { CenturionLogger } from "../util/log";
 import { TransformResult } from "../util/type";
 import { CommandContext } from "./context";
 import { ImmutableRegistryPath } from "./path";
@@ -14,36 +17,37 @@ import { BaseRegistry } from "./registry";
 export abstract class BaseCommand {
 	protected readonly argTypes: ArgumentType<unknown>[] = [];
 	protected readonly path: ImmutableRegistryPath;
+	protected readonly logger: CenturionLogger;
 	readonly options: ReadonlyDeepObject<CommandOptions>;
 
 	constructor(
+		config: SharedConfig,
 		registry: BaseRegistry,
 		path: ImmutableRegistryPath,
 		options: CommandOptions,
 	) {
 		this.path = path;
 		this.options = ObjectUtil.freezeDeep(ObjectUtil.copyDeep(options));
+		this.logger = new CenturionLogger(config.logLevel, `Command/${path}`);
 
-		if (options.arguments === undefined) {
-			return;
-		}
+		if (options.arguments === undefined) return;
 
-		// Assert that the required arguments precede optional arguments
 		let hadOptional = false;
 		for (const i of $range(0, options.arguments.size() - 1)) {
-			const arg = options.arguments[i];
+			const arg: ArgumentOptions | undefined = options.arguments[i];
 			if (arg.optional === true) {
 				hadOptional = true;
 			} else if (hadOptional) {
-				throw `Command '${options.name}' has a required argument after an
-					optional argument (arg ${arg.name} at position ${i + 1})`;
+				this.logger.error(
+					`Command '${options.name}' has a required argument after an optional argument (arg ${arg.name} at position ${i + 1})`,
+				);
 			}
 
 			const argType = registry.getType(arg.type);
-			if (argType === undefined) {
-				throw `[Command/${options.name}] Argument '${arg.name}' uses a type that is unregistered: ${arg.type}`;
-			}
-
+			this.logger.assert(
+				argType !== undefined,
+				`Argument '${arg.name}' uses a type that is unregistered: ${arg.type}`,
+			);
 			this.argTypes.push(argType);
 		}
 	}
@@ -75,13 +79,14 @@ export class ExecutableCommand extends BaseCommand {
 	private readonly guards: ReadonlyArray<CommandGuard>;
 
 	constructor(
+		config: SharedConfig,
 		registry: BaseRegistry,
 		path: ImmutableRegistryPath,
 		options: CommandOptions,
 		callback: CommandCallback,
 		guards: CommandGuard[],
 	) {
-		super(registry, path, options);
+		super(config, registry, path, options);
 		this.callback = callback;
 		this.guards = table.freeze([...guards]);
 	}
@@ -141,27 +146,37 @@ export class ExecutableCommand extends BaseCommand {
 export class CommandGroup {
 	private readonly commands = new Map<string, BaseCommand>();
 	private readonly groups = new Map<string, CommandGroup>();
+	private readonly logger: CenturionLogger;
 	readonly options: ReadonlyDeepObject<GroupOptions>;
 
 	constructor(
+		config: SharedConfig,
 		readonly path: ImmutableRegistryPath,
 		options: GroupOptions,
 	) {
 		this.options = options;
+		this.logger = new CenturionLogger(config.logLevel, `CommandGroup/${path}`);
 	}
 
 	addCommand(command: BaseCommand) {
 		if (!command.getPath().isChildOf(this.path)) {
-			throw `${command} is not a child of this group (${this})`;
+			this.logger.error(`${command} is not a child of this group (${this})`);
+			return;
 		}
 
 		const commandName = command.getName();
 		if (this.hasCommand(commandName)) {
-			throw `There is already a command with the name '${commandName} in ${this}`;
+			this.logger.error(
+				`There is already a command with the name '${commandName} in ${this}`,
+			);
+			return;
 		}
 
 		if (this.hasGroup(commandName)) {
-			throw `There is already a group with the same name as the command '${command}' in ${this}`;
+			this.logger.error(
+				`There is already a group with the same name as the command '${command}' in ${this}`,
+			);
+			return;
 		}
 
 		this.commands.set(commandName, command);
@@ -169,20 +184,28 @@ export class CommandGroup {
 
 	addGroup(group: CommandGroup) {
 		if (group === this) {
-			throw `Cannot add group to itself (${this})`;
+			this.logger.error(`Cannot add group to itself (${this})`);
+			return;
 		}
 
 		if (!group.getPath().isChildOf(this.path)) {
-			throw `${group} is not a child of this group (${this})`;
+			this.logger.error(`${group} is not a child of this group (${this})`);
+			return;
 		}
 
 		const groupName = group.options.name;
 		if (this.hasGroup(groupName)) {
-			throw `There is already a group with the name '${groupName} in ${this}`;
+			this.logger.error(
+				`There is already a group with the name '${groupName} in ${this}`,
+			);
+			return;
 		}
 
 		if (this.hasCommand(groupName)) {
-			throw `There is already a command with the same name as the group '${groupName}' in ${this}`;
+			this.logger.error(
+				`There is already a command with the same name as the group '${groupName}' in ${this}`,
+			);
+			return;
 		}
 
 		this.groups.set(groupName, group);

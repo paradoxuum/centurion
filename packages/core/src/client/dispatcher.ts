@@ -3,24 +3,11 @@ import { Players } from "@rbxts/services";
 import { RegistryPath } from "../shared";
 import { BaseDispatcher } from "../shared/core/dispatcher";
 import { getInputText } from "../shared/util/string";
-import { DEFAULT_CLIENT_OPTIONS } from "./options";
-import { ClientOptions, HistoryEntry } from "./types";
+import { ClientConfig, HistoryEntry } from "./types";
 
-export class ClientDispatcher extends BaseDispatcher {
+export class ClientDispatcher extends BaseDispatcher<ClientConfig> {
 	private readonly history: HistoryEntry[] = [];
-	private maxHistoryLength = DEFAULT_CLIENT_OPTIONS.historyLength;
 	readonly historyUpdated = new Signal<[history: HistoryEntry[]]>();
-
-	/**
-	 * Initializes the client dispatcher.
-	 *
-	 * @param options Client options
-	 * @ignore
-	 */
-	init(options: ClientOptions) {
-		super.init(options);
-		this.maxHistoryLength = options.historyLength;
-	}
 
 	/**
 	 * Executes a command.
@@ -48,7 +35,9 @@ export class ClientDispatcher extends BaseDispatcher {
 		).await();
 
 		if (!success) {
-			warn(`An error occurred while executing '${inputText}': ${context}`);
+			this.logger.warn(
+				`An error occurred while executing '${inputText}': ${context}`,
+			);
 
 			const errorEntry: HistoryEntry = {
 				text: "An error occurred.",
@@ -85,7 +74,7 @@ export class ClientDispatcher extends BaseDispatcher {
 	 * @param entry - The history entry to add
 	 */
 	addHistoryEntry(entry: HistoryEntry) {
-		if (this.history.size() >= this.maxHistoryLength) {
+		if (this.history.size() >= this.config.historyLength) {
 			this.history.remove(0);
 		}
 

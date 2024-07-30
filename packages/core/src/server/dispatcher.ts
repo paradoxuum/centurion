@@ -2,11 +2,11 @@ import { t } from "@rbxts/t";
 import { CommandContext, CommandContextData, RegistryPath } from "../shared";
 import { BaseDispatcher } from "../shared/core/dispatcher";
 import { getInputText } from "../shared/util/string";
-import { ServerOptions } from "./types";
+import { ServerConfig } from "./types";
 
 const isStringArray = t.array(t.string);
 
-export class ServerDispatcher extends BaseDispatcher {
+export class ServerDispatcher extends BaseDispatcher<ServerConfig> {
 	/**
 	 * Initializes the server dispatcher.
 	 *
@@ -16,14 +16,8 @@ export class ServerDispatcher extends BaseDispatcher {
 	 * @param options Server options
 	 * @ignore
 	 */
-	init(options: ServerOptions) {
-		super.init(options);
-
-		assert(
-			options.network !== undefined,
-			"Server options must include network options",
-		);
-		options.network.execute.SetCallback((executor, path, args) => {
+	init() {
+		this.config.network.execute.SetCallback((executor, path, args) => {
 			if (!t.string(path) || !isStringArray(args)) {
 				return {
 					args: [],
@@ -79,20 +73,24 @@ export class ServerDispatcher extends BaseDispatcher {
 		return this.executeCommand(path, inputText, args, executor).catch((err) => {
 			this.handleError(inputText, err, executor);
 
-			const context = new CommandContext(path, args, inputText, executor);
-			context.state = this.defaultContextState;
+			const context = new CommandContext(
+				this.logger,
+				path,
+				args,
+				inputText,
+				executor,
+			);
+			context.state = this.config.defaultContextState;
 			context.error("An error occurred.");
 			return context;
 		});
 	}
 
 	private handleError(input: string, err: unknown, executor?: Player) {
-		if (executor === undefined) {
-			warn(`An error occurred while running '${input}': ${err}`);
-		} else {
-			warn(
-				`${executor.Name} tried to run '${input}' but an error occurred: ${err}`,
-			);
-		}
+		const executorText =
+			executor !== undefined ? `executor '${executor.Name}'` : "no executor";
+		this.logger.warn(
+			`Failed to execute '${input}' with ${executorText}: ${err}`,
+		);
 	}
 }

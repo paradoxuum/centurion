@@ -9,7 +9,7 @@ export = (registry: BaseRegistry) => {
 			disableDefaultReply: true,
 		},
 		() => {
-			Centurion.client().dispatcher().clearHistory();
+			Centurion.client().dispatcher.clearHistory();
 		},
 	);
 };
