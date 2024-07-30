@@ -52,6 +52,8 @@ export class CenturionServer {
 
 	/**
 	 * Starts {@link CenturionServer}.
+	 *
+	 * @param callback A callback that is called after the registry has been initialized.
 	 */
 	async start(callback?: (registry: ServerRegistry) => void) {
 		this.logger.assert(!this.started, "Centurion has already been started");
