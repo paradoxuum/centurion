@@ -1,14 +1,12 @@
 import { RunService } from "@rbxts/services";
 import { DEFAULT_CONFIG } from "../shared/config";
 import { getRemotes } from "../shared/network";
-import { CenturionLogger } from "../shared/util/log";
 import { ServerDispatcher } from "./dispatcher";
 import { ServerRegistry } from "./registry";
 import { ServerConfig } from "./types";
 
 export class CenturionServer {
 	private started = false;
-	private readonly logger: CenturionLogger;
 	readonly registry: ServerRegistry;
 	readonly dispatcher: ServerDispatcher;
 	readonly config: Readonly<ServerConfig>;
@@ -47,7 +45,6 @@ export class CenturionServer {
 		});
 		this.registry = new ServerRegistry(this.config);
 		this.dispatcher = new ServerDispatcher(this.config, this.registry);
-		this.logger = new CenturionLogger(this.config.logLevel, "Core");
 	}
 
 	/**
@@ -56,10 +53,10 @@ export class CenturionServer {
 	 * @param callback A callback that is called after the registry has been initialized.
 	 */
 	async start(callback?: (registry: ServerRegistry) => void) {
-		this.logger.assert(!this.started, "Centurion has already been started");
+		assert(!this.started, "Centurion has already been started");
 
-		this.dispatcher.init();
 		this.registry.init();
+		this.dispatcher.init();
 		callback?.(this.registry);
 		this.started = true;
 	}

@@ -1,13 +1,23 @@
 import { Signal } from "@rbxts/beacon";
-import { Players } from "@rbxts/services";
-import { RegistryPath } from "../shared";
+import { Players, UserInputService } from "@rbxts/services";
+import { CommandShortcut, RegistryPath } from "../shared";
+import { BaseCommand } from "../shared/core/command";
 import { BaseDispatcher } from "../shared/core/dispatcher";
 import { getInputText } from "../shared/util/string";
 import { ClientConfig, HistoryEntry } from "./types";
+import { getShortcutKeycodes, isShortcutContext } from "./util";
 
 export class ClientDispatcher extends BaseDispatcher<ClientConfig> {
 	private readonly history: HistoryEntry[] = [];
 	readonly historyUpdated = new Signal<[history: HistoryEntry[]]>();
+
+	init() {
+		if (this.config.shortcutsEnabled) {
+			this.registry.commandRegistered.Connect((command) =>
+				this.handleShortcuts(command),
+			);
+		}
+	}
 
 	/**
 	 * Executes a command.
@@ -88,5 +98,32 @@ export class ClientDispatcher extends BaseDispatcher<ClientConfig> {
 	clearHistory() {
 		this.history.clear();
 		this.historyUpdated.Fire(this.history);
+	}
+
+	private handleShortcuts(command: BaseCommand) {
+		if (command.options.shortcuts === undefined) return;
+
+		const commandPath = command.getPath();
+		for (const shortcut of command.options.shortcuts) {
+			const keys = new Set(getShortcutKeycodes(shortcut as CommandShortcut));
+			const keyCount = keys.size();
+			if (keyCount === 0) continue;
+
+			const args = isShortcutContext(shortcut) ? shortcut.arguments : undefined;
+			UserInputService.InputBegan.Connect((input, gameProcessed) => {
+				if (gameProcessed) return;
+				if (input.UserInputType !== Enum.UserInputType.Keyboard) return;
+
+				const keysPressed = UserInputService.GetKeysPressed();
+				if (
+					keysPressed.size() !== keyCount ||
+					!keysPressed.every((key) => keys.has(key.KeyCode))
+				) {
+					return;
+				}
+
+				this.run(commandPath, args);
+			});
+		}
 	}
 }

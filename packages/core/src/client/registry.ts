@@ -10,6 +10,19 @@ export class ClientRegistry extends BaseRegistry<ClientConfig> {
 	private initialSyncReceived = false;
 	private syncedPaths = new Set<string>();
 
+	init() {
+		super.init();
+		if (this.config.registerBuiltInCommands) {
+			const commands =
+				script.Parent?.WaitForChild("builtin").WaitForChild("commands");
+			this.logger.assert(
+				commands !== undefined,
+				"Failed to locate built-in commands",
+			);
+			this.load(commands);
+		}
+	}
+
 	/**
 	 * Begins registry synchronisation to the server.
 	 *

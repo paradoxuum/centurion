@@ -12,7 +12,7 @@ export abstract class BaseDispatcher<C extends SharedConfig> {
 
 	constructor(
 		protected readonly config: C,
-		private readonly registry: BaseRegistry<C>,
+		protected readonly registry: BaseRegistry<C>,
 	) {
 		this.logger = new CenturionLogger(config.logLevel, "Dispatcher");
 	}
