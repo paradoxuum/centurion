@@ -2,12 +2,10 @@ import { ImmutableRegistryPath } from "@rbxts/centurion";
 import { splitString } from "@rbxts/centurion/out/shared/util/string";
 import { atom, computed } from "@rbxts/charm";
 import { DEFAULT_INTERFACE_OPTIONS } from "./constants/options";
-import { InterfaceOptions, Suggestion } from "./types";
+import { Suggestion } from "./types";
 
 export const interfaceVisible = atom(false);
-export const interfaceOptions = atom<InterfaceOptions>(
-	DEFAULT_INTERFACE_OPTIONS,
-);
+export const interfaceOptions = atom(DEFAULT_INTERFACE_OPTIONS);
 export const mouseOverInterface = atom(false);
 
 export const currentCommandPath = atom<ImmutableRegistryPath | undefined>(
