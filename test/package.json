@@ -8,9 +8,9 @@
     },
     "devDependencies": {
         "@rbxts/compiler-types": "^2.3.0-types.1",
-        "@rbxts/types": "^1.0.790",
+        "@rbxts/types": "^1.0.792",
         "roblox-ts": "2.3.0-dev-26ec859",
-        "typescript": "~5.5.3"
+        "typescript": "~5.5.4"
     },
     "dependencies": {
         "@rbxts/centurion": "workspace:^",
