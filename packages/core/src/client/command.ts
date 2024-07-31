@@ -5,13 +5,14 @@ import {
 } from "../shared";
 import { BaseCommand } from "../shared/core/command";
 import { BaseRegistry } from "../shared/core/registry";
+import { ReadonlyDeep } from "../shared/util/data";
 import { ClientConfig, ClientRemotes } from "./types";
 
 export class ServerCommand extends BaseCommand {
 	private readonly remote: ClientRemotes.Execute;
 
 	constructor(
-		config: ClientConfig,
+		config: ReadonlyDeep<ClientConfig>,
 		registry: BaseRegistry,
 		path: ImmutableRegistryPath,
 		options: CommandOptions,

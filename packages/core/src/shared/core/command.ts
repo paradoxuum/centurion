@@ -7,7 +7,7 @@ import {
 	GroupOptions,
 	SharedConfig,
 } from "../types";
-import { ObjectUtil, ReadonlyDeepObject } from "../util/data";
+import { ObjectUtil, ReadonlyDeep, ReadonlyDeepObject } from "../util/data";
 import { CenturionLogger } from "../util/log";
 import { TransformResult } from "../util/type";
 import { CommandContext } from "./context";
@@ -21,7 +21,7 @@ export abstract class BaseCommand {
 	readonly options: ReadonlyDeepObject<CommandOptions>;
 
 	constructor(
-		config: SharedConfig,
+		config: ReadonlyDeep<SharedConfig>,
 		registry: BaseRegistry,
 		path: ImmutableRegistryPath,
 		options: CommandOptions,
@@ -79,7 +79,7 @@ export class ExecutableCommand extends BaseCommand {
 	private readonly guards: ReadonlyArray<CommandGuard>;
 
 	constructor(
-		config: SharedConfig,
+		config: ReadonlyDeep<SharedConfig>,
 		registry: BaseRegistry,
 		path: ImmutableRegistryPath,
 		options: CommandOptions,
@@ -147,10 +147,10 @@ export class CommandGroup {
 	private readonly commands = new Map<string, BaseCommand>();
 	private readonly groups = new Map<string, CommandGroup>();
 	private readonly logger: CenturionLogger;
-	readonly options: ReadonlyDeepObject<GroupOptions>;
+	readonly options: ReadonlyDeep<GroupOptions>;
 
 	constructor(
-		config: SharedConfig,
+		config: ReadonlyDeep<SharedConfig>,
 		readonly path: ImmutableRegistryPath,
 		options: GroupOptions,
 	) {

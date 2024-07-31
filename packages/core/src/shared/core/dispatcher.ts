@@ -1,4 +1,5 @@
 import { SharedConfig } from "../types";
+import { ReadonlyDeep } from "../util/data";
 import { CenturionLogLevel, CenturionLogger } from "../util/log";
 import { getInputText } from "../util/string";
 import { CommandContext } from "./context";
@@ -7,7 +8,9 @@ import { BaseRegistry } from "./registry";
 
 const DEFAULT_REPLY_TEXT = "Command executed.";
 
-export abstract class BaseDispatcher<C extends SharedConfig> {
+export abstract class BaseDispatcher<
+	C extends ReadonlyDeep<SharedConfig> = ReadonlyDeep<SharedConfig>,
+> {
 	protected logger: CenturionLogger;
 
 	constructor(

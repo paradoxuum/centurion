@@ -3,11 +3,14 @@ import { Players, UserInputService } from "@rbxts/services";
 import { CommandShortcut, RegistryPath } from "../shared";
 import { BaseCommand } from "../shared/core/command";
 import { BaseDispatcher } from "../shared/core/dispatcher";
+import { ReadonlyDeep } from "../shared/util/data";
 import { getInputText } from "../shared/util/string";
 import { ClientConfig, HistoryEntry } from "./types";
 import { getShortcutKeycodes, isShortcutContext } from "./util";
 
-export class ClientDispatcher extends BaseDispatcher<ClientConfig> {
+export class ClientDispatcher extends BaseDispatcher<
+	ReadonlyDeep<ClientConfig>
+> {
 	private readonly history: HistoryEntry[] = [];
 	readonly historyUpdated = new Signal<[history: HistoryEntry[]]>();
 

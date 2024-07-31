@@ -10,6 +10,7 @@ import {
 	RegisterOptions,
 	SharedConfig,
 } from "../types";
+import { ReadonlyDeep } from "../util/data";
 import { CenturionLogger } from "../util/log";
 import { MetadataReflect } from "../util/reflect";
 import { BaseCommand, CommandGroup, ExecutableCommand } from "./command";
@@ -29,7 +30,9 @@ function isArgumentType(value: unknown): value is ArgumentType<unknown> {
 	return argTypeSchema(value);
 }
 
-export abstract class BaseRegistry<C extends SharedConfig = SharedConfig> {
+export abstract class BaseRegistry<
+	C extends ReadonlyDeep<SharedConfig> = ReadonlyDeep<SharedConfig>,
+> {
 	private static readonly ROOT_KEY = "__root__";
 	private readonly loadModule: (module: ModuleScript) => unknown;
 
@@ -46,7 +49,7 @@ export abstract class BaseRegistry<C extends SharedConfig = SharedConfig> {
 
 	constructor(protected readonly config: C) {
 		this.logger = new CenturionLogger(config.logLevel, "Registry");
-		this.globalGuards = config.guards ?? [];
+		this.globalGuards = [...config.guards] ?? [];
 
 		const tsImpl = (_G as Map<unknown, unknown>).get(script);
 		this.loadModule = t.interface({

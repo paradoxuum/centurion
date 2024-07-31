@@ -1,5 +1,6 @@
 import { CommandContextData, SharedConfig } from "../shared";
 import { SyncData } from "../shared/network";
+import { ReadonlyDeep } from "../shared/util/data";
 import { ClientDispatcher } from "./dispatcher";
 import { ClientRegistry } from "./registry";
 
@@ -15,7 +16,7 @@ export interface ClientConfig extends SharedConfig {
 export interface ClientAPI {
 	registry: ClientRegistry;
 	dispatcher: ClientDispatcher;
-	config: ClientConfig;
+	config: ReadonlyDeep<ClientConfig>;
 }
 
 export interface ClientNetworkConfig {

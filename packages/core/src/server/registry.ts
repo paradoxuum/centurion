@@ -3,9 +3,10 @@ import { CommandOptions, GroupOptions } from "../shared";
 import { BaseCommand, CommandGroup } from "../shared/core/command";
 import { BaseRegistry } from "../shared/core/registry";
 import { SyncData } from "../shared/network";
+import { ReadonlyDeep } from "../shared/util/data";
 import { ServerConfig } from "./types";
 
-export class ServerRegistry extends BaseRegistry<ServerConfig> {
+export class ServerRegistry extends BaseRegistry<ReadonlyDeep<ServerConfig>> {
 	/**
 	 * Initializes the server registry.
 	 *

@@ -2,11 +2,12 @@ import { RunService } from "@rbxts/services";
 import { CommandOptions, GroupOptions, ImmutableRegistryPath } from "../shared";
 import { CommandGroup } from "../shared/core/command";
 import { BaseRegistry } from "../shared/core/registry";
+import { ReadonlyDeep } from "../shared/util/data";
 import { CenturionLogLevel } from "../shared/util/log";
 import { ServerCommand } from "./command";
 import { ClientConfig } from "./types";
 
-export class ClientRegistry extends BaseRegistry<ClientConfig> {
+export class ClientRegistry extends BaseRegistry<ReadonlyDeep<ClientConfig>> {
 	private initialSyncReceived = false;
 	private syncedPaths = new Set<string>();
 

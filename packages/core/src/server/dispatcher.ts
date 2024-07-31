@@ -1,12 +1,15 @@
 import { t } from "@rbxts/t";
 import { CommandContext, CommandContextData, RegistryPath } from "../shared";
 import { BaseDispatcher } from "../shared/core/dispatcher";
+import { ReadonlyDeep } from "../shared/util/data";
 import { getInputText } from "../shared/util/string";
 import { ServerConfig } from "./types";
 
 const isStringArray = t.array(t.string);
 
-export class ServerDispatcher extends BaseDispatcher<ServerConfig> {
+export class ServerDispatcher extends BaseDispatcher<
+	ReadonlyDeep<ServerConfig>
+> {
 	/**
 	 * Initializes the server dispatcher.
 	 *

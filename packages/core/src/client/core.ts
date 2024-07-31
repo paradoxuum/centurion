@@ -1,6 +1,7 @@
 import { RunService } from "@rbxts/services";
 import { DEFAULT_CONFIG } from "../shared/config";
 import { getRemotes } from "../shared/network";
+import { ObjectUtil, ReadonlyDeep } from "../shared/util/data";
 import { ClientDispatcher } from "./dispatcher";
 import { ClientRegistry } from "./registry";
 import { ClientConfig } from "./types";
@@ -9,7 +10,7 @@ export class CenturionClient {
 	private started = false;
 	readonly registry: ClientRegistry;
 	readonly dispatcher: ClientDispatcher;
-	readonly config: ClientConfig;
+	readonly config: ReadonlyDeep<ClientConfig>;
 
 	constructor(config: Partial<ClientConfig> = {}) {
 		assert(
@@ -35,7 +36,7 @@ export class CenturionClient {
 			};
 		}
 
-		this.config = {
+		this.config = ObjectUtil.freezeDeep({
 			...DEFAULT_CONFIG,
 			historyLength: 1000,
 			registerBuiltInCommands: true,
@@ -43,7 +44,7 @@ export class CenturionClient {
 			syncTimeout: 10,
 			network: networkConfig,
 			...config,
-		};
+		});
 		this.registry = new ClientRegistry(this.config);
 		this.dispatcher = new ClientDispatcher(this.config, this.registry);
 	}
