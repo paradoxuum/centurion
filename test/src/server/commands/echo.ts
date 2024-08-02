@@ -15,23 +15,12 @@ export class EchoCommand {
 				name: "text",
 				description: "The text to print",
 				type: CenturionType.String,
-				optional: true,
-			},
-		],
-		shortcuts: [
-			Enum.KeyCode.H,
-			{
-				keys: [Enum.KeyCode.LeftAlt, Enum.KeyCode.H],
-				arguments: ["Alt + H pressed"],
+				numArgs: "rest",
 			},
 		],
 		aliases: ["print"],
 	})
-	run(_: CommandContext, text?: string) {
-		if (text !== undefined) {
-			print(text);
-		} else {
-			print("Hello World!");
-		}
+	run(_: CommandContext, text: string[]) {
+		print(text.join(" "));
 	}
 }

@@ -111,7 +111,11 @@ ban() {}
 ## `ArgumentOptions`
 
 - **name**: `string` - The name of the argument.
+- **description**: `string` - The argument's description.
 - **type**: `string` - The argument's type. Must be the name of a registered type.
+- **numArgs**: `number | "rest"` - The number of inputs the argument should accept. This will produce
+an array of values. If set to `rest`, it will accept all remaining arguments, but can only be used
+on the last argument.
 - **optional**: `boolean?` - Whether the argument is optional.
 - **suggestions**: `string[]?` - An array of suggestions for the argument.
 These will be added to the suggestions returned by the argument's type.

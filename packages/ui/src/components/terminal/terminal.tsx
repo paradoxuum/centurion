@@ -1,4 +1,5 @@
-import { ArrayUtil } from "@rbxts/centurion/out/shared/util/data";
+import { ArgumentOptions } from "@rbxts/centurion";
+import { ArrayUtil, ReadonlyDeep } from "@rbxts/centurion/out/shared/util/data";
 import { endsWithSpace } from "@rbxts/centurion/out/shared/util/string";
 import Vide, { effect, source } from "@rbxts/vide";
 import { HISTORY_TEXT_SIZE } from "../../constants/text";
@@ -8,7 +9,6 @@ import { useHistory } from "../../hooks/use-history";
 import { useMotion } from "../../hooks/use-motion";
 import { px } from "../../hooks/use-px";
 import {
-	argText,
 	currentArgIndex,
 	currentCommandPath,
 	currentSuggestion,
@@ -134,25 +134,40 @@ export function Terminal() {
 					if (command === undefined || argIndex === -1) return;
 
 					const args = command.options.arguments;
-					if (args === undefined || argIndex >= args.size()) {
+					if (args === undefined || argIndex === -1) {
 						currentSuggestion(undefined);
 						return;
 					}
 
-					const arg = args[argIndex];
-					const argType = api.registry.getType(arg.type);
-					if (argType === undefined) {
+					let index = 0;
+					let currentArg: ReadonlyDeep<ArgumentOptions> | undefined;
+					let endIndex: number | undefined = -1;
+					for (const i of $range(0, argIndex)) {
+						if (endIndex === undefined || i <= endIndex) continue;
+						if (index >= args.size()) {
+							currentArg = undefined;
+							break;
+						}
+
+						currentArg = args[index];
+						const numArgs = currentArg.numArgs ?? 1;
+						endIndex = numArgs !== "rest" ? i + (numArgs - 1) : undefined;
+						index += 1;
+					}
+
+					const argType = api.registry.getType(currentArg?.type ?? "");
+					if (currentArg === undefined || argType === undefined) {
+						currentArgIndex(undefined);
 						currentSuggestion(undefined);
 						return;
 					}
 
 					const suggestion = getArgumentSuggestion(
-						arg,
+						currentArg,
 						argType,
 						currentTextPart,
 					);
 
-					argText(currentTextPart ?? "");
 					currentArgIndex(argIndex);
 					currentSuggestion(suggestion);
 					if (suggestion?.error !== undefined) terminalTextValid(false);

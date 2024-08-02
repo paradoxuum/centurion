@@ -7,15 +7,25 @@ import {
 	GroupOptions,
 	SharedConfig,
 } from "../types";
-import { ObjectUtil, ReadonlyDeep, ReadonlyDeepObject } from "../util/data";
+import {
+	ArrayUtil,
+	ObjectUtil,
+	ReadonlyDeep,
+	ReadonlyDeepObject,
+} from "../util/data";
 import { CenturionLogger } from "../util/log";
 import { TransformResult } from "../util/type";
 import { CommandContext } from "./context";
 import { ImmutableRegistryPath } from "./path";
 import { BaseRegistry } from "./registry";
 
+interface ArgumentData {
+	options: ArgumentOptions;
+	type: ArgumentType<unknown>;
+}
+
 export abstract class BaseCommand {
-	protected readonly argTypes: ArgumentType<unknown>[] = [];
+	protected readonly arguments: ArgumentData[] = [];
 	protected readonly path: ImmutableRegistryPath;
 	protected readonly logger: CenturionLogger;
 	readonly options: ReadonlyDeepObject<CommandOptions>;
@@ -33,6 +43,7 @@ export abstract class BaseCommand {
 		if (options.arguments === undefined) return;
 
 		let hadOptional = false;
+		const lastIndex = options.arguments.size() - 1;
 		for (const i of $range(0, options.arguments.size() - 1)) {
 			const arg: ArgumentOptions | undefined = options.arguments[i];
 			if (arg.optional === true) {
@@ -43,12 +54,25 @@ export abstract class BaseCommand {
 				);
 			}
 
+			if (typeIs(arg.numArgs, "number") && arg.numArgs < 1) {
+				this.logger.error(
+					`Command '${options.name}' has an argument that requires less than 1 argument (arg ${arg.name} at position ${i + 1})`,
+				);
+			} else if (arg.numArgs === "rest" && i !== lastIndex) {
+				this.logger.error(
+					`Command '${options.name}' has a rest argument that is not the last argument (arg ${arg.name} at position ${i + 1})`,
+				);
+			}
+
 			const argType = registry.getType(arg.type);
 			this.logger.assert(
 				argType !== undefined,
 				`Argument '${arg.name}' uses a type that is unregistered: ${arg.type}`,
 			);
-			this.argTypes.push(argType);
+			this.arguments.push({
+				options: arg,
+				type: argType,
+			});
 		}
 	}
 
@@ -116,23 +140,49 @@ export class ExecutableCommand extends BaseCommand {
 			return TransformResult.ok([]);
 		}
 
-		const endIndex = args.size() - 1;
+		const endIndex = this.arguments.size() - 1;
 		const transformedArgs: unknown[] = [];
-		for (const i of $range(0, this.argTypes.size() - 1)) {
-			const argType = this.argTypes[i];
-			if (argType === undefined) continue;
 
-			const argData = argOptions[i];
-			if (i > endIndex) {
-				if (argData.optional) break;
+		let argIndex = 0;
+		for (const arg of this.arguments) {
+			const argument = this.arguments[math.min(argIndex, endIndex)];
+			const numArgs = argument.options.numArgs ?? 1;
+			const isNum = numArgs !== "rest";
+			const argInputs = ArrayUtil.slice(
+				args,
+				argIndex,
+				isNum ? argIndex + numArgs : undefined,
+			);
+
+			if (argInputs.isEmpty()) {
+				if (arg.options.optional) break;
 				return TransformResult.err(
-					`Missing required argument: <b>${argData.name}</b>`,
+					`Missing required argument: <b>${arg.options.name}</b>`,
 				);
 			}
 
-			const transformedArg = argType.transform(args[i], context.executor);
-			if (!transformedArg.ok) return TransformResult.err(transformedArg.value);
-			transformedArgs[i] = transformedArg.value;
+			if (isNum && argInputs.size() < numArgs) {
+				return TransformResult.err(
+					`Argument <b>${arg.options.name}</b> requires ${numArgs} argument(s), but only ${argInputs.size()} were provided`,
+				);
+			}
+
+			const argValues: unknown[] = [];
+			for (const i of $range(0, argInputs.size() - 1)) {
+				const transformedArg = arg.type.transform(
+					argInputs[i],
+					context.executor,
+				);
+
+				if (!transformedArg.ok) {
+					return TransformResult.err(transformedArg.value);
+				}
+				argValues[i] = transformedArg.value;
+			}
+
+			transformedArgs[argIndex] =
+				arg.options.numArgs !== undefined ? argValues : argValues[0];
+			argIndex += 1;
 		}
 
 		return TransformResult.ok(transformedArgs);

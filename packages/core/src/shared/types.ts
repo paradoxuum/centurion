@@ -33,6 +33,7 @@ export interface ArgumentOptions {
 	name: string;
 	description: string;
 	type: string;
+	numArgs?: number | "rest";
 	optional?: boolean;
 	suggestions?: string[];
 }
