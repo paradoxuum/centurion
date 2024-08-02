@@ -1,9 +1,5 @@
-import { ImmutableRegistryPath, RegistryPath } from "@rbxts/centurion";
 import { ArrayUtil } from "@rbxts/centurion/out/shared/util/data";
-import {
-	endsWithSpace,
-	formatPartsAsPath,
-} from "@rbxts/centurion/out/shared/util/string";
+import { endsWithSpace } from "@rbxts/centurion/out/shared/util/string";
 import Vide, { effect, source } from "@rbxts/vide";
 import { HISTORY_TEXT_SIZE } from "../../constants/text";
 import { getAPI } from "../../hooks/use-api";
@@ -12,6 +8,7 @@ import { useHistory } from "../../hooks/use-history";
 import { useMotion } from "../../hooks/use-motion";
 import { px } from "../../hooks/use-px";
 import {
+	argText,
 	currentArgIndex,
 	currentCommandPath,
 	currentSuggestion,
@@ -21,15 +18,11 @@ import {
 	terminalTextParts,
 	terminalTextValid,
 } from "../../store";
-import { Suggestion } from "../../types";
-import { getMissingArgs } from "../../util/argument";
-import {
-	getArgumentSuggestion,
-	getCommandSuggestion,
-} from "../../util/suggestion";
 import { HistoryList } from "../history";
 import { Frame } from "../ui/frame";
 import { Padding } from "../ui/padding";
+import { getMissingArgs, getValidPath } from "./command";
+import { getArgumentSuggestion, getCommandSuggestion } from "./suggestion";
 import { TerminalTextField } from "./terminal-text-field";
 
 const MAX_HEIGHT = HISTORY_TEXT_SIZE * 10;
@@ -85,6 +78,7 @@ export function Terminal() {
 				onTextChange={(text) => {
 					terminalText(text);
 					terminalTextValid(false);
+					missingArgs([]);
 
 					const parts = terminalTextParts();
 					if (parts.isEmpty()) {
@@ -95,60 +89,19 @@ export function Terminal() {
 					}
 
 					// If the text ends in a space, we want to count that as having traversed
-					// to the next "part" of the text. This means we should include the previous
-					// text part as part of the parent path.
+					// to the next "part" of the text.
 					const atNextPart = endsWithSpace(text);
-
-					let commandPath = currentCommandPath();
-					let atCommand = false;
-					if (
-						commandPath !== undefined &&
-						formatPartsAsPath(ArrayUtil.slice(parts, 0, commandPath.size())) ===
-							commandPath.toString()
-					) {
-						// The current path still leads to the command, so it's valid
-						atCommand = true;
-					} else if (
-						api.registry.getCommandByString(formatPartsAsPath(parts)) !==
-						undefined
-					) {
-						atCommand = true;
-						commandPath = new ImmutableRegistryPath(parts);
-					} else {
-						const currentPath = RegistryPath.empty();
-						for (const part of parts) {
-							currentPath.append(part);
-
-							if (api.registry.getCommand(currentPath) !== undefined) {
-								atCommand = true;
-								break;
-							}
-
-							if (api.registry.getChildPaths(currentPath).isEmpty()) {
-								atCommand = false;
-								break;
-							}
-						}
-
-						commandPath = ImmutableRegistryPath.fromPath(currentPath);
-					}
-
-					const currentPath = currentCommandPath();
-					if (!atCommand && currentPath !== undefined) {
-						currentCommandPath(undefined);
-					} else if (atCommand && commandPath !== currentPath) {
-						currentCommandPath(commandPath);
-					}
-
+					const path = getValidPath(api.registry, parts);
 					const command =
-						commandPath !== undefined
-							? api.registry.getCommand(commandPath)?.options
-							: undefined;
-					if (commandPath !== undefined && command !== undefined) {
-						const missing = getMissingArgs(api.registry, commandPath, parts);
-						missingArgs(missing);
+						path !== undefined ? api.registry.getCommand(path) : undefined;
 
-						const noArgs = command.arguments?.isEmpty() ?? true;
+					if (command !== undefined) {
+						// Check for missing arguments
+						const missing = getMissingArgs(command, parts);
+						const noArgs = command.options.arguments?.isEmpty() ?? true;
+
+						currentCommandPath(path);
+						missingArgs(missing);
 						terminalTextValid(
 							noArgs ||
 								missing.isEmpty() ||
@@ -158,52 +111,51 @@ export function Terminal() {
 						terminalTextValid(false);
 					}
 
-					// Update suggestions
-					const showArgs =
-						atCommand &&
-						(atNextPart ||
-							(commandPath !== undefined && parts.size() > commandPath.size()));
-
-					const argCount =
-						showArgs && command !== undefined
-							? command.arguments?.size() ?? 0
-							: 0;
 					const currentTextPart = !atNextPart
 						? parts[parts.size() - 1]
 						: undefined;
 
-					let suggestion: Suggestion | undefined;
-					if (argCount === 0) {
-						const parentPath = atNextPart
-							? commandPath
-							: commandPath.size() !== 1
-								? commandPath.parent()
-								: undefined;
-						suggestion = getCommandSuggestion(
-							api.registry,
-							parentPath,
-							currentTextPart,
+					if (path === undefined || command === undefined) {
+						// Get command suggestions
+						const index = parts.size() - (atNextPart ? 1 : 2);
+						const parentPath = path?.slice(0, index);
+						currentSuggestion(
+							getCommandSuggestion(
+								api.registry,
+								!parentPath?.isEmpty() ? parentPath : undefined,
+								currentTextPart,
+							),
 						);
-					} else if (commandPath !== undefined) {
-						// Handle argument suggestions
-						const argIndex =
-							parts.size() - commandPath.size() - (atNextPart ? 0 : 1);
-						if (argIndex >= argCount) return;
-
-						currentArgIndex(argIndex);
-						suggestion = getArgumentSuggestion(
-							api.registry,
-							commandPath,
-							argIndex,
-							currentTextPart,
-						);
-
-						if (suggestion?.error !== undefined) {
-							terminalTextValid(false);
-						}
+						return;
 					}
 
+					// Handle arguments
+					const argIndex = parts.size() - path.size() - (atNextPart ? 0 : 1);
+					if (command === undefined || argIndex === -1) return;
+
+					const args = command.options.arguments;
+					if (args === undefined || argIndex >= args.size()) {
+						currentSuggestion(undefined);
+						return;
+					}
+
+					const arg = args[argIndex];
+					const argType = api.registry.getType(arg.type);
+					if (argType === undefined) {
+						currentSuggestion(undefined);
+						return;
+					}
+
+					const suggestion = getArgumentSuggestion(
+						arg,
+						argType,
+						currentTextPart,
+					);
+
+					argText(currentTextPart ?? "");
+					currentArgIndex(argIndex);
 					currentSuggestion(suggestion);
+					if (suggestion?.error !== undefined) terminalTextValid(false);
 				}}
 				onSubmit={() => {
 					const commandPath = currentCommandPath();

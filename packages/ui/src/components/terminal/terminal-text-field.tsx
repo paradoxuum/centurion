@@ -19,11 +19,11 @@ import {
 	terminalTextParts,
 	terminalTextValid,
 } from "../../store";
-import { getArgumentNames } from "../../util/argument";
 import { Frame } from "../ui/frame";
 import { Padding } from "../ui/padding";
 import { Text } from "../ui/text";
 import { TextField } from "../ui/text-field";
+import { getArgumentNames } from "./command";
 
 interface TerminalTextFieldProps {
 	anchorPoint?: Derivable<Vector2>;

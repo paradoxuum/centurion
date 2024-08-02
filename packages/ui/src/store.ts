@@ -28,3 +28,21 @@ export const currentTextPart = computed(() => {
 	return textParts[index];
 });
 export const terminalTextValid = atom(false);
+
+export const argText = atom<string | undefined>(undefined);
+export const argTextParts = computed(() => {
+	const text = argText();
+	if (text === undefined) return [];
+	return splitString(text, ",");
+});
+export const currentArgPart = computed(() => {
+	const text = argText();
+	if (text === undefined) return;
+
+	const textParts = argTextParts();
+
+	const endsWithSeparator = textParts.size() > 0 && text.match(",$").size() > 0;
+	const index = endsWithSeparator ? textParts.size() : textParts.size() - 1;
+	if (index === -1 || index >= textParts.size()) return;
+	return textParts[index];
+});

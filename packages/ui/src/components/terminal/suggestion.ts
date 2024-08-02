@@ -1,7 +1,13 @@
-import { BaseRegistry, CommandOptions, RegistryPath } from "@rbxts/centurion";
-import { ArrayUtil } from "@rbxts/centurion/out/shared/util/data";
+import {
+	ArgumentOptions,
+	ArgumentType,
+	BaseRegistry,
+	CommandOptions,
+	RegistryPath,
+} from "@rbxts/centurion";
+import { ArrayUtil, ReadonlyDeep } from "@rbxts/centurion/out/shared/util/data";
 import { Players } from "@rbxts/services";
-import { ArgumentSuggestion, Suggestion } from "../types";
+import { ArgumentSuggestion, CommandSuggestion } from "../../types";
 
 const MAX_OTHER_SUGGESTIONS = 3;
 
@@ -37,26 +43,14 @@ function getSortedIndices(max: number, strings: string[], text?: string) {
 }
 
 export function getArgumentSuggestion(
-	registry: BaseRegistry,
-	path: RegistryPath,
-	index: number,
+	arg: ReadonlyDeep<ArgumentOptions>,
+	argType: ArgumentType<unknown>,
 	text?: string,
 ): ArgumentSuggestion | undefined {
-	const command = registry.getCommand(path);
-	if (command === undefined) return;
-
-	const args = command.options.arguments;
-	if (args === undefined || args.isEmpty()) return;
-	if (index < 0 || index >= args.size()) return;
-
-	const arg = args[index];
-	const typeObject = registry.getType(arg.type);
-	if (typeObject === undefined) return;
-
 	const argSuggestions =
 		arg.suggestions !== undefined ? [...arg.suggestions] : [];
-	if (typeObject.suggestions !== undefined) {
-		for (const suggestion of typeObject.suggestions(
+	if (argType.suggestions !== undefined) {
+		for (const suggestion of argType.suggestions(
 			text ?? "",
 			Players.LocalPlayer,
 		)) {
@@ -68,11 +62,8 @@ export function getArgumentSuggestion(
 	// If the transformation fails, include the error message in the suggestion
 	let errorText: string | undefined;
 	const [success, err] = pcall(() => {
-		if (typeObject.expensive) return;
-		const transformResult = typeObject.transform(
-			text ?? "",
-			Players.LocalPlayer,
-		);
+		if (argType.expensive) return;
+		const transformResult = argType.transform(text ?? "", Players.LocalPlayer);
 
 		if (transformResult.ok) return;
 		errorText = transformResult.value;
@@ -94,7 +85,7 @@ export function getArgumentSuggestion(
 		title: arg.name,
 		others: otherSuggestions,
 		description: arg.description,
-		dataType: typeObject.name,
+		dataType: argType.name,
 		optional: arg.optional ?? false,
 		error: errorText,
 	};
@@ -104,7 +95,7 @@ export function getCommandSuggestion(
 	registry: BaseRegistry,
 	parentPath?: RegistryPath,
 	text?: string,
-): Suggestion | undefined {
+): CommandSuggestion | undefined {
 	const paths =
 		parentPath !== undefined
 			? registry.getChildPaths(parentPath)
