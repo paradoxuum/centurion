@@ -11,7 +11,7 @@ Executes a command.
 **Parameters**:
 - `path` - The command's path
 - `args` - The arguments to pass to the command
-- `executor` - The command's executor, or `undefined` if the executor is the server
+- `executor` - The command's executor
 
 **Returns**:
 A `Promise` that resolves when the command has been executed. The value contained in the Promise is
@@ -25,14 +25,9 @@ Executes a command.
 
 If the path points to a server command, the command will be executed on the server.
 
-If `runAsPlayer` is set to `false`, the command will be executed with no executor. This only
-applies to commands registered on the client - commands registered on the server will always
-execute with the local player as the executor.
-
 **Parameters**:
 - `path` - The command's path
 - `args` - The arguments to pass to the command
-- `runAsPlayer` - Whether to run the command as the local player.
 
 **Returns**:
 A `Promise` that resolves when the command has been executed. The value contained in the Promise is

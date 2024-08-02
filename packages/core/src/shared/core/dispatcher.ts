@@ -21,26 +21,24 @@ export abstract class BaseDispatcher<
 	}
 
 	protected async executeCommand(
+		executor: Player,
 		path: RegistryPath,
 		inputText: string,
 		args: string[] = [],
-		executor?: Player,
 	) {
 		if (this.logger.level === CenturionLogLevel.Debug) {
-			const executorText =
-				executor !== undefined ? `executor '${executor.Name}'` : "no executor";
 			this.logger.debug(
-				`Executing command with ${executorText}: ${getInputText(path, args)}`,
+				`Executing command with executor '${executor.Name}': ${getInputText(path, args)}`,
 			);
 		}
 
 		const command = this.registry.getCommand(path);
 		const context = new CommandContext(
 			this.logger,
+			executor,
 			path,
 			args,
 			inputText,
-			executor,
 		);
 		context.state = this.config.defaultContextState;
 

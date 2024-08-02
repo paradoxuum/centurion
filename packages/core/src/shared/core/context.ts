@@ -11,10 +11,10 @@ export class CommandContext<S = unknown> {
 
 	constructor(
 		private readonly logger: CenturionLogger,
+		readonly executor: Player,
 		readonly path: RegistryPath,
 		readonly args: string[],
 		readonly input: string,
-		readonly executor?: Player,
 	) {}
 
 	/**

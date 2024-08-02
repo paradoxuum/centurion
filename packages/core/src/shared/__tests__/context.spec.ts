@@ -1,4 +1,5 @@
 import { expect, test } from "@rbxts/jest-globals";
+import { Players } from "@rbxts/services";
 import { CommandContext } from "../core/context";
 import { RegistryPath } from "../core/path";
 import { CommandContextData, CommandReply } from "../types";
@@ -8,7 +9,13 @@ import { getInputText } from "../util/string";
 const createContext = (args: string[] = []) => {
 	const path = RegistryPath.fromString("test");
 	const logger = new CenturionLogger(CenturionLogLevel.Debug);
-	return new CommandContext(logger, path, args, getInputText(path, args));
+	return new CommandContext(
+		logger,
+		Players.LocalPlayer,
+		path,
+		args,
+		getInputText(path, args),
+	);
 };
 
 test("contexts can be replied to", () => {

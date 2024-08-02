@@ -27,24 +27,19 @@ export class ClientDispatcher extends BaseDispatcher<
 	 *
 	 * If the path points to a server command, the command will be executed on the server.
 	 *
-	 * If `runAsPlayer` is set to `false`, the command will be executed with no executor. This only
-	 * applies to commands registered on the client - commands registered on the server will always
-	 * execute with the local player as the executor.
-	 *
 	 * @param path The command's path.
 	 * @param args The arguments to pass to the command.
-	 * @param runAsPlayer Whether to run the command as the local player.
 	 * @returns A {@link HistoryEntry} containing the command's response
 	 * @returns A {@link Promise} that resolves when the command has been executed. The value contained in the
 	 * Promise is a `HistoryEntry` object containing the command's response and the time it was executed.
 	 */
-	async run(path: RegistryPath, args: string[] = [], runAsPlayer = true) {
+	async run(path: RegistryPath, args: string[] = []) {
 		const inputText = getInputText(path, args);
 		const [success, context] = this.executeCommand(
+			Players.LocalPlayer,
 			path,
 			inputText,
 			args,
-			runAsPlayer ? Players.LocalPlayer : undefined,
 		).await();
 
 		if (!success) {

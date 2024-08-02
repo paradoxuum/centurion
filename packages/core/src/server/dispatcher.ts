@@ -36,7 +36,7 @@ export class ServerDispatcher extends BaseDispatcher<
 
 			const commandPath = RegistryPath.fromString(path);
 
-			const [success, data] = this.run(commandPath, args, executor)
+			const [success, data] = this.run(executor, commandPath, args)
 				.timeout(5)
 				.await();
 
@@ -45,7 +45,7 @@ export class ServerDispatcher extends BaseDispatcher<
 				contextData = data.getData();
 			} else {
 				const inputText = getInputText(commandPath, args);
-				this.handleError(inputText, data, executor);
+				this.handleError(executor, inputText, data);
 				contextData = {
 					args,
 					input: inputText,
@@ -71,17 +71,17 @@ export class ServerDispatcher extends BaseDispatcher<
 	 * @returns A {@link Promise} that resolves when the command has been executed. The value contained in the
 	 * Promise is a {@link CommandContext} instance containing the execution result.
 	 */
-	async run(path: RegistryPath, args: string[] = [], executor?: Player) {
+	async run(executor: Player, path: RegistryPath, args: string[] = []) {
 		const inputText = getInputText(path, args);
-		return this.executeCommand(path, inputText, args, executor).catch((err) => {
-			this.handleError(inputText, err, executor);
+		return this.executeCommand(executor, path, inputText, args).catch((err) => {
+			this.handleError(executor, inputText, err);
 
 			const context = new CommandContext(
 				this.logger,
+				executor,
 				path,
 				args,
 				inputText,
-				executor,
 			);
 			context.state = this.config.defaultContextState;
 			context.error("An error occurred.");
@@ -89,11 +89,9 @@ export class ServerDispatcher extends BaseDispatcher<
 		});
 	}
 
-	private handleError(input: string, err: unknown, executor?: Player) {
-		const executorText =
-			executor !== undefined ? `executor '${executor.Name}'` : "no executor";
+	private handleError(executor: Player, input: string, err: unknown) {
 		this.logger.warn(
-			`Failed to execute '${input}' with ${executorText}: ${err}`,
+			`Failed to execute '${input}' with executor '${executor.Name}': ${err}`,
 		);
 	}
 }
