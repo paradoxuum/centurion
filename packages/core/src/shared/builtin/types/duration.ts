@@ -24,13 +24,13 @@ const assignUnit = (unit: string, aliases: string[]) => {
 	}
 };
 
-assignUnit("second", ["s", "sec", "secs", "second", "seconds"]);
-assignUnit("minute", ["m", "min", "mins", "minute", "minutes"]);
-assignUnit("hour", ["h", "hr", "hrs", "hour", "hours"]);
-assignUnit("day", ["d", "day", "days"]);
-assignUnit("week", ["w", "wk", "wks", "week", "weeks"]);
-assignUnit("month", ["m", "mo", "mos", "month", "months"]);
-assignUnit("year", ["y", "yr", "yrs", "year", "years"]);
+assignUnit("second", ["s", "sec", "secs", "seconds"]);
+assignUnit("minute", ["m", "min", "mins", "minutes"]);
+assignUnit("hour", ["h", "hr", "hrs", "hours"]);
+assignUnit("day", ["d", "days"]);
+assignUnit("week", ["w", "wk", "wks", "weeks"]);
+assignUnit("month", ["m", "mo", "mos", "months"]);
+assignUnit("year", ["y", "yr", "yrs", "years"]);
 
 const durationType = TypeBuilder.create<number>(CenturionType.Duration)
 	.validate(t.integer)
