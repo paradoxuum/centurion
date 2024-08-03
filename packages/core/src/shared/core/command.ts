@@ -101,7 +101,7 @@ export abstract class BaseCommand {
 
 export class ExecutableCommand extends BaseCommand {
 	private readonly callback: CommandCallback;
-	private readonly guards: ReadonlyArray<CommandGuard>;
+	readonly guards: ReadonlyArray<CommandGuard>;
 
 	constructor(
 		config: ReadonlyDeep<SharedConfig>,

@@ -1,6 +1,10 @@
 import { Players } from "@rbxts/services";
 import { CommandOptions, GroupOptions } from "../shared";
-import { BaseCommand, CommandGroup } from "../shared/core/command";
+import {
+	BaseCommand,
+	CommandGroup,
+	ExecutableCommand,
+} from "../shared/core/command";
 import { BaseRegistry } from "../shared/core/registry";
 import { SyncData } from "../shared/network";
 import { ArrayUtil, ReadonlyDeep } from "../shared/util/data";
@@ -36,7 +40,9 @@ export class ServerRegistry extends BaseRegistry<ReadonlyDeep<ServerConfig>> {
 		for (const [_, command] of this.commands) {
 			const path = command.getPath();
 			if (syncedCommands.has(path.toString())) continue;
-			if (!this.config.syncFilter(player, command)) continue;
+			if (!this.config.syncFilter(player, command as ExecutableCommand)) {
+				continue;
+			}
 
 			syncedCommands.set(path.toString(), {
 				...(command.options as CommandOptions),
