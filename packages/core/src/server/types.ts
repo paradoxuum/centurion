@@ -1,9 +1,10 @@
-import { CommandContextData, RegistryPath, SharedConfig } from "../shared";
+import { CommandContextData, SharedConfig } from "../shared";
+import { BaseCommand } from "../shared/core/command";
 import { SyncData } from "../shared/network";
 
 export interface ServerConfig extends SharedConfig {
 	network: ServerNetworkConfig;
-	commandFilter: (command: RegistryPath, player: Player) => boolean;
+	syncFilter: (player: Player, command: BaseCommand) => boolean;
 }
 
 export interface ServerNetworkConfig {

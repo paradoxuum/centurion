@@ -41,7 +41,7 @@ export class CenturionServer {
 		this.config = ObjectUtil.freezeDeep({
 			...DEFAULT_CONFIG,
 			network: networkConfig,
-			commandFilter: () => true,
+			syncFilter: () => true,
 			...config,
 		});
 		this.registry = new ServerRegistry(this.config);

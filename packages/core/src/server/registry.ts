@@ -3,7 +3,7 @@ import { CommandOptions, GroupOptions } from "../shared";
 import { BaseCommand, CommandGroup } from "../shared/core/command";
 import { BaseRegistry } from "../shared/core/registry";
 import { SyncData } from "../shared/network";
-import { ReadonlyDeep } from "../shared/util/data";
+import { ArrayUtil, ReadonlyDeep } from "../shared/util/data";
 import { ServerConfig } from "./types";
 
 export class ServerRegistry extends BaseRegistry<ReadonlyDeep<ServerConfig>> {
@@ -36,7 +36,7 @@ export class ServerRegistry extends BaseRegistry<ReadonlyDeep<ServerConfig>> {
 		for (const [_, command] of this.commands) {
 			const path = command.getPath();
 			if (syncedCommands.has(path.toString())) continue;
-			if (!this.config.commandFilter(path, player)) continue;
+			if (!this.config.syncFilter(player, command)) continue;
 
 			syncedCommands.set(path.toString(), {
 				...(command.options as CommandOptions),
@@ -44,10 +44,18 @@ export class ServerRegistry extends BaseRegistry<ReadonlyDeep<ServerConfig>> {
 		}
 
 		const syncedGroups = new Map<string, GroupOptions>();
-		for (const [path, group] of this.groups) {
-			syncedGroups.set(path, {
-				...(group.options as GroupOptions),
-			});
+		for (const [path] of syncedCommands) {
+			const parts = path.split("/");
+			if (parts.size() === 1) continue;
+
+			let groupPath = "";
+			for (const part of ArrayUtil.slice(parts, 0, parts.size() - 1)) {
+				groupPath += part;
+				const group = this.getGroupByString(groupPath);
+				if (group === undefined) break;
+				syncedGroups.set(groupPath, { ...(group.options as GroupOptions) });
+				groupPath += "/";
+			}
 		}
 
 		return {
