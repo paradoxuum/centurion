@@ -1,6 +1,6 @@
 import { t } from "@rbxts/t";
 import { MetadataKey } from "../core/decorators";
-import { ArgumentType, ListArgumentType, SingleArgumentType } from "../types";
+import { ListArgumentType, SingleArgumentType } from "../types";
 import { MetadataReflect } from "./reflect";
 
 export namespace TransformResult {
@@ -125,13 +125,13 @@ export class TypeBuilder<T> {
 	}
 
 	/**
-	 * Builds the type, returning an {@link ArgumentType} object.
+	 * Builds the type, returning a {@link SingleArgumentType} object.
 	 *
 	 * If the type has been marked for registration through {@link markForRegistration}, it will be added to
 	 * the list of objects that will be registered when `register()` is called.
 	 *
 	 * @throws Will throw an error if the required functions were not defined
-	 * @returns An {@link ArgumentType} object.
+	 * @returns A {@link SingleArgumentType} object.
 	 */
 	build(): SingleArgumentType<T> {
 		assert(this.validationFn !== undefined, "Validation function is required");
@@ -167,23 +167,23 @@ export class ListTypeBuilder<T extends defined[]> {
 	private constructor(protected readonly name: string) {}
 
 	/**
-	 * Instantiates a {@link TypeBuilder} with the given name.
+	 * Instantiates a {@link ListTypeBuilder} with the given name.
 	 *
 	 *
 	 * @param name - The name of the type.
-	 * @returns A {@link TypeBuilder} instance.
+	 * @returns A {@link ListTypeBuilder} instance.
 	 */
 	static create<T extends defined[]>(name: string) {
 		return new ListTypeBuilder<T>(name);
 	}
 
 	/**
-	 * Creates a new `TypeBuilder` with the given name, extending
+	 * Creates a new {@link ListTypeBuilder} with the given name, extending
 	 * from the provided type.
 	 *
 	 * @param name - The name of the type.
 	 * @param argumentType - The type to extend from.
-	 * @returns A {@link TypeBuilder} instance.
+	 * @returns A {@link ListTypeBuilder} instance.
 	 */
 	static extend<T extends defined[]>(
 		name: string,
@@ -201,7 +201,7 @@ export class ListTypeBuilder<T extends defined[]> {
 	 * Sets the validation function for this type.
 	 *
 	 * @param fn - The validation function.
-	 * @returns The {@link TypeBuilder} instance.
+	 * @returns The {@link ListTypeBuilder} instance.
 	 */
 	validate(fn: t.check<T>) {
 		this.validationFn = fn;
@@ -217,7 +217,7 @@ export class ListTypeBuilder<T extends defined[]> {
 	 *
 	 * @param fn - The transformation function.
 	 * @param expensive - Whether the function is expensive.
-	 * @returns The {@link TypeBuilder} instance.
+	 * @returns The {@link ListTypeBuilder} instance.
 	 */
 	transform(fn: ListArgumentType<T>["transform"], expensive = false) {
 		this.transformFn = fn;
@@ -231,7 +231,7 @@ export class ListTypeBuilder<T extends defined[]> {
 	 * This function provides a list of suggestions for the type.
 	 *
 	 * @param fn - The suggestions function.
-	 * @returns The {@link TypeBuilder} instance.
+	 * @returns The {@link ListTypeBuilder} instance.
 	 */
 	suggestions(fn: ListArgumentType<T>["suggestions"]) {
 		this.suggestionFn = fn;
@@ -241,7 +241,7 @@ export class ListTypeBuilder<T extends defined[]> {
 	/**
 	 * Marks the type for registration.
 	 *
-	 * @returns The {@link TypeBuilder} instance.
+	 * @returns The {@link ListTypeBuilder} instance.
 	 */
 	markForRegistration() {
 		this.marked = true;
@@ -249,13 +249,13 @@ export class ListTypeBuilder<T extends defined[]> {
 	}
 
 	/**
-	 * Builds the type, returning an {@link ArgumentType} object.
+	 * Builds the type, returning a {@link ListArgumentType} object.
 	 *
 	 * If the type has been marked for registration through {@link markForRegistration}, it will be added to
 	 * the list of objects that will be registered when `register()` is called.
 	 *
 	 * @throws Will throw an error if the required functions were not defined
-	 * @returns An {@link ArgumentType} object.
+	 * @returns A {@link ListArgumentType} object.
 	 */
 	build(): ListArgumentType<T> {
 		assert(this.validationFn !== undefined, "Validation function is required");

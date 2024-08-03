@@ -1,7 +1,7 @@
 import { ArrayUtil } from "../util/data";
 
 /**
- * A representation of a command or group's path
+ * A class representing a path to a command or group.
  */
 export class RegistryPath {
 	private pathString: string;
@@ -19,7 +19,9 @@ export class RegistryPath {
 	}
 
 	/**
-	 * Returns a copy of the {@link RegistryPath}'s parts
+	 * Returns a copy of the path's parts.
+	 *
+	 * @returns A copy of the path's parts
 	 */
 	parts() {
 		return [...this.pathParts];
@@ -124,7 +126,7 @@ export class RegistryPath {
 	}
 
 	/**
-	 * Returns a new {@link RegistryPath} from a slice of this path.
+	 * Returns a new path from a slice of this path.
 	 *
 	 * @param from The start index
 	 * @param to The end index
@@ -141,7 +143,7 @@ export class RegistryPath {
 	}
 
 	/**
-	 * Determines if this path equals the given {@link RegistryPath}.
+	 * Determines if this path equals the given path.
 	 *
 	 * @param other The path to compare against
 	 * @returns True if the paths are equal, false if not
@@ -213,7 +215,7 @@ export class RegistryPath {
  */
 export class ImmutableRegistryPath extends RegistryPath {
 	/**
-	 * Returns a new {@link ImmutableRegistryPath} from a given {@link RegistryPath}.
+	 * Creates a {@link ImmutableRegistryPath} from a given {@link RegistryPath}.
 	 *
 	 * @param path The {@link RegistryPath}
 	 * @returns A new {@link ImmutableRegistryPath}
@@ -249,17 +251,17 @@ export class ImmutableRegistryPath extends RegistryPath {
 	}
 
 	/**
-	 * Returns a new {@link ImmutableRegistryPath} with the given parts appended.
+	 * Returns a new path with the given parts appended.
 	 *
 	 * @param parts The parts to append
-	 * @returns A new {@link ImmutableRegistryPath} with the given parts appended
+	 * @returns A new path with the given parts appended
 	 */
 	append(...parts: string[]) {
 		return new ImmutableRegistryPath([...this.pathParts, ...parts]);
 	}
 
 	/**
-	 * Returns a new {@link ImmutableRegistryPath} with the part at the given index
+	 * Returns a new path with the part at the given index
 	 * removed.
 	 *
 	 * @param index The index of the part to remove
