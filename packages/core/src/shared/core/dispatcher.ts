@@ -1,3 +1,4 @@
+import { Signal } from "@rbxts/beacon";
 import { SharedConfig } from "../types";
 import { ReadonlyDeep } from "../util/data";
 import { CenturionLogLevel, CenturionLogger } from "../util/log";
@@ -12,6 +13,7 @@ export abstract class BaseDispatcher<
 	C extends ReadonlyDeep<SharedConfig> = ReadonlyDeep<SharedConfig>,
 > {
 	protected logger: CenturionLogger;
+	readonly commandExecuted = new Signal<[context: CommandContext]>();
 
 	constructor(
 		protected readonly config: C,
@@ -48,6 +50,7 @@ export abstract class BaseDispatcher<
 		}
 
 		command.execute(context, args);
+		this.commandExecuted.Fire(context);
 		if (!context.isReplyReceived() && !command.options.disableDefaultReply) {
 			context.reply(DEFAULT_REPLY_TEXT);
 		}
