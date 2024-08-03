@@ -158,13 +158,13 @@ export class ExecutableCommand extends BaseCommand {
 			if (argInputs.isEmpty()) {
 				if (arg.options.optional) break;
 				return TransformResult.err(
-					`Missing required argument: <b>${arg.options.name}</b>`,
+					`Missing required argument: ${arg.options.name}`,
 				);
 			}
 
 			if (isNum && argInputs.size() < numArgs) {
 				return TransformResult.err(
-					`Argument <b>${arg.options.name}</b> requires ${numArgs} argument(s), but only ${argInputs.size()} were provided`,
+					`Argument '${arg.options.name}' requires ${numArgs} argument(s), but only ${argInputs.size()} were provided`,
 				);
 			}
 
@@ -180,7 +180,11 @@ export class ExecutableCommand extends BaseCommand {
 					);
 				}
 
-				if (!result.ok) return TransformResult.err(result.value);
+				if (!result.ok) {
+					return TransformResult.err(
+						`[argument '${arg.options.name}'] ${result.value}`,
+					);
+				}
 				argValues[i] = result.value;
 			}
 
