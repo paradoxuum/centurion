@@ -14,6 +14,7 @@ import {
 	ReadonlyDeepObject,
 } from "../util/data";
 import { CenturionLogger } from "../util/log";
+import { splitString } from "../util/string";
 import { TransformResult } from "../util/type";
 import { CommandContext } from "./context";
 import { ImmutableRegistryPath } from "./path";
@@ -169,15 +170,18 @@ export class ExecutableCommand extends BaseCommand {
 
 			const argValues: unknown[] = [];
 			for (const i of $range(0, argInputs.size() - 1)) {
-				const transformedArg = arg.type.transform(
-					argInputs[i],
-					context.executor,
-				);
-
-				if (!transformedArg.ok) {
-					return TransformResult.err(transformedArg.value);
+				let result: TransformResult.Object<unknown>;
+				if (arg.type.kind === "single") {
+					result = arg.type.transform(argInputs[i], context.executor);
+				} else {
+					result = arg.type.transform(
+						splitString(argInputs[i], ","),
+						context.executor,
+					);
 				}
-				argValues[i] = transformedArg.value;
+
+				if (!result.ok) return TransformResult.err(result.value);
+				argValues[i] = result.value;
 			}
 
 			transformedArgs[argIndex] =

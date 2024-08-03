@@ -1,4 +1,5 @@
-import Vide, { Derivable, For, read } from "@rbxts/vide";
+import { ArrayUtil } from "@rbxts/centurion/out/shared/util/data";
+import Vide, { Derivable, derive, For, read } from "@rbxts/vide";
 import { SUGGESTION_TEXT_SIZE } from "../../constants/text";
 import { useAtom } from "../../hooks/use-atom";
 import { px } from "../../hooks/use-px";
@@ -16,12 +17,17 @@ export interface SuggestionListProps {
 	size: Derivable<UDim2>;
 }
 
+const MAX_SUGGESTIONS = 3;
+
 export function SuggestionList({
 	suggestion,
 	currentText,
 	size,
 }: SuggestionListProps) {
 	const options = useAtom(interfaceOptions);
+	const suggestions = derive(() => {
+		return ArrayUtil.slice(read(suggestion)?.others ?? [], 0, MAX_SUGGESTIONS);
+	});
 
 	return (
 		<Group
@@ -34,7 +40,7 @@ export function SuggestionList({
 				Padding={() => new UDim(0, px(8))}
 			/>
 
-			<For each={() => read(suggestion)?.others ?? []}>
+			<For each={suggestions}>
 				{(name: string, i: () => number) => {
 					return (
 						<Frame
@@ -45,6 +51,7 @@ export function SuggestionList({
 							}
 							cornerRadius={() => new UDim(0, px(8))}
 							clipsDescendants={true}
+							layoutOrder={i}
 						>
 							<Padding all={() => new UDim(0, px(4))} />
 

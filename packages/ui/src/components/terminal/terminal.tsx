@@ -1,6 +1,9 @@
 import { ArgumentOptions } from "@rbxts/centurion";
 import { ArrayUtil, ReadonlyDeep } from "@rbxts/centurion/out/shared/util/data";
-import { endsWithSpace } from "@rbxts/centurion/out/shared/util/string";
+import {
+	endsWithSpace,
+	splitString,
+} from "@rbxts/centurion/out/shared/util/string";
 import Vide, { effect, source } from "@rbxts/vide";
 import { HISTORY_TEXT_SIZE } from "../../constants/text";
 import { getAPI } from "../../hooks/use-api";
@@ -9,15 +12,18 @@ import { useHistory } from "../../hooks/use-history";
 import { useMotion } from "../../hooks/use-motion";
 import { px } from "../../hooks/use-px";
 import {
-	currentArgIndex,
+	commandArgIndex,
 	currentCommandPath,
 	currentSuggestion,
+	currentTextPart,
 	interfaceOptions,
 	mouseOverInterface,
+	terminalArgIndex,
 	terminalText,
 	terminalTextParts,
 	terminalTextValid,
 } from "../../store";
+import { ArgumentSuggestion } from "../../types";
 import { HistoryList } from "../history";
 import { Frame } from "../ui/frame";
 import { Padding } from "../ui/padding";
@@ -84,7 +90,7 @@ export function Terminal() {
 					if (parts.isEmpty()) {
 						currentCommandPath(undefined);
 						currentSuggestion(undefined);
-						currentArgIndex(undefined);
+						terminalArgIndex(undefined);
 						return;
 					}
 
@@ -111,11 +117,15 @@ export function Terminal() {
 						terminalTextValid(false);
 					}
 
-					const currentTextPart = !atNextPart
-						? parts[parts.size() - 1]
-						: undefined;
+					const textPart = !atNextPart ? parts[parts.size() - 1] : undefined;
 
-					if (path === undefined || command === undefined) {
+					const argIndex =
+						path !== undefined
+							? parts.size() - path.size() - (atNextPart ? 0 : 1)
+							: -1;
+					terminalArgIndex(argIndex);
+
+					if (command === undefined || argIndex === -1) {
 						// Get command suggestions
 						const index = parts.size() - (atNextPart ? 1 : 2);
 						const parentPath = path?.slice(0, index);
@@ -123,27 +133,29 @@ export function Terminal() {
 							getCommandSuggestion(
 								api.registry,
 								!parentPath?.isEmpty() ? parentPath : undefined,
-								currentTextPart,
+								textPart,
 							),
 						);
+						currentTextPart(textPart);
 						return;
 					}
 
 					// Handle arguments
-					const argIndex = parts.size() - path.size() - (atNextPart ? 0 : 1);
-					if (command === undefined || argIndex === -1) return;
-
 					const args = command.options.arguments;
-					if (args === undefined || argIndex === -1) {
+					if (args === undefined) {
 						currentSuggestion(undefined);
+						currentTextPart(undefined);
+						commandArgIndex(undefined);
 						return;
 					}
 
-					let index = 0;
+					let index = -1;
 					let currentArg: ReadonlyDeep<ArgumentOptions> | undefined;
 					let endIndex: number | undefined = -1;
 					for (const i of $range(0, argIndex)) {
 						if (endIndex === undefined || i <= endIndex) continue;
+
+						index++;
 						if (index >= args.size()) {
 							currentArg = undefined;
 							break;
@@ -152,23 +164,50 @@ export function Terminal() {
 						currentArg = args[index];
 						const numArgs = currentArg.numArgs ?? 1;
 						endIndex = numArgs !== "rest" ? i + (numArgs - 1) : undefined;
-						index += 1;
 					}
 
 					const argType = api.registry.getType(currentArg?.type ?? "");
 					if (currentArg === undefined || argType === undefined) {
-						currentArgIndex(undefined);
 						currentSuggestion(undefined);
+						currentTextPart(undefined);
+						terminalArgIndex(undefined);
+						commandArgIndex(undefined);
 						return;
 					}
 
-					const suggestion = getArgumentSuggestion(
-						currentArg,
-						argType,
-						currentTextPart,
-					);
+					commandArgIndex(index);
 
-					currentArgIndex(argIndex);
+					let argTextPart: string | undefined;
+					let suggestion: ArgumentSuggestion;
+					if (argType.kind === "single") {
+						argTextPart = textPart;
+						suggestion = getArgumentSuggestion(
+							{
+								kind: "single",
+								options: currentArg,
+								type: argType,
+								input: textPart,
+							},
+							textPart,
+						);
+					} else {
+						const textParts = splitString(textPart ?? "", ",");
+						const lastPart = !textParts.isEmpty()
+							? textParts[textParts.size() - 1]
+							: undefined;
+						argTextPart = textPart?.sub(-1) !== "," ? lastPart : undefined;
+						suggestion = getArgumentSuggestion(
+							{
+								kind: "list",
+								options: currentArg,
+								type: argType,
+								input: textParts,
+							},
+							argTextPart,
+						);
+					}
+
+					currentTextPart(argTextPart);
 					currentSuggestion(suggestion);
 					if (suggestion?.error !== undefined) terminalTextValid(false);
 				}}

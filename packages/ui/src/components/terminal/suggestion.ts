@@ -1,94 +1,89 @@
 import {
 	ArgumentOptions,
-	ArgumentType,
 	BaseRegistry,
 	CommandOptions,
+	ListArgumentType,
 	RegistryPath,
+	SingleArgumentType,
 } from "@rbxts/centurion";
-import { ArrayUtil, ReadonlyDeep } from "@rbxts/centurion/out/shared/util/data";
+import { ReadonlyDeep } from "@rbxts/centurion/out/shared/util/data";
 import { Players } from "@rbxts/services";
 import { ArgumentSuggestion, CommandSuggestion } from "../../types";
 
 const MAX_OTHER_SUGGESTIONS = 3;
 
-function getSortedIndices(max: number, strings: string[], text?: string) {
-	// If no text is provided, sort alphabetically
-	if (text === undefined) {
-		const sorted = [...strings].sort().map((_, index) => index);
-		return ArrayUtil.slice(sorted, 0, math.min(sorted.size(), max));
-	}
-
-	// Otherwise, sort by the closest match
-	const textLower = text.lower();
-	const textEndIndex = text.size();
-
-	const results: Array<[number, number]> = [];
-	for (const i of $range(0, strings.size() - 1)) {
-		const part = strings[i].lower().sub(0, textEndIndex);
-		if (part === textLower) {
-			results.push([part.size(), i]);
-		}
-	}
-
-	results.sort((a, b) => {
-		if (a[0] === b[0]) {
-			return strings[a[1]] < strings[b[1]];
-		}
-		return a[0] < b[0];
-	});
-
-	return ArrayUtil.slice(results, 0, math.min(results.size(), max)).map(
-		(val) => val[1],
-	);
+export interface SingleArgument {
+	kind: "single";
+	options: ReadonlyDeep<ArgumentOptions>;
+	type: SingleArgumentType<unknown>;
+	input?: string;
 }
 
-export function getArgumentSuggestion(
-	arg: ReadonlyDeep<ArgumentOptions>,
-	argType: ArgumentType<unknown>,
+export interface ListArgument {
+	kind: "list";
+	options: ReadonlyDeep<ArgumentOptions>;
+	type: ListArgumentType<unknown>;
+	input: string[];
+}
+
+export type Argument = SingleArgument | ListArgument;
+
+function getMatches(
+	strings: string[],
 	text?: string,
-): ArgumentSuggestion | undefined {
-	const argSuggestions =
-		arg.suggestions !== undefined ? [...arg.suggestions] : [];
-	if (argType.suggestions !== undefined) {
-		for (const suggestion of argType.suggestions(
-			text ?? "",
-			Players.LocalPlayer,
-		)) {
-			argSuggestions.push(suggestion);
+): [number, string, number][] {
+	if (text === undefined) {
+		return strings.sort().map((str, i) => [i, str, str.size()]);
+	}
+
+	const textLower = text.lower();
+	const textEndIndex = text.size();
+	return strings
+		.mapFiltered<[number, string, number] | undefined>((str, i) => {
+			const part = str.lower().sub(0, textEndIndex);
+			if (part === textLower) return [i, str, str.size()];
+		})
+		.sort((a, b) => a[1] < b[1]);
+}
+
+export function getArgumentSuggestion(arg: Argument, textPart?: string) {
+	const suggestions = [...(arg.options.suggestions ?? [])];
+	const singleArg = arg.kind === "single";
+
+	const typeSuggestions = singleArg
+		? arg.type.suggestions?.(arg.input ?? "", Players.LocalPlayer)
+		: arg.type.suggestions?.(arg.input, Players.LocalPlayer);
+	if (typeSuggestions !== undefined) {
+		for (const text of typeSuggestions) {
+			suggestions.push(text);
 		}
 	}
 
-	// If the type is not marked as "expensive", transform the text into the type
-	// If the transformation fails, include the error message in the suggestion
 	let errorText: string | undefined;
-	const [success, err] = pcall(() => {
-		if (argType.expensive) return;
-		const transformResult = argType.transform(text ?? "", Players.LocalPlayer);
+	if (!arg.type.expensive) {
+		const [success, err] = pcall(() => {
+			const transformResult = singleArg
+				? arg.type.transform(arg.input ?? "", Players.LocalPlayer)
+				: arg.type.transform(arg.input, Players.LocalPlayer);
+			if (transformResult.ok) return;
+			errorText = transformResult.value;
+		});
 
-		if (transformResult.ok) return;
-		errorText = transformResult.value;
-	});
-
-	if (!success) {
-		errorText = "Failed to transform argument";
-		warn(err);
+		if (!success) {
+			errorText = "Failed to transform argument";
+			warn(err);
+		}
 	}
-
-	const otherSuggestions = getSortedIndices(
-		MAX_OTHER_SUGGESTIONS,
-		argSuggestions,
-		text,
-	).map((index) => argSuggestions[index]);
 
 	return {
 		type: "argument",
-		title: arg.name,
-		others: otherSuggestions,
-		description: arg.description,
-		dataType: argType.name,
-		optional: arg.optional ?? false,
+		title: arg.options.name,
+		others: getMatches(suggestions, textPart).map(([, str]) => str),
+		description: arg.options.description,
+		dataType: arg.type.name,
+		optional: arg.options.optional ?? false,
 		error: errorText,
-	};
+	} satisfies ArgumentSuggestion;
 }
 
 export function getCommandSuggestion(
@@ -103,28 +98,20 @@ export function getCommandSuggestion(
 	if (paths.isEmpty()) return;
 
 	const pathNames = paths.map((path) => path.tail());
-	const sortedPaths = getSortedIndices(
-		MAX_OTHER_SUGGESTIONS + 1,
-		pathNames,
-		text,
-	);
-	if (sortedPaths.isEmpty()) return;
+	const sortedPaths = getMatches(pathNames, text);
+	const firstMatch = sortedPaths.remove(0);
+	if (firstMatch === undefined) return;
 
-	const firstPath = paths[sortedPaths[0]];
+	const firstPath = paths[firstMatch[0]];
 	const mainData =
 		registry.getCommand(firstPath)?.options ??
 		registry.getGroup(firstPath)?.options;
 	if (mainData === undefined) return;
 
-	const otherNames =
-		sortedPaths.size() > 1
-			? ArrayUtil.slice(sortedPaths, 1).map((index) => pathNames[index])
-			: [];
-
 	return {
 		type: "command",
 		title: firstPath.tail(),
-		others: otherNames,
+		others: sortedPaths.map(([, str]) => str),
 		description: mainData.description,
 		shortcuts: (mainData as CommandOptions).shortcuts,
 	};

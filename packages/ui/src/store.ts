@@ -11,38 +11,13 @@ export const mouseOverInterface = atom(false);
 export const currentCommandPath = atom<ImmutableRegistryPath | undefined>(
 	undefined,
 );
-export const currentArgIndex = atom<number | undefined>(undefined);
+export const commandArgIndex = atom<number | undefined>(undefined);
+export const terminalArgIndex = atom<number | undefined>(undefined);
 
 export const currentSuggestion = atom<Suggestion | undefined>(undefined);
 export const terminalText = atom("");
 export const terminalTextParts = computed(() => {
 	return splitString(terminalText(), " ");
 });
-export const currentTextPart = computed(() => {
-	const text = terminalText();
-	const textParts = terminalTextParts();
-
-	const endsWithSpace = textParts.size() > 0 && text.match("%s$").size() > 0;
-	const index = endsWithSpace ? textParts.size() : textParts.size() - 1;
-	if (index === -1 || index >= textParts.size()) return;
-	return textParts[index];
-});
 export const terminalTextValid = atom(false);
-
-export const argText = atom<string | undefined>(undefined);
-export const argTextParts = computed(() => {
-	const text = argText();
-	if (text === undefined) return [];
-	return splitString(text, ",");
-});
-export const currentArgPart = computed(() => {
-	const text = argText();
-	if (text === undefined) return;
-
-	const textParts = argTextParts();
-
-	const endsWithSeparator = textParts.size() > 0 && text.match(",$").size() > 0;
-	const index = endsWithSeparator ? textParts.size() : textParts.size() - 1;
-	if (index === -1 || index >= textParts.size()) return;
-	return textParts[index];
-});
+export const currentTextPart = atom<string | undefined>(undefined);

@@ -10,11 +10,13 @@ import { useAtom } from "../../hooks/use-atom";
 import { useEvent } from "../../hooks/use-event";
 import { px } from "../../hooks/use-px";
 import {
-	currentArgIndex,
+	commandArgIndex,
 	currentCommandPath,
 	currentSuggestion,
+	currentTextPart,
 	interfaceOptions,
 	interfaceVisible,
+	terminalArgIndex,
 	terminalText,
 	terminalTextParts,
 	terminalTextValid,
@@ -104,18 +106,22 @@ export function TerminalTextField({
 
 		const atNextPart = endsWithSpace(terminalText());
 		const textParts = terminalTextParts();
-		const suggestionStartIndex =
-			textParts.size() > 0
-				? (!atNextPart ? textParts[textParts.size() - 1].size() : 0) + 1
-				: -1;
+		if (textParts.isEmpty()) {
+			suggestionText(suggestion.title);
+			return;
+		}
 
-		if (suggestion.type === "command" && suggestionStartIndex > -1) {
+		// Command suggestions
+		if (suggestion.type === "command") {
+			const suggestionStartIndex =
+				(!atNextPart ? textParts[textParts.size() - 1].size() : 0) + 1;
 			suggestionText(text() + suggestion.title.sub(suggestionStartIndex));
 			return;
 		}
 
+		// Argument suggestions
 		const command = currentCommandPath();
-		const argIndex = currentArgIndex();
+		const argIndex = terminalArgIndex();
 		if (
 			suggestion.type !== "argument" ||
 			command === undefined ||
@@ -125,18 +131,15 @@ export function TerminalTextField({
 		}
 
 		let newText = text();
+		if (atNextPart && argIndex === commandArgIndex()) {
+			newText += suggestion.title;
+		} else if (!suggestion.others.isEmpty()) {
+			newText += suggestion.others[0].sub((currentTextPart()?.size() ?? 0) + 1);
+		}
+
 		const argNames = getArgumentNames(api.registry, command);
-		for (const i of $range(argIndex, argNames.size() - 1)) {
-			if (i === argIndex && !atNextPart) {
-				if (!suggestion.others.isEmpty()) {
-					newText += suggestion.others[0].sub(suggestionStartIndex);
-				}
-
-				newText += " ";
-				continue;
-			}
-
-			newText = `${newText}${argNames[i]} `;
+		for (const i of $range(argIndex + 1, argNames.size() - 1)) {
+			newText = `${newText} ${argNames[i]}`;
 		}
 		suggestionText(newText);
 	});
@@ -155,35 +158,38 @@ export function TerminalTextField({
 
 		if (input.KeyCode !== Enum.KeyCode.Tab) return;
 
-		// Handle command suggestions
+		// Command suggestions
 		const commandPath = currentCommandPath();
 		const suggestion = currentSuggestion();
-		if (commandPath === undefined) {
-			const suggestionTitle = suggestion?.title;
-			if (suggestionTitle === undefined) return;
+		if (suggestion === undefined) return;
 
+		if (commandPath === undefined) {
+			const suggestionTitle = suggestion.title;
 			const currentText = text();
 			const textParts = terminalTextParts();
+			if (textParts.isEmpty()) return;
 
-			let newText = "";
+			const pathParts = [...textParts];
+
+			let newText = currentText;
 			if (endsWithSpace(currentText)) {
-				newText = currentText + suggestionTitle;
+				newText += suggestionTitle;
+				pathParts.push(suggestionTitle);
 			} else if (!textParts.isEmpty()) {
-				const textPartSize = textParts[textParts.size() - 1].size();
+				const lastPartSize = textParts[textParts.size() - 1];
 				newText =
-					currentText.sub(0, currentText.size() - textPartSize) +
+					newText.sub(0, newText.size() - lastPartSize.size()) +
 					suggestionTitle;
+				pathParts.remove(textParts.size() - 1);
+				pathParts.push(suggestionTitle);
 			}
 
-			const suggestionTextParts = suggestionText()
-				.gsub("%s+", " ")[0]
-				.split(" ");
 			const nextCommand = api.registry.getCommandByString(
-				formatPartsAsPath(suggestionTextParts),
+				formatPartsAsPath(pathParts),
 			)?.options;
 			if (
 				nextCommand === undefined ||
-				(nextCommand.arguments?.size() ?? 0) > 0
+				!(nextCommand.arguments?.isEmpty() ?? true)
 			) {
 				newText += " ";
 			}
@@ -194,7 +200,7 @@ export function TerminalTextField({
 			return;
 		}
 
-		// Handle argument suggestions
+		// Argument suggestions
 		if (
 			commandPath === undefined ||
 			suggestion === undefined ||
@@ -203,23 +209,17 @@ export function TerminalTextField({
 			return;
 		}
 
-		const argIndex = currentArgIndex();
+		const argIndex = terminalArgIndex();
 		const commandArgs = api.registry.getCommand(commandPath)?.options.arguments;
 		if (argIndex === undefined || commandArgs === undefined) return;
 
 		let newText = text();
-
-		const parts = terminalTextParts();
-		if (!endsWithSpace(newText) && !parts.isEmpty()) {
-			newText = newText.sub(0, newText.size() - parts[parts.size() - 1].size());
-		}
-
 		let otherSuggestion = suggestion.others[0];
 		if (string.match(otherSuggestion, "%s")[0] !== undefined) {
 			otherSuggestion = `"${otherSuggestion}"`;
 		}
 
-		newText += otherSuggestion;
+		newText += otherSuggestion.sub((currentTextPart()?.size() ?? 0) + 1);
 		if (argIndex < commandArgs.size() - 1) {
 			newText += " ";
 		}

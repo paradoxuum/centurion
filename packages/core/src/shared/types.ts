@@ -21,13 +21,25 @@ export interface RegisterOptions {
 	groups?: GroupOptions[];
 }
 
-export interface ArgumentType<T> {
+export interface SingleArgumentType<T> {
+	kind: "single";
 	name: string;
 	expensive: boolean;
 	validate: t.check<T>;
 	transform: (text: string, executor?: Player) => TransformResult.Object<T>;
 	suggestions?: (text: string, executor?: Player) => string[];
 }
+
+export interface ListArgumentType<T> {
+	kind: "list";
+	name: string;
+	expensive: boolean;
+	validate: t.check<T>;
+	transform: (input: string[], executor?: Player) => TransformResult.Object<T>;
+	suggestions?: (input: string[], executor?: Player) => string[];
+}
+
+export type ArgumentType<T> = SingleArgumentType<T> | ListArgumentType<T>;
 
 export interface ArgumentOptions {
 	name: string;
