@@ -10,13 +10,13 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/check": "^0.9.0",
+    "@astrojs/check": "^0.9.1",
     "@astrojs/starlight": "^0.25.3",
     "@fontsource-variable/jetbrains-mono": "^5.0.21",
     "@lorenzo_lewis/starlight-utils": "^0.1.2",
-    "astro": "^4.12.3",
+    "astro": "^4.13.1",
     "sharp": "^0.33.4",
-    "starlight-links-validator": "^0.10.0",
+    "starlight-links-validator": "^0.10.1",
     "typescript": "^5.5.4"
   },
   "devDependencies": {
