@@ -8,4 +8,5 @@ export const CenturionType = {
 	Player: "player",
 	Players: "players",
 	Team: "team",
+	Duration: "duration",
 } as const;
