@@ -3,12 +3,14 @@ import { CommandContext, CommandContextData, RegistryPath } from "../shared";
 import { BaseDispatcher } from "../shared/core/dispatcher";
 import { ReadonlyDeep } from "../shared/util/data";
 import { getInputText } from "../shared/util/string";
+import { ServerRegistry } from "./registry";
 import { ServerConfig } from "./types";
 
 const isStringArray = t.array(t.string);
 
 export class ServerDispatcher extends BaseDispatcher<
-	ReadonlyDeep<ServerConfig>
+	ReadonlyDeep<ServerConfig>,
+	ServerRegistry
 > {
 	/**
 	 * Initializes the server dispatcher.
@@ -73,6 +75,18 @@ export class ServerDispatcher extends BaseDispatcher<
 	 */
 	async run(executor: Player, path: RegistryPath, args: string[] = []) {
 		const inputText = getInputText(path, args);
+		if (!this.registry.isCommandSynced(executor, path)) {
+			const context = new CommandContext(
+				this.logger,
+				executor,
+				path,
+				args,
+				inputText,
+			);
+			context.error("Command not found.");
+			return context;
+		}
+
 		return this.executeCommand(executor, path, inputText, args).catch((err) => {
 			this.handleError(executor, inputText, err);
 

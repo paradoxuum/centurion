@@ -11,13 +11,14 @@ const DEFAULT_REPLY_TEXT = "Command executed.";
 
 export abstract class BaseDispatcher<
 	C extends ReadonlyDeep<SharedConfig> = ReadonlyDeep<SharedConfig>,
+	R extends BaseRegistry<C> = BaseRegistry<C>,
 > {
 	protected logger: CenturionLogger;
 	readonly commandExecuted = new Signal<[context: CommandContext]>();
 
 	constructor(
 		protected readonly config: C,
-		protected readonly registry: BaseRegistry<C>,
+		protected readonly registry: R,
 	) {
 		this.logger = new CenturionLogger(config.logLevel, "Dispatcher");
 	}
