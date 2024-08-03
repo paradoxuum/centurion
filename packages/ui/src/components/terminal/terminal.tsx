@@ -1,4 +1,4 @@
-import { ArgumentOptions } from "@rbxts/centurion";
+import { ArgumentOptions, RegistryPath } from "@rbxts/centurion";
 import { ArrayUtil, ReadonlyDeep } from "@rbxts/centurion/out/shared/util/data";
 import {
 	endsWithSpace,
@@ -100,6 +100,7 @@ export function Terminal() {
 					const path = getValidPath(api.registry, parts);
 					const command =
 						path !== undefined ? api.registry.getCommand(path) : undefined;
+					const atCommand = command !== undefined;
 
 					if (command !== undefined) {
 						// Check for missing arguments
@@ -127,8 +128,15 @@ export function Terminal() {
 
 					if (command === undefined || argIndex === -1) {
 						// Get command suggestions
-						const index = parts.size() - (atNextPart ? 1 : 2);
-						const parentPath = path?.slice(0, index);
+						const parentPath = !parts.isEmpty()
+							? new RegistryPath(
+									ArrayUtil.slice(
+										parts,
+										0,
+										parts.size() - (atNextPart ? 0 : 1),
+									),
+								)
+							: undefined;
 						currentSuggestion(
 							getCommandSuggestion(
 								api.registry,
