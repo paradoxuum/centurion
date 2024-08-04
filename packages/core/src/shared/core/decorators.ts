@@ -2,7 +2,7 @@ import { CommandGuard, CommandOptions, RegisterOptions } from "../types";
 import { DecoratorMetadata, MetadataKey } from "./metadata";
 
 export function Register(options?: Partial<RegisterOptions>) {
-	return (target: new () => object) => {
+	return (target: new (...args: never[]) => object) => {
 		DecoratorMetadata.defineMetadata(target, MetadataKey.Register, {
 			groups: [],
 			...options,

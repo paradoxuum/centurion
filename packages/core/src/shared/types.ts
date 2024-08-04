@@ -14,6 +14,7 @@ export interface SharedConfig {
 	logLevel: CenturionLogLevel;
 	guards: CommandGuard[];
 	messages: CommandMessages;
+	constructCommand: (ctor: new (...args: never[]) => object) => object;
 	defaultContextState?: defined;
 }
 

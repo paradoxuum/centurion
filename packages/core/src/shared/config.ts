@@ -10,4 +10,13 @@ export const DEFAULT_CONFIG: SharedConfig = {
 		error: "An error occurred.",
 		notFound: "Command not found.",
 	},
+	constructCommand: (ctor) => {
+		const obj = setmetatable({}, ctor as never) as object;
+		const result = (obj as { constructor(): unknown }).constructor();
+		assert(
+			result === undefined || result === obj,
+			"Constructors are not allowed to return values.",
+		);
+		return obj;
+	},
 };

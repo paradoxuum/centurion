@@ -21,7 +21,7 @@ import { BaseRegistry } from "./registry";
 import { TransformResult } from "./type";
 
 export interface CommandMetadata {
-	ctor: new () => object;
+	ctor: new (...args: never[]) => object;
 	instance: object;
 	property: string;
 }

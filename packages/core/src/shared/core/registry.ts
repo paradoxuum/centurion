@@ -21,7 +21,7 @@ import { CommandContext } from "./context";
 import { DecoratorMetadata, MetadataKey } from "./metadata";
 import { ImmutableRegistryPath, RegistryPath } from "./path";
 
-type Constructor<T = object> = new (...args: never[]) => T;
+type Constructor = new (...args: never[]) => object;
 
 const argTypeSchema = t.interface({
 	name: t.string,
@@ -123,12 +123,12 @@ export abstract class BaseRegistry<
 	 * If the command/type has already been registered, it will be skipped.
 	 */
 	register() {
-		const constructors: Constructor<object>[] = [];
+		const constructors: Constructor[] = [];
 		for (const [obj] of DecoratorMetadata.metadata) {
 			if (this.registeredObjects.has(obj)) continue;
 
 			if (DecoratorMetadata.hasOwnMetadata(obj, MetadataKey.Register)) {
-				constructors.push(obj as Constructor<object>);
+				constructors.push(obj as Constructor);
 				continue;
 			}
 
@@ -405,7 +405,7 @@ export abstract class BaseRegistry<
 		);
 	}
 
-	private registerCommandClass<T extends object>(commandClass: Constructor<T>) {
+	private registerCommandClass<T extends object>(commandClass: Constructor) {
 		const registerOptions = DecoratorMetadata.getOwnMetadata<RegisterOptions>(
 			commandClass,
 			MetadataKey.Register,
@@ -431,9 +431,7 @@ export abstract class BaseRegistry<
 				MetadataKey.Guard,
 			) ?? [];
 
-		const [obj, construct] = this.getConstructor(commandClass);
-		construct();
-
+		const instance = this.config.constructCommand(commandClass);
 		for (const property of DecoratorMetadata.getOwnProperties(commandClass)) {
 			// Get decorator data
 			const options = DecoratorMetadata.getOwnMetadata<CommandOptions>(
@@ -472,14 +470,14 @@ export abstract class BaseRegistry<
 			this.addCommand(
 				this.createCommand(
 					options,
-					(ctx, ...args) => callback(commandClass, ctx, ...args),
+					(ctx, ...args) => callback(instance, ctx, ...args),
 					!groupParts.isEmpty()
 						? new ImmutableRegistryPath(groupParts)
 						: undefined,
 					[...this.globalGuards, ...classGuards, ...guards],
 					{
 						ctor: commandClass,
-						instance: obj,
+						instance,
 						property,
 					},
 				),
@@ -512,22 +510,5 @@ export abstract class BaseRegistry<
 		if (groupRegistered) {
 			this.logger.error(`Duplicate group: ${path}`);
 		}
-	}
-
-	private getConstructor<T extends Constructor<unknown>>(ctor: T) {
-		const obj = setmetatable({}, ctor as never) as InstanceType<T>;
-
-		return [
-			obj,
-			(...args: ConstructorParameters<T>) => {
-				const result = (
-					obj as { constructor(...args: unknown[]): unknown }
-				).constructor(...args);
-				assert(
-					result === undefined || result === obj,
-					"Command class constructors are not allowed to return values.",
-				);
-			},
-		] as const;
 	}
 }
