@@ -67,7 +67,7 @@ export namespace CenturionUI {
 				],
 			},
 			(ctx, theme: string) => {
-				if (!((theme as string) in DefaultPalette)) {
+				if (!(theme in DefaultPalette)) {
 					ctx.error("Invalid theme");
 					return;
 				}
