@@ -15,10 +15,10 @@ import {
 } from "../util/data";
 import { CenturionLogger } from "../util/log";
 import { splitString } from "../util/string";
-import { TransformResult } from "../util/type";
 import { CommandContext } from "./context";
 import { ImmutableRegistryPath } from "./path";
 import { BaseRegistry } from "./registry";
+import { TransformResult } from "./type";
 
 export interface CommandMetadata {
 	ctor: new () => object;

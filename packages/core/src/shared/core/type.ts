@@ -1,7 +1,6 @@
 import { t } from "@rbxts/t";
-import { MetadataKey } from "../core/decorators";
 import { ListArgumentType, SingleArgumentType } from "../types";
-import { MetadataReflect } from "./reflect";
+import { DecoratorMetadata, MetadataKey } from "./metadata";
 
 export namespace TransformResult {
 	export type Object<T> = { ok: true; value: T } | { ok: false; value: string };
@@ -147,7 +146,7 @@ export class TypeBuilder<T> {
 		} satisfies SingleArgumentType<T>;
 
 		if (this.marked) {
-			MetadataReflect.defineMetadata(argType, MetadataKey.Type, true);
+			DecoratorMetadata.defineMetadata(argType, MetadataKey.Type, true);
 		}
 
 		return argType;
@@ -271,7 +270,7 @@ export class ListTypeBuilder<T extends defined[]> {
 		} satisfies ListArgumentType<T>;
 
 		if (this.marked) {
-			MetadataReflect.defineMetadata(argType, MetadataKey.Type, true);
+			DecoratorMetadata.defineMetadata(argType, MetadataKey.Type, true);
 		}
 
 		return argType;

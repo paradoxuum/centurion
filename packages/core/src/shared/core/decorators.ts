@@ -1,17 +1,9 @@
 import { CommandGuard, CommandOptions, RegisterOptions } from "../types";
-import { MetadataReflect } from "../util/reflect";
-
-export enum MetadataKey {
-	Register = "register",
-	Type = "type",
-	Command = "command",
-	Group = "group",
-	Guard = "guard",
-}
+import { DecoratorMetadata, MetadataKey } from "./metadata";
 
 export function Register(options?: Partial<RegisterOptions>) {
 	return (target: new () => object) => {
-		MetadataReflect.defineMetadata(target, MetadataKey.Register, {
+		DecoratorMetadata.defineMetadata(target, MetadataKey.Register, {
 			groups: [],
 			...options,
 		} satisfies RegisterOptions);
@@ -20,7 +12,7 @@ export function Register(options?: Partial<RegisterOptions>) {
 
 export function Command(options?: Partial<CommandOptions>) {
 	return (target: unknown, key: string) => {
-		MetadataReflect.defineMetadata(
+		DecoratorMetadata.defineMetadata(
 			target as never,
 			MetadataKey.Command,
 			{
@@ -34,7 +26,7 @@ export function Command(options?: Partial<CommandOptions>) {
 
 export function Group(...groups: string[]) {
 	return (target: unknown, key?: string) => {
-		MetadataReflect.defineMetadata(
+		DecoratorMetadata.defineMetadata(
 			target as never,
 			MetadataKey.Group,
 			groups,
@@ -45,7 +37,7 @@ export function Group(...groups: string[]) {
 
 export function Guard(...guards: CommandGuard[]) {
 	return (target: unknown, key?: string) => {
-		MetadataReflect.defineMetadata(
+		DecoratorMetadata.defineMetadata(
 			target as never,
 			MetadataKey.Guard,
 			guards,

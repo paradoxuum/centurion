@@ -11,7 +11,6 @@ import {
 } from "../types";
 import { ReadonlyDeep } from "../util/data";
 import { CenturionLogger } from "../util/log";
-import { MetadataReflect } from "../util/reflect";
 import {
 	BaseCommand,
 	CommandGroup,
@@ -19,7 +18,7 @@ import {
 	ExecutableCommand,
 } from "./command";
 import { CommandContext } from "./context";
-import { MetadataKey } from "./decorators";
+import { DecoratorMetadata, MetadataKey } from "./metadata";
 import { ImmutableRegistryPath, RegistryPath } from "./path";
 
 type Constructor<T = object> = new (...args: never[]) => T;
@@ -125,16 +124,16 @@ export abstract class BaseRegistry<
 	 */
 	register() {
 		const constructors: Constructor<object>[] = [];
-		for (const [obj] of MetadataReflect.metadata) {
+		for (const [obj] of DecoratorMetadata.metadata) {
 			if (this.registeredObjects.has(obj)) continue;
 
-			if (MetadataReflect.hasOwnMetadata(obj, MetadataKey.Register)) {
+			if (DecoratorMetadata.hasOwnMetadata(obj, MetadataKey.Register)) {
 				constructors.push(obj as Constructor<object>);
 				continue;
 			}
 
 			if (
-				MetadataReflect.hasOwnMetadata(obj, MetadataKey.Type) &&
+				DecoratorMetadata.hasOwnMetadata(obj, MetadataKey.Type) &&
 				isArgumentType(obj)
 			) {
 				this.registerType(obj);
@@ -407,7 +406,7 @@ export abstract class BaseRegistry<
 	}
 
 	private registerCommandClass<T extends object>(commandClass: Constructor<T>) {
-		const registerOptions = MetadataReflect.getOwnMetadata<RegisterOptions>(
+		const registerOptions = DecoratorMetadata.getOwnMetadata<RegisterOptions>(
 			commandClass,
 			MetadataKey.Register,
 		);
@@ -421,13 +420,13 @@ export abstract class BaseRegistry<
 		}
 
 		const classGroups =
-			MetadataReflect.getOwnMetadata<string[]>(
+			DecoratorMetadata.getOwnMetadata<string[]>(
 				commandClass,
 				MetadataKey.Group,
 			) ?? [];
 
 		const classGuards =
-			MetadataReflect.getOwnMetadata<CommandGuard[]>(
+			DecoratorMetadata.getOwnMetadata<CommandGuard[]>(
 				commandClass,
 				MetadataKey.Guard,
 			) ?? [];
@@ -435,9 +434,9 @@ export abstract class BaseRegistry<
 		const [obj, construct] = this.getConstructor(commandClass);
 		construct();
 
-		for (const property of MetadataReflect.getOwnProperties(commandClass)) {
+		for (const property of DecoratorMetadata.getOwnProperties(commandClass)) {
 			// Get decorator data
-			const options = MetadataReflect.getOwnMetadata<CommandOptions>(
+			const options = DecoratorMetadata.getOwnMetadata<CommandOptions>(
 				commandClass,
 				MetadataKey.Command,
 				property,
@@ -447,14 +446,14 @@ export abstract class BaseRegistry<
 				`Metadata not found for @Command: ${commandClass}/${property}`,
 			);
 
-			const group = MetadataReflect.getOwnMetadata<string[]>(
+			const group = DecoratorMetadata.getOwnMetadata<string[]>(
 				commandClass,
 				MetadataKey.Group,
 				property,
 			);
 
 			const guards =
-				MetadataReflect.getOwnMetadata<CommandGuard[]>(
+				DecoratorMetadata.getOwnMetadata<CommandGuard[]>(
 					commandClass,
 					MetadataKey.Guard,
 					property,

@@ -1,7 +1,6 @@
 import { t } from "@rbxts/t";
 import { CenturionType } from ".";
-import { BaseRegistry } from "../../core/registry";
-import { TransformResult, TypeBuilder } from "../../util/type";
+import { BaseRegistry, TransformResult, TypeBuilder } from "../../core";
 
 const brickColorNames = new Set([
 	"White",

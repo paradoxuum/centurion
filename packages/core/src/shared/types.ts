@@ -1,7 +1,6 @@
 import { t } from "@rbxts/t";
-import { CommandContext } from "./core/context";
-import { CenturionLogLevel } from "./util/log";
-import { TransformResult } from "./util/type";
+import { CommandContext, TransformResult } from "./core";
+import { CenturionLogLevel } from "./util";
 
 export type CommandCallback = (
 	context: CommandContext,

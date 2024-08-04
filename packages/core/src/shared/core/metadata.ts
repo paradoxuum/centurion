@@ -1,9 +1,17 @@
+export enum MetadataKey {
+	Register = "register",
+	Type = "type",
+	Command = "command",
+	Group = "group",
+	Guard = "guard",
+}
+
 /**
  * Reflection/metadata API
  *
  * @see https://github.com/rbxts-flamework/core/blob/20683a7f7eb1f8844f7f75e643d764222d06ef24/src/reflect.ts
  */
-export namespace MetadataReflect {
+export namespace DecoratorMetadata {
 	// object -> property -> key -> value
 	export const metadata = new WeakMap<
 		object,
@@ -57,20 +65,10 @@ export namespace MetadataReflect {
 	 */
 	export function defineMetadata(
 		obj: object,
-		key: string,
+		key: MetadataKey,
 		value: unknown,
 		property?: string,
 	) {
-		// 'identifier' is a special, unique ID across all metadata classes.
-		if (key === "identifier") {
-			assert(typeIs(value, "string"), "identifier must be a string.");
-			assert(!objToId.has(obj), "obj is already registered.");
-			assert(!idToObj.has(value as never), "id is already registered.");
-
-			objToId.set(obj, value);
-			idToObj.set(value, obj);
-		}
-
 		const metadata = getObjMetadata(obj, property, true);
 		metadata.set(key, value);
 	}

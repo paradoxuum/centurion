@@ -1,7 +1,6 @@
 import { t } from "@rbxts/t";
 import { CenturionType } from ".";
-import { BaseRegistry } from "../../core";
-import { TransformResult, TypeBuilder } from "../../util";
+import { BaseRegistry, TransformResult, TypeBuilder } from "../../core";
 
 const DAY_SECONDS = 86400;
 const YEAR_DAYS = 365.25;

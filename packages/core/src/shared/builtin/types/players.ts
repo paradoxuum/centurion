@@ -1,8 +1,12 @@
 import { Players } from "@rbxts/services";
 import { t } from "@rbxts/t";
 import { CenturionType } from ".";
-import { BaseRegistry } from "../../core/registry";
-import { ListTypeBuilder, TransformResult, TypeBuilder } from "../../util/type";
+import {
+	BaseRegistry,
+	ListTypeBuilder,
+	TransformResult,
+	TypeBuilder,
+} from "../../core";
 
 const getPlayer = (
 	text: string,
