@@ -7,8 +7,6 @@ import { CommandContext } from "./context";
 import { RegistryPath } from "./path";
 import { BaseRegistry } from "./registry";
 
-const DEFAULT_REPLY_TEXT = "Command executed.";
-
 export abstract class BaseDispatcher<
 	C extends ReadonlyDeep<SharedConfig> = ReadonlyDeep<SharedConfig>,
 	R extends BaseRegistry<C> = BaseRegistry<C>,
@@ -46,14 +44,14 @@ export abstract class BaseDispatcher<
 		context.state = this.config.defaultContextState;
 
 		if (command === undefined) {
-			context.error("Command not found.");
+			context.error(this.config.messages.notFound);
 			return context;
 		}
 
 		command.execute(context, args);
 		this.commandExecuted.Fire(context);
 		if (!context.isReplyReceived() && !command.options.disableDefaultReply) {
-			context.reply(DEFAULT_REPLY_TEXT);
+			context.reply(this.config.messages.default);
 		}
 		return context;
 	}

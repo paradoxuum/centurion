@@ -12,7 +12,7 @@ export class ServerCommand extends BaseCommand {
 	private readonly remote: ClientRemotes.Execute;
 
 	constructor(
-		config: ReadonlyDeep<ClientConfig>,
+		private readonly config: ReadonlyDeep<ClientConfig>,
 		registry: BaseRegistry,
 		path: ImmutableRegistryPath,
 		options: CommandOptions,
@@ -27,7 +27,7 @@ export class ServerCommand extends BaseCommand {
 		);
 
 		if (!success) {
-			context.error("An error occurred.");
+			context.error(this.config.messages.error);
 			return;
 		}
 

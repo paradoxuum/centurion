@@ -83,7 +83,7 @@ export class ServerDispatcher extends BaseDispatcher<
 				args,
 				inputText,
 			);
-			context.error("Command not found.");
+			context.error(this.config.messages.notFound);
 			return context;
 		}
 
@@ -98,7 +98,7 @@ export class ServerDispatcher extends BaseDispatcher<
 				inputText,
 			);
 			context.state = this.config.defaultContextState;
-			context.error("An error occurred.");
+			context.error(this.config.messages.error);
 			return context;
 		});
 	}

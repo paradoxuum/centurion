@@ -13,7 +13,14 @@ export interface SharedConfig {
 	registerBuiltInTypes: boolean;
 	logLevel: CenturionLogLevel;
 	guards: CommandGuard[];
+	messages: CommandMessages;
 	defaultContextState?: defined;
+}
+
+export interface CommandMessages {
+	default: string;
+	error: string;
+	notFound: string;
 }
 
 export interface RegisterOptions {
