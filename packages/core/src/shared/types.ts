@@ -72,11 +72,6 @@ export interface GroupOptions {
 	parent?: string[];
 }
 
-export interface CommandMetadata {
-	options: CommandOptions;
-	func: (...args: unknown[]) => unknown;
-}
-
 export interface CommandReply {
 	success: boolean;
 	text: string;

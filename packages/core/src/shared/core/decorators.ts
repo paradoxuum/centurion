@@ -1,9 +1,4 @@
-import {
-	CommandGuard,
-	CommandMetadata,
-	CommandOptions,
-	RegisterOptions,
-} from "../types";
+import { CommandGuard, CommandOptions, RegisterOptions } from "../types";
 import { MetadataReflect } from "../util/reflect";
 
 export enum MetadataKey {
@@ -25,17 +20,13 @@ export function Register(options?: Partial<RegisterOptions>) {
 
 export function Command(options?: Partial<CommandOptions>) {
 	return (target: unknown, key: string) => {
-		const commandData: CommandMetadata = {
-			options: {
-				name: key,
-				...options,
-			},
-			func: (target as Record<string, unknown>)[key] as never,
-		};
 		MetadataReflect.defineMetadata(
 			target as never,
 			MetadataKey.Command,
-			commandData,
+			{
+				name: key,
+				...options,
+			} satisfies CommandOptions,
 			key,
 		);
 	};

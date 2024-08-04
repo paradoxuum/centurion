@@ -4,7 +4,6 @@ import {
 	ArgumentType,
 	CommandCallback,
 	CommandGuard,
-	CommandMetadata,
 	CommandOptions,
 	GroupOptions,
 	RegisterOptions,
@@ -13,10 +12,17 @@ import {
 import { ReadonlyDeep } from "../util/data";
 import { CenturionLogger } from "../util/log";
 import { MetadataReflect } from "../util/reflect";
-import { BaseCommand, CommandGroup, ExecutableCommand } from "./command";
+import {
+	BaseCommand,
+	CommandGroup,
+	CommandMetadata,
+	ExecutableCommand,
+} from "./command";
 import { CommandContext } from "./context";
 import { MetadataKey } from "./decorators";
 import { ImmutableRegistryPath, RegistryPath } from "./path";
+
+type Constructor<T = object> = new (...args: never[]) => T;
 
 const argTypeSchema = t.interface({
 	name: t.string,
@@ -118,12 +124,12 @@ export abstract class BaseRegistry<
 	 * If the command/type has already been registered, it will be skipped.
 	 */
 	register() {
-		const commandObjects: object[] = [];
+		const constructors: Constructor<object>[] = [];
 		for (const [obj] of MetadataReflect.metadata) {
 			if (this.registeredObjects.has(obj)) continue;
 
 			if (MetadataReflect.hasOwnMetadata(obj, MetadataKey.Register)) {
-				commandObjects.push(obj);
+				constructors.push(obj as Constructor<object>);
 				continue;
 			}
 
@@ -136,9 +142,9 @@ export abstract class BaseRegistry<
 			}
 		}
 
-		for (const obj of commandObjects) {
-			this.registerCommandClass(obj);
-			this.registeredObjects.add(obj);
+		for (const ctor of constructors) {
+			this.registerCommandClass(ctor);
+			this.registeredObjects.add(ctor);
 		}
 	}
 
@@ -373,6 +379,7 @@ export abstract class BaseRegistry<
 		callback: CommandCallback,
 		group?: ImmutableRegistryPath,
 		guards: CommandGuard[] = [],
+		metadata?: CommandMetadata,
 	) {
 		const commandPath =
 			group !== undefined
@@ -395,10 +402,11 @@ export abstract class BaseRegistry<
 			options,
 			callback,
 			guards !== undefined ? [...guards] : [],
+			metadata,
 		);
 	}
 
-	private registerCommandClass(commandClass: object) {
+	private registerCommandClass<T extends object>(commandClass: Constructor<T>) {
 		const registerOptions = MetadataReflect.getOwnMetadata<RegisterOptions>(
 			commandClass,
 			MetadataKey.Register,
@@ -424,15 +432,18 @@ export abstract class BaseRegistry<
 				MetadataKey.Guard,
 			) ?? [];
 
+		const [obj, construct] = this.getConstructor(commandClass);
+		construct();
+
 		for (const property of MetadataReflect.getOwnProperties(commandClass)) {
 			// Get decorator data
-			const metadata = MetadataReflect.getOwnMetadata<CommandMetadata>(
+			const options = MetadataReflect.getOwnMetadata<CommandOptions>(
 				commandClass,
 				MetadataKey.Command,
 				property,
 			);
 			this.logger.assert(
-				metadata !== undefined,
+				options !== undefined,
 				`Metadata not found for @Command: ${commandClass}/${property}`,
 			);
 
@@ -456,14 +467,22 @@ export abstract class BaseRegistry<
 				}
 			}
 
+			const callback = (commandClass as never as Record<string, unknown>)[
+				property
+			] as Callback;
 			this.addCommand(
 				this.createCommand(
-					metadata.options,
-					(ctx, ...args) => metadata.func(commandClass, ctx, ...args),
+					options,
+					(ctx, ...args) => callback(commandClass, ctx, ...args),
 					!groupParts.isEmpty()
 						? new ImmutableRegistryPath(groupParts)
 						: undefined,
 					[...this.globalGuards, ...classGuards, ...guards],
+					{
+						ctor: commandClass,
+						instance: obj,
+						property,
+					},
 				),
 			);
 		}
@@ -494,5 +513,22 @@ export abstract class BaseRegistry<
 		if (groupRegistered) {
 			this.logger.error(`Duplicate group: ${path}`);
 		}
+	}
+
+	private getConstructor<T extends Constructor<unknown>>(ctor: T) {
+		const obj = setmetatable({}, ctor as never) as InstanceType<T>;
+
+		return [
+			obj,
+			(...args: ConstructorParameters<T>) => {
+				const result = (
+					obj as { constructor(...args: unknown[]): unknown }
+				).constructor(...args);
+				assert(
+					result === undefined || result === obj,
+					"Command class constructors are not allowed to return values.",
+				);
+			},
+		] as const;
 	}
 }

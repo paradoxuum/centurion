@@ -20,6 +20,12 @@ import { CommandContext } from "./context";
 import { ImmutableRegistryPath } from "./path";
 import { BaseRegistry } from "./registry";
 
+export interface CommandMetadata {
+	ctor: new () => object;
+	instance: object;
+	property: string;
+}
+
 interface ArgumentData {
 	options: ArgumentOptions;
 	type: ArgumentType<unknown>;
@@ -110,6 +116,7 @@ export class ExecutableCommand extends BaseCommand {
 		options: CommandOptions,
 		callback: CommandCallback,
 		guards: CommandGuard[],
+		readonly metadata?: CommandMetadata,
 	) {
 		super(config, registry, path, options);
 		this.callback = callback;
