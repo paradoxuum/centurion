@@ -28,7 +28,7 @@ export class ServerRegistry extends BaseRegistry<ReadonlyDeep<ServerConfig>> {
 		});
 
 		this.config.network.syncStart.Connect((player) => {
-			this.syncToPlayer(player);
+			this.sync(player);
 		});
 
 		this.initialized = true;
@@ -40,16 +40,7 @@ export class ServerRegistry extends BaseRegistry<ReadonlyDeep<ServerConfig>> {
 		return syncedCommands.has(path.toString());
 	}
 
-	protected addCommand(command: BaseCommand, group?: CommandGroup | undefined) {
-		super.addCommand(command, group);
-		if (!this.initialized) return;
-
-		for (const [player] of this.syncedCommands) {
-			this.syncToPlayer(player);
-		}
-	}
-
-	private syncToPlayer(player: Player) {
+	sync(player: Player) {
 		const data = {
 			commands: new Map(),
 			groups: new Map(),
@@ -87,5 +78,14 @@ export class ServerRegistry extends BaseRegistry<ReadonlyDeep<ServerConfig>> {
 
 		this.logger.debug(`Syncing data to ${player.Name}`, data);
 		this.config.network.syncDispatch.Fire(player, data);
+	}
+
+	protected addCommand(command: BaseCommand, group?: CommandGroup | undefined) {
+		super.addCommand(command, group);
+		if (!this.initialized) return;
+
+		for (const [player] of this.syncedCommands) {
+			this.sync(player);
+		}
 	}
 }
