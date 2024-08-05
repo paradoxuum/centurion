@@ -431,7 +431,7 @@ export abstract class BaseRegistry<
 				MetadataKey.Guard,
 			) ?? [];
 
-		const instance = this.config.constructCommand(commandClass);
+		const instance = this.config.construct(commandClass);
 		for (const property of DecoratorMetadata.getOwnProperties(commandClass)) {
 			// Get decorator data
 			const options = DecoratorMetadata.getOwnMetadata<CommandOptions>(

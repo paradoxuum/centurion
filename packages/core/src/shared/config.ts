@@ -10,7 +10,7 @@ export const DEFAULT_CONFIG: SharedConfig = {
 		error: "An error occurred.",
 		notFound: "Command not found.",
 	},
-	constructCommand: (ctor) => {
+	construct: (ctor) => {
 		const obj = setmetatable({}, ctor as never) as object;
 		const result = (obj as { constructor(): unknown }).constructor();
 		assert(
