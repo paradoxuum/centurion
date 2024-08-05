@@ -210,12 +210,12 @@ export function TerminalTextField({
 		if (argIndex === undefined || commandArgs === undefined) return;
 
 		let newText = text();
-		let otherSuggestion = suggestion.others[0];
-		if (string.match(otherSuggestion, "%s")[0] !== undefined) {
-			otherSuggestion = `"${otherSuggestion}"`;
-		}
+		const otherSuggestion = suggestion.others[0];
+		newText = newText.sub(0, newText.size() - (currentTextPart()?.size() ?? 0));
+		newText += otherSuggestion.match("%s").isEmpty()
+			? otherSuggestion
+			: `"${otherSuggestion}"`;
 
-		newText += otherSuggestion.sub((currentTextPart()?.size() ?? 0) + 1);
 		if (argIndex < commandArgs.size() - 1) {
 			newText += " ";
 		}
