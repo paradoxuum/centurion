@@ -1,5 +1,5 @@
 import { describe, expect, test } from "@rbxts/jest-globals";
-import { endsWithSpace, formatPartsAsPath, splitString } from "../util/string";
+import { splitString } from "../util/string";
 
 describe("split string", () => {
 	test("splits single characters", () => {
@@ -26,15 +26,4 @@ describe("split string", () => {
 		expect(parts[3]).toBe("part4");
 		expect(parts[4]).toBe("part5");
 	});
-});
-
-test("determines if a string ends in a space", () => {
-	expect(endsWithSpace("test")).toBeFalsy();
-	expect(endsWithSpace("test   ")).toBeTruthy();
-});
-
-test("formats string array as a path string", () => {
-	const pathString = "part1/part2/part3";
-	const parts = pathString.split("/");
-	expect(formatPartsAsPath(parts)).toBe(pathString);
 });

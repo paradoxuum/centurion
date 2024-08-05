@@ -1,7 +1,3 @@
-import {
-	endsWithSpace,
-	formatPartsAsPath,
-} from "@rbxts/centurion/out/shared/util/string";
 import { subscribe } from "@rbxts/charm";
 import { UserInputService } from "@rbxts/services";
 import Vide, { cleanup, Derivable, effect, source } from "@rbxts/vide";
@@ -25,7 +21,7 @@ import { Frame } from "../ui/frame";
 import { Padding } from "../ui/padding";
 import { Text } from "../ui/text";
 import { TextField } from "../ui/text-field";
-import { getArgumentNames } from "./command";
+import { formatPartsAsPath, getArgumentNames } from "./command";
 
 interface TerminalTextFieldProps {
 	anchorPoint?: Derivable<Vector2>;
@@ -104,7 +100,7 @@ export function TerminalTextField({
 			return;
 		}
 
-		const atNextPart = endsWithSpace(terminalText());
+		const atNextPart = terminalText().sub(-1) === " ";
 		const textParts = terminalTextParts();
 		if (textParts.isEmpty()) {
 			suggestionText(suggestion.title);
@@ -172,7 +168,7 @@ export function TerminalTextField({
 			const pathParts = [...textParts];
 
 			let newText = currentText;
-			if (endsWithSpace(currentText)) {
+			if (currentText.sub(-1) === " ") {
 				newText += suggestionTitle;
 				pathParts.push(suggestionTitle);
 			} else if (!textParts.isEmpty()) {

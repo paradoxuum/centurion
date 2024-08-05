@@ -1,9 +1,6 @@
 import { ArgumentOptions, RegistryPath } from "@rbxts/centurion";
 import { ArrayUtil, ReadonlyDeep } from "@rbxts/centurion/out/shared/util/data";
-import {
-	endsWithSpace,
-	splitString,
-} from "@rbxts/centurion/out/shared/util/string";
+import { splitString } from "@rbxts/centurion/out/shared/util/string";
 import Vide, { effect, source } from "@rbxts/vide";
 import { HISTORY_TEXT_SIZE } from "../../constants/text";
 import { getAPI } from "../../hooks/use-api";
@@ -96,11 +93,10 @@ export function Terminal() {
 
 					// If the text ends in a space, we want to count that as having traversed
 					// to the next "part" of the text.
-					const atNextPart = endsWithSpace(text);
+					const atNextPart = text.sub(-1) === " ";
 					const path = getValidPath(api.registry, parts);
 					const command =
 						path !== undefined ? api.registry.getCommand(path) : undefined;
-					const atCommand = command !== undefined;
 
 					if (command !== undefined) {
 						// Check for missing arguments

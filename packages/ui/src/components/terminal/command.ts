@@ -4,8 +4,11 @@ import {
 	RegistryPath,
 } from "@rbxts/centurion";
 import { BaseCommand } from "@rbxts/centurion/out/shared/core/command";
-import { formatPartsAsPath } from "@rbxts/centurion/out/shared/util/string";
 import { IS_EDIT } from "../../constants/util";
+
+export function formatPartsAsPath(parts: string[]) {
+	return parts.join("/");
+}
 
 export function getValidPath(registry: BaseRegistry, text: string[]) {
 	if (text.size() === 0) return;

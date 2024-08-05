@@ -101,14 +101,6 @@ export function splitString(
 	return t;
 }
 
-export function endsWithSpace(text: string) {
-	return text.size() > 0 && text.match("%s$").size() > 0;
-}
-
-export function formatPartsAsPath(textParts: string[]) {
-	return textParts.join("/");
-}
-
 /**
  * Returns the input text of a command with the given arguments.
  *
