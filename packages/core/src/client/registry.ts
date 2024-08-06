@@ -11,6 +11,12 @@ export class ClientRegistry extends BaseRegistry<ReadonlyDeep<ClientConfig>> {
 	private initialSyncReceived = false;
 	private syncedPaths = new Set<string>();
 
+	/**
+	 * Initializes the client registry.
+	 *
+	 * @internal
+	 * @ignore
+	 */
 	init() {
 		super.init();
 		if (this.config.registerBuiltInCommands) {

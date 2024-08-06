@@ -14,6 +14,12 @@ export class ClientDispatcher extends BaseDispatcher<
 	private readonly history: HistoryEntry[] = [];
 	readonly historyUpdated = new Signal<[history: HistoryEntry[]]>();
 
+	/**
+	 * Initializes the client dispatcher.
+	 *
+	 * @internal
+	 * @ignore
+	 */
 	init() {
 		if (this.config.shortcutsEnabled) {
 			this.registry.commandRegistered.Connect((command) =>

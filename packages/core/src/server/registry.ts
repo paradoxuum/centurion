@@ -18,6 +18,7 @@ export class ServerRegistry extends BaseRegistry<ReadonlyDeep<ServerConfig>> {
 	 * Initializes the server registry.
 	 *
 	 * @param options Server options
+	 * @internal
 	 * @ignore
 	 */
 	init() {

@@ -15,10 +15,8 @@ export class ServerDispatcher extends BaseDispatcher<
 	/**
 	 * Initializes the server dispatcher.
 	 *
-	 * This handles any connections to dispatcher remotes. It is
-	 * required in order to handle server command execution from clients.
-	 *
 	 * @param options Server options
+	 * @internal
 	 * @ignore
 	 */
 	init() {
