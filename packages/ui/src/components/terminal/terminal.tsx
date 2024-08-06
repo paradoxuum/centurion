@@ -111,6 +111,7 @@ export function Terminal() {
 								(atNextPart && missing.size() === 1),
 						);
 					} else {
+						currentCommandPath(undefined);
 						terminalTextValid(false);
 					}
 
