@@ -114,16 +114,8 @@ export function getInputText(path: RegistryPath, args: string[]) {
 		return pathText;
 	}
 
-	let argText = "";
-	let index = 0;
-	for (const arg of args) {
-		if (index > 0) {
-			argText += " ";
-		}
-
-		argText += arg.match("%s").isEmpty() ? arg : `"${arg}"`;
-		index++;
-	}
-
-	return `${path} ${argText}`;
+	const argText = args
+		.map((arg) => (arg.match("%s").isEmpty() ? arg : `"${arg}"`))
+		.join(" ");
+	return `${pathText} ${argText}`;
 }

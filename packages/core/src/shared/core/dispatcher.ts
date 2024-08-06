@@ -27,12 +27,6 @@ export abstract class BaseDispatcher<
 		inputText: string,
 		args: string[] = [],
 	) {
-		if (this.logger.level === CenturionLogLevel.Debug) {
-			this.logger.debug(
-				`Executing command with executor '${executor.Name}': ${getInputText(path, args)}`,
-			);
-		}
-
 		const command = this.registry.getCommand(path);
 		const context = new CommandContext(
 			this.logger,
@@ -46,6 +40,12 @@ export abstract class BaseDispatcher<
 		if (command === undefined) {
 			context.error(this.config.messages.notFound);
 			return context;
+		}
+
+		if (this.logger.level === CenturionLogLevel.Debug) {
+			this.logger.debug(
+				`Executing command with executor '${executor.Name}': ${getInputText(path, args)}`,
+			);
 		}
 
 		command.execute(context, args);
