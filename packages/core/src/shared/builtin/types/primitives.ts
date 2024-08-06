@@ -5,7 +5,7 @@ import { BaseRegistry, TransformResult, TypeBuilder } from "../../core";
 const transformToNumber = (text: string) => {
 	const num = tonumber(text);
 	if (num === undefined) {
-		return TransformResult.err<number>("Invalid number");
+		return TransformResult.err<number>(`Invalid number: ${text}`);
 	}
 
 	return TransformResult.ok(num);
@@ -32,7 +32,7 @@ const integerType = TypeBuilder.create<number>(CenturionType.Integer)
 		const num = numResult.value;
 		return t.integer(num)
 			? TransformResult.ok(num)
-			: TransformResult.err("Invalid integer");
+			: TransformResult.err(`Invalid integer: ${text}`);
 	})
 	.build();
 
@@ -45,7 +45,7 @@ const booleanType = TypeBuilder.create<boolean>(CenturionType.Boolean)
 		if (truthyValues.has(textLower)) return TransformResult.ok(true);
 		if (falsyValues.has(textLower)) return TransformResult.ok(false);
 
-		return TransformResult.err("Invalid boolean");
+		return TransformResult.err(`Invalid boolean: ${text}`);
 	})
 	.build();
 

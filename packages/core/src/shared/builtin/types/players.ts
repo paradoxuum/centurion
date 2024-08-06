@@ -10,12 +10,10 @@ import {
 
 const getPlayer = (
 	text: string,
-	executor?: Player,
+	executor: Player,
 ): TransformResult.Object<Player> => {
 	if (text === "@me" || text === ".") {
-		return executor !== undefined
-			? TransformResult.ok(executor)
-			: TransformResult.err("Player not found");
+		return TransformResult.ok(executor);
 	}
 
 	if (text === "@random" || text === "?") {
@@ -29,7 +27,7 @@ const getPlayer = (
 		}
 	}
 
-	return TransformResult.err("Player not found");
+	return TransformResult.err(`Player not found: ${text}`);
 };
 
 const getPlayerSuggestions = () => [

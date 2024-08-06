@@ -8,7 +8,7 @@ const teamType = TypeBuilder.create<Team>(CenturionType.Team)
 	.transform((text) => {
 		const team = Teams.FindFirstChild(text);
 		if (team === undefined || !classIs(team, "Team")) {
-			return TransformResult.err("Team not found");
+			return TransformResult.err(`Team not found: ${text}`);
 		}
 		return TransformResult.ok(team);
 	})

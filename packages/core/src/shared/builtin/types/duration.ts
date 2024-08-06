@@ -44,11 +44,11 @@ const durationType = TypeBuilder.create<number>(CenturionType.Duration)
 
 			const num = tonumber(numStr);
 			if (num === undefined) {
-				return TransformResult.err("Invalid number");
+				return TransformResult.err(`Invalid number: ${numStr}`);
 			}
 
 			if (!typeIs(unit, "string")) {
-				return TransformResult.err("Invalid unit");
+				return TransformResult.err(`Invalid unit: ${unit}`);
 			}
 
 			const unitKey = UNITS.get(unit.lower());
