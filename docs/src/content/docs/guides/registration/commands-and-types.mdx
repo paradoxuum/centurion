@@ -35,14 +35,11 @@ server.registry.load(ReplicatedStorage.types);
 server.start();
 `} />
 
-Types can also be registered manually through the
-[registerType](/reference/registry#registertypetypes) method.
-
-## Registry synchronization
+## Synchronization
 
 Commands registered on the server will be synced to the client. You can filter
-commands by providing a callback to the `filter` option.
+commands by providing a callback to the `syncFilter` option on the server.
 
-Types are **not** synchronized as functions cannot be sent across the network, so you will
+Types are **not** synchronized because functions cannot be sent across the network, so you will
 have to register them on both the server and client. Due to this limitation, it is recommended
 to store your types in a shared folder you can easily load from both sides.
