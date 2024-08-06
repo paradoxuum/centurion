@@ -10,16 +10,15 @@ They can be configured with one or more key combinations.
 
 ## Configuration
 
-Shortcuts can be enabled or disabled by configuring the `shortcutsEnabled` option when starting
-`CenturionClient`.
+Shortcuts can be enabled or disabled by configuring the `shortcutsEnabled` option on the client.
 
 Shortcuts are **enabled** by default.
 
 <Code lang="ts" code={`
-CenturionClient.start((registry) => {}, {
+Centurion.client({
     shortcutsEnabled: false,
-});`
-} />
+});
+`} />
 
 ## Usage
 

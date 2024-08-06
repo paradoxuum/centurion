@@ -26,16 +26,13 @@ manually using [registerType](/reference/registry#registertypetypes). One caveat
 the [load](/reference/registry#loadcontainer-descendants) method for the exported function to be called.
 
 <Code lang="ts" code={`
-const types = ReplicatedStorage.types;
+const server = Centurion.server();
 
-CenturionServer.start((registry) => {
-    // Load command/type modules
-    registry.load(script.Parent.commands);
-    registry.load(types);
+// Load command/type modules
+server.registry.load(script.Parent.commands);
+server.registry.load(ReplicatedStorage.types);
 
-    // Register commands and types
-    registry.register();
-}).catch((err) => warn("Centurion could not be started:", tostring(err)));
+server.start();
 `} />
 
 Types can also be registered manually through the

@@ -6,28 +6,52 @@ sidebar:
 ---
 
 import { Code } from '@astrojs/starlight/components';
+import { TabItem, Tabs } from '@astrojs/starlight/components';
 
-Groups must be registered through the [registerGroup](/reference/registry#registergroupgroups) method.
+Groups should typically be registered through the [@Register](/reference/decorators#register) decorator.
+
+Alternatively, you can use the [registerGroup](/reference/registry#registergroupgroups) method. This
+is useful if you want to share groups between classes decorated with `@Register`.
 
 Similar to commands, groups are synchronized to the client.
 
+<Tabs>
+<TabItem label="Decorator">
 <Code lang="ts" code={`
-CenturionServer.start((registry) => {
-	registry.registerGroup(
-		{
-			name: "info",
-			description: "View info about a user or the server",
-		},
-		{
-			name: "user",
-			description: "View info about a user",
-			parent: ["info"],
-		},
-		{
-			name: "server",
-			description: "View info about the server",
-			parent: ["info"],
-		},
-	);
-}).catch((err) => warn("Centurion could not be started:", tostring(err)));
+@Register({
+    groups: [
+        {
+            name: "example",
+            description: "Example group"
+        }
+    ]
+})
+export class MyCommand {
+    // ...
+}
 `} />
+
+</TabItem>
+<TabItem label="Registry">
+<Code lang="ts" code={`
+const server = Centurion.server();
+server.registry.registerGroup(
+	{
+		name: "info",
+		description: "View info about a user or the server",
+	},
+	{
+		name: "user",
+		description: "View info about a user",
+		parent: ["info"],
+	},
+	{
+		name: "server",
+		description: "View info about the server",
+		parent: ["info"],
+	},
+)
+server.start();
+`} />
+</TabItem>
+</Tabs>
