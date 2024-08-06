@@ -42,7 +42,11 @@ export function CenturionApp(client: CenturionClient) {
 	});
 
 	return (
-		<Layer displayOrder={() => options().displayOrder} visible={visible}>
+		<Layer
+			name="Centurion"
+			displayOrder={() => options().displayOrder}
+			visible={visible}
+		>
 			<Group
 				anchorPoint={() => options().anchorPoint}
 				size={() => {

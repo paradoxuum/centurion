@@ -1,6 +1,7 @@
 import Vide, { Derivable } from "@rbxts/vide";
 
 interface GroupProps extends Vide.PropsWithChildren {
+	name?: Derivable<string>;
 	size?: Derivable<UDim2>;
 	position?: Derivable<UDim2>;
 	anchorPoint?: Derivable<Vector2>;
@@ -16,6 +17,7 @@ interface GroupProps extends Vide.PropsWithChildren {
 export function Group(props: GroupProps) {
 	return (
 		<frame
+			Name={props.name}
 			Size={props.size || UDim2.fromScale(1, 1)}
 			Position={props.position}
 			AnchorPoint={props.anchorPoint}

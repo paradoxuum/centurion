@@ -3,13 +3,14 @@ import { IS_EDIT } from "../../constants/util";
 import { Group } from "./group";
 
 interface LayerProps extends Vide.PropsWithChildren {
+	name?: Derivable<string>;
 	visible?: Derivable<boolean>;
 	displayOrder?: Derivable<number>;
 }
 
-export function Layer({ visible, displayOrder, children }: LayerProps) {
+export function Layer({ name, visible, displayOrder, children }: LayerProps) {
 	return IS_EDIT ? (
-		<Group visible={visible} zIndex={displayOrder}>
+		<Group name={name} visible={visible} zIndex={displayOrder}>
 			{children}
 		</Group>
 	) : (
@@ -19,6 +20,7 @@ export function Layer({ visible, displayOrder, children }: LayerProps) {
 			DisplayOrder={displayOrder}
 			IgnoreGuiInset
 			ZIndexBehavior="Sibling"
+			Name={name}
 		>
 			{children}
 		</screengui>
