@@ -33,8 +33,8 @@ export interface SingleArgumentType<T> {
 	name: string;
 	expensive: boolean;
 	validate: t.check<T>;
-	transform: (text: string, executor?: Player) => TransformResult.Object<T>;
-	suggestions?: (text: string, executor?: Player) => string[];
+	transform: (text: string, executor: Player) => TransformResult.Object<T>;
+	suggestions?: (text: string, executor: Player) => string[];
 }
 
 export interface ListArgumentType<T> {
@@ -42,8 +42,8 @@ export interface ListArgumentType<T> {
 	name: string;
 	expensive: boolean;
 	validate: t.check<T>;
-	transform: (input: string[], executor?: Player) => TransformResult.Object<T>;
-	suggestions?: (input: string[], executor?: Player) => string[];
+	transform: (input: string[], executor: Player) => TransformResult.Object<T>;
+	suggestions?: (input: string[], executor: Player) => string[];
 }
 
 export type ArgumentType<T> = SingleArgumentType<T> | ListArgumentType<T>;
@@ -88,6 +88,6 @@ export interface CommandReply {
 export interface CommandContextData {
 	args: string[];
 	input: string;
-	executor?: Player;
+	executor: Player;
 	reply?: CommandReply;
 }

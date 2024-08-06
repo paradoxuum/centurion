@@ -44,6 +44,7 @@ test("context data can be retrieved", () => {
 	expect(data).toEqual<CommandContextData>({
 		args: ["arg1", "arg2_1 arg2_2"],
 		input: 'test arg1 "arg2_1 arg2_2"',
+		executor: Players.LocalPlayer,
 	});
 
 	const text = "test";
