@@ -1,11 +1,11 @@
-import { ClientAPI } from "@rbxts/centurion";
-import { GuiService, UserInputService } from "@rbxts/services";
+import { CenturionClient } from "@rbxts/centurion";
+import { UserInputService } from "@rbxts/services";
 import Vide, { derive } from "@rbxts/vide";
 import { Suggestions, Terminal } from "../components";
 import { Group } from "../components/ui/group";
 import { Layer } from "../components/ui/layer";
-import { useAPI } from "../hooks/use-api";
 import { useAtom } from "../hooks/use-atom";
+import { useClient } from "../hooks/use-client";
 import { useEvent } from "../hooks/use-event";
 import { px, usePx } from "../hooks/use-px";
 import {
@@ -20,8 +20,8 @@ const MOUSE_INPUT_TYPES = new Set<Enum.UserInputType>([
 	Enum.UserInputType.Touch,
 ]);
 
-export function CenturionApp(api: ClientAPI) {
-	useAPI(api);
+export function CenturionApp(client: CenturionClient) {
+	useClient(client);
 	usePx();
 
 	const options = useAtom(interfaceOptions);
@@ -42,14 +42,17 @@ export function CenturionApp(api: ClientAPI) {
 	});
 
 	return (
-		<Layer displayOrder={() => options().displayOrder ?? 0} visible={visible}>
+		<Layer displayOrder={() => options().displayOrder} visible={visible}>
 			<Group
-				anchorPoint={() => options().anchorPoint ?? new Vector2(0, 0)}
-				size={() => options().size ?? new UDim2(0, px(1024), 1, 0)}
-				position={() =>
-					options().position ??
-					UDim2.fromOffset(px(16), px(8) + GuiService.GetGuiInset()[0].Y)
-				}
+				anchorPoint={() => options().anchorPoint}
+				size={() => {
+					const size = options().size;
+					return typeIs(size, "UDim2") ? size : size(px);
+				}}
+				position={() => {
+					const position = options().position;
+					return typeIs(position, "UDim2") ? position : position(px);
+				}}
 			>
 				<Terminal />
 				<Suggestions />

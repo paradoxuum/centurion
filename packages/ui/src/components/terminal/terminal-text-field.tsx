@@ -1,8 +1,8 @@
 import { subscribe } from "@rbxts/charm";
 import { UserInputService } from "@rbxts/services";
 import Vide, { cleanup, Derivable, effect, source } from "@rbxts/vide";
-import { getAPI } from "../../hooks/use-api";
 import { useAtom } from "../../hooks/use-atom";
+import { useClient } from "../../hooks/use-client";
 import { useEvent } from "../../hooks/use-event";
 import { px } from "../../hooks/use-px";
 import {
@@ -42,7 +42,7 @@ export function TerminalTextField({
 	onTextChange,
 	onSubmit,
 }: TerminalTextFieldProps) {
-	const api = getAPI();
+	const client = useClient();
 	const options = useAtom(interfaceOptions);
 	const visible = useAtom(interfaceVisible);
 	const valid = useAtom(terminalTextValid);
@@ -133,7 +133,7 @@ export function TerminalTextField({
 			newText += suggestion.others[0].sub((currentTextPart()?.size() ?? 0) + 1);
 		}
 
-		const argNames = getArgumentNames(api.registry, command);
+		const argNames = getArgumentNames(client.registry, command);
 		for (const i of $range(argIndex + 1, argNames.size() - 1)) {
 			newText = `${newText} ${argNames[i]}`;
 		}
@@ -180,7 +180,7 @@ export function TerminalTextField({
 				pathParts.push(suggestionTitle);
 			}
 
-			const nextCommand = api.registry.getCommandByString(
+			const nextCommand = client.registry.getCommandByString(
 				formatPartsAsPath(pathParts),
 			)?.options;
 			if (
@@ -206,7 +206,8 @@ export function TerminalTextField({
 		}
 
 		const argIndex = terminalArgIndex();
-		const commandArgs = api.registry.getCommand(commandPath)?.options.arguments;
+		const commandArgs =
+			client.registry.getCommand(commandPath)?.options.arguments;
 		if (argIndex === undefined || commandArgs === undefined) return;
 
 		let newText = text();

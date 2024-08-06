@@ -28,15 +28,10 @@ Centurion needs to be started **once** on the client and server.
 import { Centurion } from "@rbxts/centurion";
 import { CenturionUI } from "@rbxts/centurion-ui";
 
-Centurion.client({
-    interface: CenturionUI.create({
-        // You can configure the interface here, such as changing activation keys
-    }),
-})
-    .start((registry) => {
-        // Register commands or types here
-    })
-    .catch((err) => warn("Centurion could not be started:", tostring(err)));
+Centurion.client()
+	.start()
+	.then(() => CenturionUI.start(Centurion.client(), {}))
+	.catch((err) => warn("Failed to start Centurion:", err));
 `} />
     </TabItem>
 
@@ -44,13 +39,8 @@ Centurion.client({
         <Code lang="ts" code={`
 import { Centurion } from "@rbxts/centurion";
 
-Centurion.server()
-    .start((registry) => {
-        // Register commands or types here
-    })
-    .catch((err) => warn("Centurion could not be started:", tostring(err)));
+Centurion.server().start();
 `} />
-        `} />
     </TabItem>
 </Tabs>
 
@@ -60,16 +50,15 @@ Centurion.server()
 The way commands and types are registered is the same on the server and client.
 
 <Code lang="ts" code={`
-Centurion.server().start((registry) => {
-    // Load all child ModuleScripts under the given Instance
-    const commandContainer = script.Parent.commands;
-    registry.load(commandContainer);
+const server = Centurion.server();
 
-    const typeContainer = ReplicatedStorage.types;
-    registry.load(typeContainer);
+// Load all child ModuleScripts under each container
+const commandContainer = script.Parent.commands;
+server.registry.load(commandContainer);
 
-    // To register the loaded commands and types, you then
-    // call the register method:
-    registry.register();
-}).catch((err) => warn("Centurion could not be started:", tostring(err)));
+const typeContainer = ReplicatedStorage.types;
+server.registry.load(typeContainer);
+
+// Any loaded commands and types will then be registered once Centurion is started
+server.start();
 `} />

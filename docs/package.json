@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@astrojs/check": "^0.9.1",
-    "@astrojs/starlight": "^0.25.3",
+    "@astrojs/starlight": "^0.25.4",
     "@fontsource-variable/jetbrains-mono": "^5.0.21",
     "@lorenzo_lewis/starlight-utils": "^0.1.2",
     "astro": "^4.13.1",

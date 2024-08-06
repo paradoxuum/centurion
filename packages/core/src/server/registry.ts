@@ -41,6 +41,8 @@ export class ServerRegistry extends BaseRegistry<ReadonlyDeep<ServerConfig>> {
 	}
 
 	sync(player: Player) {
+		if (!this.initialized) return;
+
 		const data = {
 			commands: new Map(),
 			groups: new Map(),
@@ -82,8 +84,6 @@ export class ServerRegistry extends BaseRegistry<ReadonlyDeep<ServerConfig>> {
 
 	protected addCommand(command: BaseCommand, group?: CommandGroup | undefined) {
 		super.addCommand(command, group);
-		if (!this.initialized) return;
-
 		for (const [player] of this.syncedCommands) {
 			this.sync(player);
 		}

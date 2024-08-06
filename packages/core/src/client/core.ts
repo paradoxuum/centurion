@@ -50,22 +50,18 @@ export class CenturionClient {
 	}
 
 	/**
-	 * Starts {@link CenturionServer}.
+	 * Starts {@link CenturionClient}.
 	 *
-	 * @param callback A callback that is called after the registry has been initialized.
+	 * @returns A promise that resolves when the registry has been synchronized.
 	 */
-	async start(callback?: (registry: ClientRegistry) => void) {
+	async start() {
 		assert(!this.started, "Centurion has already been started");
 
 		this.registry.init();
 		this.dispatcher.init();
-		callback?.(this.registry);
-		await this.registry.sync();
-		this.started = true;
-		this.config.interface?.({
-			registry: this.registry,
-			dispatcher: this.dispatcher,
-			config: this.config,
+		this.registry.register();
+		return this.registry.sync().then(() => {
+			this.started = true;
 		});
 	}
 }

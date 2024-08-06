@@ -1,8 +1,5 @@
 import { CommandContextData, SharedConfig } from "../shared";
 import { SyncData } from "../shared/network";
-import { ReadonlyDeep } from "../shared/util/data";
-import { ClientDispatcher } from "./dispatcher";
-import { ClientRegistry } from "./registry";
 
 export interface ClientConfig extends SharedConfig {
 	historyLength: number;
@@ -10,13 +7,6 @@ export interface ClientConfig extends SharedConfig {
 	shortcutsEnabled: boolean;
 	syncTimeout: number;
 	network: ClientNetworkConfig;
-	interface?: (api: ClientAPI) => void;
-}
-
-export interface ClientAPI {
-	registry: ClientRegistry;
-	dispatcher: ClientDispatcher;
-	config: ReadonlyDeep<ClientConfig>;
 }
 
 export interface ClientNetworkConfig {

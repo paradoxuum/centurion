@@ -3,8 +3,8 @@ import { ArrayUtil, ReadonlyDeep } from "@rbxts/centurion/out/shared/util/data";
 import { splitString } from "@rbxts/centurion/out/shared/util/string";
 import Vide, { effect, source } from "@rbxts/vide";
 import { HISTORY_TEXT_SIZE } from "../../constants/text";
-import { getAPI } from "../../hooks/use-api";
 import { useAtom } from "../../hooks/use-atom";
+import { useClient } from "../../hooks/use-client";
 import { useHistory } from "../../hooks/use-history";
 import { useMotion } from "../../hooks/use-motion";
 import { px } from "../../hooks/use-px";
@@ -32,7 +32,7 @@ const MAX_HEIGHT = HISTORY_TEXT_SIZE * 10;
 const TEXT_FIELD_HEIGHT = 40;
 
 export function Terminal() {
-	const api = getAPI();
+	const client = useClient();
 	const options = useAtom(interfaceOptions);
 	const missingArgs = source<string[]>([]);
 	const history = useHistory();
@@ -94,9 +94,9 @@ export function Terminal() {
 					// If the text ends in a space, we want to count that as having traversed
 					// to the next "part" of the text.
 					const atNextPart = text.sub(-1) === " ";
-					const path = getValidPath(api.registry, parts);
+					const path = getValidPath(client.registry, parts);
 					const command =
-						path !== undefined ? api.registry.getCommand(path) : undefined;
+						path !== undefined ? client.registry.getCommand(path) : undefined;
 
 					if (command !== undefined) {
 						// Check for missing arguments
@@ -135,7 +135,7 @@ export function Terminal() {
 							: undefined;
 						currentSuggestion(
 							getCommandSuggestion(
-								api.registry,
+								client.registry,
 								!parentPath?.isEmpty() ? parentPath : undefined,
 								textPart,
 							),
@@ -170,7 +170,7 @@ export function Terminal() {
 						endIndex = numArgs !== "rest" ? i + (numArgs - 1) : undefined;
 					}
 
-					const argType = api.registry.getType(currentArg?.type ?? "");
+					const argType = client.registry.getType(currentArg?.type ?? "");
 					if (currentArg === undefined || argType === undefined) {
 						currentSuggestion(undefined);
 						currentTextPart(undefined);
@@ -219,11 +219,11 @@ export function Terminal() {
 					const commandPath = currentCommandPath();
 					const command =
 						commandPath !== undefined
-							? api.registry.getCommand(commandPath)
+							? client.registry.getCommand(commandPath)
 							: undefined;
 
 					if (commandPath === undefined || command === undefined) {
-						api.dispatcher.addHistoryEntry({
+						client.dispatcher.addHistoryEntry({
 							success: false,
 							text: "Command not found.",
 							sentAt: os.time(),
@@ -233,7 +233,7 @@ export function Terminal() {
 
 					const missing = missingArgs();
 					if (!missing.isEmpty()) {
-						api.dispatcher.addHistoryEntry({
+						client.dispatcher.addHistoryEntry({
 							success: false,
 							text: `Missing arguments: ${missing.join(", ")}`,
 							sentAt: os.time(),
@@ -242,7 +242,7 @@ export function Terminal() {
 					}
 
 					const args = ArrayUtil.slice(terminalTextParts(), commandPath.size());
-					api.dispatcher.run(commandPath, args);
+					client.dispatcher.run(commandPath, args);
 				}}
 			/>
 		</Frame>

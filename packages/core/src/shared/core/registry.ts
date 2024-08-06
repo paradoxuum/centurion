@@ -405,7 +405,7 @@ export abstract class BaseRegistry<
 		);
 	}
 
-	private registerCommandClass<T extends object>(commandClass: Constructor) {
+	private registerCommandClass(commandClass: Constructor) {
 		const registerOptions = DecoratorMetadata.getOwnMetadata<RegisterOptions>(
 			commandClass,
 			MetadataKey.Register,

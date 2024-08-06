@@ -4,17 +4,19 @@ import { cleanup, derive, source } from "@rbxts/vide";
 import { HISTORY_TEXT_SIZE } from "../constants/text";
 import { interfaceOptions } from "../store";
 import { HistoryData, HistoryLineData } from "../types";
-import { getAPI } from "./use-api";
 import { useAtom } from "./use-atom";
+import { useClient } from "./use-client";
 import { useEvent } from "./use-event";
 import { px } from "./use-px";
 
 export function useHistory() {
-	const api = getAPI();
+	const client = useClient();
 	const options = useAtom(interfaceOptions);
-	const history = source<HistoryEntry[]>(api.dispatcher.getHistory());
+	const history = source<HistoryEntry[]>(client.dispatcher.getHistory());
 
-	useEvent(api.dispatcher.historyUpdated, (entries) => history([...entries]));
+	useEvent(client.dispatcher.historyUpdated, (entries) =>
+		history([...entries]),
+	);
 
 	const textBoundsParams = new Instance("GetTextBoundsParams");
 	textBoundsParams.Width = math.huge;

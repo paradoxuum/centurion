@@ -9,7 +9,7 @@ const DOMINANT_AXIS = 0.5;
 
 const scale = source(1);
 
-interface ScaleFunction {
+export interface ScaleFunction {
 	/**
 	 * Scales `pixels` based on the current viewport size and rounds the result.
 	 */

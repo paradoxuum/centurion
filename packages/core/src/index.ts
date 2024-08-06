@@ -11,17 +11,13 @@ export namespace Centurion {
 	let instance: CenturionClient | CenturionServer | undefined;
 
 	export function client(config: Partial<ClientConfig> = {}) {
-		if (instance !== undefined) {
-			return instance as CenturionClient;
-		}
+		if (instance !== undefined) return instance as CenturionClient;
 		instance = new CenturionClient(config);
 		return instance;
 	}
 
 	export function server(config: Partial<ServerConfig> = {}) {
-		if (instance !== undefined) {
-			return instance as CenturionServer;
-		}
+		if (instance !== undefined) return instance as CenturionServer;
 		instance = new CenturionServer(config);
 		return instance;
 	}

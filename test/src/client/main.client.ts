@@ -1,10 +1,8 @@
 import { Centurion } from "@rbxts/centurion";
 import { CenturionUI } from "@rbxts/centurion-ui";
 
-Centurion.client({
-	interface: CenturionUI.create(),
-})
+const client = Centurion.client();
+client
 	.start()
-	.catch((err) => {
-		warn(`An error occurred and Centurion could not be started: ${err}`);
-	});
+	.then(() => CenturionUI.start(client, {}))
+	.catch((err) => warn("Failed to start Centurion:", err));

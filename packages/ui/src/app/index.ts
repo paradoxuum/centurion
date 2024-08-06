@@ -1,4 +1,4 @@
-import { CenturionType, ClientAPI } from "@rbxts/centurion";
+import { CenturionClient, CenturionType } from "@rbxts/centurion";
 import { ClientRegistry } from "@rbxts/centurion/out/client/registry";
 import { ContentProvider, Players } from "@rbxts/services";
 import { mount } from "@rbxts/vide";
@@ -12,44 +12,55 @@ export namespace CenturionUI {
 	const MAX_PRELOAD_ATTEMPTS = 3;
 	const PRELOAD_ATTEMPT_INTERVAL = 3;
 
+	export function isVisible() {
+		return interfaceVisible();
+	}
+
 	export function setVisible(visible: boolean) {
 		interfaceVisible(visible);
 	}
 
 	export function updateOptions(options: Partial<InterfaceOptions>) {
-		interfaceOptions((prev) => ({ ...prev, ...options }));
+		interfaceOptions((prev) => ({
+			...prev,
+			...options,
+			...DEFAULT_INTERFACE_OPTIONS,
+		}));
 	}
 
-	export function create(
+	export function start(
+		client: CenturionClient,
 		options: Partial<InterfaceOptions> = {},
-	): (api: ClientAPI) => void {
-		return (api) => {
-			if (api.config.registerBuiltInCommands) registerCommands(api.registry);
-			updateOptions(options);
+	) {
+		if (client.config.registerBuiltInCommands) {
+			registerCommands(client.registry);
+		}
+		updateOptions(options);
 
-			// Attempt to preload font
-			task.spawn(() => {
-				const fontFamily = (
-					options.font?.regular ?? DEFAULT_INTERFACE_OPTIONS.font.regular
-				).Family;
+		// Attempt to preload font
+		task.spawn(() => {
+			const fontFamily = (
+				options.font?.regular ?? DEFAULT_INTERFACE_OPTIONS.font.regular
+			).Family;
 
-				let attempts = 0;
-				while (attempts < MAX_PRELOAD_ATTEMPTS) {
-					ContentProvider.PreloadAsync([fontFamily], (_, status) => {
-						if (status === Enum.AssetFetchStatus.Success) {
-							attempts = MAX_PRELOAD_ATTEMPTS;
-						}
-					});
+			let attempts = 0;
+			while (attempts < MAX_PRELOAD_ATTEMPTS) {
+				ContentProvider.PreloadAsync([fontFamily], (_, status) => {
+					if (status === Enum.AssetFetchStatus.Success) {
+						attempts = MAX_PRELOAD_ATTEMPTS;
+					}
+				});
 
-					if (attempts === MAX_PRELOAD_ATTEMPTS) break;
-					task.wait(PRELOAD_ATTEMPT_INTERVAL);
-					attempts++;
-				}
-			});
+				if (attempts === MAX_PRELOAD_ATTEMPTS) break;
+				task.wait(PRELOAD_ATTEMPT_INTERVAL);
+				attempts++;
+			}
+		});
 
-			const target = Players.LocalPlayer.WaitForChild("PlayerGui");
-			mount(() => CenturionApp(api), target);
-		};
+		mount(
+			() => CenturionApp(client),
+			Players.LocalPlayer.WaitForChild("PlayerGui"),
+		);
 	}
 
 	function registerCommands(registry: ClientRegistry) {

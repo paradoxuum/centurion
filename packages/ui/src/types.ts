@@ -1,12 +1,13 @@
 import { CommandShortcut, HistoryEntry } from "@rbxts/centurion";
+import { ScaleFunction } from "./hooks/use-px";
 import { InterfacePalette } from "./palette";
 
 export interface InterfaceOptions {
-	anchorPoint?: Vector2;
-	size?: UDim2;
-	position?: UDim2;
-	backgroundTransparency?: number;
-	displayOrder?: number;
+	anchorPoint: Vector2;
+	size: UDim2 | ((px: ScaleFunction) => UDim2);
+	position: UDim2 | ((px: ScaleFunction) => UDim2);
+	displayOrder: number;
+	backgroundTransparency: number;
 	hideOnLostFocus: boolean;
 	activationKeys: Enum.KeyCode[];
 	font: {
@@ -15,7 +16,6 @@ export interface InterfaceOptions {
 		bold: Font;
 	};
 	palette: InterfacePalette;
-	showShortcutSuggestions?: boolean;
 }
 
 export interface HistoryLineData {
