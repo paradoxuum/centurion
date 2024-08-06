@@ -159,16 +159,18 @@ export function TerminalTextField({
 		const suggestion = currentSuggestion();
 		if (suggestion === undefined) return;
 
+		const currentText = text();
+		const atNextPart = currentText.sub(-1) === " ";
+
 		if (commandPath === undefined) {
 			const suggestionTitle = suggestion.title;
-			const currentText = text();
 			const textParts = terminalTextParts();
 			if (textParts.isEmpty()) return;
 
 			const pathParts = [...textParts];
 
 			let newText = currentText;
-			if (currentText.sub(-1) === " ") {
+			if (atNextPart) {
 				newText += suggestionTitle;
 				pathParts.push(suggestionTitle);
 			} else if (!textParts.isEmpty()) {
@@ -196,18 +198,26 @@ export function TerminalTextField({
 			return;
 		}
 
-		// Argument suggestions
+		const commandArgs =
+			client.registry.getCommand(commandPath)?.options.arguments;
+
 		if (
-			commandPath === undefined ||
-			suggestion === undefined ||
-			suggestion.others.isEmpty()
+			suggestion.type === "command" &&
+			!atNextPart &&
+			!(commandArgs?.isEmpty() ?? true)
 		) {
+			suggestionText("");
+
+			const newText = `${currentText} `;
+			text(newText);
+			textBox.CursorPosition = newText.size() + 1;
 			return;
 		}
 
+		// Argument suggestions
+		if (suggestion.others.isEmpty()) return;
+
 		const argIndex = terminalArgIndex();
-		const commandArgs =
-			client.registry.getCommand(commandPath)?.options.arguments;
 		if (argIndex === undefined || commandArgs === undefined) return;
 
 		let newText = text();
