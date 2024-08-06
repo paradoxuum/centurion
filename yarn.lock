@@ -1322,7 +1322,7 @@ __metadata:
     shx: "npm:^0.3.4"
     typescript: "npm:~5.5.4"
   peerDependencies:
-    "@rbxts/centurion": "*"
+    "@rbxts/centurion": "workspace:^"
   languageName: unknown
   linkType: soft
 
