@@ -22,9 +22,9 @@ export namespace CenturionUI {
 
 	export function updateOptions(options: Partial<InterfaceOptions>) {
 		interfaceOptions((prev) => ({
+			...DEFAULT_INTERFACE_OPTIONS,
 			...prev,
 			...options,
-			...DEFAULT_INTERFACE_OPTIONS,
 		}));
 	}
 
