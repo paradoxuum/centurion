@@ -10,8 +10,6 @@ interface TextFieldProps extends TextProps<TextBox> {
 	clearTextOnFocus?: Derivable<boolean>;
 	multiLine?: Derivable<boolean>;
 	textEditable?: Derivable<boolean>;
-	focusLost?: (enterPressed: boolean) => void;
-	textChanged?: (text: string) => void;
 }
 
 export function TextField(props: TextFieldProps) {
@@ -41,7 +39,7 @@ export function TextField(props: TextFieldProps) {
 			AutomaticSize={props.textAutoResize}
 			Size={props.size}
 			Position={props.position}
-			AnchorPoint={props.anchorPoint}
+			AnchorPoint={props.anchor}
 			BackgroundColor3={props.backgroundColor}
 			BackgroundTransparency={props.backgroundTransparency ?? 1}
 			ClipsDescendants={props.clipsDescendants}
@@ -49,9 +47,8 @@ export function TextField(props: TextFieldProps) {
 			ZIndex={props.zIndex}
 			LayoutOrder={props.layoutOrder}
 			BorderSizePixel={0}
-			FocusLost={props.focusLost}
-			TextChanged={props.textChanged}
 			action={props.action}
+			{...props.native}
 		>
 			{props.cornerRadius && <uicorner CornerRadius={props.cornerRadius} />}
 			{props.children}

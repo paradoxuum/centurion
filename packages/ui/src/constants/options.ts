@@ -3,7 +3,7 @@ import { DefaultPalette } from "../palette";
 import { InterfaceOptions } from "../types";
 
 export const DEFAULT_INTERFACE_OPTIONS: InterfaceOptions = {
-	anchorPoint: new Vector2(),
+	anchor: new Vector2(),
 	position: (px) =>
 		UDim2.fromOffset(px(16), px(8) + GuiService.GetGuiInset()[0].Y),
 	size: (px) => new UDim2(0, px(1024), 1, 0),

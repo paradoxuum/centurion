@@ -1,35 +1,23 @@
 import { Workspace } from "@rbxts/services";
-import { debounce } from "@rbxts/set-timeout";
 import { cleanup, source } from "@rbxts/vide";
-import { useEvent } from "./use-event";
 
 const BASE_RESOLUTION = new Vector2(1280, 832);
-const MIN_SCALE = 0.75;
+const MIN_SCALE = 0.5;
 const DOMINANT_AXIS = 0.5;
 
 const scale = source(1);
 
-export interface ScaleFunction {
-	/**
-	 * Scales `pixels` based on the current viewport size and rounds the result.
-	 */
-	(pixels: number): number;
-	/**
-	 * Scales `pixels` and rounds the result to the nearest even number.
-	 */
-	even: (pixels: number) => number;
-	/**
-	 * Scales a number based on the current viewport size without rounding.
-	 */
-	scale: (percent: number) => number;
-	/**
-	 * Scales `pixels` and rounds the result down.
-	 */
-	floor: (pixels: number) => number;
-	/**
-	 * Scales `pixels` and rounds the result up.
-	 */
-	ceil: (pixels: number) => number;
+/**
+ * Assigns a call signature to an object.
+ *
+ * @param callback The function to assign.
+ * @param object The object to assign the function to.
+ * @returns A callable object.
+ */
+function callable<T extends Callback, U>(callback: T, object: U): T & U {
+	return setmetatable(object as never, {
+		__call: (_, ...args) => callback(...args),
+	});
 }
 
 /**
@@ -39,48 +27,38 @@ export interface ScaleFunction {
  * @param value The number to scale.
  * @returns A number in scaled `px` units.
  */
-export const px = setmetatable(
-	{
-		even: (value: number) => math.round(value * scale() * 0.5) * 2,
-		scale: (value: number) => value * scale(),
-		floor: (value: number) => math.floor(value * scale()),
-		ceil: (value: number) => math.ceil(value * scale()),
-	},
-	{
-		__call: (_, value) => math.round((value as number) * scale()),
-	},
-) as ScaleFunction;
+export const px = callable((value: number) => math.round(value * scale()), {
+	even: (value: number) => math.round(value * scale() * 0.5) * 2,
+	scale: (value: number) => value * scale(),
+	floor: (value: number) => math.floor(value * scale()),
+	ceil: (value: number) => math.ceil(value * scale()),
+});
+
+export type ScaleFunction = typeof px;
 
 /**
  * Scales the current `px` unit based on the current viewport size. Should be
- * called once in `Vide.mount`.
+ * called once when mounting the app.
  */
 export function usePx() {
 	const camera = Workspace.CurrentCamera;
 	assert(camera !== undefined, "CurrentCamera is not set");
 
-	const updateScale = debounce(
-		() => {
-			const viewport = camera.ViewportSize;
-			const width = math.log(viewport.X / BASE_RESOLUTION.X, 2);
-			const height = math.log(viewport.Y / BASE_RESOLUTION.Y, 2);
-			const centered = width + (height - width) * DOMINANT_AXIS;
+	const updateScale = () => {
+		const width = math.log(camera.ViewportSize.X / BASE_RESOLUTION.X, 2);
+		const height = math.log(camera.ViewportSize.Y / BASE_RESOLUTION.Y, 2);
+		const centered = width + (height - width) * DOMINANT_AXIS;
 
-			scale(math.max(2 ** centered, MIN_SCALE));
-		},
-		0.2,
-		{
-			leading: true,
-		},
-	);
+		scale(math.max(2 ** centered, MIN_SCALE));
+	};
 
-	cleanup(() => {
-		updateScale.cancel();
-	});
+	const connection = camera
+		.GetPropertyChangedSignal("ViewportSize")
+		.Connect(() => {
+			updateScale();
+		});
 
-	useEvent(camera.GetPropertyChangedSignal("ViewportSize"), () => {
-		updateScale();
-	});
+	cleanup(connection);
 
 	updateScale();
 }

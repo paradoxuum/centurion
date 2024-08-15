@@ -32,8 +32,10 @@ export function SuggestionList({
 	return (
 		<Group
 			size={size}
-			mouseEnter={() => mouseOverInterface(true)}
-			mouseLeave={() => mouseOverInterface(false)}
+			native={{
+				MouseEnter: () => mouseOverInterface(true),
+				MouseLeave: () => mouseOverInterface(false),
+			}}
 		>
 			<uilistlayout
 				SortOrder="LayoutOrder"

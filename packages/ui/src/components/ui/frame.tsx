@@ -1,10 +1,15 @@
-import Vide, { ActionAttributes, Derivable, InferEnumNames } from "@rbxts/vide";
+import Vide, {
+	ActionAttributes,
+	Derivable,
+	InferEnumNames,
+	InstanceAttributes,
+} from "@rbxts/vide";
 
 export interface FrameProps<T extends Instance = Frame>
 	extends ActionAttributes<T> {
 	size?: Derivable<UDim2>;
 	position?: Derivable<UDim2>;
-	anchorPoint?: Derivable<Vector2>;
+	anchor?: Derivable<Vector2>;
 	rotation?: Derivable<number>;
 	backgroundColor?: Derivable<Color3>;
 	backgroundTransparency?: Derivable<number>;
@@ -14,9 +19,7 @@ export interface FrameProps<T extends Instance = Frame>
 	layoutOrder?: Derivable<number>;
 	cornerRadius?: Derivable<UDim>;
 	automaticSize?: InferEnumNames<Enum.AutomaticSize>;
-	children?: Vide.Node;
-	mouseEnter?: () => void;
-	mouseLeave?: () => void;
+	native?: InstanceAttributes<T>;
 }
 
 export function Frame(props: FrameProps) {
@@ -25,7 +28,7 @@ export function Frame(props: FrameProps) {
 			AutomaticSize={props.automaticSize}
 			Size={props.size}
 			Position={props.position}
-			AnchorPoint={props.anchorPoint}
+			AnchorPoint={props.anchor}
 			Rotation={props.rotation}
 			BackgroundColor3={props.backgroundColor}
 			BackgroundTransparency={props.backgroundTransparency}
@@ -33,10 +36,9 @@ export function Frame(props: FrameProps) {
 			Visible={props.visible}
 			ZIndex={props.zIndex}
 			LayoutOrder={props.layoutOrder}
-			BorderSizePixel={0}
-			MouseEnter={props.mouseEnter}
-			MouseLeave={props.mouseLeave}
 			action={props.action}
+			BorderSizePixel={0}
+			{...props.native}
 		>
 			{props.cornerRadius && <uicorner CornerRadius={props.cornerRadius} />}
 			{props.children}

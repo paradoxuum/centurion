@@ -58,7 +58,7 @@ export function HistoryLine({ data, size, position, order }: HistoryLineProps) {
 			</Frame>
 
 			<TextField
-				anchorPoint={new Vector2(1, 0)}
+				anchor={new Vector2(1, 0)}
 				size={() => new UDim2(1, -px(84), 1, 0)}
 				position={UDim2.fromScale(1, 0)}
 				text={data.text}

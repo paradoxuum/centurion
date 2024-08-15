@@ -19,8 +19,6 @@ export interface TextProps<T extends Instance = TextLabel>
 	textHeight?: Derivable<number>;
 	textAutoResize?: "X" | "Y" | "XY";
 	richText?: Derivable<boolean>;
-	maxVisibleGraphemes?: Derivable<number>;
-	textBoundsChanged?: (textBounds: Vector2) => void;
 }
 
 export function Text(props: TextProps) {
@@ -40,11 +38,10 @@ export function Text(props: TextProps) {
 			TextScaled={props.textScaled}
 			LineHeight={props.textHeight}
 			RichText={props.richText}
-			MaxVisibleGraphemes={props.maxVisibleGraphemes}
 			Size={props.size}
 			AutomaticSize={props.textAutoResize}
 			Position={props.position}
-			AnchorPoint={props.anchorPoint}
+			AnchorPoint={props.anchor}
 			BackgroundColor3={props.backgroundColor}
 			BackgroundTransparency={props.backgroundTransparency ?? 1}
 			ClipsDescendants={props.clipsDescendants}
@@ -52,7 +49,7 @@ export function Text(props: TextProps) {
 			ZIndex={props.zIndex}
 			LayoutOrder={props.layoutOrder}
 			action={props.action}
-			TextBoundsChanged={props.textBoundsChanged}
+			{...props.native}
 		>
 			{props.cornerRadius && <uicorner CornerRadius={props.cornerRadius} />}
 			{props.children}

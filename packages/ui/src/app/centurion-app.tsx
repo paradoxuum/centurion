@@ -48,7 +48,7 @@ export function CenturionApp(client: CenturionClient) {
 			visible={visible}
 		>
 			<Group
-				anchorPoint={() => options().anchorPoint}
+				anchor={() => options().anchor}
 				size={() => {
 					const size = options().size;
 					return typeIs(size, "UDim2") ? size : size(px);

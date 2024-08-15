@@ -27,7 +27,7 @@ export function ScrollingFrame(props: ScrollingFrameProps) {
 			CanvasPosition={props.canvasPosition}
 			Size={props.size}
 			Position={props.position}
-			AnchorPoint={props.anchorPoint}
+			AnchorPoint={props.anchor}
 			Rotation={props.rotation}
 			BackgroundColor3={props.backgroundColor}
 			BackgroundTransparency={props.backgroundTransparency ?? 1}
@@ -36,6 +36,7 @@ export function ScrollingFrame(props: ScrollingFrameProps) {
 			ZIndex={props.zIndex}
 			LayoutOrder={props.layoutOrder}
 			BorderSizePixel={0}
+			{...props.native}
 		>
 			{props.cornerRadius && <uicorner CornerRadius={props.cornerRadius} />}
 			{props.children}

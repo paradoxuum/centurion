@@ -3,7 +3,7 @@ import { ScaleFunction } from "./hooks/use-px";
 import { InterfacePalette } from "./palette";
 
 export interface InterfaceOptions {
-	anchorPoint: Vector2;
+	anchor: Vector2;
 	size: UDim2 | ((px: ScaleFunction) => UDim2);
 	position: UDim2 | ((px: ScaleFunction) => UDim2);
 	displayOrder: number;

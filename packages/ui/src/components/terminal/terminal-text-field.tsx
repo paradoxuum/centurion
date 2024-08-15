@@ -24,7 +24,7 @@ import { TextField } from "../ui/text-field";
 import { formatPartsAsPath, getArgumentNames } from "./command";
 
 interface TerminalTextFieldProps {
-	anchorPoint?: Derivable<Vector2>;
+	anchor?: Derivable<Vector2>;
 	size?: Derivable<UDim2>;
 	position?: Derivable<UDim2>;
 	backgroundTransparency?: Derivable<number>;
@@ -35,7 +35,7 @@ interface TerminalTextFieldProps {
 const TEXT_SIZE = 22;
 
 export function TerminalTextField({
-	anchorPoint,
+	anchor,
 	size,
 	position,
 	backgroundTransparency,
@@ -47,7 +47,7 @@ export function TerminalTextField({
 	const visible = useAtom(interfaceVisible);
 	const valid = useAtom(terminalTextValid);
 
-	const ref = source<TextBox | undefined>(undefined);
+	const ref = source<TextBox>();
 	const commandHistory = source<string[]>([]);
 	const commandHistoryIndex = source<number | undefined>(undefined);
 	const text = source("");
@@ -238,7 +238,7 @@ export function TerminalTextField({
 
 	return (
 		<Frame
-			anchorPoint={anchorPoint}
+			anchor={anchor}
 			size={size}
 			position={position}
 			backgroundColor={() => options().palette.surface}
@@ -248,7 +248,7 @@ export function TerminalTextField({
 			<Padding all={() => new UDim(0, px(8))} />
 
 			<TextField
-				action={(instance) => ref(instance)}
+				action={ref}
 				size={UDim2.fromScale(1, 1)}
 				text={() => {
 					let value = text();
@@ -275,35 +275,37 @@ export function TerminalTextField({
 				placeholderColor={() => options().palette.subtext}
 				font={() => options().font.medium}
 				clearTextOnFocus={false}
-				focusLost={(enterPressed) => {
-					if (!enterPressed) return;
+				native={{
+					FocusLost: (enterPressed) => {
+						if (!enterPressed) return;
 
-					const textBox = ref();
-					if (textBox === undefined) return;
+						const textBox = ref();
+						if (textBox === undefined) return;
 
-					const currentText = textBox.Text;
-					const history = commandHistory();
-					if (
-						currentText !== "" &&
-						(history.isEmpty() || history[history.size() - 1] !== currentText)
-					) {
-						commandHistory([...history, textBox.Text]);
-					}
-					commandHistoryIndex(undefined);
-					onSubmit?.(currentText);
-					textBox.CaptureFocus();
-					text("");
-				}}
-				textChanged={(currentText) => {
-					const historyIndex = commandHistoryIndex();
-					if (
-						historyIndex !== undefined &&
-						currentText !== commandHistory()[historyIndex]
-					) {
+						const currentText = textBox.Text;
+						const history = commandHistory();
+						if (
+							currentText !== "" &&
+							(history.isEmpty() || history[history.size() - 1] !== currentText)
+						) {
+							commandHistory([...history, textBox.Text]);
+						}
 						commandHistoryIndex(undefined);
-					}
+						onSubmit?.(currentText);
+						textBox.CaptureFocus();
+						text("");
+					},
+					TextChanged: (currentText) => {
+						const historyIndex = commandHistoryIndex();
+						if (
+							historyIndex !== undefined &&
+							currentText !== commandHistory()[historyIndex]
+						) {
+							commandHistoryIndex(undefined);
+						}
 
-					text(currentText);
+						text(currentText);
+					},
 				}}
 				zIndex={2}
 			/>

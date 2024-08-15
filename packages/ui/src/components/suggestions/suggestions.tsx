@@ -1,13 +1,12 @@
 import { TextService } from "@rbxts/services";
-import Vide, { cleanup, effect, source } from "@rbxts/vide";
-import { springs } from "../../constants/springs";
+import Vide, { cleanup, derive, spring } from "@rbxts/vide";
 import {
 	SUGGESTION_TEXT_SIZE,
 	SUGGESTION_TITLE_TEXT_SIZE,
 } from "../../constants/text";
 import { useAtom } from "../../hooks/use-atom";
-import { useMotion } from "../../hooks/use-motion";
 import { px } from "../../hooks/use-px";
+import { useTextBounds } from "../../hooks/use-text-bounds";
 import {
 	currentSuggestion,
 	currentTextPart,
@@ -16,8 +15,6 @@ import {
 import { Group } from "../ui/group";
 import { MainSuggestion } from "./main-suggestion";
 import { SuggestionList } from "./suggestion-list";
-import { SuggestionTextBounds } from "./types";
-import { getSuggestionTextBounds } from "./util";
 
 const MAX_SUGGESTION_WIDTH = 180;
 const MAX_BADGE_WIDTH = 80;
@@ -26,103 +23,83 @@ const PADDING = 8;
 export function Suggestions() {
 	const options = useAtom(interfaceOptions);
 	const textPart = useAtom(currentTextPart);
-
-	const textBoundsParams = new Instance("GetTextBoundsParams");
-	textBoundsParams.RichText = true;
-	cleanup(() => {
-		textBoundsParams.Destroy();
-	});
-
-	// Suggestions
 	const suggestion = useAtom(currentSuggestion);
-	const sizes = source<SuggestionTextBounds>({
-		title: UDim2.fromOffset(0, px(SUGGESTION_TITLE_TEXT_SIZE)),
-		description: UDim2.fromOffset(0, px(SUGGESTION_TEXT_SIZE)),
-		errorTextHeight: 0,
-		typeBadgeWidth: 0,
+
+	const titleBounds = useTextBounds({
+		text: () => suggestion()?.title,
+		font: () => options().font.bold,
+		size: () => px(SUGGESTION_TITLE_TEXT_SIZE),
 	});
 
-	const [suggestionSize, suggestionSizeMotion] = useMotion(new UDim2());
-	const [otherSuggestionSize, otherSuggestionSizeMotion] = useMotion(
-		new UDim2(),
-	);
+	const descriptionBounds = useTextBounds({
+		text: () => suggestion()?.description,
+		font: () => options().font.regular,
+		size: () => px(SUGGESTION_TEXT_SIZE),
+		width: () => px(MAX_SUGGESTION_WIDTH),
+	});
 
-	// Resize window based on suggestions
-	effect(() => {
-		const current = suggestion();
-		if (current === undefined) {
-			suggestionSizeMotion.spring(new UDim2());
-			otherSuggestionSizeMotion.spring(new UDim2());
-			return;
+	const typeBadgeBounds = useTextBounds({
+		text: () => {
+			const currentSuggestion = suggestion();
+			if (currentSuggestion?.type === "command") return;
+			return currentSuggestion?.dataType;
+		},
+		font: () => options().font.bold,
+		size: () => px(SUGGESTION_TEXT_SIZE),
+	});
+
+	const errorBounds = useTextBounds({
+		text: () => {
+			const current = suggestion();
+			if (current?.type === "command") return;
+			return current?.error;
+		},
+		font: () => options().font.regular,
+		size: () => px(SUGGESTION_TEXT_SIZE),
+	});
+
+	const listBoundsParams = new Instance("GetTextBoundsParams");
+	listBoundsParams.RichText = true;
+	cleanup(listBoundsParams);
+
+	const listBounds = derive(() => {
+		let width = 0;
+
+		const suggestions = suggestion()?.others ?? [];
+		for (const value of suggestions) {
+			listBoundsParams.Text = value;
+			const suggestionBounds = TextService.GetTextBoundsAsync(listBoundsParams);
+			width = math.max(width, suggestionBounds.X);
 		}
 
-		const otherSuggestions = current.others;
-		if (otherSuggestions.isEmpty()) {
-			otherSuggestionSizeMotion.spring(new UDim2());
-		}
+		const height =
+			suggestions.size() * px(SUGGESTION_TEXT_SIZE + 6) +
+			(suggestions.size() - 1) * px(4) +
+			px(8);
 
-		const textBounds = getSuggestionTextBounds(
-			options(),
-			current,
-			px(SUGGESTION_TITLE_TEXT_SIZE),
-			px(SUGGESTION_TEXT_SIZE),
-			px(MAX_SUGGESTION_WIDTH),
-			px(MAX_BADGE_WIDTH),
-		);
+		return new Vector2(width, height);
+	});
 
-		sizes(textBounds);
+	const windowSize = derive(() => {
+		const width =
+			math.max(
+				titleBounds().X,
+				descriptionBounds().X,
+				errorBounds().X,
+				listBounds().X,
+			) + typeBadgeBounds().X;
 
-		let windowWidth =
-			math.max(textBounds.title.X.Offset, textBounds.description.X.Offset) +
-			px(PADDING * 2);
+		const height = titleBounds().Y + descriptionBounds().Y + errorBounds().Y;
 
-		let windowHeight =
-			textBounds.title.Y.Offset +
-			textBounds.description.Y.Offset +
-			textBounds.errorTextHeight +
-			px(PADDING * 2);
-
-		if (textBounds.typeBadgeWidth > 0) {
-			windowWidth += textBounds.typeBadgeWidth + px(16);
-		}
-
-		if (textBounds.errorTextHeight > 0) {
-			windowHeight += px(8);
-		}
-
-		// Calculate other suggestion sizes
-		let otherHeight = 0;
-		if (!otherSuggestions.isEmpty()) {
-			let maxSuggestionWidth = 0;
-
-			textBoundsParams.Font = options().font.regular;
-			textBoundsParams.Size = px(SUGGESTION_TEXT_SIZE);
-			textBoundsParams.Width = math.huge;
-
-			for (const name of otherSuggestions) {
-				textBoundsParams.Text = name;
-				const suggestionBounds =
-					TextService.GetTextBoundsAsync(textBoundsParams);
-				if (suggestionBounds.X > maxSuggestionWidth) {
-					maxSuggestionWidth = suggestionBounds.X;
-				}
-			}
-
-			otherHeight =
-				otherSuggestions.size() * px(SUGGESTION_TEXT_SIZE + 6) +
-				(otherSuggestions.size() - 1) * px(4) +
-				px(8);
-			windowWidth = math.max(windowWidth, maxSuggestionWidth);
-			otherSuggestionSizeMotion.spring(
-				UDim2.fromOffset(windowWidth, otherHeight),
-				springs.gentle,
+		if (width === 0 || height === 0) {
+			return UDim2.fromOffset(
+				0,
+				px(SUGGESTION_TITLE_TEXT_SIZE) + px(SUGGESTION_TEXT_SIZE),
 			);
 		}
 
-		suggestionSizeMotion.spring(
-			UDim2.fromOffset(windowWidth, windowHeight),
-			springs.responsive,
-		);
+		const padding = px(PADDING * 2);
+		return UDim2.fromOffset(width + padding, height + padding);
 	});
 
 	return (
@@ -133,20 +110,35 @@ export function Suggestions() {
 			<MainSuggestion
 				suggestion={suggestion}
 				currentText={textPart}
-				size={suggestionSize}
-				sizes={sizes}
+				size={spring(windowSize, 0.2)}
+				titleSize={() => {
+					const bounds = titleBounds();
+					return UDim2.fromOffset(bounds.X, bounds.Y);
+				}}
+				descriptionSize={() => {
+					const bounds = descriptionBounds();
+					return UDim2.fromOffset(bounds.X, bounds.Y);
+				}}
+				badgeSize={() => {
+					const bounds = typeBadgeBounds();
+					return UDim2.fromOffset(bounds.X, bounds.Y);
+				}}
+				errorSize={() => {
+					const bounds = errorBounds();
+					return UDim2.fromOffset(bounds.X, bounds.Y);
+				}}
 			/>
 
 			<SuggestionList
 				suggestion={suggestion}
 				currentText={textPart}
-				size={otherSuggestionSize}
+				size={spring(
+					() => UDim2.fromOffset(windowSize().X.Offset, listBounds().Y),
+					0.3,
+				)}
 			/>
 
-			<uilistlayout
-				SortOrder="LayoutOrder"
-				Padding={() => new UDim(0, px(PADDING))}
-			/>
+			<uilistlayout Padding={() => new UDim(0, px(PADDING))} />
 		</Group>
 	);
 }

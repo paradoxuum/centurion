@@ -1,34 +1,35 @@
 import Vide, { Derivable } from "@rbxts/vide";
+import { FrameProps } from "./frame";
 
-interface GroupProps extends Vide.PropsWithChildren {
+interface GroupProps
+	extends Omit<FrameProps, "backgroundTransparency" | "backgroundColor"> {
 	name?: Derivable<string>;
-	size?: Derivable<UDim2>;
+	anchor?: Derivable<Vector2>;
 	position?: Derivable<UDim2>;
-	anchorPoint?: Derivable<Vector2>;
+	size?: Derivable<UDim2>;
 	rotation?: Derivable<number>;
 	clipsDescendants?: Derivable<boolean>;
 	layoutOrder?: Derivable<number>;
 	visible?: Derivable<boolean>;
 	zIndex?: Derivable<number>;
-	mouseEnter?: () => void;
-	mouseLeave?: () => void;
 }
 
 export function Group(props: GroupProps) {
 	return (
 		<frame
-			Name={props.name}
-			Size={props.size || UDim2.fromScale(1, 1)}
+			AutomaticSize={props.automaticSize}
+			AnchorPoint={props.anchor}
 			Position={props.position}
-			AnchorPoint={props.anchorPoint}
+			Size={props.size ?? UDim2.fromScale(1, 1)}
 			Rotation={props.rotation}
+			BackgroundTransparency={1}
 			ClipsDescendants={props.clipsDescendants}
-			LayoutOrder={props.layoutOrder}
 			Visible={props.visible}
 			ZIndex={props.zIndex}
-			BackgroundTransparency={1}
-			MouseEnter={props.mouseEnter}
-			MouseLeave={props.mouseLeave}
+			LayoutOrder={props.layoutOrder}
+			action={props.action}
+			BorderSizePixel={0}
+			{...props.native}
 		>
 			{props.children}
 		</frame>

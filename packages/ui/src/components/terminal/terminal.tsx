@@ -1,12 +1,11 @@
 import { ArgumentOptions, RegistryPath } from "@rbxts/centurion";
 import { ArrayUtil, ReadonlyDeep } from "@rbxts/centurion/out/shared/util/data";
 import { splitString } from "@rbxts/centurion/out/shared/util/string";
-import Vide, { effect, source } from "@rbxts/vide";
+import Vide, { derive, source, spring } from "@rbxts/vide";
 import { HISTORY_TEXT_SIZE } from "../../constants/text";
 import { useAtom } from "../../hooks/use-atom";
 import { useClient } from "../../hooks/use-client";
 import { useHistory } from "../../hooks/use-history";
-import { useMotion } from "../../hooks/use-motion";
 import { px } from "../../hooks/use-px";
 import {
 	commandArgIndex,
@@ -36,34 +35,27 @@ export function Terminal() {
 	const options = useAtom(interfaceOptions);
 	const missingArgs = source<string[]>([]);
 	const history = useHistory();
-	const [historyHeight, historyHeightMotion] = useMotion(0);
 
-	effect(() => {
+	const terminalHeight = derive(() => {
+		const padding = px.ceil(TEXT_FIELD_HEIGHT + 16);
+		if (history().lines.isEmpty()) return padding;
+
 		const totalHeight = history().height;
 		const isClamped = totalHeight > px(MAX_HEIGHT);
 		const clampedHeight = isClamped ? px(MAX_HEIGHT) : totalHeight;
-		historyHeightMotion.spring(clampedHeight, {
-			mass: 0.1,
-			tension: 300,
-			friction: 15,
-		});
+		return math.ceil(padding + clampedHeight);
 	});
 
 	return (
 		<Frame
-			size={() => {
-				return new UDim2(
-					1,
-					0,
-					0,
-					math.ceil(px(TEXT_FIELD_HEIGHT + 16) + historyHeight()),
-				);
-			}}
+			size={spring(() => new UDim2(1, 0, 0, terminalHeight()), 0.2)}
 			backgroundColor={() => options().palette.background}
 			backgroundTransparency={() => options().backgroundTransparency ?? 0}
 			cornerRadius={() => new UDim(0, px(8))}
-			mouseEnter={() => mouseOverInterface(true)}
-			mouseLeave={() => mouseOverInterface(false)}
+			native={{
+				MouseEnter: () => mouseOverInterface(true),
+				MouseLeave: () => mouseOverInterface(false),
+			}}
 		>
 			<Padding all={() => new UDim(0, px(8))} />
 
@@ -74,7 +66,7 @@ export function Terminal() {
 			/>
 
 			<TerminalTextField
-				anchorPoint={new Vector2(0, 1)}
+				anchor={new Vector2(0, 1)}
 				size={() => new UDim2(1, 0, 0, px(TEXT_FIELD_HEIGHT))}
 				position={UDim2.fromScale(0, 1)}
 				backgroundTransparency={() => options().backgroundTransparency ?? 0}

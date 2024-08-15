@@ -1,4 +1,4 @@
-import Vide, { Derivable } from "@rbxts/vide";
+import Vide, { Derivable, InstanceAttributes } from "@rbxts/vide";
 import { useAtom } from "../../hooks/use-atom";
 import { px } from "../../hooks/use-px";
 import { interfaceOptions } from "../../store";
@@ -6,7 +6,7 @@ import { Frame } from "../ui/frame";
 import { Text } from "../ui/text";
 
 interface BadgeProps {
-	anchorPoint?: Derivable<Vector2>;
+	anchor?: Derivable<Vector2>;
 	size?: Derivable<UDim2>;
 	position?: Derivable<UDim2>;
 	color?: Derivable<Color3>;
@@ -14,46 +14,36 @@ interface BadgeProps {
 	textColor?: Derivable<Color3>;
 	textSize?: Derivable<number>;
 	visible?: Derivable<boolean>;
-	onTextBoundsChange?: (textBounds: Vector2) => void;
 	children?: Vide.Node;
 	backgroundTransparency?: number;
+	native?: InstanceAttributes<TextLabel>;
 }
 
-export function Badge({
-	anchorPoint,
-	size,
-	position,
-	color,
-	text,
-	textColor,
-	textSize,
-	visible,
-	onTextBoundsChange,
-	children,
-	backgroundTransparency,
-}: BadgeProps) {
+export function Badge(props: BadgeProps) {
 	const options = useAtom(interfaceOptions);
 
 	return (
 		<Frame
-			anchorPoint={anchorPoint}
-			size={size}
-			position={position}
-			backgroundColor={color}
+			backgroundColor={props.color}
 			cornerRadius={() => new UDim(0, px(4))}
-			visible={visible}
+			backgroundTransparency={props.backgroundTransparency}
 			clipsDescendants
-			backgroundTransparency={backgroundTransparency}
+			anchor={props.anchor}
+			position={props.position}
+			size={props.size}
+			visible={props.visible}
 		>
 			<Text
-				text={text}
-				textColor={textColor}
-				textSize={textSize}
+				text={props.text}
+				textColor={props.textColor}
+				textSize={props.textSize}
+				textXAlignment="Center"
 				size={UDim2.fromScale(1, 1)}
 				font={() => options().font.bold}
-				textBoundsChanged={onTextBoundsChange}
-			/>
-			{children}
+				{...props.native}
+			>
+				{props.children}
+			</Text>
 		</Frame>
 	);
 }
