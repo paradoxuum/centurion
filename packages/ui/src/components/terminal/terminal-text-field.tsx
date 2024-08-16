@@ -50,7 +50,6 @@ export function TerminalTextField({
 	const ref = source<TextBox>();
 	const commandHistory = source<string[]>([]);
 	const commandHistoryIndex = source<number | undefined>(undefined);
-	const text = source("");
 	const suggestionText = source("");
 
 	// Focus text field when terminal becomes visible
@@ -69,9 +68,12 @@ export function TerminalTextField({
 		const historyIndex = commandHistoryIndex();
 		if (!up && historyIndex === undefined) return;
 
+		const textBox = ref();
+		if (textBox === undefined) return;
+
 		const lastIndex = history.size() - 1;
 		if (!up && historyIndex === lastIndex) {
-			text("");
+			textBox.Text = "";
 			suggestionText("");
 			commandHistoryIndex(undefined);
 			return;
@@ -84,14 +86,10 @@ export function TerminalTextField({
 		);
 
 		const newText = history[newIndex];
-		text(newText);
+		textBox.Text = newText;
+		textBox.CursorPosition = newText.size() + 1;
 		suggestionText("");
 		commandHistoryIndex(newIndex);
-
-		const textBox = ref();
-		if (textBox !== undefined) {
-			textBox.CursorPosition = newText.size() + 1;
-		}
 	};
 
 	const suggestionConnection = subscribe(currentSuggestion, (suggestion) => {
@@ -107,11 +105,14 @@ export function TerminalTextField({
 			return;
 		}
 
+		const currentText = ref()?.Text;
+		if (currentText === undefined) return;
+
 		// Command suggestions
 		if (suggestion.type === "command") {
 			const suggestionStartIndex =
 				(!atNextPart ? textParts[textParts.size() - 1].size() : 0) + 1;
-			suggestionText(text() + suggestion.title.sub(suggestionStartIndex));
+			suggestionText(currentText + suggestion.title.sub(suggestionStartIndex));
 			return;
 		}
 
@@ -126,7 +127,7 @@ export function TerminalTextField({
 			return;
 		}
 
-		let newText = text();
+		let newText = currentText;
 		if (atNextPart && argIndex === commandArgIndex()) {
 			newText += suggestion.title;
 		} else if (!suggestion.others.isEmpty()) {
@@ -159,7 +160,7 @@ export function TerminalTextField({
 		const suggestion = currentSuggestion();
 		if (suggestion === undefined) return;
 
-		const currentText = text();
+		const currentText = textBox.Text;
 		const atNextPart = currentText.sub(-1) === " ";
 
 		if (commandPath === undefined) {
@@ -193,7 +194,7 @@ export function TerminalTextField({
 			}
 
 			suggestionText("");
-			text(newText);
+			textBox.Text = newText;
 			textBox.CursorPosition = newText.size() + 1;
 			return;
 		}
@@ -209,7 +210,7 @@ export function TerminalTextField({
 			suggestionText("");
 
 			const newText = `${currentText} `;
-			text(newText);
+			textBox.Text = newText;
 			textBox.CursorPosition = newText.size() + 1;
 			return;
 		}
@@ -220,7 +221,7 @@ export function TerminalTextField({
 		const argIndex = terminalArgIndex();
 		if (argIndex === undefined || commandArgs === undefined) return;
 
-		let newText = text();
+		let newText = currentText;
 		const otherSuggestion = suggestion.others[0];
 		newText = newText.sub(0, newText.size() - (currentTextPart()?.size() ?? 0));
 		newText += otherSuggestion.match("%s").isEmpty()
@@ -232,7 +233,7 @@ export function TerminalTextField({
 		}
 
 		suggestionText("");
-		text(newText);
+		textBox.Text = newText;
 		textBox.CursorPosition = newText.size() + 1;
 	});
 
@@ -250,22 +251,6 @@ export function TerminalTextField({
 			<TextField
 				action={ref}
 				size={UDim2.fromScale(1, 1)}
-				text={() => {
-					let value = text();
-
-					// Remove line breaks
-					if (value.match("[\n\r]")[0] !== undefined) {
-						value = value.gsub("[\n\r]", "")[0];
-					}
-
-					// Remove all tabs from text input - we use these for autocompletion
-					if (value.match("\t")[0] !== undefined) {
-						value = value.gsub("\t", "")[0];
-					}
-
-					onTextChange?.(value);
-					return value;
-				}}
 				textSize={() => px(TEXT_SIZE)}
 				textColor={() => {
 					return valid() ? options().palette.success : options().palette.error;
@@ -292,10 +277,13 @@ export function TerminalTextField({
 						}
 						commandHistoryIndex(undefined);
 						onSubmit?.(currentText);
+						textBox.Text = "";
 						textBox.CaptureFocus();
-						text("");
 					},
 					TextChanged: (currentText) => {
+						const textBox = ref();
+						if (textBox === undefined) return;
+
 						const historyIndex = commandHistoryIndex();
 						if (
 							historyIndex !== undefined &&
@@ -304,7 +292,19 @@ export function TerminalTextField({
 							commandHistoryIndex(undefined);
 						}
 
-						text(currentText);
+						// Remove line breaks
+						let value = currentText;
+						if (value.match("[\n\r]")[0] !== undefined) {
+							value = value.gsub("[\n\r]", "")[0];
+						}
+
+						// Remove all tabs from text input - we use these for autocompletion
+						if (value.match("\t")[0] !== undefined) {
+							value = value.gsub("\t", "")[0];
+						}
+
+						textBox.Text = value;
+						onTextChange?.(value);
 					},
 				}}
 				zIndex={2}
