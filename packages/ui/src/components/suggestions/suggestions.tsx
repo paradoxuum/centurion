@@ -1,5 +1,5 @@
 import { TextService } from "@rbxts/services";
-import Vide, { cleanup, derive, spring } from "@rbxts/vide";
+import Vide, { cleanup, derive, source, spring } from "@rbxts/vide";
 import {
 	SUGGESTION_TEXT_SIZE,
 	SUGGESTION_TITLE_TEXT_SIZE,
@@ -17,13 +17,18 @@ import { MainSuggestion } from "./main-suggestion";
 import { SuggestionList } from "./suggestion-list";
 
 const MAX_SUGGESTION_WIDTH = 180;
-const MAX_BADGE_WIDTH = 80;
 const PADDING = 8;
 
 export function Suggestions() {
 	const options = useAtom(interfaceOptions);
 	const textPart = useAtom(currentTextPart);
 	const suggestion = useAtom(currentSuggestion);
+	const suggestionRef = source<Frame>();
+
+	const offset = (boundsState: () => Vector2) => () => {
+		const bounds = boundsState();
+		return new UDim2(0, bounds.X, 0, bounds.Y);
+	};
 
 	const titleBounds = useTextBounds({
 		text: () => suggestion()?.title,
@@ -93,37 +98,23 @@ export function Suggestions() {
 
 		const padding = px(PADDING * 2);
 		if (width === 0 || height === 0) {
-			return UDim2.fromOffset(0, px(SUGGESTION_TITLE_TEXT_SIZE) + padding);
+			return UDim2.fromOffset(0, suggestionRef()?.AbsoluteSize.Y ?? 0);
 		}
 
 		return UDim2.fromOffset(width + padding, height + padding);
 	});
 
 	return (
-		<Group
-			size={UDim2.fromScale(1, 1)}
-			visible={currentSuggestion !== undefined}
-		>
+		<Group size={UDim2.fromScale(1, 1)}>
 			<MainSuggestion
 				suggestion={suggestion}
 				currentText={textPart}
 				size={spring(windowSize, 0.2)}
-				titleSize={() => {
-					const bounds = titleBounds();
-					return UDim2.fromOffset(bounds.X, bounds.Y);
-				}}
-				descriptionSize={() => {
-					const bounds = descriptionBounds();
-					return UDim2.fromOffset(bounds.X, bounds.Y);
-				}}
-				badgeSize={() => {
-					const bounds = typeBadgeBounds();
-					return UDim2.fromOffset(bounds.X, bounds.Y);
-				}}
-				errorSize={() => {
-					const bounds = errorBounds();
-					return UDim2.fromOffset(bounds.X, bounds.Y);
-				}}
+				titleSize={offset(titleBounds)}
+				descriptionSize={offset(descriptionBounds)}
+				badgeSize={offset(typeBadgeBounds)}
+				errorSize={offset(errorBounds)}
+				action={suggestionRef}
 			/>
 
 			<SuggestionList

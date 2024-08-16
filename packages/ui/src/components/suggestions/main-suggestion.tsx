@@ -21,6 +21,7 @@ export interface MainSuggestionProps {
 	descriptionSize: Derivable<UDim2>;
 	badgeSize: Derivable<UDim2>;
 	errorSize: Derivable<UDim2>;
+	action?: (instance: Frame) => void;
 }
 
 export function MainSuggestion({
@@ -31,11 +32,13 @@ export function MainSuggestion({
 	descriptionSize,
 	badgeSize,
 	errorSize,
+	action,
 }: MainSuggestionProps) {
 	const options = useAtom(interfaceOptions);
 
 	return (
 		<Frame
+			action={action}
 			size={size}
 			backgroundColor={() => options().palette.background}
 			backgroundTransparency={() => options().backgroundTransparency ?? 0}
