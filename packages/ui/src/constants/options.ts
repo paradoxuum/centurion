@@ -17,4 +17,5 @@ export const DEFAULT_INTERFACE_OPTIONS: InterfaceOptions = {
 		bold: new Font("rbxassetid://16658221428", Enum.FontWeight.Bold),
 	},
 	palette: DefaultPalette.mocha,
+	autoLocalize: false,
 };

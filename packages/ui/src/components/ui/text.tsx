@@ -40,6 +40,7 @@ export function Text(props: TextProps) {
 			RichText={props.richText}
 			Size={props.size}
 			AutomaticSize={props.textAutoResize}
+			AutoLocalize={() => options().autoLocalize}
 			Position={props.position}
 			AnchorPoint={props.anchor}
 			BackgroundColor3={props.backgroundColor}

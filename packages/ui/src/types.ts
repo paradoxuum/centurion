@@ -4,8 +4,8 @@ import { InterfacePalette } from "./palette";
 
 export interface InterfaceOptions {
 	anchor: Vector2;
-	size: UDim2 | ((px: ScaleFunction) => UDim2);
 	position: UDim2 | ((px: ScaleFunction) => UDim2);
+	size: UDim2 | ((px: ScaleFunction) => UDim2);
 	displayOrder: number;
 	backgroundTransparency: number;
 	hideOnLostFocus: boolean;
@@ -16,6 +16,7 @@ export interface InterfaceOptions {
 		bold: Font;
 	};
 	palette: InterfacePalette;
+	autoLocalize: boolean;
 }
 
 export interface HistoryLineData {

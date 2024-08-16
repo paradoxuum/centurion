@@ -37,6 +37,7 @@ export function TextField(props: TextFieldProps) {
 			TextScaled={props.textScaled}
 			RichText={props.richText}
 			AutomaticSize={props.textAutoResize}
+			AutoLocalize={() => options().autoLocalize}
 			Size={props.size}
 			Position={props.position}
 			AnchorPoint={props.anchor}
