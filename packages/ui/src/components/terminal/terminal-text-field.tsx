@@ -51,6 +51,7 @@ export function TerminalTextField({
 	const commandHistory = source<string[]>([]);
 	const commandHistoryIndex = source<number | undefined>(undefined);
 	const suggestionText = source("");
+	let currentTextValue = "";
 
 	// Focus text field when terminal becomes visible
 	effect(() => {
@@ -304,6 +305,9 @@ export function TerminalTextField({
 						}
 
 						textBox.Text = value;
+
+						if (currentTextValue === value) return;
+						currentTextValue = value;
 						onTextChange?.(value);
 					},
 				}}
