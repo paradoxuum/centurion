@@ -91,14 +91,11 @@ export function Suggestions() {
 
 		const height = titleBounds().Y + descriptionBounds().Y + errorBounds().Y;
 
+		const padding = px(PADDING * 2);
 		if (width === 0 || height === 0) {
-			return UDim2.fromOffset(
-				0,
-				px(SUGGESTION_TITLE_TEXT_SIZE) + px(SUGGESTION_TEXT_SIZE),
-			);
+			return UDim2.fromOffset(0, px(SUGGESTION_TITLE_TEXT_SIZE) + padding);
 		}
 
-		const padding = px(PADDING * 2);
 		return UDim2.fromOffset(width + padding, height + padding);
 	});
 
