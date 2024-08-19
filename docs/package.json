@@ -10,12 +10,12 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/check": "^0.9.1",
-    "@astrojs/starlight": "^0.25.4",
-    "@fontsource-variable/jetbrains-mono": "^5.0.21",
+    "@astrojs/check": "^0.9.3",
+    "@astrojs/starlight": "^0.26.1",
+    "@fontsource-variable/jetbrains-mono": "^5.0.22",
     "@lorenzo_lewis/starlight-utils": "^0.1.2",
-    "astro": "^4.13.1",
-    "sharp": "^0.33.4",
+    "astro": "^4.14.2",
+    "sharp": "^0.33.5",
     "starlight-links-validator": "^0.10.1",
     "typescript": "^5.5.4"
   },

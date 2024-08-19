@@ -33,18 +33,18 @@
     },
     "devDependencies": {
         "@rbxts/centurion": "workspace:^",
-        "@rbxts/compiler-types": "2.3.0-types.1",
-        "@rbxts/types": "^1.0.794",
+        "@rbxts/compiler-types": "2.3.0-types.2",
+        "@rbxts/types": "^1.0.799",
         "roblox-ts": "2.3.0-dev-26ec859",
         "shx": "^0.3.4",
         "typescript": "~5.5.4"
     },
     "dependencies": {
-        "@rbxts/charm": "^0.5.2",
+        "@rbxts/charm": "^0.6.0",
         "@rbxts/ripple": "^0.8.2",
         "@rbxts/services": "^1.5.4",
         "@rbxts/set-timeout": "^1.1.2",
-        "@rbxts/vide": "^0.4.2"
+        "@rbxts/vide": "^0.4.4"
     },
     "peerDependencies": {
         "@rbxts/centurion": "workspace:^"
