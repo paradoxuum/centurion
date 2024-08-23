@@ -1,3 +1,4 @@
+import { Signal } from "@rbxts/beacon";
 import { RunService } from "@rbxts/services";
 import {
 	CommandOptions,
@@ -7,7 +8,8 @@ import {
 } from "../shared";
 import { CommandGroup } from "../shared/core/command";
 import { BaseRegistry } from "../shared/core/registry";
-import { ReadonlyDeep } from "../shared/util/data";
+import { SyncData } from "../shared/network";
+import { ObjectUtil, ReadonlyDeep } from "../shared/util/data";
 import { CenturionLogLevel } from "../shared/util/log";
 import { ServerCommand } from "./command";
 import { ClientConfig } from "./types";
@@ -16,6 +18,7 @@ export class ClientRegistry extends BaseRegistry<ReadonlyDeep<ClientConfig>> {
 	private initialSyncReceived = false;
 	private syncedCommands = new Set<string>();
 	private syncedGroups = new Set<string>();
+	readonly synced = new Signal<[data: ReadonlyDeep<SyncData>]>();
 
 	/**
 	 * Initializes the client registry.
@@ -39,8 +42,9 @@ export class ClientRegistry extends BaseRegistry<ReadonlyDeep<ClientConfig>> {
 	/**
 	 * Begins registry synchronisation to the server.
 	 *
+	 * @internal
+	 * @ignore
 	 * @throws Throws an error if the server does not respond in time
-	 *
 	 * @returns A promise that will be resolved when the initial sync is received
 	 */
 	async sync() {
@@ -81,8 +85,10 @@ export class ClientRegistry extends BaseRegistry<ReadonlyDeep<ClientConfig>> {
 				}
 			}
 
+			ObjectUtil.freezeDeep(data);
 			if (data.commands.isEmpty() && data.groups.isEmpty()) {
 				this.logger.debug("No commands or groups to sync");
+				this.synced.Fire(data);
 				return;
 			}
 
@@ -106,6 +112,7 @@ export class ClientRegistry extends BaseRegistry<ReadonlyDeep<ClientConfig>> {
 				this.syncedGroups.add(path);
 			}
 
+			this.synced.Fire(data);
 			if (this.logger.level <= CenturionLogLevel.Info) {
 				const commandCount = data.commands.size();
 				const groupCount = groups.size();
@@ -128,7 +135,9 @@ export class ClientRegistry extends BaseRegistry<ReadonlyDeep<ClientConfig>> {
 			});
 	}
 
-	private registerServerCommands(commands: Map<string, CommandOptions>) {
+	private registerServerCommands(
+		commands: ReadonlyMap<string, CommandOptions>,
+	) {
 		for (const [pathString, options] of commands) {
 			const path = ImmutableRegistryPath.fromString(pathString);
 			let group: CommandGroup | undefined;
