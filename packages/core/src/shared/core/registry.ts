@@ -244,16 +244,19 @@ export abstract class BaseRegistry<
 	 */
 	unregisterCommand(path: RegistryPath) {
 		const command = this.getCommand(path);
-		this.logger.assert(command !== undefined, `Command not found: ${path}`);
-
-		for (const path of command.getPaths()) {
-			this.commands.delete(path.toString());
-			this.uncachePath(path);
-		}
+		this.logger.assert(
+			command !== undefined,
+			`Command is not registered: ${path}`,
+		);
 
 		const group = this.getGroup(path.parent());
 		if (group !== undefined) {
 			group.removeCommand(command);
+		}
+
+		for (const path of command.getPaths()) {
+			this.commands.delete(path.toString());
+			this.uncachePath(path);
 		}
 
 		this.commandUnregistered.Fire(command);
@@ -267,7 +270,12 @@ export abstract class BaseRegistry<
 	 */
 	unregisterGroup(path: RegistryPath) {
 		const group = this.getGroup(path);
-		this.logger.assert(group !== undefined, `Group not found: ${path}`);
+		this.logger.assert(group !== undefined, `Group is not registered: ${path}`);
+
+		const parentGroup = this.getGroup(path.parent());
+		if (parentGroup !== undefined) {
+			parentGroup.removeGroup(group);
+		}
 
 		for (const command of group.getCommands()) {
 			this.unregisterCommand(command.getPath());
