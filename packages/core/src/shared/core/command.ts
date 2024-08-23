@@ -276,6 +276,14 @@ export class CommandGroup {
 		this.groups.set(groupName, group);
 	}
 
+	removeCommand(command: BaseCommand) {
+		this.commands.delete(command.getName());
+	}
+
+	removeGroup(group: CommandGroup) {
+		this.groups.delete(group.options.name);
+	}
+
 	getCommand(name: string) {
 		return this.commands.get(name);
 	}

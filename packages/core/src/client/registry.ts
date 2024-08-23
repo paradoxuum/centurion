@@ -1,5 +1,10 @@
 import { RunService } from "@rbxts/services";
-import { CommandOptions, GroupOptions, ImmutableRegistryPath } from "../shared";
+import {
+	CommandOptions,
+	GroupOptions,
+	ImmutableRegistryPath,
+	RegistryPath,
+} from "../shared";
 import { CommandGroup } from "../shared/core/command";
 import { BaseRegistry } from "../shared/core/registry";
 import { ReadonlyDeep } from "../shared/util/data";
@@ -9,7 +14,8 @@ import { ClientConfig } from "./types";
 
 export class ClientRegistry extends BaseRegistry<ReadonlyDeep<ClientConfig>> {
 	private initialSyncReceived = false;
-	private syncedPaths = new Set<string>();
+	private syncedCommands = new Set<string>();
+	private syncedGroups = new Set<string>();
 
 	/**
 	 * Initializes the client registry.
@@ -47,9 +53,37 @@ export class ClientRegistry extends BaseRegistry<ReadonlyDeep<ClientConfig>> {
 				this.initialSyncReceived = true;
 			}
 
-			for (const path of this.syncedPaths) {
-				data.commands.delete(path);
-				data.groups.delete(path);
+			for (const path of this.syncedCommands) {
+				// If the command has already been synced, skip it
+				if (data.commands.has(path)) {
+					data.commands.delete(path);
+					continue;
+				}
+
+				// Unregister the command if it is no longer synced
+				this.syncedCommands.delete(path);
+				if (this.commands.has(path)) {
+					this.unregisterCommand(RegistryPath.fromString(path));
+				}
+			}
+
+			for (const path of this.syncedGroups) {
+				// If the group has already been synced, skip it
+				if (data.groups.has(path)) {
+					data.groups.delete(path);
+					continue;
+				}
+
+				// Unregister the group if it is no longer synced
+				this.syncedGroups.delete(path);
+				if (this.groups.has(path)) {
+					this.unregisterGroup(RegistryPath.fromString(path));
+				}
+			}
+
+			if (data.commands.isEmpty() && data.groups.isEmpty()) {
+				this.logger.debug("No commands or groups to sync");
+				return;
 			}
 
 			const groups: GroupOptions[] = [];
@@ -59,16 +93,17 @@ export class ClientRegistry extends BaseRegistry<ReadonlyDeep<ClientConfig>> {
 
 			this.logger.debug(
 				`Received sync data from server (commands: ${data.commands.size()}, groups: ${groups.size()})`,
+				data,
 			);
 			this.registerGroup(...groups);
 			this.registerServerCommands(data.commands);
 
 			for (const [path] of data.commands) {
-				this.syncedPaths.add(path);
+				this.syncedCommands.add(path);
 			}
 
 			for (const [path] of data.groups) {
-				this.syncedPaths.add(path);
+				this.syncedGroups.add(path);
 			}
 
 			if (this.logger.level <= CenturionLogLevel.Info) {

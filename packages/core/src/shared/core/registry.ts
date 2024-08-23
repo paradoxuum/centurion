@@ -51,6 +51,8 @@ export abstract class BaseRegistry<
 
 	readonly commandRegistered = new Signal<[command: BaseCommand]>();
 	readonly groupRegistered = new Signal<[group: CommandGroup]>();
+	readonly commandUnregistered = new Signal<[command: BaseCommand]>();
+	readonly groupUnregistered = new Signal<[group: CommandGroup]>();
 
 	constructor(protected readonly config: C) {
 		this.logger = new CenturionLogger(config.logLevel, "Registry");
@@ -236,6 +238,52 @@ export abstract class BaseRegistry<
 	}
 
 	/**
+	 * Unregisters a command with the given path.
+	 *
+	 * @param path The path of the command to unregister.
+	 */
+	unregisterCommand(path: RegistryPath) {
+		const command = this.getCommand(path);
+		this.logger.assert(command !== undefined, `Command not found: ${path}`);
+
+		for (const path of command.getPaths()) {
+			this.commands.delete(path.toString());
+			this.uncachePath(path);
+		}
+
+		const group = this.getGroup(path.parent());
+		if (group !== undefined) {
+			group.removeCommand(command);
+		}
+
+		this.commandUnregistered.Fire(command);
+		this.logger.debug(`Unregistered command: ${command.getPath()}`);
+	}
+
+	/**
+	 * Unregisters a group and all of its child commands or groups.
+	 *
+	 * @param path The path of the group to unregister.
+	 */
+	unregisterGroup(path: RegistryPath) {
+		const group = this.getGroup(path);
+		this.logger.assert(group !== undefined, `Group not found: ${path}`);
+
+		for (const command of group.getCommands()) {
+			this.unregisterCommand(command.getPath());
+		}
+
+		for (const childGroup of group.getGroups()) {
+			this.unregisterGroup(childGroup.getPath());
+		}
+
+		this.groups.delete(path.toString());
+		this.uncachePath(path);
+		this.groupUnregistered.Fire(group);
+		this.logger.debug(`Unregistered group: ${group.getPath()}`);
+	}
+
+	/**
 	 * Returns a registered argument type with the given name.
 	 *
 	 * @param name The name of the type.
@@ -355,6 +403,27 @@ export abstract class BaseRegistry<
 			if (cache.some((val) => val.equals(pathSlice))) continue;
 			cache.push(pathSlice);
 			cache.sort((a, b) => a.tail() < b.tail());
+		}
+	}
+
+	protected uncachePath(path: RegistryPath) {
+		let key = BaseRegistry.ROOT_KEY;
+		for (const i of $range(0, path.size() - 1)) {
+			const cache = this.cachedPaths.get(key);
+			if (cache === undefined) break;
+
+			const pathSlice = path.slice(0, i);
+
+			const newCache = cache
+				.filter((val) => !val.equals(pathSlice))
+				.sort((a, b) => a.tail() < b.tail());
+
+			if (newCache.isEmpty()) {
+				this.cachedPaths.delete(key);
+			} else {
+				this.cachedPaths.set(key, newCache);
+			}
+			key = pathSlice.toString();
 		}
 	}
 
