@@ -1,5 +1,10 @@
 import { Players } from "@rbxts/services";
-import { CommandOptions, GroupOptions, RegistryPath } from "../shared";
+import {
+	CenturionLogLevel,
+	CommandOptions,
+	GroupOptions,
+	RegistryPath,
+} from "../shared";
 import {
 	BaseCommand,
 	CommandGroup,
@@ -8,6 +13,7 @@ import {
 import { BaseRegistry } from "../shared/core/registry";
 import { SyncData } from "../shared/network";
 import { ArrayUtil, ReadonlyDeep } from "../shared/util/data";
+import { inspect } from "../shared/util/inspect";
 import { ServerConfig } from "./types";
 
 export class ServerRegistry extends BaseRegistry<ReadonlyDeep<ServerConfig>> {
@@ -79,8 +85,15 @@ export class ServerRegistry extends BaseRegistry<ReadonlyDeep<ServerConfig>> {
 			}
 		}
 
-		this.logger.debug(`Syncing data to ${player.Name}`, data);
 		this.config.network.syncDispatch.Fire(player, data);
+		if (this.logger.level <= CenturionLogLevel.Debug) {
+			this.logger.debug(
+				`Synced data to ${player.Name}`,
+				inspect(data, {
+					depth: 2,
+				}),
+			);
+		}
 	}
 
 	protected addCommand(command: BaseCommand, group?: CommandGroup | undefined) {

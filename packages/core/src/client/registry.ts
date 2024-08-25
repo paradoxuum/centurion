@@ -10,6 +10,7 @@ import { CommandGroup } from "../shared/core/command";
 import { BaseRegistry } from "../shared/core/registry";
 import { SyncData } from "../shared/network";
 import { ObjectUtil, ReadonlyDeep } from "../shared/util/data";
+import { inspect } from "../shared/util/inspect";
 import { CenturionLogLevel } from "../shared/util/log";
 import { ServerCommand } from "./command";
 import { ClientConfig } from "./types";
@@ -97,10 +98,15 @@ export class ClientRegistry extends BaseRegistry<ReadonlyDeep<ClientConfig>> {
 				groups.push(group);
 			}
 
-			this.logger.debug(
-				`Received sync data from server (commands: ${data.commands.size()}, groups: ${groups.size()})`,
-				data,
-			);
+			if (this.logger.level <= CenturionLogLevel.Debug) {
+				this.logger.debug(
+					`Received sync data from server (commands: ${data.commands.size()}, groups: ${groups.size()})`,
+					inspect(data, {
+						depth: 2,
+					}),
+				);
+			}
+
 			this.registerGroup(...groups);
 			this.registerServerCommands(data.commands);
 
