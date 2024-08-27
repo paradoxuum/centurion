@@ -19,7 +19,9 @@ export class ClientRegistry extends BaseRegistry<ReadonlyDeep<ClientConfig>> {
 	private initialSyncReceived = false;
 	private syncedCommands = new Set<string>();
 	private syncedGroups = new Set<string>();
-	readonly synced = new Signal<[data: ReadonlyDeep<SyncData>]>();
+	readonly synced = new Signal<
+		[synced: ReadonlyDeep<SyncData>, incoming: ReadonlyDeep<SyncData>]
+	>();
 
 	/**
 	 * Initializes the client registry.
@@ -58,10 +60,13 @@ export class ClientRegistry extends BaseRegistry<ReadonlyDeep<ClientConfig>> {
 				this.initialSyncReceived = true;
 			}
 
+			const commandsToSync = table.clone(data.commands);
+			const groupsToSync = table.clone(data.groups);
+
 			for (const path of this.syncedCommands) {
 				// If the command has already been synced, skip it
 				if (data.commands.has(path)) {
-					data.commands.delete(path);
+					commandsToSync.delete(path);
 					continue;
 				}
 
@@ -75,7 +80,7 @@ export class ClientRegistry extends BaseRegistry<ReadonlyDeep<ClientConfig>> {
 			for (const path of this.syncedGroups) {
 				// If the group has already been synced, skip it
 				if (data.groups.has(path)) {
-					data.groups.delete(path);
+					groupsToSync.delete(path);
 					continue;
 				}
 
@@ -86,42 +91,49 @@ export class ClientRegistry extends BaseRegistry<ReadonlyDeep<ClientConfig>> {
 				}
 			}
 
+			const toSyncData: ReadonlyDeep<SyncData> = table.freeze({
+				commands: commandsToSync,
+				groups: groupsToSync,
+			});
+
 			ObjectUtil.freezeDeep(data);
-			if (data.commands.isEmpty() && data.groups.isEmpty()) {
+			if (commandsToSync.isEmpty() && groupsToSync.isEmpty()) {
 				this.logger.debug("No commands or groups to sync");
-				this.synced.Fire(data);
+				this.synced.Fire(toSyncData, data);
 				return;
 			}
 
-			const groups: GroupOptions[] = [];
-			for (const [_, group] of data.groups) {
-				groups.push(group);
+			const groupObjects: GroupOptions[] = [];
+			for (const [_, group] of groupsToSync) {
+				groupObjects.push(group);
 			}
 
 			if (this.logger.level <= CenturionLogLevel.Debug) {
 				this.logger.debug(
-					`Received sync data from server (commands: ${data.commands.size()}, groups: ${groups.size()})`,
+					`Received sync data from server (commands: ${data.commands.size()}, groups: ${groupObjects.size()})`,
 					inspect(data, {
 						depth: 2,
 					}),
 				);
 			}
 
-			this.registerGroup(...groups);
-			this.registerServerCommands(data.commands);
-
-			for (const [path] of data.commands) {
+			this.registerGroup(...groupObjects);
+			for (const [path, options] of commandsToSync) {
+				this.registerServerCommand(
+					ImmutableRegistryPath.fromString(path),
+					options,
+				);
 				this.syncedCommands.add(path);
 			}
 
-			for (const [path] of data.groups) {
+			for (const [path] of groupsToSync) {
 				this.syncedGroups.add(path);
 			}
 
-			this.synced.Fire(data);
+			this.synced.Fire(toSyncData, data);
 			if (this.logger.level <= CenturionLogLevel.Info) {
 				const commandCount = data.commands.size();
-				const groupCount = groups.size();
+				const groupCount = groupObjects.size();
 				this.logger.info(
 					`Registered ${commandCount} command${commandCount === 1 ? "" : "s"} and ${groupCount} group${groupCount === 1 ? "" : "s"} from the server!`,
 				);
@@ -141,35 +153,30 @@ export class ClientRegistry extends BaseRegistry<ReadonlyDeep<ClientConfig>> {
 			});
 	}
 
-	private registerServerCommands(
-		commands: ReadonlyMap<string, CommandOptions>,
+	private registerServerCommand(
+		path: ImmutableRegistryPath,
+		options: CommandOptions,
 	) {
-		for (const [pathString, options] of commands) {
-			const path = ImmutableRegistryPath.fromString(pathString);
-			let group: CommandGroup | undefined;
-			if (path.size() > 1) {
-				const groupPath = path.remove(path.size() - 1);
-				group = this.getGroup(groupPath);
-				this.logger.assert(
-					group !== undefined,
-					`Group '${groupPath}' for server command '${path}' is not registered`,
-				);
-			}
-
-			if (this.commands.has(pathString)) {
-				// TODO Implement shared command support:
-				// - Verify that the argument options are the same
-				// - Use the client command's return value to determine whether the
-				//   server command should be executed
-				// - Maybe log a warning if the description is different on the client
-				this.logger.warn(`Shared commands are not yet supported: ${path}`);
-				continue;
-			}
-
-			this.addCommand(
-				new ServerCommand(this.config, this, path, options),
-				group,
+		let group: CommandGroup | undefined;
+		if (path.size() > 1) {
+			const groupPath = path.remove(path.size() - 1);
+			group = this.getGroup(groupPath);
+			this.logger.assert(
+				group !== undefined,
+				`Group '${groupPath}' for server command '${path}' is not registered`,
 			);
 		}
+
+		if (this.commands.has(path.toString())) {
+			// TODO Implement shared command support:
+			// - Verify that the argument options are the same
+			// - Use the client command's return value to determine whether the
+			//   server command should be executed
+			// - Maybe log a warning if the description is different on the client
+			this.logger.warn(`Shared commands are not yet supported: ${path}`);
+			return;
+		}
+
+		this.addCommand(new ServerCommand(this.config, this, path, options), group);
 	}
 }

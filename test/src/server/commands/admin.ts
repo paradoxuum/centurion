@@ -32,7 +32,7 @@ export class AdminCommand {
 	add(ctx: CommandContext, player: Player) {
 		addAdmin(player);
 		Centurion.server().registry.sync(player);
-		ctx.reply(`Gave admin permisisons to ${player.Name}`);
+		ctx.reply(`Gave admin permissions to ${player.Name}`);
 	}
 
 	@Command({
