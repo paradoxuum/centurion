@@ -44,7 +44,7 @@ export abstract class BaseDispatcher<
 
 		if (this.logger.level === CenturionLogLevel.Debug) {
 			this.logger.debug(
-				`Executing command with executor '${executor.Name}': ${getInputText(path, args)}`,
+				`Player '${executor.Name} executed command: ${getInputText(path, args)}`,
 			);
 		}
 
