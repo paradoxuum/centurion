@@ -13,7 +13,7 @@ export enum MetadataKey {
  */
 export namespace DecoratorMetadata {
 	// object -> property -> key -> value
-	export const metadata = new WeakMap<
+	export const metadata = new Map<
 		object,
 		Map<string | typeof NO_PROP_MARKER, Map<string, unknown>>
 	>();
