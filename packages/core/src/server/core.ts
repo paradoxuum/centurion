@@ -1,7 +1,7 @@
 import { RunService } from "@rbxts/services";
 import { DEFAULT_CONFIG } from "../shared/config";
 import { getRemotes } from "../shared/network";
-import { ObjectUtil, ReadonlyDeep } from "../shared/util/data";
+import { ReadonlyDeep } from "../shared/util/data";
 import { ServerDispatcher } from "./dispatcher";
 import { ServerRegistry } from "./registry";
 import { ServerConfig } from "./types";
@@ -38,12 +38,12 @@ export class CenturionServer {
 			};
 		}
 
-		this.config = ObjectUtil.freezeDeep({
+		this.config = {
 			...DEFAULT_CONFIG,
 			network: networkConfig,
 			syncFilter: () => true,
 			...config,
-		});
+		};
 		this.registry = new ServerRegistry(this.config);
 		this.dispatcher = new ServerDispatcher(this.config, this.registry);
 	}
