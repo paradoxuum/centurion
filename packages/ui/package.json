@@ -41,7 +41,6 @@
     },
     "dependencies": {
         "@rbxts/charm": "^0.6.0",
-        "@rbxts/ripple": "^0.8.2",
         "@rbxts/services": "^1.5.4",
         "@rbxts/set-timeout": "^1.1.2",
         "@rbxts/vide": "^0.4.4"

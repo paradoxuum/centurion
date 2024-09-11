@@ -1506,7 +1506,6 @@ __metadata:
     "@rbxts/centurion": "workspace:^"
     "@rbxts/charm": "npm:^0.6.0"
     "@rbxts/compiler-types": "npm:2.3.0-types.2"
-    "@rbxts/ripple": "npm:^0.8.2"
     "@rbxts/services": "npm:^1.5.4"
     "@rbxts/set-timeout": "npm:^1.1.2"
     "@rbxts/types": "npm:^1.0.799"
@@ -1610,13 +1609,6 @@ __metadata:
   version: 0.4.0
   resolution: "@rbxts/react-vendor@npm:0.4.0"
   checksum: 10c0/e1f3fccb13a55dc8751f93e5bfb66d40ffd188e296f351801fdce25bd3df5cb5ed2d4ae67b8b067e950875ff49b6349c44c4d8b09b448e446e102c5735a9a388
-  languageName: node
-  linkType: hard
-
-"@rbxts/ripple@npm:^0.8.2":
-  version: 0.8.2
-  resolution: "@rbxts/ripple@npm:0.8.2"
-  checksum: 10c0/6ef3f5249314a199e93d11692f812f5a226e662435a9c18290ede7fc82c6de1f6c8407138289c0e5bc47045097f24f12b60cabc72a70f34c2bf9f8e1937fddf1
   languageName: node
   linkType: hard
 
@@ -2559,7 +2551,7 @@ __metadata:
   resolution: "centurion@workspace:."
   dependencies:
     "@biomejs/biome": "npm:1.8.3"
-    lefthook: "npm:^1.7.14"
+    lefthook: "npm:^1.7.15"
   languageName: unknown
   linkType: soft
 
@@ -4318,90 +4310,90 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lefthook-darwin-arm64@npm:1.7.14":
-  version: 1.7.14
-  resolution: "lefthook-darwin-arm64@npm:1.7.14"
+"lefthook-darwin-arm64@npm:1.7.15":
+  version: 1.7.15
+  resolution: "lefthook-darwin-arm64@npm:1.7.15"
   conditions: os=darwin & cpu=arm64
   languageName: node
   linkType: hard
 
-"lefthook-darwin-x64@npm:1.7.14":
-  version: 1.7.14
-  resolution: "lefthook-darwin-x64@npm:1.7.14"
+"lefthook-darwin-x64@npm:1.7.15":
+  version: 1.7.15
+  resolution: "lefthook-darwin-x64@npm:1.7.15"
   conditions: os=darwin & cpu=x64
   languageName: node
   linkType: hard
 
-"lefthook-freebsd-arm64@npm:1.7.14":
-  version: 1.7.14
-  resolution: "lefthook-freebsd-arm64@npm:1.7.14"
+"lefthook-freebsd-arm64@npm:1.7.15":
+  version: 1.7.15
+  resolution: "lefthook-freebsd-arm64@npm:1.7.15"
   conditions: os=freebsd & cpu=arm64
   languageName: node
   linkType: hard
 
-"lefthook-freebsd-x64@npm:1.7.14":
-  version: 1.7.14
-  resolution: "lefthook-freebsd-x64@npm:1.7.14"
+"lefthook-freebsd-x64@npm:1.7.15":
+  version: 1.7.15
+  resolution: "lefthook-freebsd-x64@npm:1.7.15"
   conditions: os=freebsd & cpu=x64
   languageName: node
   linkType: hard
 
-"lefthook-linux-arm64@npm:1.7.14":
-  version: 1.7.14
-  resolution: "lefthook-linux-arm64@npm:1.7.14"
+"lefthook-linux-arm64@npm:1.7.15":
+  version: 1.7.15
+  resolution: "lefthook-linux-arm64@npm:1.7.15"
   conditions: os=linux & cpu=arm64
   languageName: node
   linkType: hard
 
-"lefthook-linux-x64@npm:1.7.14":
-  version: 1.7.14
-  resolution: "lefthook-linux-x64@npm:1.7.14"
+"lefthook-linux-x64@npm:1.7.15":
+  version: 1.7.15
+  resolution: "lefthook-linux-x64@npm:1.7.15"
   conditions: os=linux & cpu=x64
   languageName: node
   linkType: hard
 
-"lefthook-openbsd-arm64@npm:1.7.14":
-  version: 1.7.14
-  resolution: "lefthook-openbsd-arm64@npm:1.7.14"
+"lefthook-openbsd-arm64@npm:1.7.15":
+  version: 1.7.15
+  resolution: "lefthook-openbsd-arm64@npm:1.7.15"
   conditions: os=openbsd & cpu=arm64
   languageName: node
   linkType: hard
 
-"lefthook-openbsd-x64@npm:1.7.14":
-  version: 1.7.14
-  resolution: "lefthook-openbsd-x64@npm:1.7.14"
+"lefthook-openbsd-x64@npm:1.7.15":
+  version: 1.7.15
+  resolution: "lefthook-openbsd-x64@npm:1.7.15"
   conditions: os=openbsd & cpu=x64
   languageName: node
   linkType: hard
 
-"lefthook-windows-arm64@npm:1.7.14":
-  version: 1.7.14
-  resolution: "lefthook-windows-arm64@npm:1.7.14"
+"lefthook-windows-arm64@npm:1.7.15":
+  version: 1.7.15
+  resolution: "lefthook-windows-arm64@npm:1.7.15"
   conditions: os=win32 & cpu=arm64
   languageName: node
   linkType: hard
 
-"lefthook-windows-x64@npm:1.7.14":
-  version: 1.7.14
-  resolution: "lefthook-windows-x64@npm:1.7.14"
+"lefthook-windows-x64@npm:1.7.15":
+  version: 1.7.15
+  resolution: "lefthook-windows-x64@npm:1.7.15"
   conditions: os=win32 & cpu=x64
   languageName: node
   linkType: hard
 
-"lefthook@npm:^1.7.14":
-  version: 1.7.14
-  resolution: "lefthook@npm:1.7.14"
+"lefthook@npm:^1.7.15":
+  version: 1.7.15
+  resolution: "lefthook@npm:1.7.15"
   dependencies:
-    lefthook-darwin-arm64: "npm:1.7.14"
-    lefthook-darwin-x64: "npm:1.7.14"
-    lefthook-freebsd-arm64: "npm:1.7.14"
-    lefthook-freebsd-x64: "npm:1.7.14"
-    lefthook-linux-arm64: "npm:1.7.14"
-    lefthook-linux-x64: "npm:1.7.14"
-    lefthook-openbsd-arm64: "npm:1.7.14"
-    lefthook-openbsd-x64: "npm:1.7.14"
-    lefthook-windows-arm64: "npm:1.7.14"
-    lefthook-windows-x64: "npm:1.7.14"
+    lefthook-darwin-arm64: "npm:1.7.15"
+    lefthook-darwin-x64: "npm:1.7.15"
+    lefthook-freebsd-arm64: "npm:1.7.15"
+    lefthook-freebsd-x64: "npm:1.7.15"
+    lefthook-linux-arm64: "npm:1.7.15"
+    lefthook-linux-x64: "npm:1.7.15"
+    lefthook-openbsd-arm64: "npm:1.7.15"
+    lefthook-openbsd-x64: "npm:1.7.15"
+    lefthook-windows-arm64: "npm:1.7.15"
+    lefthook-windows-x64: "npm:1.7.15"
   dependenciesMeta:
     lefthook-darwin-arm64:
       optional: true
@@ -4425,7 +4417,7 @@ __metadata:
       optional: true
   bin:
     lefthook: bin/index.js
-  checksum: 10c0/0fc3440e6fb67a765feff088b226ae15c9ffb811be8168567ce71bc276a523f4f81b49b0f3019862e8e6edb205153f4053fdc9d31f7cf029426bedfcf7038407
+  checksum: 10c0/fe1c1597af56127cef361bc339944d4edbbb91931e40ed2d0a066cccde1c9cf0e25e5de1ad8dd9d39debc62dbb38a01143201ea5b97e4f7874f7aa56376465b0
   languageName: node
   linkType: hard
 

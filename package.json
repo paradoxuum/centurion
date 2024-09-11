@@ -1,7 +1,7 @@
 {
   "name": "centurion",
   "private": true,
-  "packageManager": "yarn@4.4.0",
+  "packageManager": "yarn@4.4.1",
   "workspaces": [
     "packages/*",
     "docs",
@@ -19,6 +19,6 @@
   },
   "devDependencies": {
     "@biomejs/biome": "1.8.3",
-    "lefthook": "^1.7.14"
+    "lefthook": "^1.7.15"
   }
 }
