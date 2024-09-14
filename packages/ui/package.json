@@ -33,9 +33,9 @@
     },
     "devDependencies": {
         "@rbxts/centurion": "workspace:^",
-        "@rbxts/compiler-types": "2.3.0-types.2",
+        "@rbxts/compiler-types": "3.0.0-types.0",
         "@rbxts/types": "^1.0.799",
-        "roblox-ts": "2.3.0-dev-4a8c862",
+        "roblox-ts": "3.0.0",
         "shx": "^0.3.4",
         "typescript": "~5.5.4"
     },

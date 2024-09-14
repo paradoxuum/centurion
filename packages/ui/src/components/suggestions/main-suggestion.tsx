@@ -115,7 +115,7 @@ export function MainSuggestion({
 					const currentSuggestion = read(suggestion);
 					return currentSuggestion !== undefined &&
 						currentSuggestion.type === "argument"
-						? currentSuggestion.error ?? ""
+						? (currentSuggestion.error ?? "")
 						: "";
 				}}
 				textColor={() => options().palette.error}

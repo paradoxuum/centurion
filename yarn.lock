@@ -553,18 +553,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@biomejs/biome@npm:1.8.3":
-  version: 1.8.3
-  resolution: "@biomejs/biome@npm:1.8.3"
+"@biomejs/biome@npm:1.9.0":
+  version: 1.9.0
+  resolution: "@biomejs/biome@npm:1.9.0"
   dependencies:
-    "@biomejs/cli-darwin-arm64": "npm:1.8.3"
-    "@biomejs/cli-darwin-x64": "npm:1.8.3"
-    "@biomejs/cli-linux-arm64": "npm:1.8.3"
-    "@biomejs/cli-linux-arm64-musl": "npm:1.8.3"
-    "@biomejs/cli-linux-x64": "npm:1.8.3"
-    "@biomejs/cli-linux-x64-musl": "npm:1.8.3"
-    "@biomejs/cli-win32-arm64": "npm:1.8.3"
-    "@biomejs/cli-win32-x64": "npm:1.8.3"
+    "@biomejs/cli-darwin-arm64": "npm:1.9.0"
+    "@biomejs/cli-darwin-x64": "npm:1.9.0"
+    "@biomejs/cli-linux-arm64": "npm:1.9.0"
+    "@biomejs/cli-linux-arm64-musl": "npm:1.9.0"
+    "@biomejs/cli-linux-x64": "npm:1.9.0"
+    "@biomejs/cli-linux-x64-musl": "npm:1.9.0"
+    "@biomejs/cli-win32-arm64": "npm:1.9.0"
+    "@biomejs/cli-win32-x64": "npm:1.9.0"
   dependenciesMeta:
     "@biomejs/cli-darwin-arm64":
       optional: true
@@ -584,62 +584,62 @@ __metadata:
       optional: true
   bin:
     biome: bin/biome
-  checksum: 10c0/95fe99ce82cd8242f1be51cbf3ac26043b253f5a369d3dc24df09bdb32ec04dba679b1d4fa8b9d602b1bf2c30ecd80af14aa8f5c92d6e0cd6214a99a1099a65b
+  checksum: 10c0/b07ad2c8dc3d52c0a4eea37f98d36399b33a13759903aa65f9678db916810b773fe94937c304899158479bccd8c3c90f0f30af22b34d6dc5963774f1acc5e245
   languageName: node
   linkType: hard
 
-"@biomejs/cli-darwin-arm64@npm:1.8.3":
-  version: 1.8.3
-  resolution: "@biomejs/cli-darwin-arm64@npm:1.8.3"
+"@biomejs/cli-darwin-arm64@npm:1.9.0":
+  version: 1.9.0
+  resolution: "@biomejs/cli-darwin-arm64@npm:1.9.0"
   conditions: os=darwin & cpu=arm64
   languageName: node
   linkType: hard
 
-"@biomejs/cli-darwin-x64@npm:1.8.3":
-  version: 1.8.3
-  resolution: "@biomejs/cli-darwin-x64@npm:1.8.3"
+"@biomejs/cli-darwin-x64@npm:1.9.0":
+  version: 1.9.0
+  resolution: "@biomejs/cli-darwin-x64@npm:1.9.0"
   conditions: os=darwin & cpu=x64
   languageName: node
   linkType: hard
 
-"@biomejs/cli-linux-arm64-musl@npm:1.8.3":
-  version: 1.8.3
-  resolution: "@biomejs/cli-linux-arm64-musl@npm:1.8.3"
+"@biomejs/cli-linux-arm64-musl@npm:1.9.0":
+  version: 1.9.0
+  resolution: "@biomejs/cli-linux-arm64-musl@npm:1.9.0"
   conditions: os=linux & cpu=arm64 & libc=musl
   languageName: node
   linkType: hard
 
-"@biomejs/cli-linux-arm64@npm:1.8.3":
-  version: 1.8.3
-  resolution: "@biomejs/cli-linux-arm64@npm:1.8.3"
+"@biomejs/cli-linux-arm64@npm:1.9.0":
+  version: 1.9.0
+  resolution: "@biomejs/cli-linux-arm64@npm:1.9.0"
   conditions: os=linux & cpu=arm64 & libc=glibc
   languageName: node
   linkType: hard
 
-"@biomejs/cli-linux-x64-musl@npm:1.8.3":
-  version: 1.8.3
-  resolution: "@biomejs/cli-linux-x64-musl@npm:1.8.3"
+"@biomejs/cli-linux-x64-musl@npm:1.9.0":
+  version: 1.9.0
+  resolution: "@biomejs/cli-linux-x64-musl@npm:1.9.0"
   conditions: os=linux & cpu=x64 & libc=musl
   languageName: node
   linkType: hard
 
-"@biomejs/cli-linux-x64@npm:1.8.3":
-  version: 1.8.3
-  resolution: "@biomejs/cli-linux-x64@npm:1.8.3"
+"@biomejs/cli-linux-x64@npm:1.9.0":
+  version: 1.9.0
+  resolution: "@biomejs/cli-linux-x64@npm:1.9.0"
   conditions: os=linux & cpu=x64 & libc=glibc
   languageName: node
   linkType: hard
 
-"@biomejs/cli-win32-arm64@npm:1.8.3":
-  version: 1.8.3
-  resolution: "@biomejs/cli-win32-arm64@npm:1.8.3"
+"@biomejs/cli-win32-arm64@npm:1.9.0":
+  version: 1.9.0
+  resolution: "@biomejs/cli-win32-arm64@npm:1.9.0"
   conditions: os=win32 & cpu=arm64
   languageName: node
   linkType: hard
 
-"@biomejs/cli-win32-x64@npm:1.8.3":
-  version: 1.8.3
-  resolution: "@biomejs/cli-win32-x64@npm:1.8.3"
+"@biomejs/cli-win32-x64@npm:1.9.0":
+  version: 1.9.0
+  resolution: "@biomejs/cli-win32-x64@npm:1.9.0"
   conditions: os=win32 & cpu=x64
   languageName: node
   linkType: hard
@@ -1505,12 +1505,12 @@ __metadata:
   dependencies:
     "@rbxts/centurion": "workspace:^"
     "@rbxts/charm": "npm:^0.6.0"
-    "@rbxts/compiler-types": "npm:2.3.0-types.2"
+    "@rbxts/compiler-types": "npm:3.0.0-types.0"
     "@rbxts/services": "npm:^1.5.4"
     "@rbxts/set-timeout": "npm:^1.1.2"
     "@rbxts/types": "npm:^1.0.799"
     "@rbxts/vide": "npm:^0.4.4"
-    roblox-ts: "npm:2.3.0-dev-4a8c862"
+    roblox-ts: "npm:3.0.0"
     shx: "npm:^0.3.4"
     typescript: "npm:~5.5.4"
   peerDependencies:
@@ -1523,14 +1523,14 @@ __metadata:
   resolution: "@rbxts/centurion@workspace:packages/core"
   dependencies:
     "@rbxts/beacon": "npm:^2.1.1"
-    "@rbxts/compiler-types": "npm:^2.3.0-types.2"
+    "@rbxts/compiler-types": "npm:^3.0.0-types.0"
     "@rbxts/jest": "npm:^0.1.0"
     "@rbxts/jest-globals": "npm:^0.1.0"
     "@rbxts/services": "npm:^1.5.4"
     "@rbxts/t": "npm:^3.1.1"
     "@rbxts/types": "npm:^1.0.799"
     rbxts-transform-debug: "https://github.com/paradoxuum/rbxts-transform-debug"
-    roblox-ts: "npm:2.3.0"
+    roblox-ts: "npm:3.0.0"
     shx: "npm:^0.3.4"
     typescript: "npm:~5.5.4"
   languageName: unknown
@@ -1548,10 +1548,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@rbxts/compiler-types@npm:2.3.0-types.2, @rbxts/compiler-types@npm:^2.3.0-types.2":
-  version: 2.3.0-types.2
-  resolution: "@rbxts/compiler-types@npm:2.3.0-types.2"
-  checksum: 10c0/fb1b85afd9607b65fd218a3be992cd9ec2184a09ff77bddbc3e1919ee75d7c24e629c4d38af347d819149cb88cdd4359dfa0ca49074c092797f046bd39bfec90
+"@rbxts/compiler-types@npm:3.0.0-types.0, @rbxts/compiler-types@npm:^3.0.0-types.0":
+  version: 3.0.0-types.0
+  resolution: "@rbxts/compiler-types@npm:3.0.0-types.0"
+  checksum: 10c0/5cb03da94893f905ce2d7aed4604d78303c4831d76bbdd260e12a2d19b3326695dae6214d7fd3a29ac0a175ff84f1c74e9ba1b4cdd4206e5a676e8d69fdebefa
   languageName: node
   linkType: hard
 
@@ -1656,13 +1656,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@roblox-ts/luau-ast@npm:^1.0.11":
-  version: 1.0.11
-  resolution: "@roblox-ts/luau-ast@npm:1.0.11"
-  checksum: 10c0/eec72fe5283eed750d2a22bf50fc30b284bd25dd4d47ae119f9ebdb359676b81aa01cba9ddbbfc30db42cf22b3868209b5ac2b1e23ec4048e3430d9fe2291766
-  languageName: node
-  linkType: hard
-
 "@roblox-ts/path-translator@npm:=1.1.0":
   version: 1.1.0
   resolution: "@roblox-ts/path-translator@npm:1.1.0"
@@ -1673,16 +1666,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@roblox-ts/path-translator@npm:^1.0.0":
-  version: 1.0.0
-  resolution: "@roblox-ts/path-translator@npm:1.0.0"
-  dependencies:
-    ajv: "npm:^8.12.0"
-    fs-extra: "npm:^11.2.0"
-  checksum: 10c0/e710be818b5fa165820caf3325067579c0a1f058edb21dd4658edb294f8bfe6f93a1260fc0b9304c589e8b10ffe4f879139f27beba1810ac6d4c179ae0add3ab
-  languageName: node
-  linkType: hard
-
 "@roblox-ts/rojo-resolver@npm:=1.1.0":
   version: 1.1.0
   resolution: "@roblox-ts/rojo-resolver@npm:1.1.0"
@@ -1690,16 +1673,6 @@ __metadata:
     ajv: "npm:^8.17.1"
     fs-extra: "npm:^11.2.0"
   checksum: 10c0/36ad12c742d2651238d9bef2d34eacfb8e165278f8fb7a661098969c2021a4c899b6489a7cf7493dbea31cda2e80d3bacf743ed1d2fa9c6be485753dfb9f8457
-  languageName: node
-  linkType: hard
-
-"@roblox-ts/rojo-resolver@npm:^1.0.6":
-  version: 1.0.6
-  resolution: "@roblox-ts/rojo-resolver@npm:1.0.6"
-  dependencies:
-    ajv: "npm:^8.12.0"
-    fs-extra: "npm:^11.1.1"
-  checksum: 10c0/703ebb93fa3b78320bfca11953e22da51253888c215c5a106f683720cf8737fc5e1eb704a1b3e66ebf111e1fee1c3f5d01c4b9ec17dcde1fda9c40986df1c140
   languageName: node
   linkType: hard
 
@@ -2570,7 +2543,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "centurion@workspace:."
   dependencies:
-    "@biomejs/biome": "npm:1.8.3"
+    "@biomejs/biome": "npm:1.9.0"
     lefthook: "npm:^1.7.15"
   languageName: unknown
   linkType: soft
@@ -3388,7 +3361,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fs-extra@npm:^11.1.1, fs-extra@npm:^11.2.0":
+"fs-extra@npm:^11.2.0":
   version: 11.2.0
   resolution: "fs-extra@npm:11.2.0"
   dependencies:
@@ -5951,8 +5924,8 @@ __metadata:
   linkType: hard
 
 "rbxts-transform-debug@https://github.com/paradoxuum/rbxts-transform-debug":
-  version: 2.2.0
-  resolution: "rbxts-transform-debug@https://github.com/paradoxuum/rbxts-transform-debug.git#commit=4015bbf6db793b50947494f8caae8598461cc486"
+  version: 3.0.0
+  resolution: "rbxts-transform-debug@https://github.com/paradoxuum/rbxts-transform-debug.git#commit=45f434c6b520a28d8a07ea6d469157a9dd1264e1"
   dependencies:
     chalk: "npm:^4.1.0"
     colors: "npm:^1.4.0"
@@ -5960,8 +5933,8 @@ __metadata:
     execa: "npm:^5.1.1"
     git-repo-info: "npm:^2.1.1"
     types-package-json: "npm:^2.0.39"
-    typescript: "npm:~5.2.2"
-  checksum: 10c0/d91c811a9739ba2c4f2a83a6fed05a61c628be0204bfc98864ac8c58b8b050de6d83677b6498d7f36f020c3ef41a302dc2a6408970003417267ddf4a3adf3b26
+    typescript: "npm:~5.5.3"
+  checksum: 10c0/4ed2bd748209aa2e1e5559dd2cf7f5b58c3ac6ebeffd215de2166bb9eb8eade4a082932acded3a901ccb5dcee8bf1595dae0832a39b1c1c48ca1540e4d0538c1
   languageName: node
   linkType: hard
 
@@ -6286,28 +6259,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"roblox-ts@npm:2.3.0":
-  version: 2.3.0
-  resolution: "roblox-ts@npm:2.3.0"
-  dependencies:
-    "@roblox-ts/luau-ast": "npm:^1.0.11"
-    "@roblox-ts/path-translator": "npm:^1.0.0"
-    "@roblox-ts/rojo-resolver": "npm:^1.0.6"
-    chokidar: "npm:^3.6.0"
-    fs-extra: "npm:^11.2.0"
-    kleur: "npm:^4.1.5"
-    resolve: "npm:^1.22.6"
-    typescript: "npm:=5.2.2"
-    yargs: "npm:^17.7.2"
-  bin:
-    rbxtsc: out/CLI/cli.js
-  checksum: 10c0/318b43f723746ffde6f74877e626eb6d1a81d7c548eac25c27e925cddb66514304ab49c6cad8b456738b165015b5cb47110ddf0a4e56dfa62b3bdaba6a2ef07e
-  languageName: node
-  linkType: hard
-
-"roblox-ts@npm:2.3.0-dev-4a8c862":
-  version: 2.3.0-dev-4a8c862
-  resolution: "roblox-ts@npm:2.3.0-dev-4a8c862"
+"roblox-ts@npm:3.0.0":
+  version: 3.0.0
+  resolution: "roblox-ts@npm:3.0.0"
   dependencies:
     "@roblox-ts/luau-ast": "npm:=2.0.0"
     "@roblox-ts/path-translator": "npm:=1.1.0"
@@ -6320,7 +6274,7 @@ __metadata:
     yargs: "npm:^17.7.2"
   bin:
     rbxtsc: out/CLI/cli.js
-  checksum: 10c0/4fd1eaf845e5de2f0ee3dee3a62e8a734764e7a9a572e5998931f191d2082838261e1c96cc3e9108ed753ee6eb46e2a2788d2f0469a2bde97bd41bf9be67489a
+  checksum: 10c0/68a134081244b0aa9c665fa0475944388dbbd6e497d16941fe6b35ec8448a90c45288ab7f56ea1f52f8b46d6ff2b79287086675e41df4eee761d4309e87a6624
   languageName: node
   linkType: hard
 
@@ -6976,10 +6930,10 @@ __metadata:
   dependencies:
     "@rbxts/centurion": "workspace:^"
     "@rbxts/centurion-ui": "workspace:^"
-    "@rbxts/compiler-types": "npm:^2.3.0-types.2"
+    "@rbxts/compiler-types": "npm:^3.0.0-types.0"
     "@rbxts/services": "npm:^1.5.4"
     "@rbxts/types": "npm:^1.0.799"
-    roblox-ts: "npm:2.3.0-dev-4a8c862"
+    roblox-ts: "npm:3.0.0"
     shx: "npm:^0.3.4"
     typescript: "npm:~5.5.4"
   languageName: unknown
@@ -7073,16 +7027,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@npm:=5.2.2, typescript@npm:~5.2.2":
-  version: 5.2.2
-  resolution: "typescript@npm:5.2.2"
-  bin:
-    tsc: bin/tsc
-    tsserver: bin/tsserver
-  checksum: 10c0/91ae3e6193d0ddb8656d4c418a033f0f75dec5e077ebbc2bd6d76439b93f35683936ee1bdc0e9cf94ec76863aa49f27159b5788219b50e1cd0cd6d110aa34b07
-  languageName: node
-  linkType: hard
-
 "typescript@npm:=5.5.3":
   version: 5.5.3
   resolution: "typescript@npm:5.5.3"
@@ -7093,23 +7037,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@npm:^5.5.4, typescript@npm:~5.5.4":
+"typescript@npm:^5.5.4, typescript@npm:~5.5.3, typescript@npm:~5.5.4":
   version: 5.5.4
   resolution: "typescript@npm:5.5.4"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
   checksum: 10c0/422be60f89e661eab29ac488c974b6cc0a660fb2228003b297c3d10c32c90f3bcffc1009b43876a082515a3c376b1eefcce823d6e78982e6878408b9a923199c
-  languageName: node
-  linkType: hard
-
-"typescript@patch:typescript@npm%3A=5.2.2#optional!builtin<compat/typescript>, typescript@patch:typescript@npm%3A~5.2.2#optional!builtin<compat/typescript>":
-  version: 5.2.2
-  resolution: "typescript@patch:typescript@npm%3A5.2.2#optional!builtin<compat/typescript>::version=5.2.2&hash=f3b441"
-  bin:
-    tsc: bin/tsc
-    tsserver: bin/tsserver
-  checksum: 10c0/062c1cee1990e6b9419ce8a55162b8dc917eb87f807e4de0327dbc1c2fa4e5f61bc0dd4e034d38ff541d1ed0479b53bcee8e4de3a4075c51a1724eb6216cb6f5
   languageName: node
   linkType: hard
 
@@ -7123,7 +7057,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@patch:typescript@npm%3A^5.5.4#optional!builtin<compat/typescript>, typescript@patch:typescript@npm%3A~5.5.4#optional!builtin<compat/typescript>":
+"typescript@patch:typescript@npm%3A^5.5.4#optional!builtin<compat/typescript>, typescript@patch:typescript@npm%3A~5.5.3#optional!builtin<compat/typescript>, typescript@patch:typescript@npm%3A~5.5.4#optional!builtin<compat/typescript>":
   version: 5.5.4
   resolution: "typescript@patch:typescript@npm%3A5.5.4#optional!builtin<compat/typescript>::version=5.5.4&hash=379a07"
   bin:
