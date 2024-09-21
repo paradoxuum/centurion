@@ -162,24 +162,22 @@ export function TerminalTextField({
 		if (suggestion === undefined) return;
 
 		const currentText = textBox.Text;
+		const textParts = terminalTextParts();
+		const lastPart = textParts[textParts.size() - 1];
 		const atNextPart = currentText.sub(-1) === " ";
 
 		if (commandPath === undefined) {
 			const suggestionTitle = suggestion.title;
-			const textParts = terminalTextParts();
 			if (textParts.isEmpty()) return;
 
 			const pathParts = [...textParts];
-
 			let newText = currentText;
 			if (atNextPart) {
 				newText += suggestionTitle;
 				pathParts.push(suggestionTitle);
 			} else if (!textParts.isEmpty()) {
-				const lastPartSize = textParts[textParts.size() - 1];
 				newText =
-					newText.sub(0, newText.size() - lastPartSize.size()) +
-					suggestionTitle;
+					newText.sub(0, newText.size() - lastPart.size()) + suggestionTitle;
 				pathParts.remove(textParts.size() - 1);
 				pathParts.push(suggestionTitle);
 			}
@@ -224,7 +222,12 @@ export function TerminalTextField({
 
 		let newText = currentText;
 		const otherSuggestion = suggestion.others[0];
-		newText = newText.sub(0, newText.size() - (currentTextPart()?.size() ?? 0));
+
+		const trailingSpaces = newText.match("(%s+)$")[0] as string | undefined;
+		newText = newText.sub(
+			0,
+			newText.size() - (lastPart.size() ?? 0) - (trailingSpaces?.size() ?? 0),
+		);
 		newText += otherSuggestion.match("%s").isEmpty()
 			? otherSuggestion
 			: `"${otherSuggestion}"`;

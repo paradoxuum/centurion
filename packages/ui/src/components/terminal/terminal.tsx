@@ -107,7 +107,20 @@ export function Terminal() {
 						terminalTextValid(false);
 					}
 
-					const textPart = !atNextPart ? parts[parts.size() - 1] : undefined;
+					const lastPart = parts[parts.size() - 1];
+					let textPart: string | undefined = undefined;
+					if (lastPart.sub(0, 1) === '"') {
+						textPart = lastPart.sub(2);
+					} else if (!atNextPart) {
+						textPart = lastPart;
+					}
+
+					if (textPart !== undefined) {
+						const trailingSpaces = text.match("(%s+)$")[0];
+						if (trailingSpaces !== undefined) {
+							textPart += trailingSpaces;
+						}
+					}
 
 					const argIndex =
 						path !== undefined
