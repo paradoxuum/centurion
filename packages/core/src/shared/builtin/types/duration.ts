@@ -28,7 +28,7 @@ assignUnit("minute", ["m", "min", "mins", "minutes"]);
 assignUnit("hour", ["h", "hr", "hrs", "hours"]);
 assignUnit("day", ["d", "days"]);
 assignUnit("week", ["w", "wk", "wks", "weeks"]);
-assignUnit("month", ["m", "mo", "mos", "months"]);
+assignUnit("month", ["mo", "mos", "months"]);
 assignUnit("year", ["y", "yr", "yrs", "years"]);
 
 const durationType = TypeBuilder.create<number>(CenturionType.Duration)
