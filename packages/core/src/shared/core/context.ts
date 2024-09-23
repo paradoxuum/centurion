@@ -1,5 +1,4 @@
 import { CommandContextData, CommandReply } from "../types";
-import { CenturionLogger } from "../util/log";
 import { RegistryPath } from "./path";
 
 /**
@@ -10,12 +9,31 @@ export class CommandContext<S = unknown> {
 	state: S;
 
 	constructor(
-		private readonly logger: CenturionLogger,
 		readonly executor: Player,
 		readonly path: RegistryPath,
 		readonly args: string[],
 		readonly input: string,
 	) {}
+
+	/**
+	 * Creates a clone of this CommandContext.
+	 *
+	 * This will also copy over the reply data if it has been set.
+	 *
+	 * @returns A clone of this CommandContext.
+	 */
+	clone() {
+		const ctx = new CommandContext(
+			this.executor,
+			this.path,
+			this.args,
+			this.input,
+		);
+		if (this.replyData !== undefined) {
+			ctx.replyData = table.freeze(table.clone(this.replyData));
+		}
+		return ctx;
+	}
 
 	/**
 	 * Gets the command context's data.
@@ -58,7 +76,7 @@ export class CommandContext<S = unknown> {
 	 * @throws Will throw if a reply has already been set
 	 */
 	setReply(reply: CommandReply) {
-		this.logger.assert(
+		assert(
 			this.replyData === undefined,
 			"This CommandContext has already received a reply",
 		);

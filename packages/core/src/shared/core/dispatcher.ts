@@ -28,13 +28,7 @@ export abstract class BaseDispatcher<
 		args: string[] = [],
 	) {
 		const command = this.registry.getCommand(path);
-		const context = new CommandContext(
-			this.logger,
-			executor,
-			path,
-			args,
-			inputText,
-		);
+		const context = new CommandContext(executor, path, args, inputText);
 		context.state = this.config.defaultContextState;
 
 		if (command === undefined) {

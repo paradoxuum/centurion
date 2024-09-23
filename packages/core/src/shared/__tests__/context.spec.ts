@@ -3,14 +3,11 @@ import { Players } from "@rbxts/services";
 import { CommandContext } from "../core/context";
 import { RegistryPath } from "../core/path";
 import { CommandContextData, CommandReply } from "../types";
-import { CenturionLogLevel, CenturionLogger } from "../util/log";
 import { getInputText } from "../util/string";
 
 const createContext = (args: string[] = []) => {
 	const path = RegistryPath.fromString("test");
-	const logger = new CenturionLogger(CenturionLogLevel.Debug);
 	return new CommandContext(
-		logger,
 		Players.LocalPlayer,
 		path,
 		args,

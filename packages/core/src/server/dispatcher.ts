@@ -74,13 +74,7 @@ export class ServerDispatcher extends BaseDispatcher<
 	async run(executor: Player, path: RegistryPath, args: string[] = []) {
 		const inputText = getInputText(path, args);
 		if (!this.registry.isCommandSynced(executor, path)) {
-			const context = new CommandContext(
-				this.logger,
-				executor,
-				path,
-				args,
-				inputText,
-			);
+			const context = new CommandContext(executor, path, args, inputText);
 			context.error(this.config.messages.notFound);
 			return context;
 		}
@@ -88,13 +82,7 @@ export class ServerDispatcher extends BaseDispatcher<
 		return this.executeCommand(executor, path, inputText, args).catch((err) => {
 			this.handleError(executor, inputText, err);
 
-			const context = new CommandContext(
-				this.logger,
-				executor,
-				path,
-				args,
-				inputText,
-			);
+			const context = new CommandContext(executor, path, args, inputText);
 			context.state = this.config.defaultContextState;
 			context.error(this.config.messages.error);
 			return context;
