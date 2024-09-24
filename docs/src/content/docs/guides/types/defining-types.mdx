@@ -16,7 +16,6 @@ import { TransformResult, TypeBuilder } from "@rbxts/centurion";
 import { t } from "@rbxts/t";
 
 const playerType = TypeBuilder.create<Player>("player")
-	.validate(t.instanceOf("Player"))
 	.transform((text, executor) => {
 		if (text === "@me") {
 			return TransformResult.ok(executor);
@@ -39,10 +38,7 @@ for an example.
 
 ## Methods
 
-- **validate**: Requires a type guard. You can use `@rbxts/t` for this, or you can define
-them manually.
-
-- **transform**: Requires a function that takes the text and the executor
+- **transform**: Takes a function that receives the argument text and the executor of the command
 and returns a `TransformResult`.
 
-- **suggestions**: Optional, requires a function that returns an array of strings.
+- **suggestions**: Optional, takes a function that returns an array of strings.

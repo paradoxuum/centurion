@@ -26,7 +26,6 @@ type Constructor = new (...args: never[]) => object;
 const argTypeSchema = t.interface({
 	name: t.string,
 	expensive: t.boolean,
-	validate: t.callback,
 	transform: t.callback,
 	suggestions: t.optional(t.callback),
 });

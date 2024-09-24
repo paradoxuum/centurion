@@ -1,5 +1,4 @@
 import { Players } from "@rbxts/services";
-import { t } from "@rbxts/t";
 import { CenturionType } from ".";
 import {
 	BaseRegistry,
@@ -36,15 +35,12 @@ const getPlayerSuggestions = () => [
 	...Players.GetPlayers().map((player) => player.Name),
 ];
 
-const isPlayer = t.instanceOf("Player");
 const playerType = TypeBuilder.create<Player>(CenturionType.Player)
-	.validate(isPlayer)
 	.transform(getPlayer)
 	.suggestions(getPlayerSuggestions)
 	.build();
 
 const playersType = ListTypeBuilder.create<Player[]>(CenturionType.Players)
-	.validate(t.array(isPlayer))
 	.transform((input, executor) => {
 		const includedPlayers = new Set<Player>();
 		let players: Player[] = [];

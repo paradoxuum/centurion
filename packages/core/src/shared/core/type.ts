@@ -1,4 +1,3 @@
-import { t } from "@rbxts/t";
 import { ListArgumentType, SingleArgumentType } from "../types";
 import { DecoratorMetadata, MetadataKey } from "./metadata";
 
@@ -38,7 +37,6 @@ export namespace TransformResult {
 export class TypeBuilder<T> {
 	private expensive = false;
 	private marked = false;
-	private validationFn?: t.check<T>;
 	private transformFn?: SingleArgumentType<T>["transform"];
 	private suggestionFn?: SingleArgumentType<T>["suggestions"];
 
@@ -66,21 +64,9 @@ export class TypeBuilder<T> {
 	static extend<T>(name: string, argumentType: SingleArgumentType<T>) {
 		const builder = new TypeBuilder<T>(name);
 		builder.expensive = argumentType.expensive;
-		builder.validationFn = argumentType.validate;
 		builder.transformFn = argumentType.transform;
 		builder.suggestionFn = argumentType.suggestions;
 		return builder;
-	}
-
-	/**
-	 * Sets the validation function for this type.
-	 *
-	 * @param fn - The validation function.
-	 * @returns The {@link TypeBuilder} instance.
-	 */
-	validate(fn: t.check<T>) {
-		this.validationFn = fn;
-		return this;
 	}
 
 	/**
@@ -133,14 +119,12 @@ export class TypeBuilder<T> {
 	 * @returns A {@link SingleArgumentType} object.
 	 */
 	build(): SingleArgumentType<T> {
-		assert(this.validationFn !== undefined, "Validation function is required");
 		assert(this.transformFn !== undefined, "Transform function is required");
 
 		const argType = {
 			kind: "single",
 			name: this.name,
 			expensive: this.expensive,
-			validate: this.validationFn,
 			transform: this.transformFn,
 			suggestions: this.suggestionFn,
 		} satisfies SingleArgumentType<T>;
@@ -159,7 +143,6 @@ export class TypeBuilder<T> {
 export class ListTypeBuilder<T extends defined[]> {
 	private expensive = false;
 	private marked = false;
-	private validationFn?: t.check<T>;
 	private transformFn?: ListArgumentType<T>["transform"];
 	private suggestionFn?: ListArgumentType<T>["suggestions"];
 
@@ -190,21 +173,9 @@ export class ListTypeBuilder<T extends defined[]> {
 	) {
 		const builder = new ListTypeBuilder<T>(name);
 		builder.expensive = argumentType.expensive;
-		builder.validationFn = argumentType.validate;
 		builder.transformFn = argumentType.transform;
 		builder.suggestionFn = argumentType.suggestions;
 		return builder;
-	}
-
-	/**
-	 * Sets the validation function for this type.
-	 *
-	 * @param fn - The validation function.
-	 * @returns The {@link ListTypeBuilder} instance.
-	 */
-	validate(fn: t.check<T>) {
-		this.validationFn = fn;
-		return this;
 	}
 
 	/**
@@ -257,14 +228,12 @@ export class ListTypeBuilder<T extends defined[]> {
 	 * @returns A {@link ListArgumentType} object.
 	 */
 	build(): ListArgumentType<T> {
-		assert(this.validationFn !== undefined, "Validation function is required");
 		assert(this.transformFn !== undefined, "Transform function is required");
 
 		const argType = {
 			kind: "list",
 			name: this.name,
 			expensive: this.expensive,
-			validate: this.validationFn,
 			transform: this.transformFn,
 			suggestions: this.suggestionFn,
 		} satisfies ListArgumentType<T>;

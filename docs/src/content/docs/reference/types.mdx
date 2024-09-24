@@ -7,7 +7,6 @@ title: Types
 - name: `string` - The name of the type.
 - expensive: `boolean` - Whether the type's transformation function is expensive.
 If `true`, type-checking will be disabled in the interface.
-- validate: `(value) => boolean` - A function that validates a string as the type.
 - transform: `(text, executor) => TransformResult.Object` - A function that transforms
 a string into the type.
 - suggestions: `(text, executor) => string[]` - A function that returns suggestions
@@ -38,16 +37,6 @@ from the provided type.
 
 **Returns**:
 A `TypeBuilder` instance.
-
-### `validate(fn)`
-
-Sets the validation function for the type.
-
-**Parameters**:
-- `fn` - The validation function.
-
-**Returns**:
-The `TypeBuilder` instance.
 
 ### `transform(fn, expensive)`
 

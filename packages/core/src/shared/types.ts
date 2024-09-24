@@ -1,4 +1,3 @@
-import { t } from "@rbxts/t";
 import { CommandContext, TransformResult } from "./core";
 import { CenturionLogLevel } from "./util";
 
@@ -32,7 +31,6 @@ export interface SingleArgumentType<T> {
 	kind: "single";
 	name: string;
 	expensive: boolean;
-	validate: t.check<T>;
 	transform: (text: string, executor: Player) => TransformResult.Object<T>;
 	suggestions?: (text: string, executor: Player) => string[];
 }
@@ -41,7 +39,6 @@ export interface ListArgumentType<T> {
 	kind: "list";
 	name: string;
 	expensive: boolean;
-	validate: t.check<T>;
 	transform: (input: string[], executor: Player) => TransformResult.Object<T>;
 	suggestions?: (input: string[], executor: Player) => string[];
 }

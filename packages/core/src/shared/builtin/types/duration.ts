@@ -1,4 +1,3 @@
-import { t } from "@rbxts/t";
 import { CenturionType } from ".";
 import { BaseRegistry, TransformResult, TypeBuilder } from "../../core";
 
@@ -32,7 +31,6 @@ assignUnit("month", ["mo", "mos", "months"]);
 assignUnit("year", ["y", "yr", "yrs", "years"]);
 
 const durationType = TypeBuilder.create<number>(CenturionType.Duration)
-	.validate(t.integer)
 	.transform((value: string) => {
 		if (value === "0") return TransformResult.ok(0);
 

@@ -12,17 +12,14 @@ const transformToNumber = (text: string) => {
 };
 
 const stringType = TypeBuilder.create<string>(CenturionType.String)
-	.validate(t.string)
 	.transform((text) => TransformResult.ok(text))
 	.build();
 
 const numberType = TypeBuilder.create<number>(CenturionType.Number)
-	.validate(t.number)
 	.transform(transformToNumber)
 	.build();
 
 const integerType = TypeBuilder.create<number>(CenturionType.Integer)
-	.validate(t.integer)
 	.transform((text) => {
 		const numResult = transformToNumber(text);
 		if (!numResult.ok) {
@@ -39,7 +36,6 @@ const integerType = TypeBuilder.create<number>(CenturionType.Integer)
 const truthyValues = new Set<string>(["true", "yes", "y"]);
 const falsyValues = new Set<string>(["false", "no", "n"]);
 const booleanType = TypeBuilder.create<boolean>(CenturionType.Boolean)
-	.validate(t.boolean)
 	.transform((text) => {
 		const textLower = text.lower();
 		if (truthyValues.has(textLower)) return TransformResult.ok(true);
