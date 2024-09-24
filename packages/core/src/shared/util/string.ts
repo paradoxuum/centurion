@@ -46,10 +46,10 @@ const ESCAPE_PATTERN = `(\\*)['"]$`;
 export function splitString(
 	text: string,
 	separator: string,
-	max = math.huge,
+	includeQuotes = false,
 ): string[] {
 	const resultText = encodeControlChars(text);
-	const t: string[] = [];
+	const results: string[] = [];
 
 	let buf: string | undefined;
 	let quoted: string | undefined;
@@ -65,40 +65,31 @@ export function splitString(
 			quoted === undefined &&
 			endQuote === undefined
 		) {
-			[buf, quoted] = [str, startQuote];
+			buf = str;
+			quoted = startQuote;
 		} else if (
 			buf !== undefined &&
 			endQuote === quoted &&
 			escaped.size() % 2 === 0
 		) {
-			[str, buf, quoted] = [`${buf}${separator}${str}`, undefined, undefined];
+			str = `${buf}${separator}${str}`;
+			buf = undefined;
+			quoted = undefined;
 		} else if (buf !== undefined) {
 			buf = `${buf}${separator}${str}`;
 		}
 
-		if (buf !== undefined) {
-			continue;
+		if (buf !== undefined) continue;
+		if (!includeQuotes) {
+			str = str.gsub(START_QUOTE_PATTERN, "")[0].gsub(END_QUOTE_PATTERN, "")[0];
 		}
-
-		const result = decodeControlChars(
-			str.gsub(START_QUOTE_PATTERN, "")[0].gsub(END_QUOTE_PATTERN, "")[0],
-		);
-		if (t.size() > max) {
-			t[t.size() - 1] = result;
-		} else {
-			t.push(result);
-		}
+		results.push(decodeControlChars(str));
 	}
 
 	if (buf !== undefined) {
-		if (t.size() > max) {
-			t[t.size() - 1] = decodeControlChars(buf);
-		} else {
-			t.push(decodeControlChars(buf));
-		}
+		results.push(decodeControlChars(buf));
 	}
-
-	return t;
+	return results;
 }
 
 /**

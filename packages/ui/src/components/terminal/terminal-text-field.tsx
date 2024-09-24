@@ -1,3 +1,4 @@
+import { splitString } from "@rbxts/centurion/out/shared/util/string";
 import { subscribe } from "@rbxts/charm";
 import { UserInputService } from "@rbxts/services";
 import Vide, { cleanup, Derivable, effect, source } from "@rbxts/vide";
@@ -163,8 +164,8 @@ export function TerminalTextField({
 
 		const currentText = textBox.Text;
 		const textParts = terminalTextParts();
-		const lastPart = textParts[textParts.size() - 1];
 		const atNextPart = currentText.sub(-1) === " ";
+		const lastPart = !atNextPart ? textParts[textParts.size() - 1] : undefined;
 
 		if (commandPath === undefined) {
 			const suggestionTitle = suggestion.title;
@@ -175,7 +176,7 @@ export function TerminalTextField({
 			if (atNextPart) {
 				newText += suggestionTitle;
 				pathParts.push(suggestionTitle);
-			} else if (!textParts.isEmpty()) {
+			} else if (lastPart !== undefined) {
 				newText =
 					newText.sub(0, newText.size() - lastPart.size()) + suggestionTitle;
 				pathParts.remove(textParts.size() - 1);
@@ -221,13 +222,15 @@ export function TerminalTextField({
 		if (argIndex === undefined || commandArgs === undefined) return;
 
 		let newText = currentText;
-		const otherSuggestion = suggestion.others[0];
 
-		const trailingSpaces = newText.match("(%s+)$")[0] as string | undefined;
-		newText = newText.sub(
-			0,
-			newText.size() - (lastPart.size() ?? 0) - (trailingSpaces?.size() ?? 0),
-		);
+		const parts = splitString(newText, " ", true);
+		const currentPart = parts[parts.size() - 1];
+		const currentPartSize =
+			currentTextPart() !== undefined ? currentPart.size() : 0;
+
+		newText = newText.sub(0, newText.size() - currentPartSize);
+
+		const otherSuggestion = suggestion.others[0];
 		newText += otherSuggestion.match("%s").isEmpty()
 			? otherSuggestion
 			: `"${otherSuggestion}"`;
