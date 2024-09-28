@@ -35,15 +35,15 @@
         "@rbxts/compiler-types": "^3.0.0-types.0",
         "@rbxts/jest": "^0.1.0",
         "@rbxts/jest-globals": "^0.1.0",
-        "@rbxts/types": "^1.0.799",
+        "@rbxts/types": "^1.0.809",
         "rbxts-transform-debug": "https://github.com/paradoxuum/rbxts-transform-debug",
         "roblox-ts": "3.0.0",
         "shx": "^0.3.4",
-        "typescript": "~5.5.4"
+        "typescript": "=5.5.3"
     },
     "dependencies": {
         "@rbxts/beacon": "^2.1.1",
-        "@rbxts/services": "^1.5.4",
+        "@rbxts/services": "^1.5.5",
         "@rbxts/t": "^3.1.1"
     }
 }

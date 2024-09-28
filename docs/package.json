@@ -11,15 +11,15 @@
   },
   "dependencies": {
     "@astrojs/check": "^0.9.3",
-    "@astrojs/starlight": "^0.26.1",
-    "@fontsource-variable/jetbrains-mono": "^5.0.22",
+    "@astrojs/starlight": "^0.28.2",
+    "@fontsource-variable/jetbrains-mono": "^5.1.0",
     "@lorenzo_lewis/starlight-utils": "^0.1.2",
-    "astro": "^4.14.2",
+    "astro": "^4.15.9",
     "sharp": "^0.33.5",
-    "starlight-links-validator": "^0.10.1",
-    "typescript": "^5.5.4"
+    "starlight-links-validator": "^0.12.1",
+    "typescript": "^5.6.2"
   },
   "devDependencies": {
-    "sass": "^1.77.8"
+    "sass": "^1.79.4"
   }
 }
