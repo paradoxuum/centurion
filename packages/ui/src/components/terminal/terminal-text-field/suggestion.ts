@@ -1,5 +1,6 @@
 import { BaseRegistry } from "@rbxts/centurion";
 import {
+	atNextPart,
 	commandArgIndex,
 	currentCommandPath,
 	currentTextPart,
@@ -65,7 +66,7 @@ export function getSuggestedText(
 	text: string,
 	suggestion?: Suggestion,
 ) {
-	if (suggestion === undefined) return text;
+	if (suggestion === undefined) return "";
 
 	let suggestionText: string;
 
@@ -75,11 +76,10 @@ export function getSuggestedText(
 	} else {
 		const command = currentCommandPath();
 		const argIndex = terminalArgIndex();
-		if (command === undefined || argIndex === undefined) return text;
 
-		const atNextPart = text.sub(-1) === " ";
+		if (command === undefined || argIndex === undefined) return "";
 
-		if (atNextPart && argIndex === commandArgIndex()) {
+		if (atNextPart() && argIndex === commandArgIndex()) {
 			suggestionText = suggestion.title;
 		} else if (!suggestion.others.isEmpty()) {
 			suggestionText = suggestion.others[0];

@@ -15,13 +15,12 @@ export class EchoCommand {
 				name: "text",
 				description: "The text to print",
 				type: CenturionType.String,
-				numArgs: "rest",
 				suggestions: ["Hello, World!", "Some other spaced text", "Test"],
 			},
 		],
 		aliases: ["print"],
 	})
-	run(_: CommandContext, text: string[]) {
-		print(text.join(" "));
+	run(_: CommandContext, text: string) {
+		print(text);
 	}
 }

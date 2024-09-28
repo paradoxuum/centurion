@@ -19,5 +19,11 @@ export const terminalText = atom("");
 export const terminalTextParts = computed(() => {
 	return splitString(terminalText(), " ", true);
 });
+export const atNextPart = computed(() => {
+	const parts = terminalTextParts();
+	const textPart = parts[parts.size() - 1] as string | undefined;
+	const quoted = textPart?.match(`^(['"])`) !== undefined;
+	return terminalText().sub(-1) === " " && !quoted;
+});
 export const terminalTextValid = atom(false);
 export const currentTextPart = atom<string | undefined>(undefined);

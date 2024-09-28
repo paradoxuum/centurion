@@ -8,6 +8,7 @@ import { useClient } from "../../hooks/use-client";
 import { useHistory } from "../../hooks/use-history";
 import { px } from "../../hooks/use-px";
 import {
+	atNextPart,
 	commandArgIndex,
 	currentCommandPath,
 	currentSuggestion,
@@ -87,7 +88,7 @@ export function Terminal() {
 
 					// If the text ends in a space, we want to count that as having traversed
 					// to the next "part" of the text.
-					const atNextPart = text.sub(-1) === " ";
+					const endsInSpace = text.sub(-1) === " ";
 					const path = getValidPath(client.registry, parts);
 					const command =
 						path !== undefined ? client.registry.getCommand(path) : undefined;
@@ -102,7 +103,7 @@ export function Terminal() {
 						terminalTextValid(
 							noArgs ||
 								missing.isEmpty() ||
-								(atNextPart && missing.size() === 1),
+								(endsInSpace && missing.size() === 1),
 						);
 					} else {
 						currentCommandPath(undefined);
@@ -110,8 +111,8 @@ export function Terminal() {
 					}
 
 					let textPart = parts[parts.size() - 1] as string | undefined;
-					const quoted = textPart?.match(START_QUOTE_PATTERN) !== undefined;
-					if (atNextPart && !quoted) {
+					const atNext = atNextPart();
+					if (atNext) {
 						textPart = undefined;
 					} else if (textPart !== undefined) {
 						const spaces = text.match(TRAILING_SPACE_PATTERN)[0] ?? "";
@@ -120,7 +121,7 @@ export function Terminal() {
 
 					const argIndex =
 						path !== undefined
-							? parts.size() - path.size() - (atNextPart ? 0 : 1)
+							? parts.size() - path.size() - (atNext ? 0 : 1)
 							: -1;
 					terminalArgIndex(argIndex);
 
@@ -128,11 +129,7 @@ export function Terminal() {
 						// Get command suggestions
 						const parentPath = !parts.isEmpty()
 							? new RegistryPath(
-									ArrayUtil.slice(
-										parts,
-										0,
-										parts.size() - (atNextPart ? 0 : 1),
-									),
+									ArrayUtil.slice(parts, 0, parts.size() - (atNext ? 0 : 1)),
 								)
 							: undefined;
 
@@ -244,7 +241,10 @@ export function Terminal() {
 						return;
 					}
 
-					const args = ArrayUtil.slice(terminalTextParts(), commandPath.size());
+					const args = ArrayUtil.slice(
+						splitString(terminalText(), " "),
+						commandPath.size(),
+					);
 					client.dispatcher.run(commandPath, args);
 				}}
 			/>

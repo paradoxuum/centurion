@@ -66,7 +66,6 @@ export function TerminalTextField({
 		if (textBox === undefined) return;
 		textBox.Text = text;
 		textBox.CursorPosition = text.size() + 1;
-		suggestionText(text);
 	};
 
 	const traverseHistory = (up: boolean) => {
