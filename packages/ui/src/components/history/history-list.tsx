@@ -1,4 +1,4 @@
-import Vide, { Derivable, effect, For, read, source } from "@rbxts/vide";
+import Vide, { Derivable, derive, For, read } from "@rbxts/vide";
 import { useAtom } from "../../hooks/use-atom";
 import { px } from "../../hooks/use-px";
 import { interfaceOptions } from "../../store";
@@ -22,26 +22,20 @@ export function HistoryList({
 }: HistoryListProps) {
 	const options = useAtom(interfaceOptions);
 
-	const scrollingEnabled = source(false);
-	const canvasSize = source(new UDim2());
-	const canvasPos = source(new Vector2());
-
-	effect(() => {
-		const height = read(data).height - px(8);
-		canvasSize(new UDim2(0, 0, 0, height));
-		canvasPos(new Vector2(0, height));
-		if (maxHeight !== undefined) scrollingEnabled(height > read(maxHeight));
-	});
+	const height = derive(() => read(data).height - px(8));
+	const exceedsMaxHeight = derive(
+		() => maxHeight !== undefined && height() > read(maxHeight),
+	);
 
 	return (
 		<ScrollingFrame
 			size={size}
 			position={position}
-			canvasSize={canvasSize}
-			canvasPosition={canvasPos}
+			canvasSize={() => UDim2.fromOffset(0, height())}
+			canvasPosition={() => new Vector2(0, height())}
 			scrollBarColor={() => options().palette.subtext}
-			scrollBarThickness={() => (scrollingEnabled() ? 10 : 0)}
-			scrollingEnabled={scrollingEnabled}
+			scrollBarThickness={() => (exceedsMaxHeight() ? 10 : 0)}
+			scrollingEnabled={() => exceedsMaxHeight()}
 		>
 			<For each={() => read(data).lines}>
 				{(line: HistoryLineData, index: () => number) => {
