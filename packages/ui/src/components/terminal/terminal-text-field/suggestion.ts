@@ -84,7 +84,7 @@ export function getSuggestedText(
 		} else if (!suggestion.others.isEmpty()) {
 			suggestionText = suggestion.others[0];
 		} else {
-			suggestionText = "";
+			suggestionText = currentTextPart() ?? "";
 		}
 
 		const argNames = getArgumentNames(registry, command);
