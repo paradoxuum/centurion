@@ -7,7 +7,7 @@ import { BaseCommand } from "@rbxts/centurion/out/shared/core/command";
 import { IS_EDIT } from "../../constants/util";
 
 export function formatPartsAsPath(parts: string[]) {
-	return parts.join("/");
+	return parts.join("/").lower();
 }
 
 export function getValidPath(registry: BaseRegistry, text: string[]) {
@@ -23,7 +23,7 @@ export function getValidPath(registry: BaseRegistry, text: string[]) {
 
 	const path = RegistryPath.empty();
 	for (const part of text) {
-		path.append(part);
+		path.append(part.lower());
 
 		if (
 			registry.getCommand(path) === undefined &&
