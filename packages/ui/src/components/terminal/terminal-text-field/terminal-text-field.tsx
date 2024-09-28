@@ -1,28 +1,26 @@
-import { splitString } from "@rbxts/centurion/out/shared/util/string";
 import { subscribe } from "@rbxts/charm";
 import { UserInputService } from "@rbxts/services";
-import Vide, { cleanup, Derivable, effect, source } from "@rbxts/vide";
-import { useAtom } from "../../hooks/use-atom";
-import { useClient } from "../../hooks/use-client";
-import { useEvent } from "../../hooks/use-event";
-import { px } from "../../hooks/use-px";
+import Vide, { cleanup, Derivable, source } from "@rbxts/vide";
+import { useAtom } from "../../../hooks/use-atom";
+import { useClient } from "../../../hooks/use-client";
+import { useEvent } from "../../../hooks/use-event";
+import { px } from "../../../hooks/use-px";
 import {
-	commandArgIndex,
 	currentCommandPath,
 	currentSuggestion,
-	currentTextPart,
 	interfaceOptions,
 	interfaceVisible,
-	terminalArgIndex,
-	terminalText,
-	terminalTextParts,
 	terminalTextValid,
-} from "../../store";
-import { Frame } from "../ui/frame";
-import { Padding } from "../ui/padding";
-import { Text } from "../ui/text";
-import { TextField } from "../ui/text-field";
-import { formatPartsAsPath, getArgumentNames } from "./command";
+} from "../../../store";
+import { Frame } from "../../ui/frame";
+import { Padding } from "../../ui/padding";
+import { Text } from "../../ui/text";
+import { TextField } from "../../ui/text-field";
+import {
+	completeArgument,
+	completeCommand,
+	getSuggestedText,
+} from "./suggestion";
 
 interface TerminalTextFieldProps {
 	anchor?: Derivable<Vector2>;
@@ -45,7 +43,6 @@ export function TerminalTextField({
 }: TerminalTextFieldProps) {
 	const client = useClient();
 	const options = useAtom(interfaceOptions);
-	const visible = useAtom(interfaceVisible);
 	const valid = useAtom(terminalTextValid);
 
 	const ref = source<TextBox>();
@@ -55,13 +52,22 @@ export function TerminalTextField({
 	let currentTextValue = "";
 
 	// Focus text field when terminal becomes visible
-	effect(() => {
-		if (visible()) {
+	const visibleConnection = subscribe(interfaceVisible, (visible) => {
+		if (visible) {
 			ref()?.CaptureFocus();
 		} else {
 			ref()?.ReleaseFocus();
 		}
 	});
+	cleanup(visibleConnection);
+
+	const setText = (text: string) => {
+		const textBox = ref();
+		if (textBox === undefined) return;
+		textBox.Text = text;
+		textBox.CursorPosition = text.size() + 1;
+		suggestionText(text);
+	};
 
 	const traverseHistory = (up: boolean) => {
 		const history = commandHistory();
@@ -75,8 +81,7 @@ export function TerminalTextField({
 
 		const lastIndex = history.size() - 1;
 		if (!up && historyIndex === lastIndex) {
-			textBox.Text = "";
-			suggestionText("");
+			setText("");
 			commandHistoryIndex(undefined);
 			return;
 		}
@@ -87,68 +92,22 @@ export function TerminalTextField({
 			lastIndex,
 		);
 
-		const newText = history[newIndex];
-		textBox.Text = newText;
-		textBox.CursorPosition = newText.size() + 1;
-		suggestionText("");
+		setText(history[newIndex]);
 		commandHistoryIndex(newIndex);
 	};
 
 	const suggestionConnection = subscribe(currentSuggestion, (suggestion) => {
-		if (suggestion === undefined) {
-			suggestionText("");
-			return;
-		}
-
-		const atNextPart = terminalText().sub(-1) === " ";
-		const textParts = terminalTextParts();
-		if (textParts.isEmpty()) {
-			suggestionText(suggestion.title);
-			return;
-		}
-
-		const currentText = ref()?.Text;
-		if (currentText === undefined) return;
-
-		// Command suggestions
-		if (suggestion.type === "command") {
-			const suggestionStartIndex =
-				(!atNextPart ? textParts[textParts.size() - 1].size() : 0) + 1;
-			suggestionText(currentText + suggestion.title.sub(suggestionStartIndex));
-			return;
-		}
-
-		// Argument suggestions
-		const command = currentCommandPath();
-		const argIndex = terminalArgIndex();
-		if (
-			suggestion.type !== "argument" ||
-			command === undefined ||
-			argIndex === undefined
-		) {
-			return;
-		}
-
-		let newText = currentText;
-		if (atNextPart && argIndex === commandArgIndex()) {
-			newText += suggestion.title;
-		} else if (!suggestion.others.isEmpty()) {
-			newText += suggestion.others[0].sub((currentTextPart()?.size() ?? 0) + 1);
-		}
-
-		const argNames = getArgumentNames(client.registry, command);
-		for (const i of $range(argIndex + 1, argNames.size() - 1)) {
-			newText = `${newText} ${argNames[i]}`;
-		}
-		suggestionText(newText);
+		suggestionText(
+			getSuggestedText(client.registry, ref()?.Text ?? "", suggestion),
+		);
 	});
-
 	cleanup(suggestionConnection);
 
 	useEvent(UserInputService.InputBegan, (input) => {
 		const textBox = ref();
 		if (textBox === undefined || !textBox?.IsFocused()) return;
 
+		// Handle history traversal
 		if (input.KeyCode === Enum.KeyCode.Up) {
 			traverseHistory(true);
 		} else if (input.KeyCode === Enum.KeyCode.Down) {
@@ -157,91 +116,31 @@ export function TerminalTextField({
 
 		if (input.KeyCode !== Enum.KeyCode.Tab) return;
 
-		// Command suggestions
+		// Handle autocompletion
 		const commandPath = currentCommandPath();
 		const suggestion = currentSuggestion();
 		if (suggestion === undefined) return;
 
 		const currentText = textBox.Text;
-		const textParts = terminalTextParts();
-		const atNextPart = currentText.sub(-1) === " ";
-		const lastPart = !atNextPart ? textParts[textParts.size() - 1] : undefined;
 
 		if (commandPath === undefined) {
-			const suggestionTitle = suggestion.title;
-			if (textParts.isEmpty()) return;
-
-			const pathParts = [...textParts];
-			let newText = currentText;
-			if (atNextPart) {
-				newText += suggestionTitle;
-				pathParts.push(suggestionTitle);
-			} else if (lastPart !== undefined) {
-				newText =
-					newText.sub(0, newText.size() - lastPart.size()) + suggestionTitle;
-				pathParts.remove(textParts.size() - 1);
-				pathParts.push(suggestionTitle);
-			}
-
-			const nextCommand = client.registry.getCommandByString(
-				formatPartsAsPath(pathParts),
-			)?.options;
-			if (
-				nextCommand === undefined ||
-				!(nextCommand.arguments?.isEmpty() ?? true)
-			) {
-				newText += " ";
-			}
-
-			suggestionText("");
-			textBox.Text = newText;
-			textBox.CursorPosition = newText.size() + 1;
+			setText(completeCommand(client.registry, textBox.Text, suggestion.title));
 			return;
 		}
 
-		const commandArgs =
-			client.registry.getCommand(commandPath)?.options.arguments;
-
-		if (
-			suggestion.type === "command" &&
-			!atNextPart &&
-			!(commandArgs?.isEmpty() ?? true)
-		) {
-			suggestionText("");
-
-			const newText = `${currentText} `;
-			textBox.Text = newText;
-			textBox.CursorPosition = newText.size() + 1;
+		const argCount =
+			client.registry.getCommand(commandPath)?.options.arguments?.size() ?? 0;
+		if (suggestion.type === "command" && argCount !== 0) {
+			setText(`${currentText} `);
 			return;
 		}
 
-		// Argument suggestions
-		if (suggestion.others.isEmpty()) return;
-
-		const argIndex = terminalArgIndex();
-		if (argIndex === undefined || commandArgs === undefined) return;
-
-		let newText = currentText;
-
-		const parts = splitString(newText, " ", true);
-		const currentPart = parts[parts.size() - 1];
-		const currentPartSize =
-			currentTextPart() !== undefined ? currentPart.size() : 0;
-
-		newText = newText.sub(0, newText.size() - currentPartSize);
-
-		const otherSuggestion = suggestion.others[0];
-		newText += otherSuggestion.match("%s").isEmpty()
-			? otherSuggestion
-			: `"${otherSuggestion}"`;
-
-		if (argIndex < commandArgs.size() - 1) {
-			newText += " ";
+		if (suggestion.others.isEmpty()) {
+			setText(currentText);
+			return;
 		}
 
-		suggestionText("");
-		textBox.Text = newText;
-		textBox.CursorPosition = newText.size() + 1;
+		setText(completeArgument(currentText, suggestion.others[0], argCount));
 	});
 
 	return (

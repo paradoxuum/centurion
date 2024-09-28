@@ -28,6 +28,10 @@ export interface ListArgument {
 
 export type Argument = SingleArgument | ListArgument;
 
+function formatText(text: string) {
+	return text.match("%s").isEmpty() ? text : `"${text}"`;
+}
+
 function getMatches(
 	strings: string[],
 	text?: string,
@@ -47,7 +51,10 @@ function getMatches(
 }
 
 export function getArgumentSuggestion(arg: Argument, textPart?: string) {
-	const suggestions = [...(arg.options.suggestions ?? [])];
+	const suggestions =
+		arg.options.suggestions !== undefined
+			? arg.options.suggestions.map(formatText)
+			: [];
 	const singleArg = arg.kind === "single";
 
 	const typeSuggestions = singleArg
@@ -55,7 +62,7 @@ export function getArgumentSuggestion(arg: Argument, textPart?: string) {
 		: arg.type.suggestions?.(arg.input, Players.LocalPlayer);
 	if (typeSuggestions !== undefined) {
 		for (const text of typeSuggestions) {
-			suggestions.push(text);
+			suggestions.push(formatText(text));
 		}
 	}
 
@@ -111,7 +118,7 @@ export function getCommandSuggestion(
 	return {
 		type: "command",
 		title: firstPath.tail(),
-		others: sortedPaths.map(([, str]) => str),
+		others: sortedPaths.map(([, str]) => formatText(str)),
 		description: mainData.description,
 		shortcuts: (mainData as CommandOptions).shortcuts,
 	};

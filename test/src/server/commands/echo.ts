@@ -16,6 +16,7 @@ export class EchoCommand {
 				description: "The text to print",
 				type: CenturionType.String,
 				numArgs: "rest",
+				suggestions: ["Hello, World!", "Some other spaced text", "Test"],
 			},
 		],
 		aliases: ["print"],

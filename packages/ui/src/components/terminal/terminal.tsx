@@ -29,6 +29,8 @@ import { TerminalTextField } from "./terminal-text-field";
 
 const MAX_HEIGHT = HISTORY_TEXT_SIZE * 10;
 const TEXT_FIELD_HEIGHT = 40;
+const START_QUOTE_PATTERN = `^(['"])`;
+const TRAILING_SPACE_PATTERN = "(%s+)$";
 
 export function Terminal() {
 	const client = useClient();
@@ -107,19 +109,13 @@ export function Terminal() {
 						terminalTextValid(false);
 					}
 
-					const lastPart = parts[parts.size() - 1];
-					let textPart: string | undefined = undefined;
-					if (lastPart.sub(0, 1) === '"') {
-						textPart = lastPart.sub(2);
-					} else if (!atNextPart) {
-						textPart = lastPart;
-					}
-
-					if (textPart !== undefined) {
-						const trailingSpaces = text.match("(%s+)$")[0];
-						if (trailingSpaces !== undefined) {
-							textPart += trailingSpaces;
-						}
+					let textPart = parts[parts.size() - 1] as string | undefined;
+					const quoted = textPart?.match(START_QUOTE_PATTERN) !== undefined;
+					if (atNextPart && !quoted) {
+						textPart = undefined;
+					} else if (textPart !== undefined) {
+						const spaces = text.match(TRAILING_SPACE_PATTERN)[0] ?? "";
+						textPart += spaces;
 					}
 
 					const argIndex =
@@ -139,6 +135,8 @@ export function Terminal() {
 									),
 								)
 							: undefined;
+
+						currentTextPart(textPart);
 						currentSuggestion(
 							getCommandSuggestion(
 								client.registry,
@@ -146,15 +144,14 @@ export function Terminal() {
 								textPart,
 							),
 						);
-						currentTextPart(textPart);
 						return;
 					}
 
 					// Handle arguments
 					const args = command.options.arguments;
 					if (args === undefined) {
-						currentSuggestion(undefined);
 						currentTextPart(undefined);
+						currentSuggestion(undefined);
 						commandArgIndex(undefined);
 						return;
 					}
@@ -196,16 +193,16 @@ export function Terminal() {
 								kind: "single",
 								options: currentArg,
 								type: argType,
-								input: textPart,
+								input: argTextPart,
 							},
-							textPart,
+							argTextPart,
 						);
 					} else {
-						const textParts = splitString(textPart ?? "", ",");
-						const lastPart = !textParts.isEmpty()
+						const textParts = splitString(textPart ?? "", ",", true);
+						const lastText = !textParts.isEmpty()
 							? textParts[textParts.size() - 1]
 							: undefined;
-						argTextPart = textPart?.sub(-1) !== "," ? lastPart : undefined;
+						argTextPart = textPart?.sub(-1) !== "," ? lastText : undefined;
 						suggestion = getArgumentSuggestion(
 							{
 								kind: "list",

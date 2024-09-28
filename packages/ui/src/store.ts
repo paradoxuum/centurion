@@ -17,7 +17,7 @@ export const terminalArgIndex = atom<number | undefined>(undefined);
 export const currentSuggestion = atom<Suggestion | undefined>(undefined);
 export const terminalText = atom("");
 export const terminalTextParts = computed(() => {
-	return splitString(terminalText(), " ");
+	return splitString(terminalText(), " ", true);
 });
 export const terminalTextValid = atom(false);
 export const currentTextPart = atom<string | undefined>(undefined);
