@@ -1,9 +1,12 @@
+import { CommandContext } from "@rbxts/centurion/out/shared/core/context";
+import { RegistryPath } from "@rbxts/centurion/out/shared/core/path";
+import {
+	CommandContextData,
+	CommandReply,
+} from "@rbxts/centurion/out/shared/types";
+import { getInputText } from "@rbxts/centurion/out/shared/util/string";
 import { expect, test } from "@rbxts/jest-globals";
 import { Players } from "@rbxts/services";
-import { CommandContext } from "../core/context";
-import { RegistryPath } from "../core/path";
-import { CommandContextData, CommandReply } from "../types";
-import { getInputText } from "../util/string";
 
 const createContext = (args: string[] = []) => {
 	const path = RegistryPath.fromString("test");

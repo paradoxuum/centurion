@@ -1,5 +1,5 @@
+import { RegistryPath } from "@rbxts/centurion/out/shared/core/path";
 import { describe, expect, test } from "@rbxts/jest-globals";
-import { RegistryPath } from "../core/path";
 
 test("create a path from a string", () => {
 	const testString = "root/part1/part2";

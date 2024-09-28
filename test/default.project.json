@@ -10,45 +10,18 @@
 				"node_modules": {
 					"$className": "Folder",
 					"@rbxts": {
-						"$className": "Folder",
-
-						"centurion": {
-							"$className": "Folder",
-							"out": {
-								"$path": "node_modules/@rbxts/centurion/out"
-							},
-							"node_modules": {
-								"$className": "Folder",
-								"@rbxts": {
-									"$path": "node_modules/@rbxts/centurion/node_modules/@rbxts"
-								}
-							}
-						},
-
-						"centurion-ui": {
-							"$className": "Folder",
-							"out": {
-								"$path": "node_modules/@rbxts/centurion-ui/out"
-							},
-							"node_modules": {
-								"$className": "Folder",
-								"@rbxts": {
-									"$path": "node_modules/@rbxts/centurion-ui/node_modules/@rbxts"
-								}
-							}
-						},
-
-						"services": {
-							"$path": "node_modules/@rbxts/services"
-						}
+						"$path": "node_modules/@rbxts"
 					}
 				}
+			},
+			"TS": {
+				"$path": "out/shared"
 			}
 		},
 
 		"ServerScriptService": {
 			"$className": "ServerScriptService",
-			"server": {
+			"TS": {
 				"$path": "out/server"
 			}
 		},
@@ -57,7 +30,7 @@
 			"$className": "StarterPlayer",
 			"StarterPlayerScripts": {
 				"$className": "StarterPlayerScripts",
-				"client": {
+				"TS": {
 					"$path": "out/client"
 				}
 			}
@@ -68,7 +41,7 @@
 			"$properties": {
 				"ExecuteWithStudioRun": true
 			},
-			"$path": "scripts"
+			"$path": "out/test"
 		}
 	}
 }

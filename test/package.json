@@ -8,14 +8,16 @@
     },
     "devDependencies": {
         "@rbxts/compiler-types": "^3.0.0-types.0",
-        "@rbxts/types": "^1.0.799",
+        "@rbxts/types": "^1.0.809",
         "roblox-ts": "3.0.0",
-        "typescript": "~5.5.4"
+        "typescript": "=5.5.3"
     },
     "dependencies": {
         "@rbxts/centurion": "workspace:^",
         "@rbxts/centurion-ui": "workspace:^",
-        "@rbxts/services": "^1.5.4",
+        "@rbxts/jest": "^0.1.0",
+        "@rbxts/jest-globals": "^0.1.0",
+        "@rbxts/services": "^1.5.5",
         "shx": "^0.3.4"
     }
 }

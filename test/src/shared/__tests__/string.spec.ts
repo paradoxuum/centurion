@@ -1,5 +1,5 @@
+import { splitString } from "@rbxts/centurion/out/shared/util/string";
 import { describe, expect, test } from "@rbxts/jest-globals";
-import { splitString } from "../util/string";
 
 describe("split string", () => {
 	test("splits single characters", () => {
@@ -22,8 +22,38 @@ describe("split string", () => {
 		const testString = `part1 "part2 but quoted" part3 'part4' "part5"`;
 		const parts = splitString(testString, " ");
 		expect(parts.size()).toBe(5);
-		expect(parts[1]).toBe("part2 but quoted");
-		expect(parts[3]).toBe("part4");
-		expect(parts[4]).toBe("part5");
+		expect(parts).toEqual([
+			"part1",
+			"part2 but quoted",
+			"part3",
+			"part4",
+			"part5",
+		]);
+	});
+
+	test("takes into account escaped quotes", () => {
+		const testString = `part1 "part2 \\" but quoted" part3 'part4' "part5"`;
+		const parts = splitString(testString, " ");
+		expect(parts.size()).toBe(5);
+		expect(parts).toEqual([
+			"part1",
+			`part2 " but quoted`,
+			"part3",
+			"part4",
+			"part5",
+		]);
+	});
+
+	test("includes quote characters", () => {
+		const testString = `part1 "part2 but quoted" part3 'part4' "part5"`;
+		const parts = splitString(testString, " ", true);
+		expect(parts.size()).toBe(5);
+		expect(parts).toEqual([
+			"part1",
+			'"part2 but quoted"',
+			"part3",
+			"'part4'",
+			'"part5"',
+		]);
 	});
 });

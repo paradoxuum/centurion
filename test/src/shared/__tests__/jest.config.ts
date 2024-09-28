@@ -1,6 +1,6 @@
 import { Config } from "@rbxts/jest";
 
 export = {
-	displayName: "🟠 SHARED",
+	displayName: "⚪️ SHARED",
 	testMatch: ["**/*.spec"],
 } satisfies Config;
