@@ -22,7 +22,10 @@ export const terminalTextParts = computed(() => {
 export const atNextPart = computed(() => {
 	const parts = terminalTextParts();
 	const textPart = parts[parts.size() - 1] as string | undefined;
-	const quoted = textPart?.match(`^(['"])`) !== undefined;
+
+	const startQuote = textPart?.match(`^(['"])`);
+	const endQuote = textPart?.match(`(['"])%s*$`);
+	const quoted = startQuote !== undefined && endQuote === undefined;
 	return terminalText().sub(-1) === " " && !quoted;
 });
 export const terminalTextValid = atom(false);
