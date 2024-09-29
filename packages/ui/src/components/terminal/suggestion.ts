@@ -9,8 +9,7 @@ import {
 import { ReadonlyDeep } from "@rbxts/centurion/out/shared/util/data";
 import { Players } from "@rbxts/services";
 import { ArgumentSuggestion, CommandSuggestion } from "../../types";
-
-const MAX_OTHER_SUGGESTIONS = 3;
+import { containsSpace, getQuoteChar } from "../../utils/string";
 
 export interface SingleArgument {
 	kind: "single";
@@ -28,33 +27,42 @@ export interface ListArgument {
 
 export type Argument = SingleArgument | ListArgument;
 
-function formatText(text: string) {
-	return text.match("%s").isEmpty() ? text : `"${text}"`;
-}
-
 function getMatches(
 	strings: string[],
 	text?: string,
 ): [number, string, number][] {
 	if (text === undefined) {
-		return strings.sort().map((str, i) => [i, str, str.size()]);
+		return strings.sort().map((str, i) => {
+			const formatted = containsSpace(str) ? `"${str}"` : str;
+			return [i, formatted, formatted.size()];
+		});
 	}
 
 	const textLower = text.lower();
 	const textEndIndex = text.size();
-	return strings
-		.mapFiltered<[number, string, number] | undefined>((str, i) => {
-			const part = str.lower().sub(0, textEndIndex);
-			if (part === textLower) return [i, str, str.size()];
-		})
-		.sort((a, b) => a[1] < b[1]);
+	const quoteChar = getQuoteChar(text);
+	const quoted = quoteChar !== undefined;
+
+	const results: [number, string, number][] = [];
+	for (const i of $range(0, strings.size() - 1)) {
+		let str = strings[i];
+		if (quoted) {
+			str = `${quoteChar}${str}${quoteChar}`;
+		} else if (containsSpace(str)) {
+			str = `"${str}"`;
+		}
+
+		const part = str.lower().sub(0, textEndIndex);
+		if (part === textLower) {
+			results.push([i, str, str.size()]);
+		}
+	}
+	return results.sort((a, b) => a[1] < b[1]);
 }
 
 export function getArgumentSuggestion(arg: Argument, textPart?: string) {
 	const suggestions =
-		arg.options.suggestions !== undefined
-			? arg.options.suggestions.map(formatText)
-			: [];
+		arg.options.suggestions !== undefined ? [...arg.options.suggestions] : [];
 	const singleArg = arg.kind === "single";
 
 	const typeSuggestions = singleArg
@@ -62,7 +70,7 @@ export function getArgumentSuggestion(arg: Argument, textPart?: string) {
 		: arg.type.suggestions?.(arg.input, Players.LocalPlayer);
 	if (typeSuggestions !== undefined) {
 		for (const text of typeSuggestions) {
-			suggestions.push(formatText(text));
+			suggestions.push(text);
 		}
 	}
 
@@ -118,7 +126,7 @@ export function getCommandSuggestion(
 	return {
 		type: "command",
 		title: firstPath.tail(),
-		others: sortedPaths.map(([, str]) => formatText(str)),
+		others: sortedPaths.map(([, str]) => str),
 		description: mainData.description,
 		shortcuts: (mainData as CommandOptions).shortcuts,
 	};

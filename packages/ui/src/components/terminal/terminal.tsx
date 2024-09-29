@@ -30,7 +30,6 @@ import { TerminalTextField } from "./terminal-text-field";
 
 const MAX_HEIGHT = HISTORY_TEXT_SIZE * 10;
 const TEXT_FIELD_HEIGHT = 40;
-const START_QUOTE_PATTERN = `^(['"])`;
 const TRAILING_SPACE_PATTERN = "(%s+)$";
 
 export function Terminal() {
