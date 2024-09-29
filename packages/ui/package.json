@@ -1,7 +1,7 @@
 {
     "name": "@rbxts/centurion-ui",
     "description": "Terminal UI for the Centurion command framework",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "author": "paradoxuum",
     "license": "MIT",
     "main": "out/init.lua",
