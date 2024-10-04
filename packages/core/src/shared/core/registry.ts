@@ -193,22 +193,30 @@ export abstract class BaseRegistry<
 	 * @param groups The groups to register
 	 */
 	registerGroup(...groups: GroupOptions[]) {
-		const commandGroups = groups.map(
-			(options) =>
+		const commandGroups: CommandGroup[] = [];
+		for (const group of groups) {
+			const pathParts =
+				group.parent !== undefined
+					? group.parent.map((val) => val.lower())
+					: [];
+			pathParts.push(group.name.lower());
+			commandGroups.push(
 				new CommandGroup(
 					this.config,
-					new ImmutableRegistryPath([...(options.parent ?? []), options.name]),
-					options,
+					new ImmutableRegistryPath(pathParts),
+					group,
 				),
-		);
+			);
+		}
 
 		// Sort groups by path size so parent groups are registered first
 		commandGroups.sort((a, b) => a.getPath().size() < b.getPath().size());
 
 		for (const group of commandGroups) {
-			const pathString = group.getPath().toString();
-			this.validatePath(pathString, false);
+			const path = group.getPath();
+			this.validatePath(path, false);
 
+			const pathString = path.toString();
 			if (group.getPath().size() > 1) {
 				const parentPath = group.getPath().parent();
 				const parentGroup = this.groups.get(parentPath.toString());
@@ -395,7 +403,7 @@ export abstract class BaseRegistry<
 	 * @returns An array of {@link RegistryPath} instances.
 	 */
 	getChildPaths(path: RegistryPath) {
-		return this.cachedPaths.get(path.toString()) ?? [];
+		return this.cachedPaths.get(path.toString().lower()) ?? [];
 	}
 
 	protected cachePath(path: RegistryPath) {
@@ -436,7 +444,7 @@ export abstract class BaseRegistry<
 
 	protected addCommand(command: BaseCommand, group?: CommandGroup) {
 		for (const path of command.getPaths()) {
-			this.validatePath(path.toString(), true);
+			this.validatePath(path, true);
 			this.commands.set(path.toString(), command);
 			this.cachePath(path);
 		}
@@ -458,8 +466,8 @@ export abstract class BaseRegistry<
 	) {
 		const commandPath =
 			group !== undefined
-				? group.append(options.name)
-				: new ImmutableRegistryPath([options.name]);
+				? group.append(options.name.lower())
+				: new ImmutableRegistryPath([options.name.lower()]);
 
 		let commandGroup: CommandGroup | undefined;
 		if (group !== undefined) {
@@ -533,10 +541,10 @@ export abstract class BaseRegistry<
 					property,
 				) ?? [];
 
-			const groupParts = [...classGroups];
+			const groupParts = classGroups.map((val) => val.lower());
 			if (group !== undefined && !group.isEmpty()) {
 				for (const part of group) {
-					groupParts.push(part);
+					groupParts.push(part.lower());
 				}
 			}
 
@@ -561,30 +569,39 @@ export abstract class BaseRegistry<
 		}
 	}
 
-	protected validatePath(path: string, isCommand: boolean) {
-		const commandRegistered = this.commands.has(path);
+	private validatePath(path: RegistryPath, isCommand: boolean) {
+		const pathString = path.toString();
+		for (const part of path.iter()) {
+			if (part.match("^[a-zA-Z0-9_]+$")[0]) continue;
+			this.logger.error(
+				`Invalid path for ${isCommand ? "command" : "group"}: ${pathString}. Command/group names can only contain alphanumeric characters and underscores.`,
+			);
+			return;
+		}
+
+		const commandRegistered = this.commands.has(pathString);
 		if (commandRegistered && isCommand) {
-			this.logger.error(`Duplicate command: ${path}`);
+			this.logger.error(`Duplicate command: ${pathString}`);
 			return;
 		}
 
 		if (commandRegistered) {
 			this.logger.error(
-				`A command already exists with the same name as this group: ${path}`,
+				`A command already exists with the same name as this group: ${pathString}`,
 			);
 			return;
 		}
 
-		const groupRegistered = this.groups.has(path);
+		const groupRegistered = this.groups.has(pathString);
 		if (groupRegistered && isCommand) {
 			this.logger.error(
-				`A group already exists with the same name as this command: ${path}`,
+				`A group already exists with the same name as this command: ${pathString}`,
 			);
 			return;
 		}
 
 		if (groupRegistered) {
-			this.logger.error(`Duplicate group: ${path}`);
+			this.logger.error(`Duplicate group: ${pathString}`);
 		}
 	}
 }
