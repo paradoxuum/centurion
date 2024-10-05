@@ -20,24 +20,33 @@
   [ci-badge]: https://github.com/paradoxuum/centurion/actions/workflows/ci.yml/badge.svg?branch=main
   [ci-url]: https://github.com/paradoxuum/centurion/actions/workflows/ci.yml
 
-  <a href="https://centurion.paradoxum.dev/">📖 Documentation</a>
+  [📖 Documentation](https://centurion.paradoxum.dev/)
+
+  ![banner](public/banner.png)
 </div>
 
+**Centurion** is a flexible command framework built for roblox-ts.
 
-<img src="public/banner.png" />
+## ✨ Features
 
-## About
+- ✏️ **Easy to use.** Centurion makes use of decorators to make defining commands easy and readable.
+- 🚀 **Powerful.** Features like command guards and custom argument types allow for a wide range of flexibility.
+- 🛠️ **Extensible.** Centurion's UI is optional and can easily be swapped out for a custom one.
 
-Centurion is a command framework built for roblox-ts.
+## 💖 Attributions
 
-- Commands are defined using decorators in an easy and readable manner.
-- Custom argument types can be created, allowing for a great deal of flexibility for your commands.
-- Comes with an optional user interface which can easily be swapped out for a custom one.
+- [🔥 Flamework](https://github.com/rbxts-flamework/core): Metadata reflection API ([see usage](packages/core/src/shared/core/metadata.ts))
 
-## Attributions
+- [🐍 Slither](https://github.com/littensy/slither): Basic UI components and hooks
 
--   [Cmdr](https://github.com/evaera/Cmdr): String utilities ([see usage](packages/core/src/shared/util/string.ts))
+---
 
--   [Flamework](https://github.com/rbxts-flamework/core): Metadata reflection API ([see usage](packages/core/src/shared/core/metadata.ts))
+<p align="center">
+This project is released under the <a href="LICENSE.md">MIT License</a>.
+</p>
 
--   [Slither](https://github.com/littensy/slither): Basic UI components and hooks
+<div align="center">
+
+[![MIT License](https://img.shields.io/github/license/littensy/charm-example?style=for-the-badge)](LICENSE.md)
+
+</div>
