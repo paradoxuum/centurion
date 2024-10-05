@@ -30,7 +30,9 @@
 ## ✨ Features
 
 - ✏️ **Easy to use.** Centurion makes use of decorators to make defining commands easy and readable.
+
 - 🚀 **Powerful.** Features like command guards and custom argument types allow for a wide range of flexibility.
+
 - 🛠️ **Extensible.** Centurion's UI is optional and can easily be swapped out for a custom one.
 
 ## 💖 Attributions
