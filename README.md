@@ -5,27 +5,23 @@
 
   <h1>Centurion</h1>
 
-  <p>
-    <strong>A flexible and extensible command framework for roblox-ts</strong>
-  </p>
+  <p><strong>A flexible and extensible command framework for roblox-ts</strong></p>
 
   [![CI status][ci-badge]][ci-url]
   [![npm latest version][npm-latest-badge]][npm-latest-url]
-  [![npm dev version][npm-next-badge]][npm-next-url]
+  [![MIT License][license-badge]][license-url]
 
-  [npm-latest-badge]: https://img.shields.io/npm/v/%40rbxts%2Fcenturion?logo=npm&label=latest&color=green
+  [npm-latest-badge]: https://img.shields.io/npm/v/@rbxts/centurion.svg?style=for-the-badge&logo=npm
   [npm-latest-url]: https://www.npmjs.com/package/@rbxts/centurion/v/latest
-  [npm-next-badge]: https://img.shields.io/npm/v/%40rbxts%2Fcenturion%2Fnext?logo=npm&label=next
-  [npm-next-url]: https://www.npmjs.com/package/@rbxts/centurion/v/next
-  [ci-badge]: https://github.com/paradoxuum/centurion/actions/workflows/ci.yml/badge.svg?branch=main
+  [ci-badge]: https://img.shields.io/github/actions/workflow/status/paradoxuum/centurion/ci.yml?style=for-the-badge&branch=main&logo=github
   [ci-url]: https://github.com/paradoxuum/centurion/actions/workflows/ci.yml
-
-  [📖 Documentation](https://centurion.paradoxum.dev/)
+  [license-badge]: https://img.shields.io/github/license/paradoxuum/centurion?style=for-the-badge
+  [license-url]: LICENSE.md
 
   ![banner](public/banner.png)
-</div>
 
-**Centurion** is a flexible command framework built for roblox-ts.
+  [📖 Documentation](https://centurion.paradoxum.dev/)
+</div>
 
 ## ✨ Features
 
@@ -49,6 +45,6 @@ This project is released under the <a href="LICENSE.md">MIT License</a>.
 
 <div align="center">
 
-[![MIT License](https://img.shields.io/github/license/littensy/charm-example?style=for-the-badge)](LICENSE.md)
+[![MIT License](https://img.shields.io/github/license/paradoxuum/centurion?style=for-the-badge)](LICENSE.md)
 
 </div>
