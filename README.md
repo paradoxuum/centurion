@@ -20,7 +20,7 @@
 
   ![banner](public/banner.png)
 
-  [📖 Documentation](https://centurion.paradoxum.dev/)
+  [📖 **Documentation →**](https://centurion.paradoxum.dev/)
 </div>
 
 ## ✨ Features
