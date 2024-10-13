@@ -35,7 +35,7 @@
         "@rbxts/compiler-types": "^3.0.0-types.0",
         "@rbxts/jest": "^0.1.0",
         "@rbxts/jest-globals": "^0.1.0",
-        "@rbxts/types": "^1.0.809",
+        "@rbxts/types": "^1.0.812",
         "rbxts-transform-debug": "https://github.com/paradoxuum/rbxts-transform-debug",
         "roblox-ts": "3.0.0",
         "shx": "^0.3.4",

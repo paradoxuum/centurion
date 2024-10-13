@@ -1,5 +1,5 @@
 import Vide, { Derivable, read } from "@rbxts/vide";
-import { useAtom } from "../../hooks/use-atom";
+import { useAtom } from "@rbxts/vide-charm";
 import { interfaceOptions } from "../../store";
 import { TextProps } from "./text";
 

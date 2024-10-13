@@ -1,7 +1,7 @@
 import { HistoryEntry } from "@rbxts/centurion";
 import Vide, { Derivable, derive } from "@rbxts/vide";
+import { useAtom } from "@rbxts/vide-charm";
 import { HISTORY_TEXT_SIZE } from "../../constants/text";
-import { useAtom } from "../../hooks/use-atom";
 import { px } from "../../hooks/use-px";
 import { interfaceOptions } from "../../store";
 import { Frame } from "../ui/frame";

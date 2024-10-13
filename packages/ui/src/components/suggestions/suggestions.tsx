@@ -1,10 +1,10 @@
 import { TextService } from "@rbxts/services";
 import Vide, { cleanup, derive, source, spring } from "@rbxts/vide";
+import { useAtom } from "@rbxts/vide-charm";
 import {
 	SUGGESTION_TEXT_SIZE,
 	SUGGESTION_TITLE_TEXT_SIZE,
 } from "../../constants/text";
-import { useAtom } from "../../hooks/use-atom";
 import { px } from "../../hooks/use-px";
 import { useTextBounds } from "../../hooks/use-text-bounds";
 import {

@@ -1,10 +1,10 @@
 import { HistoryEntry } from "@rbxts/centurion";
 import { TextService } from "@rbxts/services";
 import { cleanup, derive, source } from "@rbxts/vide";
+import { useAtom } from "@rbxts/vide-charm";
 import { HISTORY_TEXT_SIZE } from "../constants/text";
 import { interfaceOptions } from "../store";
 import { HistoryData, HistoryLineData } from "../types";
-import { useAtom } from "./use-atom";
 import { useClient } from "./use-client";
 import { useEvent } from "./use-event";
 import { px } from "./use-px";

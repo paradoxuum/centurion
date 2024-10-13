@@ -1,7 +1,7 @@
 import { ArrayUtil } from "@rbxts/centurion/out/shared/util/data";
 import Vide, { Derivable, derive, For, read } from "@rbxts/vide";
+import { useAtom } from "@rbxts/vide-charm";
 import { SUGGESTION_TEXT_SIZE } from "../../constants/text";
-import { useAtom } from "../../hooks/use-atom";
 import { px } from "../../hooks/use-px";
 import { interfaceOptions, mouseOverInterface } from "../../store";
 import { Suggestion } from "../../types";

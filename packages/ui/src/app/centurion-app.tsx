@@ -1,10 +1,10 @@
 import { CenturionClient } from "@rbxts/centurion";
 import { UserInputService } from "@rbxts/services";
 import Vide, { derive } from "@rbxts/vide";
+import { useAtom } from "@rbxts/vide-charm";
 import { Suggestions, Terminal } from "../components";
 import { Group } from "../components/ui/group";
 import { Layer } from "../components/ui/layer";
-import { useAtom } from "../hooks/use-atom";
 import { useClient } from "../hooks/use-client";
 import { useEvent } from "../hooks/use-event";
 import { px, usePx } from "../hooks/use-px";

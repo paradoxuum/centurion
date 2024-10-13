@@ -1,5 +1,5 @@
 import Vide, { Derivable, InstanceAttributes } from "@rbxts/vide";
-import { useAtom } from "../../hooks/use-atom";
+import { useAtom } from "@rbxts/vide-charm";
 import { px } from "../../hooks/use-px";
 import { interfaceOptions } from "../../store";
 import { Frame } from "../ui/frame";

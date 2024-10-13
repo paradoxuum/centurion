@@ -1,7 +1,7 @@
 import { subscribe } from "@rbxts/charm";
 import { UserInputService } from "@rbxts/services";
 import Vide, { cleanup, Derivable, source } from "@rbxts/vide";
-import { useAtom } from "../../../hooks/use-atom";
+import { useAtom } from "@rbxts/vide-charm";
 import { useClient } from "../../../hooks/use-client";
 import { useEvent } from "../../../hooks/use-event";
 import { px } from "../../../hooks/use-px";
