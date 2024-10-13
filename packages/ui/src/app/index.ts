@@ -12,14 +12,29 @@ export namespace CenturionUI {
 	const MAX_PRELOAD_ATTEMPTS = 3;
 	const PRELOAD_ATTEMPT_INTERVAL = 3;
 
+	/**
+	 * Returns whether the terminal UI is visible.
+	 *
+	 * @returns Whether the terminal UI is visible.
+	 */
 	export function isVisible() {
 		return interfaceVisible();
 	}
 
+	/**
+	 * Sets the visibility of the terminal UI.
+	 *
+	 * @param visible Whether the terminal UI should be visible.
+	 */
 	export function setVisible(visible: boolean) {
 		interfaceVisible(visible);
 	}
 
+	/**
+	 * Updates the terminal UI options.
+	 *
+	 * @param options The options to update.
+	 */
 	export function updateOptions(options: Partial<InterfaceOptions>) {
 		interfaceOptions((prev) => ({
 			...DEFAULT_INTERFACE_OPTIONS,
@@ -28,6 +43,15 @@ export namespace CenturionUI {
 		}));
 	}
 
+	/**
+	 * Mounts the terminal UI.
+	 *
+	 * If `registerBuiltInCommands` is **true** (default), client commands
+	 * will be registered.
+	 *
+	 * @param client The Centurion client.
+	 * @param options The terminal UI options.
+	 */
 	export function start(
 		client: CenturionClient,
 		options: Partial<InterfaceOptions> = {},
