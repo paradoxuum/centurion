@@ -1,5 +1,5 @@
 import { TextService } from "@rbxts/services";
-import { Derivable, cleanup, derive, read } from "@rbxts/vide";
+import { Derivable, cleanup, effect, read, source } from "@rbxts/vide";
 
 interface TextBoundsProps {
 	text: Derivable<string | undefined>;
@@ -8,16 +8,22 @@ interface TextBoundsProps {
 	width?: Derivable<number>;
 }
 
+const getBounds = Promise.promisify((params: GetTextBoundsParams) =>
+	TextService.GetTextBoundsAsync(params),
+);
+
 export function useTextBounds({ text, font, size, width }: TextBoundsProps) {
+	const bounds = source(Vector2.zero);
+
 	const params = new Instance("GetTextBoundsParams");
 	params.RichText = true;
-
 	cleanup(params);
 
-	return derive(() => {
+	effect(() => {
 		const textValue = read(text);
 		if (textValue === undefined) {
-			return Vector2.zero;
+			bounds(Vector2.zero);
+			return;
 		}
 
 		params.Text = textValue;
@@ -36,6 +42,11 @@ export function useTextBounds({ text, font, size, width }: TextBoundsProps) {
 		if (widthValue !== undefined) {
 			params.Width = widthValue;
 		}
-		return TextService.GetTextBoundsAsync(params);
+
+		getBounds(params)
+			.then((value) => bounds(value))
+			.catch(() => bounds(Vector2.zero));
 	});
+
+	return bounds as () => Vector2;
 }
