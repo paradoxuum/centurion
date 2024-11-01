@@ -34,17 +34,17 @@
     "devDependencies": {
         "@rbxts/centurion": "workspace:^",
         "@rbxts/compiler-types": "3.0.0-types.0",
-        "@rbxts/types": "^1.0.812",
+        "@rbxts/types": "^1.0.813",
         "roblox-ts": "3.0.0",
         "shx": "^0.3.4",
         "typescript": "5.5.3"
     },
     "dependencies": {
-        "@rbxts/charm": "^0.8.0",
+        "@rbxts/charm": "^0.8.1",
         "@rbxts/services": "^1.5.5",
         "@rbxts/set-timeout": "^1.1.2",
-        "@rbxts/vide": "^0.4.6",
-        "@rbxts/vide-charm": "^0.1.0"
+        "@rbxts/vide": "^0.5.0",
+        "@rbxts/vide-charm": "^0.1.1"
     },
     "peerDependencies": {
         "@rbxts/centurion": "workspace:^"
