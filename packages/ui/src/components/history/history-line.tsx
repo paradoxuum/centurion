@@ -1,9 +1,8 @@
 import { HistoryEntry } from "@rbxts/centurion";
 import Vide, { Derivable, derive } from "@rbxts/vide";
-import { useAtom } from "@rbxts/vide-charm";
 import { HISTORY_TEXT_SIZE } from "../../constants/text";
 import { px } from "../../hooks/use-px";
-import { interfaceOptions } from "../../store";
+import { options } from "../../store";
 import { Frame } from "../ui/frame";
 import { Group } from "../ui/group";
 import { Outline } from "../ui/outline";
@@ -18,8 +17,6 @@ interface HistoryLineProps {
 }
 
 export function HistoryLine({ data, size, position, order }: HistoryLineProps) {
-	const options = useAtom(interfaceOptions);
-
 	const date = derive(() => {
 		const dateTime = DateTime.fromUnixTimestamp(data.sentAt).FormatLocalTime(
 			"LT",

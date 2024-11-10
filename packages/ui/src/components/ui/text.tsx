@@ -1,7 +1,6 @@
 import Vide, { Derivable, InferEnumNames, read } from "@rbxts/vide";
-import { useAtom } from "@rbxts/vide-charm";
 import { px } from "../../hooks/use-px";
-import { interfaceOptions } from "../../store";
+import { options } from "../../store";
 import { FrameProps } from "./frame";
 
 export interface TextProps<T extends Instance = TextLabel>
@@ -22,8 +21,6 @@ export interface TextProps<T extends Instance = TextLabel>
 }
 
 export function Text(props: TextProps) {
-	const options = useAtom(interfaceOptions);
-
 	return (
 		<textlabel
 			FontFace={() => read(props.font) ?? options().font.regular}

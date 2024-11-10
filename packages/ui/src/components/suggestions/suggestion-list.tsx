@@ -1,9 +1,8 @@
 import { ArrayUtil } from "@rbxts/centurion/out/shared/util/data";
 import Vide, { Derivable, derive, For, read } from "@rbxts/vide";
-import { useAtom } from "@rbxts/vide-charm";
 import { SUGGESTION_TEXT_SIZE } from "../../constants/text";
 import { px } from "../../hooks/use-px";
-import { interfaceOptions, mouseOverInterface } from "../../store";
+import { mouseOverInterface, options } from "../../store";
 import { Suggestion } from "../../types";
 import { Frame } from "../ui/frame";
 import { Group } from "../ui/group";
@@ -24,7 +23,6 @@ export function SuggestionList({
 	currentText,
 	size,
 }: SuggestionListProps) {
-	const options = useAtom(interfaceOptions);
 	const suggestions = derive(() => {
 		return ArrayUtil.slice(read(suggestion)?.others ?? [], 0, MAX_SUGGESTIONS);
 	});

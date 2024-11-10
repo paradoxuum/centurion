@@ -4,7 +4,7 @@ import { ContentProvider, Players } from "@rbxts/services";
 import { mount } from "@rbxts/vide";
 import { DEFAULT_INTERFACE_OPTIONS } from "../constants/options";
 import { DefaultPalette } from "../palette";
-import { interfaceOptions, interfaceVisible } from "../store";
+import { options as uiOptions, visible as uiVisible } from "../store";
 import { InterfaceOptions } from "../types";
 import { CenturionApp } from "./centurion-app";
 
@@ -18,7 +18,7 @@ export namespace CenturionUI {
 	 * @returns Whether the terminal UI is visible.
 	 */
 	export function isVisible() {
-		return interfaceVisible();
+		return uiVisible();
 	}
 
 	/**
@@ -27,7 +27,7 @@ export namespace CenturionUI {
 	 * @param visible Whether the terminal UI should be visible.
 	 */
 	export function setVisible(visible: boolean) {
-		interfaceVisible(visible);
+		uiVisible(visible);
 	}
 
 	/**
@@ -36,11 +36,11 @@ export namespace CenturionUI {
 	 * @param options The options to update.
 	 */
 	export function updateOptions(options: Partial<InterfaceOptions>) {
-		interfaceOptions((prev) => ({
+		uiOptions({
 			...DEFAULT_INTERFACE_OPTIONS,
-			...prev,
+			...uiOptions(),
 			...options,
-		}));
+		});
 	}
 
 	/**

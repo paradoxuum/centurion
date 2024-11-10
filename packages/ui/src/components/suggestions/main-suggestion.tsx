@@ -1,11 +1,10 @@
 import Vide, { Derivable, read, spring } from "@rbxts/vide";
-import { useAtom } from "@rbxts/vide-charm";
 import {
 	SUGGESTION_TEXT_SIZE,
 	SUGGESTION_TITLE_TEXT_SIZE,
 } from "../../constants/text";
 import { px } from "../../hooks/use-px";
-import { interfaceOptions, mouseOverInterface } from "../../store";
+import { mouseOverInterface, options } from "../../store";
 import { Suggestion } from "../../types";
 import { Frame } from "../ui/frame";
 import { Padding } from "../ui/padding";
@@ -34,8 +33,6 @@ export function MainSuggestion({
 	errorSize,
 	action,
 }: MainSuggestionProps) {
-	const options = useAtom(interfaceOptions);
-
 	return (
 		<Frame
 			action={action}

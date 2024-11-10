@@ -1,17 +1,12 @@
 import { TextService } from "@rbxts/services";
 import Vide, { cleanup, derive, source, spring } from "@rbxts/vide";
-import { useAtom } from "@rbxts/vide-charm";
 import {
 	SUGGESTION_TEXT_SIZE,
 	SUGGESTION_TITLE_TEXT_SIZE,
 } from "../../constants/text";
 import { px } from "../../hooks/use-px";
 import { useTextBounds } from "../../hooks/use-text-bounds";
-import {
-	currentSuggestion,
-	currentTextPart,
-	interfaceOptions,
-} from "../../store";
+import { currentSuggestion, currentTextPart, options } from "../../store";
 import { Group } from "../ui/group";
 import { MainSuggestion } from "./main-suggestion";
 import { SuggestionList } from "./suggestion-list";
@@ -20,9 +15,6 @@ const MAX_SUGGESTION_WIDTH = 180;
 const PADDING = 8;
 
 export function Suggestions() {
-	const options = useAtom(interfaceOptions);
-	const textPart = useAtom(currentTextPart);
-	const suggestion = useAtom(currentSuggestion);
 	const suggestionRef = source<Frame>();
 
 	const offset = (boundsState: () => Vector2) => () => {
@@ -31,13 +23,13 @@ export function Suggestions() {
 	};
 
 	const titleBounds = useTextBounds({
-		text: () => suggestion()?.title,
+		text: () => currentSuggestion()?.title,
 		font: () => options().font.bold,
 		size: () => px(SUGGESTION_TITLE_TEXT_SIZE),
 	});
 
 	const descriptionBounds = useTextBounds({
-		text: () => suggestion()?.description,
+		text: () => currentSuggestion()?.description,
 		font: () => options().font.regular,
 		size: () => px(SUGGESTION_TEXT_SIZE),
 		width: () => px(MAX_SUGGESTION_WIDTH),
@@ -45,9 +37,9 @@ export function Suggestions() {
 
 	const typeBadgeBounds = useTextBounds({
 		text: () => {
-			const currentSuggestion = suggestion();
-			if (currentSuggestion?.type === "command") return;
-			return currentSuggestion?.dataType;
+			const suggestion = currentSuggestion();
+			if (suggestion?.type === "command") return;
+			return suggestion?.dataType;
 		},
 		font: () => options().font.bold,
 		size: () => px(SUGGESTION_TEXT_SIZE),
@@ -55,9 +47,9 @@ export function Suggestions() {
 
 	const errorBounds = useTextBounds({
 		text: () => {
-			const current = suggestion();
-			if (current?.type === "command") return;
-			return current?.error;
+			const suggestion = currentSuggestion();
+			if (suggestion?.type === "command") return;
+			return suggestion?.error;
 		},
 		font: () => options().font.regular,
 		size: () => px(SUGGESTION_TEXT_SIZE),
@@ -70,7 +62,7 @@ export function Suggestions() {
 	const listBounds = derive(() => {
 		let width = 0;
 
-		const suggestions = suggestion()?.others ?? [];
+		const suggestions = currentSuggestion()?.others ?? [];
 		for (const value of suggestions) {
 			listBoundsParams.Text = value;
 			const suggestionBounds = TextService.GetTextBoundsAsync(listBoundsParams);
@@ -107,8 +99,8 @@ export function Suggestions() {
 	return (
 		<Group size={UDim2.fromScale(1, 1)}>
 			<MainSuggestion
-				suggestion={suggestion}
-				currentText={textPart}
+				suggestion={currentSuggestion}
+				currentText={currentTextPart}
 				size={spring(windowSize, 0.2)}
 				titleSize={offset(titleBounds)}
 				descriptionSize={offset(descriptionBounds)}
@@ -118,8 +110,8 @@ export function Suggestions() {
 			/>
 
 			<SuggestionList
-				suggestion={suggestion}
-				currentText={textPart}
+				suggestion={currentSuggestion}
+				currentText={currentTextPart}
 				size={spring(
 					() => UDim2.fromOffset(windowSize().X.Offset, listBounds().Y),
 					0.3,

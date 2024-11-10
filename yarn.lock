@@ -1601,13 +1601,11 @@ __metadata:
   resolution: "@rbxts/centurion-ui@workspace:packages/ui"
   dependencies:
     "@rbxts/centurion": "workspace:^"
-    "@rbxts/charm": "npm:^0.8.1"
     "@rbxts/compiler-types": "npm:3.0.0-types.0"
     "@rbxts/services": "npm:^1.5.5"
     "@rbxts/set-timeout": "npm:^1.1.2"
     "@rbxts/types": "npm:^1.0.813"
     "@rbxts/vide": "npm:^0.5.0"
-    "@rbxts/vide-charm": "npm:^0.1.1"
     roblox-ts: "npm:3.0.0"
     shx: "npm:^0.3.4"
     typescript: "npm:5.5.3"
@@ -1633,13 +1631,6 @@ __metadata:
     typescript: "npm:=5.5.3"
   languageName: unknown
   linkType: soft
-
-"@rbxts/charm@npm:0.8.1, @rbxts/charm@npm:^0.8.1":
-  version: 0.8.1
-  resolution: "@rbxts/charm@npm:0.8.1"
-  checksum: 10c0/e82af9f8d01e677b5a1d64a2fdda8061cf502ffa4b03af7c7df5341746830f00ab9c1107977472dfb50f9a84b3fd9e31b3a0a33de75d88bf301ad2482b5842b7
-  languageName: node
-  linkType: hard
 
 "@rbxts/compiler-types@npm:3.0.0-types.0, @rbxts/compiler-types@npm:^3.0.0-types.0":
   version: 3.0.0-types.0
@@ -1739,17 +1730,6 @@ __metadata:
   version: 1.0.813
   resolution: "@rbxts/types@npm:1.0.813"
   checksum: 10c0/f06f0518725a6ab36b17e5cfb555fd879ea8b46964241aac21e2cd7fa689ff3cf4c7b4d95b0014d4c56754f67d977acde87776cdb72d87b5238e33c52f932251
-  languageName: node
-  linkType: hard
-
-"@rbxts/vide-charm@npm:^0.1.1":
-  version: 0.1.1
-  resolution: "@rbxts/vide-charm@npm:0.1.1"
-  dependencies:
-    "@rbxts/charm": "npm:0.8.1"
-  peerDependencies:
-    "@rbxts/vide": "*"
-  checksum: 10c0/7c89d41c7ccaa3d2fda2d7441f3127e356ff7a9bd5daed70950de077c10f739b8744a9e9c8219e2f2d9f5bab772747570341e7c50a547ce206227bc5c1a14001
   languageName: node
   linkType: hard
 

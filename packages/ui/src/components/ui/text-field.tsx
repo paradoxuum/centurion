@@ -1,6 +1,5 @@
 import Vide, { Derivable, read } from "@rbxts/vide";
-import { useAtom } from "@rbxts/vide-charm";
-import { interfaceOptions } from "../../store";
+import { options } from "../../store";
 import { TextProps } from "./text";
 
 interface TextFieldProps extends TextProps<TextBox> {
@@ -13,8 +12,6 @@ interface TextFieldProps extends TextProps<TextBox> {
 }
 
 export function TextField(props: TextFieldProps) {
-	const options = useAtom(interfaceOptions);
-
 	return (
 		<textbox
 			PlaceholderText={props.placeholderText}

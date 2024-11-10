@@ -1,9 +1,8 @@
 import { HistoryEntry } from "@rbxts/centurion";
 import { TextService } from "@rbxts/services";
 import { cleanup, derive, source } from "@rbxts/vide";
-import { useAtom } from "@rbxts/vide-charm";
 import { HISTORY_TEXT_SIZE } from "../constants/text";
-import { interfaceOptions } from "../store";
+import { options } from "../store";
 import { HistoryData, HistoryLineData } from "../types";
 import { useClient } from "./use-client";
 import { useEvent } from "./use-event";
@@ -11,7 +10,6 @@ import { px } from "./use-px";
 
 export function useHistory() {
 	const client = useClient();
-	const options = useAtom(interfaceOptions);
 	const history = source<HistoryEntry[]>(client.dispatcher.getHistory());
 
 	useEvent(client.dispatcher.historyUpdated, (entries) =>

@@ -1,7 +1,6 @@
 import Vide, { Derivable, InstanceAttributes } from "@rbxts/vide";
-import { useAtom } from "@rbxts/vide-charm";
 import { px } from "../../hooks/use-px";
-import { interfaceOptions } from "../../store";
+import { options } from "../../store";
 import { Frame } from "../ui/frame";
 import { Text } from "../ui/text";
 
@@ -20,8 +19,6 @@ interface BadgeProps {
 }
 
 export function Badge(props: BadgeProps) {
-	const options = useAtom(interfaceOptions);
-
 	return (
 		<Frame
 			backgroundColor={props.color}

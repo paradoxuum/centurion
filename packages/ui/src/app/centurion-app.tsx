@@ -1,18 +1,13 @@
 import { CenturionClient } from "@rbxts/centurion";
 import { UserInputService } from "@rbxts/services";
 import Vide, { derive } from "@rbxts/vide";
-import { useAtom } from "@rbxts/vide-charm";
 import { Suggestions, Terminal } from "../components";
 import { Group } from "../components/ui/group";
 import { Layer } from "../components/ui/layer";
 import { useClient } from "../hooks/use-client";
 import { useEvent } from "../hooks/use-event";
 import { px, usePx } from "../hooks/use-px";
-import {
-	interfaceOptions,
-	interfaceVisible,
-	mouseOverInterface,
-} from "../store";
+import { mouseOverInterface, options, visible } from "../store";
 
 const MOUSE_INPUT_TYPES = new Set<Enum.UserInputType>([
 	Enum.UserInputType.MouseButton1,
@@ -24,20 +19,17 @@ export function CenturionApp(client: CenturionClient) {
 	useClient(client);
 	usePx();
 
-	const options = useAtom(interfaceOptions);
-	const visible = useAtom(interfaceVisible);
-
 	const validKeys = derive(() => new Set(options().activationKeys));
 
 	useEvent(UserInputService.InputBegan, (input, gameProcessed) => {
 		if (validKeys().has(input.KeyCode) && !gameProcessed) {
-			interfaceVisible(!visible());
+			visible(!visible());
 		} else if (
 			options().hideOnLostFocus &&
 			MOUSE_INPUT_TYPES.has(input.UserInputType) &&
 			!mouseOverInterface()
 		) {
-			interfaceVisible(false);
+			visible(false);
 		}
 	});
 

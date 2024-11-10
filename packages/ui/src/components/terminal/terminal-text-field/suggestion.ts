@@ -1,11 +1,9 @@
 import { BaseRegistry } from "@rbxts/centurion";
 import {
-	atNextPart,
 	commandArgIndex,
 	currentCommandPath,
 	currentTextPart,
 	terminalArgIndex,
-	terminalTextParts,
 } from "../../../store";
 import { Suggestion } from "../../../types";
 import { formatPartsAsPath, getArgumentNames } from "../command";
@@ -22,9 +20,9 @@ function replaceTextPart(text: string, ...suggestions: string[]) {
 export function completeCommand(
 	registry: BaseRegistry,
 	text: string,
+	textParts: string[],
 	suggestion: string,
 ) {
-	const textParts = terminalTextParts();
 	const atNextPart = text.sub(-1) === " ";
 	const pathParts = [...textParts];
 	if (!atNextPart) {
@@ -64,14 +62,15 @@ export function completeArgument(
 export function getSuggestedText(
 	registry: BaseRegistry,
 	text: string,
+	textParts: string[],
+	atNextPart: boolean,
 	suggestion?: Suggestion,
 ) {
 	if (suggestion === undefined) return "";
 
 	let suggestionText: string;
 
-	const parts = terminalTextParts();
-	if (parts.isEmpty() || suggestion.type === "command") {
+	if (textParts.isEmpty() || suggestion.type === "command") {
 		suggestionText = suggestion.title;
 	} else {
 		const command = currentCommandPath();
@@ -79,7 +78,7 @@ export function getSuggestedText(
 
 		if (command === undefined || argIndex === undefined) return "";
 
-		if (atNextPart() && argIndex === commandArgIndex()) {
+		if (atNextPart && argIndex === commandArgIndex()) {
 			suggestionText = suggestion.title;
 		} else if (!suggestion.others.isEmpty()) {
 			suggestionText = suggestion.others[0];

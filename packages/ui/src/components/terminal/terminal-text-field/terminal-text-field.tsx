@@ -1,16 +1,14 @@
-import { subscribe } from "@rbxts/charm";
 import { UserInputService } from "@rbxts/services";
-import Vide, { cleanup, Derivable, source } from "@rbxts/vide";
-import { useAtom } from "@rbxts/vide-charm";
+import Vide, { Derivable, effect, source } from "@rbxts/vide";
 import { useClient } from "../../../hooks/use-client";
 import { useEvent } from "../../../hooks/use-event";
 import { px } from "../../../hooks/use-px";
 import {
 	currentCommandPath,
 	currentSuggestion,
-	interfaceOptions,
-	interfaceVisible,
+	options,
 	terminalTextValid,
+	visible,
 } from "../../../store";
 import { Frame } from "../../ui/frame";
 import { Padding } from "../../ui/padding";
@@ -29,6 +27,8 @@ interface TerminalTextFieldProps {
 	backgroundTransparency?: Derivable<number>;
 	onTextChange?: (text: string) => void;
 	onSubmit?: (text: string) => void;
+	textParts: () => string[];
+	atNextPart: () => boolean;
 }
 
 const TEXT_SIZE = 22;
@@ -40,10 +40,10 @@ export function TerminalTextField({
 	backgroundTransparency,
 	onTextChange,
 	onSubmit,
+	textParts,
+	atNextPart,
 }: TerminalTextFieldProps) {
 	const client = useClient();
-	const options = useAtom(interfaceOptions);
-	const valid = useAtom(terminalTextValid);
 
 	const ref = source<TextBox>();
 	const commandHistory = source<string[]>([]);
@@ -52,14 +52,13 @@ export function TerminalTextField({
 	let currentTextValue = "";
 
 	// Focus text field when terminal becomes visible
-	const visibleConnection = subscribe(interfaceVisible, (visible) => {
-		if (visible) {
+	effect(() => {
+		if (visible()) {
 			ref()?.CaptureFocus();
 		} else {
 			ref()?.ReleaseFocus();
 		}
 	});
-	cleanup(visibleConnection);
 
 	const setText = (text: string) => {
 		const textBox = ref();
@@ -95,12 +94,17 @@ export function TerminalTextField({
 		commandHistoryIndex(newIndex);
 	};
 
-	const suggestionConnection = subscribe(currentSuggestion, (suggestion) => {
+	effect(() => {
 		suggestionText(
-			getSuggestedText(client.registry, ref()?.Text ?? "", suggestion),
+			getSuggestedText(
+				client.registry,
+				ref()?.Text ?? "",
+				textParts(),
+				atNextPart(),
+				currentSuggestion(),
+			),
 		);
 	});
-	cleanup(suggestionConnection);
 
 	useEvent(UserInputService.InputBegan, (input) => {
 		const textBox = ref();
@@ -123,7 +127,14 @@ export function TerminalTextField({
 		const currentText = textBox.Text;
 
 		if (commandPath === undefined) {
-			setText(completeCommand(client.registry, textBox.Text, suggestion.title));
+			setText(
+				completeCommand(
+					client.registry,
+					textBox.Text,
+					textParts(),
+					suggestion.title,
+				),
+			);
 			return;
 		}
 
@@ -158,7 +169,9 @@ export function TerminalTextField({
 				size={UDim2.fromScale(1, 1)}
 				textSize={() => px(TEXT_SIZE)}
 				textColor={() => {
-					return valid() ? options().palette.success : options().palette.error;
+					return terminalTextValid()
+						? options().palette.success
+						: options().palette.error;
 				}}
 				textXAlignment="Left"
 				placeholderText="Enter command..."

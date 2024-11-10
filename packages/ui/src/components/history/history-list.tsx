@@ -1,7 +1,6 @@
 import Vide, { Derivable, derive, For, read } from "@rbxts/vide";
-import { useAtom } from "@rbxts/vide-charm";
 import { px } from "../../hooks/use-px";
-import { interfaceOptions } from "../../store";
+import { options } from "../../store";
 import { HistoryData, HistoryLineData } from "../../types";
 import { ScrollingFrame } from "../ui/scrolling-frame";
 import { HistoryLine } from "./history-line";
@@ -20,8 +19,6 @@ export function HistoryList({
 	position,
 	maxHeight,
 }: HistoryListProps) {
-	const options = useAtom(interfaceOptions);
-
 	const height = derive(() => read(data).height - px(8));
 	const exceedsMaxHeight = derive(
 		() => maxHeight !== undefined && height() > read(maxHeight),

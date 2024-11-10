@@ -40,11 +40,9 @@
         "typescript": "5.5.3"
     },
     "dependencies": {
-        "@rbxts/charm": "^0.8.1",
         "@rbxts/services": "^1.5.5",
         "@rbxts/set-timeout": "^1.1.2",
-        "@rbxts/vide": "^0.5.0",
-        "@rbxts/vide-charm": "^0.1.1"
+        "@rbxts/vide": "^0.5.0"
     },
     "peerDependencies": {
         "@rbxts/centurion": "workspace:^"

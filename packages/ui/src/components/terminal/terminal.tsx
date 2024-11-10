@@ -2,25 +2,23 @@ import { ArgumentOptions, RegistryPath } from "@rbxts/centurion";
 import { ArrayUtil, ReadonlyDeep } from "@rbxts/centurion/out/shared/util/data";
 import { splitString } from "@rbxts/centurion/out/shared/util/string";
 import Vide, { derive, source, spring } from "@rbxts/vide";
-import { useAtom } from "@rbxts/vide-charm";
 import { HISTORY_TEXT_SIZE } from "../../constants/text";
 import { useClient } from "../../hooks/use-client";
 import { useHistory } from "../../hooks/use-history";
 import { px } from "../../hooks/use-px";
 import {
-	atNextPart,
 	commandArgIndex,
 	currentCommandPath,
 	currentSuggestion,
 	currentTextPart,
-	interfaceOptions,
 	mouseOverInterface,
+	options,
 	terminalArgIndex,
 	terminalText,
-	terminalTextParts,
 	terminalTextValid,
 } from "../../store";
 import { ArgumentSuggestion } from "../../types";
+import { isQuoteEnded, isQuoteStarted } from "../../utils/string";
 import { HistoryList } from "../history";
 import { Frame } from "../ui/frame";
 import { Padding } from "../ui/padding";
@@ -34,9 +32,23 @@ const TRAILING_SPACE_PATTERN = "(%s+)$";
 
 export function Terminal() {
 	const client = useClient();
-	const options = useAtom(interfaceOptions);
 	const missingArgs = source<string[]>([]);
 	const history = useHistory();
+
+	const terminalTextParts = derive(() => {
+		return splitString(terminalText(), " ", true);
+	});
+
+	const atNextPart = derive(() => {
+		const parts = terminalTextParts();
+		const textPart = parts[parts.size() - 1] as string | undefined;
+
+		let quoted = false;
+		if (textPart !== undefined) {
+			quoted = isQuoteStarted(textPart) && !isQuoteEnded(textPart);
+		}
+		return terminalText().sub(-1) === " " && !quoted;
+	});
 
 	const terminalHeight = derive(() => {
 		const padding = px.ceil(TEXT_FIELD_HEIGHT + 16);
@@ -72,6 +84,8 @@ export function Terminal() {
 				size={() => new UDim2(1, 0, 0, px(TEXT_FIELD_HEIGHT))}
 				position={UDim2.fromScale(0, 1)}
 				backgroundTransparency={() => options().backgroundTransparency ?? 0}
+				textParts={terminalTextParts}
+				atNextPart={atNextPart}
 				onTextChange={(text) => {
 					terminalText(text);
 					terminalTextValid(false);
