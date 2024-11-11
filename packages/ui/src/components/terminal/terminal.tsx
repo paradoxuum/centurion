@@ -218,7 +218,7 @@ export function Terminal() {
 								kind: "list",
 								options: currentArg,
 								type: argType,
-								input: textParts,
+								input: textParts.size() > 1 ? textParts : undefined,
 							},
 							argTextPart,
 						);

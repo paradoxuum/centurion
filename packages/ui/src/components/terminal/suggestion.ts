@@ -22,7 +22,7 @@ export interface ListArgument {
 	kind: "list";
 	options: ReadonlyDeep<ArgumentOptions>;
 	type: ListArgumentType<unknown>;
-	input: string[];
+	input?: string[];
 }
 
 export type Argument = SingleArgument | ListArgument;
@@ -67,7 +67,7 @@ export function getArgumentSuggestion(arg: Argument, textPart?: string) {
 
 	const typeSuggestions = singleArg
 		? arg.type.suggestions?.(arg.input ?? "", Players.LocalPlayer)
-		: arg.type.suggestions?.(arg.input, Players.LocalPlayer);
+		: arg.type.suggestions?.(arg.input ?? [], Players.LocalPlayer);
 	if (typeSuggestions !== undefined) {
 		for (const text of typeSuggestions) {
 			suggestions.push(text);
@@ -75,11 +75,12 @@ export function getArgumentSuggestion(arg: Argument, textPart?: string) {
 	}
 
 	let errorText: string | undefined;
-	if (!arg.type.expensive) {
+	const input = arg.input;
+	if (!arg.type.expensive && input !== undefined) {
 		const [success, err] = pcall(() => {
 			const transformResult = singleArg
-				? arg.type.transform(arg.input ?? "", Players.LocalPlayer)
-				: arg.type.transform(arg.input, Players.LocalPlayer);
+				? arg.type.transform(input as string, Players.LocalPlayer)
+				: arg.type.transform(input as string[], Players.LocalPlayer);
 			if (transformResult.ok) return;
 			errorText = transformResult.value;
 		});
