@@ -14,6 +14,16 @@
 
 ## UI
 
+### v1.0.4 (2024-11-11)
+
+- Only check arguments for non-empty argument inputs.
+- Remove Charm in favor of Vide for global UI state, decreasing package size.
+
+### v1.0.3 (2024-11-01)
+
+- Fix yield error when retrieving text bounds.
+- Fix command names always being lowercase in command suggestions.
+
 ### v1.0.2 (2024-09-29)
 
 - Surround suggestions in quotes if the argument being typed begins with a quote.
