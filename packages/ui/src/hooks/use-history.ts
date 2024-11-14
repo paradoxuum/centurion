@@ -1,6 +1,6 @@
 import { HistoryEntry } from "@rbxts/centurion";
 import { TextService } from "@rbxts/services";
-import { cleanup, derive, source } from "@rbxts/vide";
+import { cleanup, derive, read, source } from "@rbxts/vide";
 import { HISTORY_TEXT_SIZE } from "../constants/text";
 import { options } from "../store";
 import { HistoryData, HistoryLineData } from "../types";
@@ -29,7 +29,7 @@ export function useHistory() {
 		let totalHeight = historySize > 0 ? px(8) + (historySize - 1) * px(8) : 0;
 
 		textBoundsParams.Size = HISTORY_TEXT_SIZE;
-		textBoundsParams.Font = options().font.regular;
+		textBoundsParams.Font = read(options().font).regular;
 
 		const historyLines: HistoryLineData[] = [];
 		for (const entry of entries) {

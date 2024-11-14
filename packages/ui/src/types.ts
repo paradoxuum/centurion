@@ -1,22 +1,23 @@
 import { CommandShortcut, HistoryEntry } from "@rbxts/centurion";
+import { Derivable } from "@rbxts/vide";
 import { ScaleFunction } from "./hooks/use-px";
 import { InterfacePalette } from "./palette";
 
 export interface InterfaceOptions {
-	anchor: Vector2;
-	position: UDim2 | ((px: ScaleFunction) => UDim2);
-	size: UDim2 | ((px: ScaleFunction) => UDim2);
-	displayOrder: number;
-	backgroundTransparency: number;
-	hideOnLostFocus: boolean;
-	activationKeys: Enum.KeyCode[];
-	font: {
+	anchor: Derivable<Vector2>;
+	position: Derivable<UDim2>;
+	size: Derivable<UDim2>;
+	displayOrder: Derivable<number>;
+	backgroundTransparency: Derivable<number>;
+	hideOnLostFocus: Derivable<boolean>;
+	activationKeys: Derivable<Enum.KeyCode[]>;
+	font: Derivable<{
 		regular: Font;
 		medium: Font;
 		bold: Font;
-	};
-	palette: InterfacePalette;
-	autoLocalize: boolean;
+	}>;
+	palette: Derivable<InterfacePalette>;
+	autoLocalize: Derivable<boolean>;
 }
 
 export interface HistoryLineData {

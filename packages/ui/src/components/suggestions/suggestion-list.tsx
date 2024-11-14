@@ -45,9 +45,9 @@ export function SuggestionList({
 					return (
 						<Frame
 							size={() => new UDim2(1, 0, 0, px(SUGGESTION_TEXT_SIZE + 6))}
-							backgroundColor={() => options().palette.background}
+							backgroundColor={() => read(options().palette).background}
 							backgroundTransparency={() =>
-								options().backgroundTransparency ?? 0
+								read(options().backgroundTransparency) ?? 0
 							}
 							cornerRadius={() => new UDim(0, px(8))}
 							clipsDescendants={true}
@@ -59,12 +59,12 @@ export function SuggestionList({
 								size={() => new UDim2(1, 0, 1, 0)}
 								text={() =>
 									highlightMatching(
-										options().palette.highlight,
+										read(options().palette).highlight,
 										name,
 										read(currentText),
 									)
 								}
-								textColor={() => options().palette.text}
+								textColor={() => read(options().palette).text}
 								textSize={() => px(SUGGESTION_TEXT_SIZE)}
 								textXAlignment="Left"
 								richText={true}
