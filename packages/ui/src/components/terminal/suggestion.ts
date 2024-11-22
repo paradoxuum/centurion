@@ -119,16 +119,37 @@ export function getCommandSuggestion(
 	if (firstMatch === undefined) return;
 
 	const firstPath = paths[firstMatch[0]];
-	const mainData =
-		registry.getCommand(firstPath)?.options ??
-		registry.getGroup(firstPath)?.options;
-	if (mainData === undefined) return;
 
-	return {
-		type: "command",
-		title: mainData.name,
-		others: sortedPaths.map(([, str]) => str),
-		description: mainData.description,
-		shortcuts: (mainData as CommandOptions).shortcuts,
-	};
+	const command = registry.getCommand(firstPath);
+	if (command !== undefined) {
+		return {
+			type: "command",
+			title: getCommandName(
+				command.options as CommandOptions,
+				firstPath.tail(),
+			),
+			description: command.options.description,
+			others: sortedPaths.map(([, str]) => str),
+			shortcuts: (command.options as CommandOptions).shortcuts,
+		};
+	}
+
+	const group = registry.getGroup(firstPath);
+	if (group !== undefined) {
+		return {
+			type: "command",
+			title: group.options.name,
+			description: group.options.description,
+			others: sortedPaths.map(([, str]) => str),
+		};
+	}
+}
+
+function getCommandName(options: CommandOptions, input: string) {
+	if (input === options.name.lower()) return options.name;
+
+	for (const alias of options.aliases ?? []) {
+		if (input === alias.lower()) return alias;
+	}
+	return input;
 }
