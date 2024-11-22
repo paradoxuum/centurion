@@ -55,7 +55,7 @@ export abstract class BaseRegistry<
 
 	constructor(protected readonly config: C) {
 		this.logger = new CenturionLogger(config.logLevel, "Registry");
-		this.globalGuards = [...config.guards] ?? [];
+		this.globalGuards = [...config.guards];
 
 		const tsImpl = (_G as Map<unknown, unknown>).get(script);
 		this.loadModule = t.interface({
