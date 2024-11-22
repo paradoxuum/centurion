@@ -178,9 +178,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@astrojs/starlight@npm:^0.28.5":
-  version: 0.28.5
-  resolution: "@astrojs/starlight@npm:0.28.5"
+"@astrojs/starlight@npm:^0.28.6":
+  version: 0.28.6
+  resolution: "@astrojs/starlight@npm:0.28.6"
   dependencies:
     "@astrojs/mdx": "npm:^3.1.3"
     "@astrojs/sitemap": "npm:^3.1.6"
@@ -194,6 +194,7 @@ __metadata:
     hast-util-to-string: "npm:^3.0.0"
     hastscript: "npm:^9.0.0"
     i18next: "npm:^23.11.5"
+    js-yaml: "npm:^4.1.0"
     mdast-util-directive: "npm:^3.0.0"
     mdast-util-to-markdown: "npm:^2.1.0"
     mdast-util-to-string: "npm:^4.0.0"
@@ -206,7 +207,7 @@ __metadata:
     vfile: "npm:^6.0.2"
   peerDependencies:
     astro: ^4.14.0
-  checksum: 10c0/f635475f9179e209b58fc83b485c8105f00834d24db461c4392b7c48299de04b9fee760c3c5a8ab5d13dc24e9a36636f1e880c49ecae4d6e86e779b117f2d506
+  checksum: 10c0/e4f786e752705019680bc763a0086093a0758942768fbed5d58fe59db278792be754f7dfbe4bd2191539a0ab17e049d4a5558cef14ea143534eeae4211c1fb8f
   languageName: node
   linkType: hard
 
@@ -2479,9 +2480,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"astro@npm:^4.16.8":
-  version: 4.16.8
-  resolution: "astro@npm:4.16.8"
+"astro@npm:^4.16.14":
+  version: 4.16.14
+  resolution: "astro@npm:4.16.14"
   dependencies:
     "@astrojs/compiler": "npm:^2.10.3"
     "@astrojs/internal-helpers": "npm:0.4.1"
@@ -2525,7 +2526,7 @@ __metadata:
     micromatch: "npm:^4.0.8"
     mrmime: "npm:^2.0.0"
     neotraverse: "npm:^0.6.18"
-    ora: "npm:^8.1.0"
+    ora: "npm:^8.1.1"
     p-limit: "npm:^6.1.0"
     p-queue: "npm:^8.0.1"
     preferred-pm: "npm:^4.0.0"
@@ -2551,7 +2552,7 @@ __metadata:
       optional: true
   bin:
     astro: astro.js
-  checksum: 10c0/692c19970c5dfb5029a19f57556dcd9070645c01a5d8b5fa8e593c317c3e289c24cda19ea5a556e4a381d7c4b7d32060217c4d178c49834e0d31206b8c95e761
+  checksum: 10c0/abfebe17c8c8d8da252430c0ef1ecb4b3411873e48003610e2bea6d504b82fcda69384bca4c66a5e75db4b498e631fff3e874ae5a2657cb67f633ba933b9750e
   languageName: node
   linkType: hard
 
@@ -2719,7 +2720,7 @@ __metadata:
   resolution: "centurion@workspace:."
   dependencies:
     "@biomejs/biome": "npm:1.9.0"
-    lefthook: "npm:^1.8.2"
+    lefthook: "npm:^1.8.4"
   languageName: unknown
   linkType: soft
 
@@ -3079,13 +3080,13 @@ __metadata:
   resolution: "docs@workspace:docs"
   dependencies:
     "@astrojs/check": "npm:^0.9.4"
-    "@astrojs/starlight": "npm:^0.28.5"
+    "@astrojs/starlight": "npm:^0.28.6"
     "@fontsource-variable/jetbrains-mono": "npm:^5.1.1"
     "@lorenzo_lewis/starlight-utils": "npm:^0.2.0"
-    astro: "npm:^4.16.8"
-    sass: "npm:^1.80.5"
+    astro: "npm:^4.16.14"
+    sass: "npm:^1.81.0"
     sharp: "npm:^0.33.5"
-    starlight-links-validator: "npm:^0.12.4"
+    starlight-links-validator: "npm:^0.13.2"
     typescript: "npm:^5.6.3"
   languageName: unknown
   linkType: soft
@@ -4073,10 +4074,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"immutable@npm:^4.0.0":
-  version: 4.3.6
-  resolution: "immutable@npm:4.3.6"
-  checksum: 10c0/7d0952a768b4fadcee47230ed86dc9505a4517095eceaf5a47e65288571c42400c6e4a2ae21eca4eda957cb7bc50720213135b62cf6a181639111f8acae128c3
+"immutable@npm:^5.0.2":
+  version: 5.0.3
+  resolution: "immutable@npm:5.0.3"
+  checksum: 10c0/3269827789e1026cd25c2ea97f0b2c19be852ffd49eda1b674b20178f73d84fa8d945ad6f5ac5bc4545c2b4170af9f6e1f77129bc1cae7974a4bf9b04a9cdfb9
   languageName: node
   linkType: hard
 
@@ -4466,90 +4467,90 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lefthook-darwin-arm64@npm:1.8.2":
-  version: 1.8.2
-  resolution: "lefthook-darwin-arm64@npm:1.8.2"
+"lefthook-darwin-arm64@npm:1.8.4":
+  version: 1.8.4
+  resolution: "lefthook-darwin-arm64@npm:1.8.4"
   conditions: os=darwin & cpu=arm64
   languageName: node
   linkType: hard
 
-"lefthook-darwin-x64@npm:1.8.2":
-  version: 1.8.2
-  resolution: "lefthook-darwin-x64@npm:1.8.2"
+"lefthook-darwin-x64@npm:1.8.4":
+  version: 1.8.4
+  resolution: "lefthook-darwin-x64@npm:1.8.4"
   conditions: os=darwin & cpu=x64
   languageName: node
   linkType: hard
 
-"lefthook-freebsd-arm64@npm:1.8.2":
-  version: 1.8.2
-  resolution: "lefthook-freebsd-arm64@npm:1.8.2"
+"lefthook-freebsd-arm64@npm:1.8.4":
+  version: 1.8.4
+  resolution: "lefthook-freebsd-arm64@npm:1.8.4"
   conditions: os=freebsd & cpu=arm64
   languageName: node
   linkType: hard
 
-"lefthook-freebsd-x64@npm:1.8.2":
-  version: 1.8.2
-  resolution: "lefthook-freebsd-x64@npm:1.8.2"
+"lefthook-freebsd-x64@npm:1.8.4":
+  version: 1.8.4
+  resolution: "lefthook-freebsd-x64@npm:1.8.4"
   conditions: os=freebsd & cpu=x64
   languageName: node
   linkType: hard
 
-"lefthook-linux-arm64@npm:1.8.2":
-  version: 1.8.2
-  resolution: "lefthook-linux-arm64@npm:1.8.2"
+"lefthook-linux-arm64@npm:1.8.4":
+  version: 1.8.4
+  resolution: "lefthook-linux-arm64@npm:1.8.4"
   conditions: os=linux & cpu=arm64
   languageName: node
   linkType: hard
 
-"lefthook-linux-x64@npm:1.8.2":
-  version: 1.8.2
-  resolution: "lefthook-linux-x64@npm:1.8.2"
+"lefthook-linux-x64@npm:1.8.4":
+  version: 1.8.4
+  resolution: "lefthook-linux-x64@npm:1.8.4"
   conditions: os=linux & cpu=x64
   languageName: node
   linkType: hard
 
-"lefthook-openbsd-arm64@npm:1.8.2":
-  version: 1.8.2
-  resolution: "lefthook-openbsd-arm64@npm:1.8.2"
+"lefthook-openbsd-arm64@npm:1.8.4":
+  version: 1.8.4
+  resolution: "lefthook-openbsd-arm64@npm:1.8.4"
   conditions: os=openbsd & cpu=arm64
   languageName: node
   linkType: hard
 
-"lefthook-openbsd-x64@npm:1.8.2":
-  version: 1.8.2
-  resolution: "lefthook-openbsd-x64@npm:1.8.2"
+"lefthook-openbsd-x64@npm:1.8.4":
+  version: 1.8.4
+  resolution: "lefthook-openbsd-x64@npm:1.8.4"
   conditions: os=openbsd & cpu=x64
   languageName: node
   linkType: hard
 
-"lefthook-windows-arm64@npm:1.8.2":
-  version: 1.8.2
-  resolution: "lefthook-windows-arm64@npm:1.8.2"
+"lefthook-windows-arm64@npm:1.8.4":
+  version: 1.8.4
+  resolution: "lefthook-windows-arm64@npm:1.8.4"
   conditions: os=win32 & cpu=arm64
   languageName: node
   linkType: hard
 
-"lefthook-windows-x64@npm:1.8.2":
-  version: 1.8.2
-  resolution: "lefthook-windows-x64@npm:1.8.2"
+"lefthook-windows-x64@npm:1.8.4":
+  version: 1.8.4
+  resolution: "lefthook-windows-x64@npm:1.8.4"
   conditions: os=win32 & cpu=x64
   languageName: node
   linkType: hard
 
-"lefthook@npm:^1.8.2":
-  version: 1.8.2
-  resolution: "lefthook@npm:1.8.2"
+"lefthook@npm:^1.8.4":
+  version: 1.8.4
+  resolution: "lefthook@npm:1.8.4"
   dependencies:
-    lefthook-darwin-arm64: "npm:1.8.2"
-    lefthook-darwin-x64: "npm:1.8.2"
-    lefthook-freebsd-arm64: "npm:1.8.2"
-    lefthook-freebsd-x64: "npm:1.8.2"
-    lefthook-linux-arm64: "npm:1.8.2"
-    lefthook-linux-x64: "npm:1.8.2"
-    lefthook-openbsd-arm64: "npm:1.8.2"
-    lefthook-openbsd-x64: "npm:1.8.2"
-    lefthook-windows-arm64: "npm:1.8.2"
-    lefthook-windows-x64: "npm:1.8.2"
+    lefthook-darwin-arm64: "npm:1.8.4"
+    lefthook-darwin-x64: "npm:1.8.4"
+    lefthook-freebsd-arm64: "npm:1.8.4"
+    lefthook-freebsd-x64: "npm:1.8.4"
+    lefthook-linux-arm64: "npm:1.8.4"
+    lefthook-linux-x64: "npm:1.8.4"
+    lefthook-openbsd-arm64: "npm:1.8.4"
+    lefthook-openbsd-x64: "npm:1.8.4"
+    lefthook-windows-arm64: "npm:1.8.4"
+    lefthook-windows-x64: "npm:1.8.4"
   dependenciesMeta:
     lefthook-darwin-arm64:
       optional: true
@@ -4573,7 +4574,7 @@ __metadata:
       optional: true
   bin:
     lefthook: bin/index.js
-  checksum: 10c0/a73721013dd65ac974cea23441a7beb07b53052e938ba8d8256154641bd80474761e7a05b029db5606b19548c85e812927bd591b22cec823e5cecdac8fba20d4
+  checksum: 10c0/b831666931414e3098bb2083a4beaf9b14c45de27ff30ccaf403d2a1f2e8cd1da3206816aed1941d9e496c6edc4280d9eb1721c588d3f3de5af79af5a334f6c0
   languageName: node
   linkType: hard
 
@@ -5735,9 +5736,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ora@npm:^8.1.0":
-  version: 8.1.0
-  resolution: "ora@npm:8.1.0"
+"ora@npm:^8.1.1":
+  version: 8.1.1
+  resolution: "ora@npm:8.1.1"
   dependencies:
     chalk: "npm:^5.3.0"
     cli-cursor: "npm:^5.0.0"
@@ -5748,7 +5749,7 @@ __metadata:
     stdin-discarder: "npm:^0.2.2"
     string-width: "npm:^7.2.0"
     strip-ansi: "npm:^7.1.0"
-  checksum: 10c0/4ac9a6dd7fe915a354680f33ced21ee96d13d3c5ab0dc00b3c3ba9e3695ed141b1d045222990f5a71a9a91f801042a0b0d32e58dfc5509ff9b81efdd3fcf6339
+  checksum: 10c0/996a81a9e997481339de3a7996c56131ea292c0a0e9e42d1cd454e2390f1ce7015ec925dcdd29e3d74dc5d037a4aa1877e575b491555507bcd9f219df760a63f
   languageName: node
   linkType: hard
 
@@ -6607,17 +6608,20 @@ __metadata:
   languageName: node
   linkType: hard
 
-"sass@npm:^1.80.5":
-  version: 1.80.5
-  resolution: "sass@npm:1.80.5"
+"sass@npm:^1.81.0":
+  version: 1.81.0
+  resolution: "sass@npm:1.81.0"
   dependencies:
     "@parcel/watcher": "npm:^2.4.1"
     chokidar: "npm:^4.0.0"
-    immutable: "npm:^4.0.0"
+    immutable: "npm:^5.0.2"
     source-map-js: "npm:>=0.6.2 <2.0.0"
+  dependenciesMeta:
+    "@parcel/watcher":
+      optional: true
   bin:
     sass: sass.js
-  checksum: 10c0/d592e57c037315f4c5976af3d37ce4c7758b1b4e89d064455d6992829ea59888c71b9dbc86f7fc8dca87ac98ebc9cece10e5c8fc5509bf192db81712a34fd579
+  checksum: 10c0/9c59b3c9b4231c18fcb4583cc232dbc4de501ddc11101b7a025e44833e3f3ce6031546dc1cd109ee9f04ebcfb1fe30ff870810af33b8feb9aa9e36dfba9ec1ef
   languageName: node
   linkType: hard
 
@@ -7021,9 +7025,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"starlight-links-validator@npm:^0.12.4":
-  version: 0.12.4
-  resolution: "starlight-links-validator@npm:0.12.4"
+"starlight-links-validator@npm:^0.13.2":
+  version: 0.13.2
+  resolution: "starlight-links-validator@npm:0.13.2"
   dependencies:
     "@types/picomatch": "npm:2.3.3"
     github-slugger: "npm:2.0.0"
@@ -7037,7 +7041,7 @@ __metadata:
   peerDependencies:
     "@astrojs/starlight": ">=0.15.0"
     astro: ">=4.0.0"
-  checksum: 10c0/6e8948bd3187830dca94d139c9455135eb1f494ba8660a3cb2ade51b1dda7a71290e609bc79fbedb8c761feee1fa996d5e9d6df04c6adcfa60dc98fffe7b34d0
+  checksum: 10c0/7bb0345b7c410969321de6f588bf8746da2d39c0da64039567a6438d26d8a5cbf796107607c86e72d1c566a5fa1c4f2d296939a59fa9853569a4cfbf7ae866e5
   languageName: node
   linkType: hard
 
