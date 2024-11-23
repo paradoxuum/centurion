@@ -37,8 +37,8 @@ export function MainSuggestion({
 		<Frame
 			action={action}
 			size={size}
-			backgroundColor={() => options().palette.background}
-			backgroundTransparency={() => options().backgroundTransparency ?? 0}
+			backgroundColor={() => read(options().palette).background}
+			backgroundTransparency={() => read(options().backgroundTransparency) ?? 0}
 			cornerRadius={() => new UDim(0, px(8))}
 			native={{
 				MouseEnter: () => mouseOverInterface(true),
@@ -48,7 +48,7 @@ export function MainSuggestion({
 			<Padding all={() => new UDim(0, px(8))} />
 
 			<Badge
-				color={() => options().palette.highlight}
+				color={() => read(options().palette).highlight}
 				text={() => {
 					const currentSuggestion = read(suggestion);
 					return currentSuggestion !== undefined &&
@@ -56,7 +56,7 @@ export function MainSuggestion({
 						? currentSuggestion.dataType
 						: "";
 				}}
-				textColor={() => options().palette.surface}
+				textColor={() => read(options().palette).surface}
 				textSize={() => px(SUGGESTION_TEXT_SIZE)}
 				visible={() => {
 					const currentSuggestion = read(suggestion);
@@ -81,16 +81,16 @@ export function MainSuggestion({
 					return currentSuggestion?.type === "argument"
 						? currentSuggestion.title
 						: highlightMatching(
-								options().palette.highlight,
+								read(options().palette).highlight,
 								currentSuggestion?.title,
 								read(currentText),
 							);
 				}}
 				textSize={() => px(SUGGESTION_TITLE_TEXT_SIZE)}
-				textColor={() => options().palette.text}
+				textColor={() => read(options().palette).text}
 				textXAlignment="Left"
 				textYAlignment="Top"
-				font={() => options().font.bold}
+				font={() => read(options().font).bold}
 				richText
 				size={titleSize}
 			/>
@@ -98,7 +98,7 @@ export function MainSuggestion({
 			<Text
 				text={() => read(suggestion)?.description ?? ""}
 				textSize={() => px(SUGGESTION_TEXT_SIZE)}
-				textColor={() => options().palette.subtext}
+				textColor={() => read(options().palette).subtext}
 				textXAlignment="Left"
 				textYAlignment="Top"
 				textWrapped
@@ -115,7 +115,7 @@ export function MainSuggestion({
 						? (currentSuggestion.error ?? "")
 						: "";
 				}}
-				textColor={() => options().palette.error}
+				textColor={() => read(options().palette).error}
 				textSize={() => px(SUGGESTION_TEXT_SIZE)}
 				textTransparency={spring(() => {
 					const currentSuggestion = read(suggestion);

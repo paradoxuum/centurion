@@ -1,5 +1,5 @@
 import { HistoryEntry } from "@rbxts/centurion";
-import Vide, { Derivable, derive } from "@rbxts/vide";
+import Vide, { Derivable, derive, read } from "@rbxts/vide";
 import { HISTORY_TEXT_SIZE } from "../../constants/text";
 import { px } from "../../hooks/use-px";
 import { options } from "../../store";
@@ -29,14 +29,14 @@ export function HistoryLine({ data, size, position, order }: HistoryLineProps) {
 	return (
 		<Group size={size} position={position} layoutOrder={order}>
 			<Frame
-				backgroundColor={() => options().palette.surface}
+				backgroundColor={() => read(options().palette).surface}
 				size={() => UDim2.fromOffset(px(76), px(HISTORY_TEXT_SIZE + 4))}
 				cornerRadius={() => new UDim(0, px(4))}
 			>
 				<Text
 					size={UDim2.fromScale(1, 1)}
 					text={date}
-					textColor={() => options().palette.text}
+					textColor={() => read(options().palette).text}
 					textSize={() => px(HISTORY_TEXT_SIZE)}
 					richText={true}
 				/>
@@ -46,8 +46,8 @@ export function HistoryLine({ data, size, position, order }: HistoryLineProps) {
 					innerTransparency={0.25}
 					innerColor={() => {
 						return data.success
-							? options().palette.success
-							: options().palette.error;
+							? read(options().palette).success
+							: read(options().palette).error;
 					}}
 					outerThickness={0}
 					cornerRadius={() => new UDim(0, px(4))}
@@ -61,13 +61,13 @@ export function HistoryLine({ data, size, position, order }: HistoryLineProps) {
 				text={data.text}
 				textSize={() => px(HISTORY_TEXT_SIZE)}
 				textColor={() => {
-					const palette = options().palette;
+					const palette = read(options().palette);
 					return data.success ? palette.text : palette.error;
 				}}
 				textEditable={false}
 				textXAlignment="Left"
 				clearTextOnFocus={false}
-				font={() => options().font.medium}
+				font={() => read(options().font).medium}
 				richText
 			/>
 		</Group>

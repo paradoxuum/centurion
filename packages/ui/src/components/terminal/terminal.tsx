@@ -1,7 +1,7 @@
 import { ArgumentOptions, RegistryPath } from "@rbxts/centurion";
 import { ArrayUtil, ReadonlyDeep } from "@rbxts/centurion/out/shared/util/data";
 import { splitString } from "@rbxts/centurion/out/shared/util/string";
-import Vide, { derive, source, spring } from "@rbxts/vide";
+import Vide, { derive, source, spring, read } from "@rbxts/vide";
 import { HISTORY_TEXT_SIZE } from "../../constants/text";
 import { useClient } from "../../hooks/use-client";
 import { useHistory } from "../../hooks/use-history";
@@ -63,8 +63,8 @@ export function Terminal() {
 	return (
 		<Frame
 			size={spring(() => new UDim2(1, 0, 0, terminalHeight()), 0.2)}
-			backgroundColor={() => options().palette.background}
-			backgroundTransparency={() => options().backgroundTransparency ?? 0}
+			backgroundColor={() => read(options().palette).background}
+			backgroundTransparency={() => read(options().backgroundTransparency) ?? 0}
 			cornerRadius={() => new UDim(0, px(8))}
 			native={{
 				MouseEnter: () => mouseOverInterface(true),
@@ -83,7 +83,9 @@ export function Terminal() {
 				anchor={new Vector2(0, 1)}
 				size={() => new UDim2(1, 0, 0, px(TEXT_FIELD_HEIGHT))}
 				position={UDim2.fromScale(0, 1)}
-				backgroundTransparency={() => options().backgroundTransparency ?? 0}
+				backgroundTransparency={() =>
+					read(options().backgroundTransparency) ?? 0
+				}
 				textParts={terminalTextParts}
 				atNextPart={atNextPart}
 				onTextChange={(text) => {

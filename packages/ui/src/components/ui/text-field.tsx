@@ -21,7 +21,7 @@ export function TextField(props: TextFieldProps) {
 			TextEditable={props.textEditable}
 			Font={Enum.Font.Unknown}
 			FontFace={() => {
-				return read(props.font) ?? options().font.regular;
+				return read(props.font) ?? read(options().font).regular;
 			}}
 			Text={props.text}
 			TextColor3={props.textColor}
@@ -34,7 +34,7 @@ export function TextField(props: TextFieldProps) {
 			TextScaled={props.textScaled}
 			RichText={props.richText}
 			AutomaticSize={props.textAutoResize}
-			AutoLocalize={() => options().autoLocalize}
+			AutoLocalize={() => read(options().autoLocalize)}
 			Size={props.size}
 			Position={props.position}
 			AnchorPoint={props.anchor}

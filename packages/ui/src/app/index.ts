@@ -1,7 +1,7 @@
 import { CenturionClient, CenturionType } from "@rbxts/centurion";
 import { ClientRegistry } from "@rbxts/centurion/out/client/registry";
 import { ContentProvider, Players } from "@rbxts/services";
-import { mount } from "@rbxts/vide";
+import { mount, read } from "@rbxts/vide";
 import { DEFAULT_INTERFACE_OPTIONS } from "../constants/options";
 import { DefaultPalette } from "../palette";
 import { options as uiOptions, visible as uiVisible } from "../store";
@@ -64,7 +64,8 @@ export namespace CenturionUI {
 		// Attempt to preload font
 		task.spawn(() => {
 			const fontFamily = (
-				options.font?.regular ?? DEFAULT_INTERFACE_OPTIONS.font.regular
+				read(options.font)?.regular ??
+				read(DEFAULT_INTERFACE_OPTIONS.font).regular
 			).Family;
 
 			let attempts = 0;
