@@ -1,24 +1,24 @@
 {
-  "name": "centurion",
-  "private": true,
-  "packageManager": "yarn@4.5.0",
-  "workspaces": [
-    "packages/*",
-    "docs",
-    "test"
-  ],
-  "scripts": {
-    "packages:build": "yarn workspaces foreach -R --from \"{@rbxts/centurion,@rbxts/centurion-ui}\" run build",
-    "core:build": "yarn workspace @rbxts/centurion build",
-    "core:dev": "yarn workspace @rbxts/centurion dev",
-    "ui:build": "yarn workspace @rbxts/centurion-ui build",
-    "ui:dev": "yarn workspace @rbxts/centurion-ui dev",
-    "test:build": "yarn workspace test build",
-    "test:dev": "yarn workspace test dev",
-    "test:serve": "yarn workspace test serve"
-  },
-  "devDependencies": {
-    "@biomejs/biome": "1.9.0",
-    "lefthook": "^1.8.4"
-  }
+	"name": "centurion",
+	"private": true,
+	"packageManager": "pnpm@9.15.1",
+	"workspaces": [
+		"packages/*",
+		"docs",
+		"test"
+	],
+	"scripts": {
+		"packages:build": "pnpm --filter \"./packages/**\" build",
+		"core:build": "pnpm --filter @rbxts/centurion build",
+		"core:dev": "pnpm --filter @rbxts/centurion dev",
+		"ui:build": "pnpm --filter @rbxts/centurion-ui build",
+		"ui:dev": "pnpm --filter @rbxts/centurion-ui dev",
+		"test:build": "pnpm --filter test build",
+		"test:dev": "pnpm --filter test dev",
+		"serve": "rojo serve"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "1.9.0",
+		"lefthook": "^1.10.0"
+	}
 }

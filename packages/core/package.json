@@ -27,7 +27,7 @@
         "access": "public"
     },
     "scripts": {
-        "prepack": "yarn build",
+        "prepack": "pnpm build",
         "build": "shx rm -rf out && rbxtsc --verbose",
         "dev": "shx rm -rf out && rbxtsc -w"
     },

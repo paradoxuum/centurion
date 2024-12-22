@@ -17,13 +17,13 @@ jobs:
             - uses: actions/setup-node@v4
               with:
                   node-version: 20
-                  cache: "yarn"
+                  cache: "pnpm"
 
             - name: Install dependencies
-              run: yarn install
+              run: pnpm install
 
             - name: Run Biome
-              run: yarn biome ci
+              run: pnpm biome ci
 
             - name: Build project
-              run: yarn packages:build
+              run: pnpm packages:build

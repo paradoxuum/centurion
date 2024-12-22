@@ -11,15 +11,15 @@
   },
   "dependencies": {
     "@astrojs/check": "^0.9.4",
-    "@astrojs/starlight": "^0.28.6",
+    "@astrojs/starlight": "^0.30.3",
     "@fontsource-variable/jetbrains-mono": "^5.1.1",
     "@lorenzo_lewis/starlight-utils": "^0.2.0",
-    "astro": "^4.16.14",
+    "astro": "^5.1.1",
     "sharp": "^0.33.5",
-    "starlight-links-validator": "^0.13.2",
-    "typescript": "^5.6.3"
+    "starlight-links-validator": "^0.14.1",
+    "typescript": "^5.7.2"
   },
   "devDependencies": {
-    "sass": "^1.81.0"
+    "sass": "^1.83.0"
   }
 }

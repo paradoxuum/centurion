@@ -27,7 +27,7 @@
         "access": "public"
     },
     "scripts": {
-        "prepack": "yarn build",
+        "prepack": "pnpm build",
         "build": "shx rm -rf out && rbxtsc --verbose",
         "dev": "shx rm -rf out && rbxtsc -w"
     },
@@ -42,7 +42,7 @@
     "dependencies": {
         "@rbxts/services": "^1.5.5",
         "@rbxts/set-timeout": "^1.1.2",
-        "@rbxts/vide": "^0.5.0"
+        "@rbxts/vide": "^0.5.3"
     },
     "peerDependencies": {
         "@rbxts/centurion": "workspace:^"
