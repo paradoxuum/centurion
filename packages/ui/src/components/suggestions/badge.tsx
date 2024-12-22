@@ -1,4 +1,4 @@
-import Vide, { Derivable, InstanceAttributes } from "@rbxts/vide";
+import Vide, { Derivable, InstanceAttributes, read } from "@rbxts/vide";
 import { px } from "../../hooks/use-px";
 import { options } from "../../store";
 import { Frame } from "../ui/frame";
@@ -36,7 +36,7 @@ export function Badge(props: BadgeProps) {
 				textSize={props.textSize}
 				textXAlignment="Center"
 				size={UDim2.fromScale(1, 1)}
-				font={() => options().font.bold}
+				font={() => read(options().font).bold}
 				{...props.native}
 			>
 				{props.children}

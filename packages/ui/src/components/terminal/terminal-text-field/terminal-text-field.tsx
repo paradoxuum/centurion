@@ -1,5 +1,5 @@
 import { UserInputService } from "@rbxts/services";
-import Vide, { Derivable, effect, source } from "@rbxts/vide";
+import Vide, { Derivable, effect, source, read } from "@rbxts/vide";
 import { useClient } from "../../../hooks/use-client";
 import { useEvent } from "../../../hooks/use-event";
 import { px } from "../../../hooks/use-px";
@@ -158,7 +158,7 @@ export function TerminalTextField({
 			anchor={anchor}
 			size={size}
 			position={position}
-			backgroundColor={() => options().palette.surface}
+			backgroundColor={() => read(options().palette).surface}
 			backgroundTransparency={backgroundTransparency}
 			cornerRadius={() => new UDim(0, px(4))}
 		>
@@ -170,13 +170,13 @@ export function TerminalTextField({
 				textSize={() => px(TEXT_SIZE)}
 				textColor={() => {
 					return terminalTextValid()
-						? options().palette.success
-						: options().palette.error;
+						? read(options().palette).success
+						: read(options().palette).error;
 				}}
 				textXAlignment="Left"
 				placeholderText="Enter command..."
-				placeholderColor={() => options().palette.subtext}
-				font={() => options().font.medium}
+				placeholderColor={() => read(options().palette).subtext}
+				font={() => read(options().font).medium}
 				clearTextOnFocus={false}
 				native={{
 					FocusLost: (enterPressed) => {
@@ -234,10 +234,10 @@ export function TerminalTextField({
 			<Text
 				size={UDim2.fromScale(1, 1)}
 				text={suggestionText}
-				textColor={() => options().palette.subtext}
+				textColor={() => read(options().palette).subtext}
 				textSize={() => px(TEXT_SIZE)}
 				textXAlignment="Left"
-				font={() => options().font.medium}
+				font={() => read(options().font).medium}
 			/>
 		</Frame>
 	);

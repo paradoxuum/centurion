@@ -23,7 +23,7 @@ export interface TextProps<T extends Instance = TextLabel>
 export function Text(props: TextProps) {
 	return (
 		<textlabel
-			FontFace={() => read(props.font) ?? options().font.regular}
+			FontFace={() => read(props.font) ?? read(options().font).regular}
 			Text={props.text}
 			TextColor3={props.textColor}
 			TextSize={() => read(props.textSize) ?? px(16)}
@@ -37,7 +37,7 @@ export function Text(props: TextProps) {
 			RichText={props.richText}
 			Size={props.size}
 			AutomaticSize={props.textAutoResize}
-			AutoLocalize={() => options().autoLocalize}
+			AutoLocalize={() => read(options().autoLocalize)}
 			Position={props.position}
 			AnchorPoint={props.anchor}
 			BackgroundColor3={props.backgroundColor}

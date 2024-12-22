@@ -30,7 +30,7 @@ export function HistoryList({
 			position={position}
 			canvasSize={() => UDim2.fromOffset(0, height())}
 			canvasPosition={() => new Vector2(0, height())}
-			scrollBarColor={() => options().palette.subtext}
+			scrollBarColor={() => read(options().palette).subtext}
 			scrollBarThickness={() => (exceedsMaxHeight() ? 10 : 0)}
 			scrollingEnabled={() => exceedsMaxHeight()}
 		>

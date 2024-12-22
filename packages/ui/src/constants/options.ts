@@ -1,12 +1,13 @@
 import { GuiService } from "@rbxts/services";
+import { px } from "../hooks/use-px";
 import { DefaultPalette } from "../palette";
 import { InterfaceOptions } from "../types";
 
 export const DEFAULT_INTERFACE_OPTIONS: InterfaceOptions = {
 	anchor: new Vector2(),
-	position: (px) =>
+	position: () =>
 		UDim2.fromOffset(px(16), px(8) + GuiService.GetGuiInset()[0].Y),
-	size: (px) => new UDim2(0, px(1024), 1, 0),
+	size: () => new UDim2(0, px(1024), 1, 0),
 	displayOrder: 1000,
 	backgroundTransparency: 0.2,
 	hideOnLostFocus: true,

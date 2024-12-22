@@ -1,5 +1,5 @@
 import { TextService } from "@rbxts/services";
-import Vide, { cleanup, derive, source, spring } from "@rbxts/vide";
+import Vide, { cleanup, derive, source, spring, read } from "@rbxts/vide";
 import {
 	SUGGESTION_TEXT_SIZE,
 	SUGGESTION_TITLE_TEXT_SIZE,
@@ -24,13 +24,13 @@ export function Suggestions() {
 
 	const titleBounds = useTextBounds({
 		text: () => currentSuggestion()?.title,
-		font: () => options().font.bold,
+		font: () => read(options().font).bold,
 		size: () => px(SUGGESTION_TITLE_TEXT_SIZE),
 	});
 
 	const descriptionBounds = useTextBounds({
 		text: () => currentSuggestion()?.description,
-		font: () => options().font.regular,
+		font: () => read(options().font).regular,
 		size: () => px(SUGGESTION_TEXT_SIZE),
 		width: () => px(MAX_SUGGESTION_WIDTH),
 	});
@@ -41,7 +41,7 @@ export function Suggestions() {
 			if (suggestion?.type === "command") return;
 			return suggestion?.dataType;
 		},
-		font: () => options().font.bold,
+		font: () => read(options().font).bold,
 		size: () => px(SUGGESTION_TEXT_SIZE),
 	});
 
@@ -51,7 +51,7 @@ export function Suggestions() {
 			if (suggestion?.type === "command") return;
 			return suggestion?.error;
 		},
-		font: () => options().font.regular,
+		font: () => read(options().font).regular,
 		size: () => px(SUGGESTION_TEXT_SIZE),
 	});
 
