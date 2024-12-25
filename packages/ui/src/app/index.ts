@@ -9,9 +9,6 @@ import { InterfaceOptions } from "../types";
 import { CenturionApp } from "./centurion-app";
 
 export namespace CenturionUI {
-	const MAX_PRELOAD_ATTEMPTS = 3;
-	const PRELOAD_ATTEMPT_INTERVAL = 3;
-
 	/**
 	 * Returns whether the terminal UI is visible.
 	 *
@@ -60,26 +57,6 @@ export namespace CenturionUI {
 			registerCommands(client.registry);
 		}
 		updateOptions(options);
-
-		// Attempt to preload font
-		task.spawn(() => {
-			const fontFamily = (
-				options.font?.regular ?? DEFAULT_INTERFACE_OPTIONS.font.regular
-			).Family;
-
-			let attempts = 0;
-			while (attempts < MAX_PRELOAD_ATTEMPTS) {
-				ContentProvider.PreloadAsync([fontFamily], (_, status) => {
-					if (status === Enum.AssetFetchStatus.Success) {
-						attempts = MAX_PRELOAD_ATTEMPTS;
-					}
-				});
-
-				if (attempts === MAX_PRELOAD_ATTEMPTS) break;
-				task.wait(PRELOAD_ATTEMPT_INTERVAL);
-				attempts++;
-			}
-		});
 
 		mount(
 			() => CenturionApp(client),

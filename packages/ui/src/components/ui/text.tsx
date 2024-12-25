@@ -16,7 +16,6 @@ export interface TextProps<T extends Instance = TextLabel>
 	textTruncate?: InferEnumNames<Enum.TextTruncate>;
 	textScaled?: Derivable<boolean>;
 	textHeight?: Derivable<number>;
-	textAutoResize?: "X" | "Y" | "XY";
 	richText?: Derivable<boolean>;
 }
 
@@ -36,7 +35,7 @@ export function Text(props: TextProps) {
 			LineHeight={props.textHeight}
 			RichText={props.richText}
 			Size={props.size}
-			AutomaticSize={props.textAutoResize}
+			AutomaticSize={props.automaticSize}
 			AutoLocalize={() => options().autoLocalize}
 			Position={props.position}
 			AnchorPoint={props.anchor}

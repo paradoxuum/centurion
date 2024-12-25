@@ -1,10 +1,10 @@
-import { ArgumentOptions, RegistryPath } from "@rbxts/centurion";
+import { ArgumentOptions, HistoryEntry, RegistryPath } from "@rbxts/centurion";
 import { ArrayUtil, ReadonlyDeep } from "@rbxts/centurion/out/shared/util/data";
 import { splitString } from "@rbxts/centurion/out/shared/util/string";
-import Vide, { derive, source, spring } from "@rbxts/vide";
+import Vide, { derive, effect, source, spring } from "@rbxts/vide";
 import { HISTORY_TEXT_SIZE } from "../../constants/text";
 import { useClient } from "../../hooks/use-client";
-import { useHistory } from "../../hooks/use-history";
+import { useEvent } from "../../hooks/use-event";
 import { px } from "../../hooks/use-px";
 import {
 	commandArgIndex,
@@ -33,7 +33,15 @@ const TRAILING_SPACE_PATTERN = "(%s+)$";
 export function Terminal() {
 	const client = useClient();
 	const missingArgs = source<string[]>([]);
-	const history = useHistory();
+	const history = source<HistoryEntry[]>(client.dispatcher.getHistory());
+	const historyHeight = source(0);
+
+	useEvent(client.dispatcher.historyUpdated, (entries) =>
+		history([...entries]),
+	);
+
+	const maxHeight = derive(() => px(MAX_HEIGHT));
+	const scrollingEnabled = derive(() => historyHeight() > maxHeight());
 
 	const terminalTextParts = derive(() => {
 		return splitString(terminalText(), " ", true);
@@ -52,12 +60,10 @@ export function Terminal() {
 
 	const terminalHeight = derive(() => {
 		const padding = px.ceil(TEXT_FIELD_HEIGHT + 16);
-		if (history().lines.isEmpty()) return padding;
+		if (history().isEmpty()) return padding;
 
-		const totalHeight = history().height;
-		const isClamped = totalHeight > px(MAX_HEIGHT);
-		const clampedHeight = isClamped ? px(MAX_HEIGHT) : totalHeight;
-		return math.ceil(padding + clampedHeight);
+		const clampedHeight = scrollingEnabled() ? maxHeight() : historyHeight();
+		return math.ceil(padding + clampedHeight + px(8));
 	});
 
 	return (
@@ -75,8 +81,11 @@ export function Terminal() {
 
 			<HistoryList
 				size={() => new UDim2(1, 0, 1, -px(TEXT_FIELD_HEIGHT + 8))}
-				data={history}
-				maxHeight={() => px(MAX_HEIGHT)}
+				entries={history}
+				scrollingEnabled={scrollingEnabled}
+				onContentSizeChanged={(size) => {
+					historyHeight(size.Y);
+				}}
 			/>
 
 			<TerminalTextField

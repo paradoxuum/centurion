@@ -36,6 +36,7 @@ export function ScrollingFrame(props: ScrollingFrameProps) {
 			ZIndex={props.zIndex}
 			LayoutOrder={props.layoutOrder}
 			BorderSizePixel={0}
+			action={props.action}
 			{...props.native}
 		>
 			{props.cornerRadius && <uicorner CornerRadius={props.cornerRadius} />}

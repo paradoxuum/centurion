@@ -11,12 +11,11 @@ import { TextField } from "../ui/text-field";
 
 interface HistoryLineProps {
 	data: HistoryEntry;
-	size?: Derivable<UDim2>;
 	position?: Derivable<UDim2>;
 	order?: Derivable<number>;
 }
 
-export function HistoryLine({ data, size, position, order }: HistoryLineProps) {
+export function HistoryLine({ data, position, order }: HistoryLineProps) {
 	const date = derive(() => {
 		const dateTime = DateTime.fromUnixTimestamp(data.sentAt).FormatLocalTime(
 			"LT",
@@ -27,7 +26,12 @@ export function HistoryLine({ data, size, position, order }: HistoryLineProps) {
 	});
 
 	return (
-		<Group size={size} position={position} layoutOrder={order}>
+		<Group
+			automaticSize="Y"
+			size={UDim2.fromScale(1, 0)}
+			position={position}
+			layoutOrder={order}
+		>
 			<Frame
 				backgroundColor={() => options().palette.surface}
 				size={() => UDim2.fromOffset(px(76), px(HISTORY_TEXT_SIZE + 4))}
@@ -55,9 +59,10 @@ export function HistoryLine({ data, size, position, order }: HistoryLineProps) {
 			</Frame>
 
 			<TextField
+				automaticSize="Y"
 				anchor={new Vector2(1, 0)}
-				size={() => new UDim2(1, -px(84), 1, 0)}
-				position={UDim2.fromScale(1, 0)}
+				size={() => new UDim2(1, -px(84), 0, 0)}
+				position={() => new UDim2(1, 0, 0, px(2))}
 				text={data.text}
 				textSize={() => px(HISTORY_TEXT_SIZE)}
 				textColor={() => {
