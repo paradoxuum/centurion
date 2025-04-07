@@ -236,6 +236,24 @@ const hexColorType = TypeBuilder.create<Color3>(CenturionType.HexColor)
 	})
 	.build();
 
+const RGB_COLOR_PATTERN = "^ddd,ddd,ddd$";
+const rgbColorType = TypeBuilder.create<Color3>(CenturionType.RgbColor)
+	.transform((text) => {
+		if (text.match(RGB_COLOR_PATTERN).isEmpty()) {
+			return TransformResult.err(`Invalid rgb: ${text}`);
+		}
+
+		const colors = text.split(",").map((v) => tonumber(v) ?? 0);
+
+		// Check if there are more than three values, or a value is greater than 255.
+		if (colors.size() > 3 || colors.some((v) => v > 255)) {
+			return TransformResult.err(`Invalid rgb: ${text}`);
+		}
+
+		return TransformResult.ok(Color3.fromRGB(...colors));
+	})
+	.build();
+
 export = (registry: BaseRegistry) => {
-	registry.registerType(brickColorType, hexColorType);
+	registry.registerType(brickColorType, hexColorType, rgbColorType);
 };
