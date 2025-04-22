@@ -11,5 +11,5 @@ client.registry.synced.Connect((synced, incoming) => {
 
 client
 	.start()
-	.then(() => CenturionUI.start(client, {}))
+	.then(() => CenturionUI.start(client))
 	.catch((err) => warn("Failed to start Centurion:", err));

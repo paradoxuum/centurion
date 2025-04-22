@@ -1,6 +1,6 @@
 import { CenturionClient, CenturionType } from "@rbxts/centurion";
 import { ClientRegistry } from "@rbxts/centurion/out/client/registry";
-import { ContentProvider, Players } from "@rbxts/services";
+import { Players } from "@rbxts/services";
 import { mount } from "@rbxts/vide";
 import { DEFAULT_INTERFACE_OPTIONS } from "../constants/options";
 import { DefaultPalette } from "../palette";

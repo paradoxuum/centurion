@@ -227,6 +227,13 @@ export function TerminalTextField({
 						currentTextValue = value;
 						onTextChange?.(value);
 					},
+					ReturnPressedFromOnScreenKeyboard: () => {
+						const textBox = ref();
+						if (textBox === undefined) return;
+
+						task.wait();
+						textBox.ReleaseFocus(true);
+					},
 				}}
 				zIndex={2}
 			/>
