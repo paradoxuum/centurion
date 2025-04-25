@@ -50,6 +50,7 @@ export function TerminalTextField({
 	const commandHistoryIndex = source<number | undefined>(undefined);
 	const suggestionText = source("");
 	let currentTextValue = "";
+	let onScreenKeyboard = false;
 
 	// Focus text field when terminal becomes visible
 	effect(() => {
@@ -196,7 +197,11 @@ export function TerminalTextField({
 						commandHistoryIndex(undefined);
 						onSubmit?.(currentText);
 						textBox.Text = "";
-						textBox.CaptureFocus();
+
+						if (!onScreenKeyboard) {
+							textBox.CaptureFocus();
+						}
+						onScreenKeyboard = false;
 					},
 					TextChanged: (currentText) => {
 						const textBox = ref();
@@ -232,6 +237,7 @@ export function TerminalTextField({
 						if (textBox === undefined) return;
 
 						task.wait();
+						onScreenKeyboard = true;
 						textBox.ReleaseFocus(true);
 					},
 				}}
