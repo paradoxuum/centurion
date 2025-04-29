@@ -1,6 +1,7 @@
 export const CenturionType = {
 	BrickColor: "brickColor",
 	HexColor: "hexColor",
+	RgbColor: "rgbColor",
 	String: "string",
 	Number: "number",
 	Integer: "integer",
