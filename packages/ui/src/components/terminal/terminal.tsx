@@ -1,7 +1,7 @@
 import { ArgumentOptions, HistoryEntry, RegistryPath } from "@rbxts/centurion";
 import { ArrayUtil, ReadonlyDeep } from "@rbxts/centurion/out/shared/util/data";
 import { splitString } from "@rbxts/centurion/out/shared/util/string";
-import Vide, { derive, effect, source, spring } from "@rbxts/vide";
+import Vide, { Derivable, derive, read, source, spring } from "@rbxts/vide";
 import { HISTORY_TEXT_SIZE } from "../../constants/text";
 import { useClient } from "../../hooks/use-client";
 import { useEvent } from "../../hooks/use-event";
@@ -18,11 +18,11 @@ import {
 	terminalTextValid,
 } from "../../store";
 import { ArgumentSuggestion } from "../../types";
+import { getMissingArgs, getValidPath } from "../../utils/command";
 import { isQuoteEnded, isQuoteStarted } from "../../utils/string";
 import { HistoryList } from "../history";
 import { Frame } from "../ui/frame";
 import { Padding } from "../ui/padding";
-import { getMissingArgs, getValidPath } from "./command";
 import { getArgumentSuggestion, getCommandSuggestion } from "./suggestion";
 import { TerminalTextField } from "./terminal-text-field";
 
@@ -30,7 +30,11 @@ const MAX_HEIGHT = HISTORY_TEXT_SIZE * 10;
 const TEXT_FIELD_HEIGHT = 40;
 const TRAILING_SPACE_PATTERN = "(%s+)$";
 
-export function Terminal() {
+interface TerminalProps {
+	textParts: Derivable<string[]>;
+}
+
+export function Terminal({ textParts }: TerminalProps) {
 	const client = useClient();
 	const missingArgs = source<string[]>([]);
 	const history = source<HistoryEntry[]>(client.dispatcher.getHistory());
@@ -43,12 +47,8 @@ export function Terminal() {
 	const maxHeight = derive(() => px(MAX_HEIGHT));
 	const scrollingEnabled = derive(() => historyHeight() > maxHeight());
 
-	const terminalTextParts = derive(() => {
-		return splitString(terminalText(), " ", true);
-	});
-
 	const atNextPart = derive(() => {
-		const parts = terminalTextParts();
+		const parts = read(textParts);
 		const textPart = parts[parts.size() - 1] as string | undefined;
 
 		let quoted = false;
@@ -93,14 +93,14 @@ export function Terminal() {
 				size={() => new UDim2(1, 0, 0, px(TEXT_FIELD_HEIGHT))}
 				position={UDim2.fromScale(0, 1)}
 				backgroundTransparency={() => options().backgroundTransparency ?? 0}
-				textParts={terminalTextParts}
+				textParts={textParts}
 				atNextPart={atNextPart}
 				onTextChange={(text) => {
 					terminalText(text);
 					terminalTextValid(false);
 					missingArgs([]);
 
-					const parts = terminalTextParts();
+					const parts = read(textParts);
 					if (parts.isEmpty()) {
 						currentCommandPath(undefined);
 						currentSuggestion(undefined);

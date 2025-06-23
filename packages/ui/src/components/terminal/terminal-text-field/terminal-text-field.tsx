@@ -1,8 +1,9 @@
 import { UserInputService } from "@rbxts/services";
-import Vide, { Derivable, effect, source } from "@rbxts/vide";
+import Vide, { Derivable, effect, read, source } from "@rbxts/vide";
 import { useClient } from "../../../hooks/use-client";
 import { useEvent } from "../../../hooks/use-event";
 import { px } from "../../../hooks/use-px";
+import { updateText, useTextBox } from "../../../hooks/use-text-box";
 import {
 	currentCommandPath,
 	currentSuggestion,
@@ -27,7 +28,7 @@ interface TerminalTextFieldProps {
 	backgroundTransparency?: Derivable<number>;
 	onTextChange?: (text: string) => void;
 	onSubmit?: (text: string) => void;
-	textParts: () => string[];
+	textParts: Derivable<string[]>;
 	atNextPart: () => boolean;
 }
 
@@ -46,6 +47,7 @@ export function TerminalTextField({
 	const client = useClient();
 
 	const ref = source<TextBox>();
+
 	const commandHistory = source<string[]>([]);
 	const commandHistoryIndex = source<number | undefined>(undefined);
 	const suggestionText = source("");
@@ -61,12 +63,11 @@ export function TerminalTextField({
 		}
 	});
 
-	const setText = (text: string) => {
+	effect(() => {
 		const textBox = ref();
 		if (textBox === undefined) return;
-		textBox.Text = text;
-		textBox.CursorPosition = text.size() + 1;
-	};
+		useTextBox(textBox);
+	});
 
 	const traverseHistory = (up: boolean) => {
 		const history = commandHistory();
@@ -80,7 +81,7 @@ export function TerminalTextField({
 
 		const lastIndex = history.size() - 1;
 		if (!up && historyIndex === lastIndex) {
-			setText("");
+			updateText("");
 			commandHistoryIndex(undefined);
 			return;
 		}
@@ -91,7 +92,7 @@ export function TerminalTextField({
 			lastIndex,
 		);
 
-		setText(history[newIndex]);
+		updateText(history[newIndex]);
 		commandHistoryIndex(newIndex);
 	};
 
@@ -100,7 +101,7 @@ export function TerminalTextField({
 			getSuggestedText(
 				client.registry,
 				ref()?.Text ?? "",
-				textParts(),
+				read(textParts),
 				atNextPart(),
 				currentSuggestion(),
 			),
@@ -128,11 +129,11 @@ export function TerminalTextField({
 		const currentText = textBox.Text;
 
 		if (commandPath === undefined) {
-			setText(
+			updateText(
 				completeCommand(
 					client.registry,
 					textBox.Text,
-					textParts(),
+					read(textParts),
 					suggestion.title,
 				),
 			);
@@ -142,16 +143,16 @@ export function TerminalTextField({
 		const argCount =
 			client.registry.getCommand(commandPath)?.options.arguments?.size() ?? 0;
 		if (suggestion.type === "command" && argCount !== 0) {
-			setText(`${currentText} `);
+			updateText(`${currentText} `);
 			return;
 		}
 
 		if (suggestion.others.isEmpty()) {
-			setText(currentText);
+			updateText(currentText);
 			return;
 		}
 
-		setText(completeArgument(currentText, suggestion.others[0], argCount));
+		updateText(completeArgument(currentText, suggestion.others[0], argCount));
 	});
 
 	return (

@@ -2,11 +2,36 @@ import { BaseRegistry } from "@rbxts/centurion";
 import {
 	commandArgIndex,
 	currentCommandPath,
+	currentSuggestion,
 	currentTextPart,
 	terminalArgIndex,
-} from "../../../store";
-import { Suggestion } from "../../../types";
-import { formatPartsAsPath, getArgumentNames } from "../../../utils/command";
+} from "../store";
+import { Suggestion } from "../types";
+import { formatPartsAsPath, getArgumentNames } from "./command";
+
+export function getAutocompletedText(
+	text: string,
+	textParts: string[],
+	registry: BaseRegistry,
+) {
+	// Handle autocompletion
+	const commandPath = currentCommandPath();
+	const suggestion = currentSuggestion();
+	if (suggestion === undefined) return;
+
+	if (commandPath === undefined) {
+		return completeCommand(registry, text, textParts, suggestion.title);
+	}
+
+	const argCount =
+		registry.getCommand(commandPath)?.options.arguments?.size() ?? 0;
+	if (suggestion.type === "command" && argCount !== 0) {
+		return `${text} `;
+	}
+
+	if (suggestion.others.isEmpty()) return text;
+	return completeArgument(text, suggestion.others[0], argCount);
+}
 
 function replaceTextPart(text: string, ...suggestions: string[]) {
 	const currentPart = currentTextPart();
@@ -17,7 +42,7 @@ function replaceTextPart(text: string, ...suggestions: string[]) {
 	return result;
 }
 
-export function completeCommand(
+function completeCommand(
 	registry: BaseRegistry,
 	text: string,
 	textParts: string[],
@@ -44,19 +69,16 @@ export function completeCommand(
 	return result;
 }
 
-export function completeArgument(
+function completeArgument(
 	text: string,
 	suggestion: string,
 	commandArgCount: number,
-	trailingSpace = true,
 ) {
 	const argIndex = terminalArgIndex();
 	if (argIndex === undefined || commandArgCount === 0) return text;
 
 	let result = replaceTextPart(text, suggestion);
-	print(argIndex, commandArgCount);
-	if (trailingSpace && argIndex < commandArgCount - 1) {
-		print("Adding trailing space");
+	if (argIndex < commandArgCount - 1) {
 		result += " ";
 	}
 	return result;

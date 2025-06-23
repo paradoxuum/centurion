@@ -4,7 +4,6 @@ import { SUGGESTION_TEXT_SIZE } from "../../constants/text";
 import { px } from "../../hooks/use-px";
 import { mouseOverInterface, options } from "../../store";
 import { Suggestion } from "../../types";
-import { Frame } from "../ui/frame";
 import { Group } from "../ui/group";
 import { Padding } from "../ui/padding";
 import { Text } from "../ui/text";
@@ -13,7 +12,9 @@ import { highlightMatching } from "./util";
 export interface SuggestionListProps {
 	suggestion?: Derivable<Suggestion | undefined>;
 	currentText?: Derivable<string | undefined>;
+	onClick?: (text: string) => void;
 	size: Derivable<UDim2>;
+	textParts: Derivable<string[]>;
 }
 
 const MAX_SUGGESTIONS = 3;
@@ -21,6 +22,7 @@ const MAX_SUGGESTIONS = 3;
 export function SuggestionList({
 	suggestion,
 	currentText,
+	onClick,
 	size,
 }: SuggestionListProps) {
 	const suggestions = derive(() => {
@@ -43,17 +45,19 @@ export function SuggestionList({
 			<For each={suggestions}>
 				{(name: string, i: () => number) => {
 					return (
-						<Frame
-							size={() => new UDim2(1, 0, 0, px(SUGGESTION_TEXT_SIZE + 6))}
-							backgroundColor={() => options().palette.background}
-							backgroundTransparency={() =>
+						<textbutton
+							Size={() => new UDim2(1, 0, 0, px(SUGGESTION_TEXT_SIZE + 6))}
+							BackgroundColor3={() => options().palette.background}
+							BackgroundTransparency={() =>
 								options().backgroundTransparency ?? 0
 							}
-							cornerRadius={() => new UDim(0, px(8))}
-							clipsDescendants={true}
-							layoutOrder={i}
+							Text=""
+							ClipsDescendants={true}
+							LayoutOrder={i}
+							Activated={() => onClick?.(name)}
 						>
 							<Padding all={() => new UDim(0, px(4))} />
+							<uicorner CornerRadius={() => new UDim(0, px(8))} />
 
 							<Text
 								size={() => new UDim2(1, 0, 1, 0)}
@@ -69,7 +73,7 @@ export function SuggestionList({
 								textXAlignment="Left"
 								richText={true}
 							/>
-						</Frame>
+						</textbutton>
 					);
 				}}
 			</For>

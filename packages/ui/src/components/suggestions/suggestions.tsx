@@ -1,15 +1,33 @@
 import { TextService } from "@rbxts/services";
-import Vide, { cleanup, derive, source, spring } from "@rbxts/vide";
+import Vide, {
+	cleanup,
+	Derivable,
+	derive,
+	read,
+	source,
+	spring,
+} from "@rbxts/vide";
 import { SUGGESTION_TEXT_SIZE } from "../../constants/text";
+import { useClient } from "../../hooks/use-client";
 import { px } from "../../hooks/use-px";
-import { currentSuggestion, currentTextPart, options } from "../../store";
+import { updateText } from "../../hooks/use-text-box";
+import { currentSuggestion, currentTextPart, terminalText } from "../../store";
+import {
+	completeArgument,
+	completeCommand,
+} from "../terminal/terminal-text-field/suggestion";
 import { Group } from "../ui/group";
 import { MainSuggestion } from "./main-suggestion";
 import { SuggestionList } from "./suggestion-list";
 
 const PADDING = 8;
 
-export function Suggestions() {
+interface SuggestionsProps {
+	textParts: Derivable<string[]>;
+}
+
+export function Suggestions({ textParts }: SuggestionsProps) {
+	const client = useClient();
 	const mainSize = source(new UDim2());
 
 	const listBoundsParams = new Instance("GetTextBoundsParams");
@@ -40,11 +58,31 @@ export function Suggestions() {
 				suggestion={currentSuggestion}
 				currentText={currentTextPart}
 				onSizeChanged={mainSize}
+				onClick={() => {
+					const suggestion = currentSuggestion();
+					if (suggestion === undefined) return;
+
+					if (suggestion.type === "command") {
+						updateText(
+							completeCommand(
+								client.registry,
+								terminalText(),
+								read(textParts),
+								suggestion.title,
+							),
+						);
+					}
+				}}
+				clickable={() => currentSuggestion()?.type === "command"}
 			/>
 
 			<SuggestionList
 				suggestion={currentSuggestion}
 				currentText={currentTextPart}
+				onClick={(text) => {
+					updateText(completeArgument(terminalText(), text, 1, false));
+				}}
+				textParts={textParts}
 				size={spring(
 					() =>
 						new UDim2(

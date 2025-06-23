@@ -4,7 +4,7 @@ import {
 	RegistryPath,
 } from "@rbxts/centurion";
 import { BaseCommand } from "@rbxts/centurion/out/shared/core/command";
-import { IS_EDIT } from "../../constants/util";
+import { IS_EDIT } from "../constants/util";
 
 export function formatPartsAsPath(parts: string[]) {
 	return parts.join("/").lower();
