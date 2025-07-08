@@ -1,66 +1,45 @@
 {
-	"name": "centurion",
-	"globIgnorePaths": [
-		"**/package.json",
-		"**/tsconfig.json",
-		"**/*/@rbxts/centurion"
-	],
+	"name": "centurion-test",
+	"globIgnorePaths": ["**/default.project.json"],
+	"emitLegacyScripts": false,
 	"tree": {
 		"$className": "DataModel",
+
 		"ReplicatedStorage": {
 			"$className": "ReplicatedStorage",
-			"rbxts_include": {
-				"$path": "test/include",
-				"node_modules": {
+			"pkgs": {
+				"$className": "Folder",
+
+				"DevPackages": {
+					"$path": "DevPackages"
+				},
+
+				"centurion": {
 					"$className": "Folder",
-					"@rbxts": {
-						"$path": "packages/core/node_modules/@rbxts",
-						"centurion": {
-							"$className": "Folder",
-							"out": {
-								"$path": "packages/core/out"
-							}
-						},
-						"centurion-ui": {
-							"$className": "Folder",
-							"out": {
-								"$path": "packages/ui/out"
-							},
-							"node_modules": {
-								"$className": "Folder",
-								"@rbxts": {
-									"$path": "packages/ui/node_modules/@rbxts"
-								}
-							}
-						}
+					"src": {
+						"$path": "pkgs/centurion/src"
+					}
+				},
+
+				"centurion-ui": {
+					"$className": "Folder",
+
+					"src": {
+						"$path": "pkgs/centurion-ui/src"
+					},
+
+					"fluid": {
+						"$path": "pkgs/centurion-ui/fluid.luau"
+					},
+
+					"centurion": {
+						"$path": "pkgs/centurion-ui/centurion.luau"
 					}
 				}
 			},
-			"TS": {
-				"$path": "test/out/shared"
+			"test": {
+				"$path": "tests"
 			}
-		},
-		"ServerScriptService": {
-			"$className": "ServerScriptService",
-			"TS": {
-				"$path": "test/out/server"
-			}
-		},
-		"StarterPlayer": {
-			"$className": "StarterPlayer",
-			"StarterPlayerScripts": {
-				"$className": "StarterPlayerScripts",
-				"TS": {
-					"$path": "test/out/client"
-				}
-			}
-		},
-		"TestService": {
-			"$className": "TestService",
-			"$properties": {
-				"ExecuteWithStudioRun": true
-			},
-			"$path": "test/out/test"
 		}
 	}
 }

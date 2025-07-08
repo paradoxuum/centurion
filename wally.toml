@@ -1,0 +1,9 @@
+[package]
+name = "paradoxuum/centurion"
+version = "0.1.0"
+registry = "https://github.com/UpliftGames/wally-index"
+realm = "shared"
+
+[dev-dependencies]
+fluid = "ffrostfall/fluid@0.3.2"
+ui-labs = "pepeeltoro41/ui-labs@2.4.0"

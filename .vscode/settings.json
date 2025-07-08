@@ -17,6 +17,12 @@
 		"editor.defaultFormatter": "biomejs.biome",
 		"editor.formatOnSave": true
 	},
-	"roblox-ts.boundary.paths.serverPaths": ["src/server"],
-	"roblox-ts.boundary.paths.clientPaths": ["src/client"]
+	"[luau]": {
+		"editor.defaultFormatter": "JohnnyMorganz.stylua",
+		"editor.formatOnSave": true
+	},
+	"luau-lsp.completion.imports.enabled": true,
+	"luau-lsp.completion.imports.stringRequires.enabled": true,
+	"luau-lsp.completion.imports.separateGroupsWithLine": true,
+	"luau-lsp.fflags.enableNewSolver": true
 }

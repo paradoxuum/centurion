@@ -1,25 +1,12 @@
 {
   "name": "docs",
-  "type": "module",
-  "version": "0.0.1",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
   "scripts": {
-    "dev": "astro dev",
-    "start": "astro dev",
-    "build": "astro check && astro build",
-    "preview": "astro preview",
-    "astro": "astro"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "dependencies": {
-    "@astrojs/check": "^0.9.4",
-    "@astrojs/starlight": "^0.30.3",
-    "@fontsource-variable/jetbrains-mono": "^5.1.1",
-    "@lorenzo_lewis/starlight-utils": "^0.2.0",
-    "astro": "^5.1.1",
-    "sharp": "^0.33.5",
-    "starlight-links-validator": "^0.14.1",
-    "typescript": "^5.7.2"
-  },
-  "devDependencies": {
-    "sass": "^1.83.0"
-  }
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
 }

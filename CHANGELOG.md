@@ -2,6 +2,11 @@
 
 ## Core
 
+### Unreleased
+
+- Full rewrite in Luau
+- Revamped API
+
 ### v1.0.1 (2024-10-04)
 
 - Force registry paths to be lowercase to fix issues with commands containing uppercase characters.

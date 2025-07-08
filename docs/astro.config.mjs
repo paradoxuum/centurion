@@ -11,10 +11,18 @@ export default defineConfig({
 		starlight({
 			title: "Centurion",
 			description: "Flexible command framework for roblox-ts",
-			social: {
-				github: "https://github.com/paradoxuum/centurion",
-				discord: "https://discord.roblox-ts.com/",
-			},
+			social: [
+				{
+					icon: "github",
+					href: "https://github.com/paradoxuum/centurion",
+					label: "GitHub",
+				},
+				{
+					icon: "discord",
+					href: "https://discord.gg/Qm3JNyEc32",
+					label: "Discord",
+				},
+			],
 			logo: {
 				dark: "src/assets/logo-dark.svg",
 				light: "src/assets/logo-light.svg",

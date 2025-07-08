@@ -1,13 +1,9 @@
-node_modules/
-
-# roblox-ts
-out/
-include/
-*.tsbuildinfo
-*.rbxl
-*.rbxlx
+**/DevPackages
+**/wally.lock
+**/sourcemap.json
 
 # docs
+node_modules/
 dist/
 .astro/
 
