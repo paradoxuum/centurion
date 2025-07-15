@@ -25,15 +25,17 @@ end
 
 local function transform(executor: Player, input: { string }, args: { types.Argument }): types.Result
 	local transformed_args: { unknown } = {}
-	local end_idx = #input
+	local end_idx = #args
 
+	local input_index = 1
 	for i, arg in args do
 		local num_args = args[math.min(i, end_idx)].num_args or 1
 
 		local arg_inputs = {}
-		local end_num = end_idx + (type(num_args) == "number" and num_args - 1 or 0)
-		for j = i, end_num do
-			arg_inputs[j - i + 1] = input[j]
+		local end_num = input_index + (type(num_args) == "number" and num_args - 1 or 0)
+		for j = input_index, end_num do
+			table.insert(arg_inputs, input[j])
+			input_index += 1
 		end
 
 		if #arg_inputs == 0 then
@@ -61,7 +63,7 @@ local function transform(executor: Player, input: { string }, args: { types.Argu
 
 			local res = arg_type.transform(arg_inputs[j], executor)
 			if not res.success then
-				return result.error(`[{arg.name}] {res.error}`)
+				return result.error(`[arg #{j}] {res.error}`)
 			end
 			values[j] = res.value
 		end

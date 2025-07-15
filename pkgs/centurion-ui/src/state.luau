@@ -1,9 +1,9 @@
 local centurion = require("../centurion")
-local fluid = require("../fluid")
 local theme = require("./theme")
 local types = require("./types")
+local vide = require("../vide")
 
-local source = fluid.source
+local source = vide.source
 
 local mocha = theme.mocha
 

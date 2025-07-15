@@ -11,6 +11,7 @@ export type Argument = {
 	optional: boolean?,
 	description: string?,
 	num_args: (number | "rest")?,
+	suggestions: { string }?,
 }
 
 export type ArgumentType = {
@@ -22,7 +23,7 @@ export type ExecutionContext = {
 	executor: Player,
 	command: string,
 	input: string,
-	args: { string },
+	arguments: { string },
 	response: Response?,
 
 	reply: (message: string) -> (),

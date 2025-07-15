@@ -2,10 +2,10 @@ local Players = game:GetService("Players")
 
 local analyse = require("@self/analyse")
 local app = require("@self/app")
-local fluid = require("./fluid")
 local px = require("@self/px")
 local state = require("@self/state")
 local types = require("@self/types")
+local vide = require("./vide")
 
 local mounted = false
 
@@ -21,9 +21,9 @@ local function mount(keys: { Enum.KeyCode })
 	options.activationKeys = keys
 	state.options(options)
 
-	fluid.mount(function()
+	vide.mount(function()
 		px.mount()
-		return fluid.create "ScreenGui" {
+		return vide.create "ScreenGui" {
 			Enabled = state.opened,
 
 			app(),

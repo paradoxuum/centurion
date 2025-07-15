@@ -1,7 +1,7 @@
-local fluid = require("../../fluid")
+local create = require("../create")
+local vide = require("../../vide")
 
-local create = fluid.create
-local read = fluid.read
+local read = vide.read
 
 type Can<T> = T | () -> T
 type Container = {

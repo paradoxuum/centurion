@@ -29,7 +29,7 @@ type ExecutionContext = struct {
     executor: Instance (Player),
     command: string,
     input: string,
-    "args": string[],
+    arguments: string[],
     response: struct {
         success: boolean,
         message: string,

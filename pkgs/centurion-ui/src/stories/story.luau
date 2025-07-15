@@ -1,4 +1,5 @@
-local fluid = require("../../fluid")
+local vide = require("../../vide")
+
 local function create_state(converted: { [string]: any }, controls: { [string]: any }, creator: (control: any) -> any)
 	local states = {}
 
@@ -37,10 +38,10 @@ local function story(controls, render)
 		controls = controls,
 		render = function(props)
 			local states = create_state(props.converted, props.controls, function(value)
-				return fluid.source(value)
+				return vide.source(value)
 			end)
 
-			local component = fluid.mount(function()
+			local component = vide.mount(function()
 				return render(states)
 			end, props.target)
 

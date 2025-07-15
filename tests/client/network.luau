@@ -138,35 +138,6 @@ local remotes = ReplicatedStorage:WaitForChild("ZAP")
 local reliable = remotes:WaitForChild("ZAP_RELIABLE")
 assert(reliable:IsA("RemoteEvent"), "Expected ZAP_RELIABLE to be a RemoteEvent")
 
-export type Command = ({
-	["description"]: ((string)?),
-	["arguments"]: (({ ({
-		["name"]: (string),
-		["type"]: (string),
-		["optional"]: ((boolean)?),
-		["description"]: ((string)?),
-		["num_args"]: (((string) | (number))?),
-	}) })?),
-	["guards"]: (({ (string) })?),
-})
-export type CommandMap = ({ [(string)]: ({
-	["description"]: ((string)?),
-	["arguments"]: (({ ({
-		["name"]: (string),
-		["type"]: (string),
-		["optional"]: ((boolean)?),
-		["description"]: ((string)?),
-		["num_args"]: (((string) | (number))?),
-	}) })?),
-	["guards"]: (({ (string) })?),
-}) })
-export type Argument = ({
-	["name"]: (string),
-	["type"]: (string),
-	["optional"]: ((boolean)?),
-	["description"]: ((string)?),
-	["num_args"]: (((string) | (number))?),
-})
 export type SyncPayload = ({
 	["type"]: "init",
 	["data"]: ({ [(string)]: ({
@@ -194,16 +165,45 @@ export type SyncPayload = ({
 		["guards"]: (({ (string) })?),
 	}) }),
 })
+export type Command = ({
+	["description"]: ((string)?),
+	["arguments"]: (({ ({
+		["name"]: (string),
+		["type"]: (string),
+		["optional"]: ((boolean)?),
+		["description"]: ((string)?),
+		["num_args"]: (((string) | (number))?),
+	}) })?),
+	["guards"]: (({ (string) })?),
+})
 export type ExecutionContext = ({
 	["executor"]: (Player),
 	["command"]: (string),
 	["input"]: (string),
-	["args"]: ({ (string) }),
+	["arguments"]: ({ (string) }),
 	["response"]: (({
 		["success"]: (boolean),
 		["message"]: (string),
 		["timestamp"]: (number),
 	})?),
+})
+export type CommandMap = ({ [(string)]: ({
+	["description"]: ((string)?),
+	["arguments"]: (({ ({
+		["name"]: (string),
+		["type"]: (string),
+		["optional"]: ((boolean)?),
+		["description"]: ((string)?),
+		["num_args"]: (((string) | (number))?),
+	}) })?),
+	["guards"]: (({ (string) })?),
+}) })
+export type Argument = ({
+	["name"]: (string),
+	["type"]: (string),
+	["optional"]: ((boolean)?),
+	["description"]: ((string)?),
+	["num_args"]: (((string) | (number))?),
 })
 
 local function SendEvents()
@@ -394,13 +394,13 @@ reliable.OnClientEvent:Connect(function(buff, inst)
 			value["command"] = buffer.readstring(incoming_buff, read(len_19), len_19)
 			local len_20 = buffer.readu16(incoming_buff, read(2))
 			value["input"] = buffer.readstring(incoming_buff, read(len_20), len_20)
-			value["args"] = {}
+			value["arguments"] = {}
 			local len_21 = buffer.readu16(incoming_buff, read(2))
 			for i_5 = 1, len_21 do
 				local val_7
 				local len_22 = buffer.readu16(incoming_buff, read(2))
 				val_7 = buffer.readstring(incoming_buff, read(len_22), len_22)
-				value["args"][i_5] = val_7
+				value["arguments"][i_5] = val_7
 			end
 			if buffer.readu8(incoming_buff, read(1)) == 1 then
 				value["response"] = {}
@@ -476,7 +476,7 @@ local returns = {
 			["executor"]: (Player),
 			["command"]: (string),
 			["input"]: (string),
-			["args"]: ({ (string) }),
+			["arguments"]: ({ (string) }),
 			["response"]: (({
 				["success"]: (boolean),
 				["message"]: (string),

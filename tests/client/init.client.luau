@@ -11,6 +11,8 @@ local syncer = centurion.sync.client()
 
 -- local execute_remote = ReplicatedStorage:WaitForChild("CenturionExecute") :: RemoteFunction
 
+centurion.builtin.register_types()
+
 centurion.command.set_network_handler(function(command, args)
 	local result = network.Execute.Call(command, args) :: centurion.Context
 	print(result)

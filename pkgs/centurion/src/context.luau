@@ -5,7 +5,7 @@ local function context(executor: Player, command: string, args: { string }): typ
 		executor = executor,
 		command = command,
 		input = command .. (#args > 0 and (" " .. table.concat(args, " ")) or ""),
-		args = args,
+		arguments = args,
 	} :: types.ExecutionContext
 
 	ctx.reply = function(message: string)

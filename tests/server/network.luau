@@ -167,35 +167,6 @@ end
 Players.PlayerRemoving:Connect(function(player)
 	player_map[player] = nil
 end)
-export type Command = ({
-	["description"]: ((string)?),
-	["arguments"]: (({ ({
-		["name"]: (string),
-		["type"]: (string),
-		["optional"]: ((boolean)?),
-		["description"]: ((string)?),
-		["num_args"]: (((string) | (number))?),
-	}) })?),
-	["guards"]: (({ (string) })?),
-})
-export type CommandMap = ({ [(string)]: ({
-	["description"]: ((string)?),
-	["arguments"]: (({ ({
-		["name"]: (string),
-		["type"]: (string),
-		["optional"]: ((boolean)?),
-		["description"]: ((string)?),
-		["num_args"]: (((string) | (number))?),
-	}) })?),
-	["guards"]: (({ (string) })?),
-}) })
-export type Argument = ({
-	["name"]: (string),
-	["type"]: (string),
-	["optional"]: ((boolean)?),
-	["description"]: ((string)?),
-	["num_args"]: (((string) | (number))?),
-})
 export type SyncPayload = ({
 	["type"]: "init",
 	["data"]: ({ [(string)]: ({
@@ -223,16 +194,45 @@ export type SyncPayload = ({
 		["guards"]: (({ (string) })?),
 	}) }),
 })
+export type Command = ({
+	["description"]: ((string)?),
+	["arguments"]: (({ ({
+		["name"]: (string),
+		["type"]: (string),
+		["optional"]: ((boolean)?),
+		["description"]: ((string)?),
+		["num_args"]: (((string) | (number))?),
+	}) })?),
+	["guards"]: (({ (string) })?),
+})
 export type ExecutionContext = ({
 	["executor"]: (Player),
 	["command"]: (string),
 	["input"]: (string),
-	["args"]: ({ (string) }),
+	["arguments"]: ({ (string) }),
 	["response"]: (({
 		["success"]: (boolean),
 		["message"]: (string),
 		["timestamp"]: (number),
 	})?),
+})
+export type CommandMap = ({ [(string)]: ({
+	["description"]: ((string)?),
+	["arguments"]: (({ ({
+		["name"]: (string),
+		["type"]: (string),
+		["optional"]: ((boolean)?),
+		["description"]: ((string)?),
+		["num_args"]: (((string) | (number))?),
+	}) })?),
+	["guards"]: (({ (string) })?),
+}) })
+export type Argument = ({
+	["name"]: (string),
+	["type"]: (string),
+	["optional"]: ((boolean)?),
+	["description"]: ((string)?),
+	["num_args"]: (((string) | (number))?),
 })
 
 local function SendEvents()
@@ -304,11 +304,11 @@ reliable.OnServerEvent:Connect(function(player, buff, inst)
 					buffer.writeu16(outgoing_buff, outgoing_apos, len_5)
 					alloc(len_5)
 					buffer.writestring(outgoing_buff, outgoing_apos, ret_1["input"], len_5)
-					local len_6 = #ret_1["args"]
+					local len_6 = #ret_1["arguments"]
 					alloc(2)
 					buffer.writeu16(outgoing_buff, outgoing_apos, len_6)
 					for i_2 = 1, len_6 do
-						local val_2 = ret_1["args"][i_2]
+						local val_2 = ret_1["arguments"][i_2]
 						local len_7 = #val_2
 						alloc(2)
 						buffer.writeu16(outgoing_buff, outgoing_apos, len_7)
@@ -1644,7 +1644,7 @@ local returns = {
 			["executor"]: (Player),
 			["command"]: (string),
 			["input"]: (string),
-			["args"]: ({ (string) }),
+			["arguments"]: ({ (string) }),
 			["response"]: (({
 				["success"]: (boolean),
 				["message"]: (string),

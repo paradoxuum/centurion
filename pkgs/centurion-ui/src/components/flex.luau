@@ -1,9 +1,16 @@
-local fluid = require("../../fluid")
+local create = require("../create")
+local px = require("../px")
+local vide = require("../../vide")
 
-local create = fluid.create
+local source = vide.source
 
 return function()
-	local list: UIListLayout = create "UIListLayout" {}
+	local gap = source(UDim.new())
+
+	local list: UIListLayout = create "UIListLayout" {
+		SortOrder = Enum.SortOrder.LayoutOrder,
+		Padding = px(gap),
+	}
 	local t = { list }
 	local mt = {}
 
@@ -14,11 +21,6 @@ return function()
 
 	function mt:column()
 		list.FillDirection = Enum.FillDirection.Horizontal
-		return self
-	end
-
-	function mt:layout()
-		list.SortOrder = Enum.SortOrder.LayoutOrder
 		return self
 	end
 
@@ -93,8 +95,8 @@ return function()
 		return self
 	end
 
-	function mt:gap(px: number)
-		list.Padding = UDim.new(0, px)
+	function mt:gap(value)
+		gap(UDim.new(0, value))
 		return self
 	end
 

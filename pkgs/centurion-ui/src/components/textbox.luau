@@ -1,11 +1,11 @@
-local fluid = require("../../fluid")
 local state = require("../state")
+local vide = require("../../vide")
 
-local create = fluid.create
-local cleanup = fluid.cleanup
-local source = fluid.source
-local effect = fluid.effect
-local read = fluid.read :: (<T>(() -> T) -> T) & (<T>(T) -> T)
+local create = vide.create
+local cleanup = vide.cleanup
+local source = vide.source
+local effect = vide.effect
+local read = vide.read :: (<T>(() -> T) -> T) & (<T>(T) -> T)
 
 type Can<T> = T | () -> T
 type Background = {
@@ -38,11 +38,12 @@ return function(props: Background)
 
 		Text = props.text,
 		PlaceholderText = props.placeholder,
-		TextSize = props.text_size or 16,
+		TextSize = props.text_size,
 		TextColor3 = props.text_color,
 		TextXAlignment = props.xalignment,
 		MultiLine = props.multiline,
 		FontFace = state.theme.font,
+		ClearTextOnFocus = false,
 
 		BackgroundTransparency = 1,
 

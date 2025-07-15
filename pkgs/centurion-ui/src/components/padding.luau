@@ -1,7 +1,7 @@
-local fluid = require("../../fluid")
+local vide = require("../../vide")
 
-local create = fluid.create
-local read = fluid.read
+local create = vide.create
+local read = vide.read
 
 type Can<T> = T | () -> T
 type Padding = {
@@ -14,7 +14,24 @@ type Padding = {
 	read bottom: Can<number>?,
 }
 
-local function padding(props: Padding)
+local function padding(props: number | () -> number | Padding)
+	if typeof(props) == "number" or typeof(props) == "function" then
+		return create "UIPadding" {
+			PaddingLeft = function()
+				return UDim.new(0, read(props))
+			end,
+			PaddingRight = function()
+				return UDim.new(0, read(props))
+			end,
+			PaddingTop = function()
+				return UDim.new(0, read(props))
+			end,
+			PaddingBottom = function()
+				return UDim.new(0, read(props))
+			end,
+		}
+	end
+
 	local pad = props.padding or 0
 	local x = props.x or pad
 	local y = props.y or pad

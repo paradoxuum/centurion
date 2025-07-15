@@ -6,5 +6,5 @@
 [tools]
 rojo = "rojo-rbx/rojo@7.5.1"
 wally = "UpliftGames/wally@0.3.2"
-zap = "red-blox/zap@0.6.23"
+zap = "red-blox/zap@0.6.24"
 StyLua = "JohnnyMorganz/StyLua@2.1.0"

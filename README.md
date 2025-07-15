@@ -37,7 +37,7 @@
 
 - [🔥 Flamework](https://github.com/rbxts-flamework/core): Metadata reflection API ([see usage](packages/core/src/shared/core/metadata.ts))
 
-- [🐍 Slither](https://github.com/littensy/slither): Basic UI components and hooks
+- [💻 Conch](https://github.com/alicesaidhi/conch): Basic UI components, text box handling
 
 ---
 

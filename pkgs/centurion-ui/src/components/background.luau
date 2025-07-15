@@ -1,8 +1,8 @@
-local fluid = require("../../fluid")
-local theme = require "../theme"
+local create = require("../create")
+local theme = require("../theme")
+local vide = require("../../vide")
 
-local create = fluid.create
-local read = fluid.read
+local read = vide.read
 
 type Can<T> = T | () -> T
 type Background = {

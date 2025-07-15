@@ -28,8 +28,8 @@
 						"$path": "pkgs/centurion-ui/src"
 					},
 
-					"fluid": {
-						"$path": "pkgs/centurion-ui/fluid.luau"
+					"vide": {
+						"$path": "pkgs/centurion-ui/vide.luau"
 					},
 
 					"centurion": {

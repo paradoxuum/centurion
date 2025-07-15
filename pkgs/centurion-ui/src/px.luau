@@ -1,10 +1,8 @@
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local vide = require("../vide")
 
-local fluid = require("../fluid")
-
-local source = fluid.source
-local read = fluid.read
-local cleanup = fluid.cleanup
+local source = vide.source
+local read = vide.read
+local cleanup = vide.cleanup
 
 export type Mode = "normal" | "even" | "scale" | "floor" | "ceil"
 
@@ -55,10 +53,11 @@ local function mount()
 	end
 
 	update()
+
 	cleanup(camera:GetPropertyChangedSignal("ViewportSize"):Connect(update))
 end
 
-return setmetatable({ mount = mount }, {
+return setmetatable({ mount = mount, convert = convert }, {
 	__call = function<T>(_, value: T | () -> T, mode: Mode? | () -> Mode?): () -> T
 		return px(value, mode)
 	end,
