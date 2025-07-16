@@ -125,28 +125,31 @@ local function analyse(text: string, cursor_pos: number): types.AnalysisResult
 		end
 
 		local arg_index = 1
-		local token_index = 1
-
+		local input_index = 0
 		for i, arg in cmd_args do
 			local num_args = arg.num_args or 1
-			if num_args == "rest" then
+
+			local start_token = arg_tokens[input_index] or vector.create(0, 0, 0)
+			if type(num_args) == "number" then
+				input_index += num_args
+			else
+				input_index = #arg_tokens
+			end
+			local end_token = arg_tokens[input_index]
+
+			if
+				(not end_token or i == #cmd_args or cursor_pos - 1 <= end_token.y)
+				and cursor_pos - 1 >= start_token.x
+			then
+				arg_index = i
 				break
 			end
-
-			arg_index = i
-
-			local last_arg_token = arg_tokens[token_index + num_args - 1]
-			if not last_arg_token or cursor_pos - 1 <= last_arg_token.y then
-				break
-			end
-
-			token_index += num_args
 		end
 
 		local arg = cmd_args[arg_index]
 		local arg_type = centurion.arg.types[arg.type]
+		local input_token = arg_tokens[input_index]
 
-		local input_token = arg_tokens[token_index]
 		local arg_suggestions = arg_type.suggestions
 				and arg_type.suggestions(
 					input_token and text:sub(input_token.x, input_token.y) or "",
@@ -180,15 +183,8 @@ local function analyse(text: string, cursor_pos: number): types.AnalysisResult
 
 		return {
 			result = transform_result,
-			argument = at_arg and {
-				kind = "argument",
-				name = arg.name,
-				type = arg.type,
-				optional = arg.optional,
-				description = arg.description,
-
-				token = input_token or vector.create(0, 0, 0),
-			} :: types.AnalysisArgument or nil,
+			argument = arg_index,
+			arguments = arg_text,
 			suggestions = suggestions,
 		} :: types.AnalysisResult
 	end
@@ -246,7 +242,9 @@ local function analyse(text: string, cursor_pos: number): types.AnalysisResult
 
 	return {
 		result = arg_result and arg_result.result or cmd_result.result,
+		command = cmd_name,
 		argument = arg_result and arg_result.argument or nil,
+		arguments = arg_result and arg_result.arguments or nil,
 		suggestions = (at_arg and arg_result) and arg_result.suggestions or cmd_result.suggestions,
 	}
 end

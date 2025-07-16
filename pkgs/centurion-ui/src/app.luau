@@ -1,3 +1,4 @@
+local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 
 local analyse = require("./analyse")
@@ -32,8 +33,18 @@ local function app()
 		suggestions = {},
 	} :: types.AnalysisResult)
 
+	local executing = source(false)
+
 	local selected_suggestion = source(1)
 	local next_cursor_pos = false
+
+	local arg = derive(function()
+		if analysis().argument == nil or analysis().command == nil then
+			return nil
+		end
+
+		return centurion.command.commands[analysis().command].arguments[analysis().argument]
+	end)
 
 	local function autofill(text: string, span: vector, with: string)
 		local before = string.sub(text, 1, span.x)
@@ -135,6 +146,7 @@ local function app()
 				textbox {
 					placeholder = "Enter command",
 					xalignment = Enum.TextXAlignment.Left,
+					focused = true,
 					text_size = px(24),
 					text_color = function()
 						local analysis_result = analysis()
@@ -157,6 +169,21 @@ local function app()
 						end
 
 						raw_text(text)
+					end,
+
+					enter = function()
+						raw_text("")
+
+						local cmd = analysis().command
+						if not cmd then
+							return
+						end
+
+						executing(true)
+
+						local result = centurion.command.execute(Players.LocalPlayer, cmd, analysis().arguments or {})
+						print(result)
+						executing(false)
 					end,
 
 					action(function(instance: TextBox)
@@ -221,8 +248,8 @@ local function app()
 			flex():fill("horizontal"):vertical("top"):gap(8),
 
 			show(function()
-				return analysis().argument ~= nil
-			end, function()
+				return arg()
+			end, function(info)
 				return create "Frame" {
 					AutomaticSize = "XY",
 					BackgroundColor3 = state.theme.surface(),
@@ -236,7 +263,7 @@ local function app()
 						AutomaticSize = "XY",
 						BackgroundTransparency = 1,
 						Text = function()
-							return analysis().argument and analysis().argument.name or ""
+							return info().name
 						end,
 						TextColor3 = state.theme.text(),
 						TextSize = px(24),
@@ -254,7 +281,7 @@ local function app()
 							AutomaticSize = "XY",
 							BackgroundTransparency = 1,
 							Text = function()
-								return analysis().argument and analysis().argument.type or ""
+								return info().type
 							end,
 							TextColor3 = state.theme.background(),
 							TextSize = px(16),
@@ -266,13 +293,13 @@ local function app()
 						AutomaticSize = "XY",
 						BackgroundTransparency = 1,
 						Text = function()
-							return analysis().argument and analysis().argument.description or ""
+							return info().description
 						end,
 						TextColor3 = state.theme.subtext(),
 						TextSize = px(16),
 						TextXAlignment = Enum.TextXAlignment.Left,
 						Visible = function()
-							return analysis().argument and analysis().argument.description ~= nil
+							return info().description ~= nil
 						end,
 					},
 				}

@@ -30,16 +30,19 @@ export type AnalysisSuggestion = {
 }
 
 export type AnalysisArgument = {
-	kind: "argument",
 	name: string,
 	type: string,
 	optional: boolean,
 	description: string?,
+
+	input: { vector },
 }
 
 export type AnalysisResult = {
 	result: centurion.Result,
-	argument: AnalysisArgument?,
+	command: string?,
+	argument: number?,
+	arguments: { string }?,
 	suggestions: { AnalysisSuggestion },
 }
 

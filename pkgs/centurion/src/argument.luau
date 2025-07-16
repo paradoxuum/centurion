@@ -25,11 +25,10 @@ end
 
 local function transform(executor: Player, input: { string }, args: { types.Argument }): types.Result
 	local transformed_args: { unknown } = {}
-	local end_idx = #args
 
 	local input_index = 1
 	for i, arg in args do
-		local num_args = args[math.min(i, end_idx)].num_args or 1
+		local num_args = arg.num_args or 1
 
 		local arg_inputs = {}
 		local end_num = input_index + (type(num_args) == "number" and num_args - 1 or 0)
