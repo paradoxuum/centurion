@@ -31,7 +31,14 @@ local function transform(executor: Player, input: { string }, args: { types.Argu
 		local num_args = arg.num_args or 1
 
 		local arg_inputs = {}
-		local end_num = input_index + (type(num_args) == "number" and num_args - 1 or 0)
+
+		local end_num = input_index
+		if num_args == "rest" or i == #args then
+			end_num = #input
+		else
+			end_num = input_index + num_args - 1
+		end
+
 		for j = input_index, end_num do
 			table.insert(arg_inputs, input[j])
 			input_index += 1
