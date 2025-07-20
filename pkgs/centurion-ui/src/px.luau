@@ -23,19 +23,19 @@ end
 
 local function px<T>(value: T | () -> T, mode: Mode? | () -> Mode?): () -> T
 	return function()
-		local value, mode = read(value), read(mode)
+		local value_raw, mode_raw = read(value), read(mode)
 
-		if typeof(value) == "number" then
-			return convert(value, mode) :: any
-		elseif typeof(value) == "UDim" then
-			return UDim.new(value.Scale, convert(value.Offset, mode)) :: any
-		elseif typeof(value) == "UDim2" then
+		if typeof(value_raw) == "number" then
+			return convert(value_raw, mode_raw) :: any
+		elseif typeof(value_raw) == "UDim" then
+			return UDim.new(value_raw.Scale, convert(value_raw.Offset, mode_raw)) :: any
+		elseif typeof(value_raw) == "UDim2" then
 			return UDim2.new(
-					value.X.Scale,
-					convert(value.X.Offset, mode),
-					value.Y.Scale,
-					convert(value.Y.Offset, mode)
-				) :: any
+				value_raw.X.Scale,
+				convert(value_raw.X.Offset, mode_raw),
+				value_raw.Y.Scale,
+				convert(value_raw.Y.Offset, mode_raw)
+			) :: any
 		else
 			error("unsupported type")
 		end

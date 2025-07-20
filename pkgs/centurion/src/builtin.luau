@@ -35,15 +35,11 @@ local function register_types()
 		["true"] = true,
 		["false"] = false,
 		yes = true,
+		ye = true,
 		no = false,
 		y = true,
 		n = false,
 	}
-
-	local boolean_suggestions = {}
-	for key in pairs(boolean) do
-		table.insert(boolean_suggestions, key)
-	end
 
 	register("boolean", {
 		transform = function(value: string): types.Result
@@ -52,9 +48,6 @@ local function register_types()
 				return result.error(`Invalid boolean: {value}`)
 			end
 			return result.success(bool)
-		end,
-		suggestions = function(): { string }
-			return boolean_suggestions
 		end,
 	})
 end

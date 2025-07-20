@@ -1,5 +1,5 @@
 local create = require("../create")
-local theme = require("../theme")
+local theme = require("../themes")
 local vide = require("../../vide")
 
 local read = vide.read

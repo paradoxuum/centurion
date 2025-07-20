@@ -6,8 +6,11 @@ export type Suggestion = {
 }
 
 export type Options = {
-	hideOnLostFocus: boolean,
-	activationKeys: { Enum.KeyCode },
+	hide_on_lost_focus: boolean,
+	activation_keys: { Enum.KeyCode },
+	theme: Theme,
+	icon: string,
+	format_date: (log: Log) -> string,
 }
 
 export type Theme = {
@@ -45,5 +48,12 @@ export type AnalysisResult = {
 	arguments: { string }?,
 	suggestions: { AnalysisSuggestion },
 }
+
+export type Log = {
+	command: string,
+	response: centurion.Response,
+}
+
+export type TextStyle = "normal" | "error" | "subtext" | "bg"
 
 return nil

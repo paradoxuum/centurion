@@ -1,9 +1,9 @@
 local Players = game:GetService("Players")
 
-local analyse = require("@self/analyse")
 local app = require("@self/app")
 local px = require("@self/px")
 local state = require("@self/state")
+local theme = require("@self/theme")
 local types = require("@self/types")
 local vide = require("./vide")
 
@@ -15,11 +15,7 @@ local function mount(keys: { Enum.KeyCode })
 	end
 	mounted = true
 
-	print(analyse(`centurion test 1 2 3`))
-
-	local options = table.clone(state.options())
-	options.activationKeys = keys
-	state.options(options)
+	state.activation_keys(keys)
 
 	vide.mount(function()
 		px.mount()
@@ -31,20 +27,23 @@ local function mount(keys: { Enum.KeyCode })
 	end, Players.LocalPlayer:WaitForChild("PlayerGui"))
 end
 
-local function set_theme(theme: types.Theme)
-	state.theme.font(theme.font)
-	state.theme.text(theme.text)
-	state.theme.subtext(theme.subtext)
-	state.theme.background(theme.background)
-	state.theme.surface(theme.surface)
-	state.theme.highlight(theme.highlight)
-	state.theme.success(theme.success)
-	state.theme.error(theme.error)
+local function set_opt<T>(source: () -> T, value: T?)
+	if value == nil then
+		return
+	end
+	source(value)
 end
 
-local function set_options(newOptions: types.Options) end
+local function configure(options: types.Options)
+	set_opt(state.hide_on_lost_focus, options.hide_on_lost_focus)
+	set_opt(state.activation_keys, options.activation_keys)
+	set_opt(state.theme, options.theme)
+	set_opt(state.icon, options.icon)
+	state.format_date = options.format_date
+end
 
 return {
 	mount = mount,
-	set_theme = set_theme,
+	configure = configure,
+	themes = theme.themes,
 }

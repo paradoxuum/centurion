@@ -1,27 +1,22 @@
-local centurion = require("../centurion")
 local theme = require("./theme")
 local types = require("./types")
 local vide = require("../vide")
 
 local source = vide.source
 
-local mocha = theme.mocha
-
 return {
 	opened = source(false),
-	logs = source({} :: { centurion.Response }),
-	options = source({
-		activationKeys = {},
-		hideOnLostFocus = true,
-	} :: types.Options),
-	theme = {
-		font = source(mocha.font),
-		text = source(mocha.text),
-		subtext = source(mocha.subtext),
-		background = source(mocha.background),
-		surface = source(mocha.surface),
-		highlight = source(mocha.highlight),
-		success = source(mocha.success),
-		error = source(mocha.error),
-	},
+	focused = source(false),
+	logs = source({} :: { types.Log }),
+
+	-- options
+	activation_keys = source({}),
+	hide_on_lost_focus = source(true),
+	theme = source(theme.themes.mocha),
+	icon = source("rbxassetid://115292290730914"),
+	format_date = function(log: types.Log)
+		local dateTime = DateTime.fromUnixTimestamp(log.response.timestamp):FormatLocalTime("LT", "en-us")
+		local dateParts = dateTime:split(" ")
+		return `<b>{dateParts[1]}</b> {dateParts[2]}`
+	end,
 }

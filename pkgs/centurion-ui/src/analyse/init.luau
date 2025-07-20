@@ -54,21 +54,13 @@ local function parse(text: string)
 	return tokens
 end
 
-local function has_required_args(args): boolean
-	for _, arg in args do
-		if not arg.optional then
-			return true
-		end
-	end
-	return false
-end
-
 local function analyse(text: string, cursor_pos: number): types.AnalysisResult
 	local tokens = parse(text)
 	if #tokens == 0 then
 		return {
 			result = {
 				success = true,
+				value = nil :: any,
 			},
 			suggestions = {},
 		}
@@ -76,8 +68,8 @@ local function analyse(text: string, cursor_pos: number): types.AnalysisResult
 
 	local cmds = centurion.command.commands
 
-	local cmd_name = nil
-	local cmd_index = nil
+	local cmd_name: string? = nil
+	local cmd_index: number? = nil
 
 	for i, token in tokens do
 		local name = text:sub(1, token.y)
@@ -88,15 +80,7 @@ local function analyse(text: string, cursor_pos: number): types.AnalysisResult
 		end
 	end
 
-	local cursor_token = tokens[#tokens]
-	for _, token in tokens do
-		if token.x <= cursor_pos - 1 and token.y >= cursor_pos - 1 then
-			cursor_token = token
-			break
-		end
-	end
-
-	local arg_tokens = cmd_index and { select(2, table.unpack(tokens, cmd_index)) } or {}
+	local arg_tokens: { vector } = cmd_index and { select(2, table.unpack(tokens, cmd_index)) } or {}
 
 	local at_arg = false
 	if cmd_index and cursor_pos - 1 > tokens[cmd_index].y then
@@ -104,6 +88,14 @@ local function analyse(text: string, cursor_pos: number): types.AnalysisResult
 	end
 
 	local function process_arg(): types.AnalysisResult?
+		if not cmd_name then
+			return nil
+		end
+
+		if not cmd_index then
+			return nil
+		end
+
 		local cmd = cmds[cmd_name]
 		if not cmd or not cmd.arguments or #cmd.arguments == 0 then
 			return nil
@@ -129,14 +121,14 @@ local function analyse(text: string, cursor_pos: number): types.AnalysisResult
 		for i, arg in cmd_args do
 			local num_args = arg.num_args or 1
 
-			local start_token = arg_tokens[input_index] or vector.create(0, 0, 0)
+			local start_token = arg_tokens[input_index] or tokens[cmd_index]
 			if type(num_args) == "number" then
 				input_index += num_args
 			else
 				input_index = #arg_tokens
 			end
-			local end_token = arg_tokens[input_index]
 
+			local end_token = arg_tokens[input_index]
 			if
 				(not end_token or i == #cmd_args or cursor_pos - 1 <= end_token.y)
 				and cursor_pos - 1 >= start_token.x
@@ -144,6 +136,11 @@ local function analyse(text: string, cursor_pos: number): types.AnalysisResult
 				arg_index = i
 				break
 			end
+		end
+
+		input_index = math.min(input_index, #arg_tokens)
+		if arg_tokens[input_index] and cursor_pos - 1 > arg_tokens[input_index].y then
+			input_index += 1
 		end
 
 		local arg = cmd_args[arg_index]
@@ -165,16 +162,23 @@ local function analyse(text: string, cursor_pos: number): types.AnalysisResult
 
 		local suggestions = {}
 		if #arg_suggestions > 0 then
-			local matches = leventine.map(text:sub(1, tokens[#tokens].y), arg_suggestions, {
-				case_sensitive = false,
-			})
+			local matches =
+				leventine.map(input_token and text:sub(input_token.x, input_token.y) or "", arg_suggestions, {
+					case_sensitive = false,
+				})
+
+			local token = input_token
+			if not token then
+				local prev_token = tokens[cmd_index + math.min(input_index, #arg_tokens)]
+				token = vector.create(prev_token.y + 2, prev_token.y + 2, 0)
+			end
 
 			for _, match in matches do
 				local suggestion = {
 					kind = "argument",
 					name = match,
 
-					token = input_token or vector.create(0, 0, 0),
+					token = token,
 					replace = match,
 				} :: types.AnalysisSuggestion
 				table.insert(suggestions, suggestion)
@@ -205,14 +209,15 @@ local function analyse(text: string, cursor_pos: number): types.AnalysisResult
 			table.insert(matches, 1, cmd_name)
 		end
 
-		local result: types.AnalysisResult
+		local result: centurion.Result
 		if cmd_name then
 			result = {
 				success = true,
+				value = nil :: any,
 			}
 		else
 			result = {
-				success = false,
+				success = false :: false,
 				error = "Unknown command",
 			}
 		end

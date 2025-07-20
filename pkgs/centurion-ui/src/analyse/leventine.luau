@@ -54,7 +54,7 @@ local function myers_32(a: string, b: string, a_len: number, b_len: number): num
 		PEQ[a_byte] = OR(PEQ[a_byte], LSHIFT(1, j))
 	end
 
-	for i, byte in b_bytes do
+	for _, byte in b_bytes do
 		local eq = PEQ[byte]
 		local xv = OR(eq, mv)
 		local new_eq = OR(eq, XOR(AND(eq, pv) + pv, pv))
@@ -194,7 +194,7 @@ end
 	```
 ]]
 local function score(a: string, b: string, case_sensitive: boolean?): number
-	local a, b = APPLY_CASE_SENSITIVITY(case_sensitive, a, b)
+	a, b = APPLY_CASE_SENSITIVITY(case_sensitive, a, b)
 	local a_len = #a
 	local b_len = #b
 
@@ -230,10 +230,10 @@ function leventine.map(s: string, t: { string }, info: MapInfo?): { string }
 	local mapped = TCREATE(#t) :: { { string | number } }
 
 	for index, ts in t do
-		local score = (score(s, ts, case_sensitive))
+		local score_val = (score(s, ts, case_sensitive))
 
-		if score > min_score then
-			mapped[index] = { score, ts } :: any
+		if score_val > min_score then
+			mapped[index] = { score_val, ts } :: any
 		end
 	end
 
@@ -241,8 +241,8 @@ function leventine.map(s: string, t: { string }, info: MapInfo?): { string }
 		return a[1] < b[1]
 	end)
 
-	for index, info in mapped do
-		mapped[index] = info[2] :: any
+	for index, val in mapped do
+		mapped[index] = val[2] :: any
 	end
 
 	return mapped :: any
@@ -257,7 +257,7 @@ end
 	```
 ]]
 function leventine.has_match(a: string, b: string, case_sensitive: boolean?): boolean
-	local a, b = APPLY_CASE_SENSITIVITY(case_sensitive, a, b)
+	a, b = APPLY_CASE_SENSITIVITY(case_sensitive, a, b)
 	local char_index: number? = 1
 
 	for _, character in SPLIT(b) do
@@ -285,11 +285,11 @@ function leventine.closest(s: string, t: { string }, case_sensitive: boolean?): 
 	local closest_string: string
 
 	for _, ts in t do
-		local score = score(s, ts, case_sensitive)
+		local score_val = score(s, ts, case_sensitive)
 
-		if score < closest_score then
+		if score_val < closest_score then
 			closest_string = ts
-			closest_score = score
+			closest_score = score_val
 		end
 	end
 	return closest_string, closest_score

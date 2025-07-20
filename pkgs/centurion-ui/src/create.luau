@@ -205,7 +205,7 @@ local function create<ClassName>(
 	class_name: ClassName | keyof<Instances> | ""
 ): (props: PropertiesFor<ClassName>) -> GetInstance<ClassName, Instances>
 	return function(properties)
-		return vide.create(class_name)(properties)
+		return vide.create(class_name)(properties) :: GetInstance<ClassName, Instances>
 	end
 end
 

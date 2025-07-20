@@ -20,6 +20,6 @@ return function(props: Gap)
 
 		BackgroundTransparency = 1,
 
-		unpack(props),
+		unpack(props) :: any,
 	}
 end

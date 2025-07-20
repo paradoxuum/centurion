@@ -1,0 +1,147 @@
+local centurion = require("../../centurion")
+local corner = require("../components/corner")
+local flex = require("../components/flex")
+local padding = require("../components/padding")
+local px = require("../px")
+local state = require("../state")
+local text = require("../components/text")
+local types = require("../types")
+local vide = require("../../vide")
+
+local create = vide.create
+local derive = vide.derive
+local indexes = vide.indexes
+local show = vide.show
+
+export type Suggestions = {
+	read analysis: () -> types.AnalysisResult,
+	read selected_suggestion: () -> number,
+}
+
+local function suggestions(props: Suggestions)
+	local arg = derive(function()
+		if props.analysis().argument == nil or props.analysis().command == nil then
+			return nil
+		end
+
+		return centurion.command.commands[props.analysis().command].arguments[props.analysis().argument]
+	end)
+
+	return create "Frame" {
+		AutomaticSize = "XY",
+		BackgroundTransparency = 1,
+
+		corner(px(4)),
+		flex():fill("horizontal"):vertical("top"):gap(8),
+
+		show(function()
+			return arg() ~= nil
+		end, function()
+			return create "Frame" {
+				AutomaticSize = "XY",
+				BackgroundColor3 = function()
+					return state.theme().surface
+				end,
+
+				corner(px(4)),
+				padding(px(8)),
+
+				flex():row():vertical("center"):gap(4),
+
+				text {
+					auto = "XY",
+					text = function()
+						return arg().name
+					end,
+					text_size = px(24),
+					xalignment = Enum.TextXAlignment.Left,
+				},
+
+				create "Frame" {
+					AutomaticSize = "XY",
+					BackgroundColor3 = function()
+						return state.theme().highlight
+					end,
+
+					corner(px(4)),
+					padding(px(4)),
+
+					text {
+						auto = "XY",
+						text = function()
+							return arg().type
+						end,
+						text_size = px(16),
+						text_style = "bg",
+						xalignment = Enum.TextXAlignment.Left,
+					},
+				},
+
+				show(function()
+					return arg().description ~= nil
+				end, function()
+					return text {
+						auto = "XY",
+						text = function()
+							return arg().description
+						end,
+						text_size = px(16),
+						text_style = "subtext",
+						xalignment = Enum.TextXAlignment.Left,
+					}
+				end),
+			}
+		end),
+
+		indexes(function()
+			local suggested = props.analysis().suggestions
+			local limited = {}
+
+			-- todo: create constant or option for max suggestions
+			for i = 1, math.min(5, #suggested) do
+				limited[i] = suggested[i]
+			end
+			return limited
+		end, function(value: () -> types.AnalysisSuggestion, i)
+			return create "Frame" {
+				AutomaticSize = "XY",
+				BackgroundColor3 = function()
+					return props.selected_suggestion() == i and state.theme().surface or state.theme().background
+				end,
+				LayoutOrder = i,
+
+				corner(px(4)),
+				padding(px(8)),
+
+				flex():row():vertical("center"):gap(4),
+
+				text {
+					auto = "XY",
+					text = function()
+						return value().name
+					end,
+					text_size = px(24),
+					xalignment = Enum.TextXAlignment.Left,
+					order = i,
+				},
+
+				show(function()
+					return value().description ~= nil
+				end, function()
+					return text {
+						auto = "XY",
+						text = function()
+							return value().description or ""
+						end,
+						text_size = px(14),
+						text_style = "subtext",
+						xalignment = Enum.TextXAlignment.Left,
+						order = i,
+					}
+				end),
+			}
+		end),
+	}
+end
+
+return suggestions

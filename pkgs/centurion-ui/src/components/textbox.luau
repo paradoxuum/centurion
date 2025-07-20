@@ -1,8 +1,10 @@
 local state = require("../state")
+local theme = require("../theme")
+local types = require("../types")
 local vide = require("../../vide")
 
 local create = vide.create
-local cleanup = vide.cleanup
+local changed = vide.changed
 local source = vide.source
 local effect = vide.effect
 local read = vide.read :: (<T>(() -> T) -> T) & (<T>(T) -> T)
@@ -14,7 +16,10 @@ type Background = {
 
 	read text: Can<string>,
 	read text_size: Can<number>?,
-	read text_color: Can<Color3>?,
+	read text_style: Can<types.TextStyle>?,
+	read rich_text: Can<boolean>?,
+	read background_color: Can<Color3>?,
+	read background_transparency: Can<number>?,
 	read placeholder: Can<string>?,
 	read focused: Can<boolean>?,
 	read xalignment: Can<Enum.TextXAlignment>?,
@@ -39,13 +44,25 @@ return function(props: Background)
 		Text = props.text,
 		PlaceholderText = props.placeholder,
 		TextSize = props.text_size,
-		TextColor3 = props.text_color,
+		TextColor3 = function()
+			return theme.text_color(state.theme(), props.text_style and read(props.text_style) or "normal")
+		end,
 		TextXAlignment = props.xalignment,
+		TextEditable = props.editable,
 		MultiLine = props.multiline,
-		FontFace = state.theme.font,
-		ClearTextOnFocus = false,
+		FontFace = function()
+			return state.theme().font
+		end,
+		RichText = props.rich_text,
+		PlaceholderColor3 = function()
+			return state.theme().subtext
+		end,
 
-		BackgroundTransparency = 1,
+		BackgroundColor3 = props.background_color,
+		BackgroundTransparency = props.background_transparency or 1,
+
+		if props.update_text then changed("Text", props.update_text) else nil,
+		changed("Text", raw_text),
 
 		Focused = function()
 			if not props.update_focused then
@@ -70,30 +87,21 @@ return function(props: Background)
 		unpack(props),
 	}
 
-	local connection = textbox:GetPropertyChangedSignal("Text"):Connect(function()
-		if props.update_text then
-			props.update_text(textbox.Text)
-		end
-		raw_text(textbox.Text)
-	end)
-
-	cleanup(function()
-		connection:Disconnect()
-	end)
-
-	effect(function()
-		local value = read(props.focused)
-		if textbox:IsFocused() == value then
-			return
-		end
-		task.defer(function()
-			if value then
-				textbox:CaptureFocus()
-			else
-				textbox:ReleaseFocus(false)
+	if props.focused ~= nil then
+		effect(function()
+			local value = read(props.focused)
+			if textbox:IsFocused() == value then
+				return
 			end
+			task.defer(function()
+				if value then
+					textbox:CaptureFocus()
+				else
+					textbox:ReleaseFocus(false)
+				end
+			end)
 		end)
-	end)
+	end
 
 	return textbox
 end
