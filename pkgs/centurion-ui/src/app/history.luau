@@ -72,7 +72,7 @@ local function history()
 					AutomaticSize = "XY",
 					BackgroundTransparency = 1,
 
-					flex():fill("horizontal"):vertical("center"):gap(4):column(),
+					flex():fill("horizontal"):vertical("center"):gap(8):column(),
 
 					create "Frame" {
 						AutomaticSize = "X",
@@ -103,7 +103,7 @@ local function history()
 							text = function()
 								return state.format_date(value()) or ""
 							end,
-							text_size = px(18),
+							text_size = px(20),
 							text_style = "bg",
 							rich_text = true,
 							editable = false,
@@ -115,7 +115,7 @@ local function history()
 						text = function()
 							return value().command
 						end,
-						text_size = px(18),
+						text_size = px(20),
 						xalignment = Enum.TextXAlignment.Left,
 						editable = false,
 					},
@@ -129,7 +129,7 @@ local function history()
 					text_style = function()
 						return value().response.success and "normal" or "error"
 					end,
-					text_size = px(18),
+					text_size = px(20),
 					rich_text = true,
 					editable = false,
 					xalignment = Enum.TextXAlignment.Left,

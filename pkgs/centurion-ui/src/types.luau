@@ -28,17 +28,8 @@ export type AnalysisSuggestion = {
 	name: string,
 	description: string?,
 
-	token: vector,
+	span: vector,
 	replace: string,
-}
-
-export type AnalysisArgument = {
-	name: string,
-	type: string,
-	optional: boolean,
-	description: string?,
-
-	input: { vector },
 }
 
 export type AnalysisResult = {

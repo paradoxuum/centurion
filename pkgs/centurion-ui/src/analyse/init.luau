@@ -4,58 +4,105 @@ local centurion = require("../centurion")
 local leventine = require("@self/leventine")
 local types = require("./types")
 
-local function parse(text: string)
-	local tokens = {}
-	local i = 1
+type ParseResult = {
+	tokens: { Token },
+	unclosed_quote: boolean,
+}
+
+export type Token = {
+	span: vector,
+	text: string,
+}
+
+local function parse_escaped_char(c: string): string
+	if c == "n" then
+		return "\n"
+	elseif c == "t" then
+		return "\t"
+	elseif c == "r" then
+		return "\r"
+	elseif c == "\\" then
+		return "\\"
+	elseif c == '"' then
+		return '"'
+	elseif c == "'" then
+		return "'"
+	end
+
+	return c
+end
+
+local function parse(text: string): ParseResult
+	local tokens: { Token } = {}
 
 	local start = nil
-	local in_quote = false
-	local quote_char = ""
+	local escaped = false
+	local quote_char: string?
+	local current = ""
 
-	local len = #text
-	while i <= len do
+	for i = 1, #text do
 		local c = text:sub(i, i)
-		if in_quote then
-			if c == "\\" and i + 1 <= len then
-				-- escape next char
-				i += 2
-				continue
-			elseif c == quote_char then
-				in_quote = false
-				i += 1
-				continue
-			end
-		else
-			if c == '"' or c == "'" then
-				in_quote = true
-				quote_char = c
-				if start == nil then
-					start = i
-				end
-			elseif c == " " then
-				if start ~= nil then
-					table.insert(tokens, vector.create(start, i - 1, 0))
-					start = nil
-				end
-			else
-				if start == nil then
-					start = i
-				end
-			end
+
+		if start == nil then
+			start = i
 		end
 
-		i += 1
+		if escaped then
+			current = current .. parse_escaped_char(c)
+			escaped = false
+			continue
+		end
+
+		if c == "\\" then
+			escaped = true
+			continue
+		end
+
+		if (c == '"' or c == "'") and not quote_char then
+			quote_char = c
+			if start == nil then
+				start = i
+			end
+			continue
+		end
+
+		if c == quote_char then
+			quote_char = nil
+			continue
+		end
+
+		if not quote_char and c == " " then
+			if start ~= nil then
+				table.insert(tokens, {
+					span = vector.create(start, i - 1, 0),
+					text = current,
+				})
+				start = nil
+				current = ""
+			end
+			continue
+		end
+
+		current = current .. c
 	end
 
 	if start ~= nil then
-		table.insert(tokens, vector.create(start, len, 0))
+		table.insert(tokens, {
+			span = vector.create(start, #text, 0),
+			text = current,
+		})
 	end
 
-	return tokens
+	return {
+		tokens = tokens,
+		unclosed_quote = quote_char ~= nil,
+	}
 end
 
 local function analyse(text: string, cursor_pos: number): types.AnalysisResult
-	local tokens = parse(text)
+	local parse_result = parse(text)
+	local tokens = parse_result.tokens
+
 	if #tokens == 0 then
 		return {
 			result = {
@@ -71,8 +118,11 @@ local function analyse(text: string, cursor_pos: number): types.AnalysisResult
 	local cmd_name: string? = nil
 	local cmd_index: number? = nil
 
+	local cmd_text = {}
 	for i, token in tokens do
-		local name = text:sub(1, token.y)
+		table.insert(cmd_text, token.text)
+
+		local name = table.concat(cmd_text, " ")
 		if cmds[name] then
 			cmd_name = name
 			cmd_index = i
@@ -80,10 +130,14 @@ local function analyse(text: string, cursor_pos: number): types.AnalysisResult
 		end
 	end
 
-	local arg_tokens: { vector } = cmd_index and { select(2, table.unpack(tokens, cmd_index)) } or {}
+	if not cmd_name then
+		cmd_text = {}
+	end
+
+	local arg_tokens: { Token } = cmd_index and { select(2, table.unpack(tokens, cmd_index)) } or {}
 
 	local at_arg = false
-	if cmd_index and cursor_pos - 1 > tokens[cmd_index].y then
+	if cmd_index and cursor_pos - 1 > tokens[cmd_index].span.y then
 		at_arg = true
 	end
 
@@ -103,7 +157,7 @@ local function analyse(text: string, cursor_pos: number): types.AnalysisResult
 
 		local arg_text = {}
 		for _, token in arg_tokens do
-			table.insert(arg_text, text:sub(token.x, token.y))
+			table.insert(arg_text, token.text)
 		end
 
 		local cmd_args = cmd.arguments
@@ -130,8 +184,8 @@ local function analyse(text: string, cursor_pos: number): types.AnalysisResult
 
 			local end_token = arg_tokens[input_index]
 			if
-				(not end_token or i == #cmd_args or cursor_pos - 1 <= end_token.y)
-				and cursor_pos - 1 >= start_token.x
+				(not end_token or i == #cmd_args or cursor_pos - 1 <= end_token.span.y)
+				and cursor_pos - 1 >= start_token.span.x
 			then
 				arg_index = i
 				break
@@ -139,7 +193,7 @@ local function analyse(text: string, cursor_pos: number): types.AnalysisResult
 		end
 
 		input_index = math.min(input_index, #arg_tokens)
-		if arg_tokens[input_index] and cursor_pos - 1 > arg_tokens[input_index].y then
+		if arg_tokens[input_index] and cursor_pos - 1 > arg_tokens[input_index].span.y then
 			input_index += 1
 		end
 
@@ -148,10 +202,7 @@ local function analyse(text: string, cursor_pos: number): types.AnalysisResult
 		local input_token = arg_tokens[input_index]
 
 		local arg_suggestions = arg_type.suggestions
-				and arg_type.suggestions(
-					input_token and text:sub(input_token.x, input_token.y) or "",
-					Players.LocalPlayer
-				)
+				and arg_type.suggestions(input_token and input_token.text or "", Players.LocalPlayer)
 			or {}
 
 		if arg.suggestions then
@@ -162,15 +213,17 @@ local function analyse(text: string, cursor_pos: number): types.AnalysisResult
 
 		local suggestions = {}
 		if #arg_suggestions > 0 then
-			local matches =
-				leventine.map(input_token and text:sub(input_token.x, input_token.y) or "", arg_suggestions, {
-					case_sensitive = false,
-				})
+			local matches = leventine.map(input_token and input_token.text or "", arg_suggestions, {
+				case_sensitive = false,
+			})
 
 			local token = input_token
 			if not token then
 				local prev_token = tokens[cmd_index + math.min(input_index, #arg_tokens)]
-				token = vector.create(prev_token.y + 2, prev_token.y + 2, 0)
+				token = {
+					span = vector.create(prev_token.span.y + 2, prev_token.span.y + 2, 0),
+					text = "",
+				}
 			end
 
 			for _, match in matches do
@@ -178,7 +231,7 @@ local function analyse(text: string, cursor_pos: number): types.AnalysisResult
 					kind = "argument",
 					name = match,
 
-					token = token,
+					span = token.span,
 					replace = match,
 				} :: types.AnalysisSuggestion
 				table.insert(suggestions, suggestion)
@@ -202,7 +255,12 @@ local function analyse(text: string, cursor_pos: number): types.AnalysisResult
 			table.insert(to_match, k)
 		end
 
-		local matches = leventine.map(text:sub(1, tokens[#tokens].y), to_match, {
+		local parsed_text = ""
+		for _, token in tokens do
+			parsed_text = parsed_text .. token.text .. " "
+		end
+
+		local matches = leventine.map(parsed_text, to_match, {
 			case_sensitive = false,
 		})
 		if cmd_name then
@@ -224,13 +282,12 @@ local function analyse(text: string, cursor_pos: number): types.AnalysisResult
 
 		local suggestions = {}
 		for _, match in matches do
-			local token = tokens[#tokens]
 			local suggestion = {
 				kind = "command",
 				name = match,
 				description = cmds[match].description,
 
-				token = token,
+				span = vector.create(1, tokens[#tokens].span.y, 0),
 				replace = match,
 			} :: types.AnalysisSuggestion
 			table.insert(suggestions, suggestion)
@@ -242,11 +299,25 @@ local function analyse(text: string, cursor_pos: number): types.AnalysisResult
 		} :: types.AnalysisResult
 	end
 
+	local analysis_result: centurion.Result
+
 	local arg_result = process_arg()
 	local cmd_result = process_command()
+	if parse_result.unclosed_quote then
+		analysis_result = {
+			success = false,
+			error = "Unclosed quote at position " .. parse_result.tokens[#parse_result.tokens].span.x,
+		}
+	else
+		if arg_result then
+			analysis_result = arg_result.result
+		else
+			analysis_result = cmd_result.result
+		end
+	end
 
 	return {
-		result = arg_result and arg_result.result or cmd_result.result,
+		result = analysis_result,
 		command = cmd_name,
 		argument = arg_result and arg_result.argument or nil,
 		arguments = arg_result and arg_result.arguments or nil,

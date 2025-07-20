@@ -198,7 +198,7 @@ local function app()
 					local suggested = analysis().suggestions
 					if last_char == "\t" and suggested[1] then
 						local selected = suggested[selected_suggestion()]
-						value = autofill(raw_text(), selected.token, selected.replace)
+						value = autofill(raw_text(), selected.span, selected.replace)
 					end
 					raw_text(value)
 				end,
