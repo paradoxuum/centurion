@@ -138,7 +138,7 @@ local function analyse(text: string, cursor_pos: number): types.AnalysisResult
 		cmd_text = {}
 	end
 
-	local arg_tokens: { Token } = cmd_index and { select(2, table.unpack(tokens, cmd_index)) } or {}
+	local arg_tokens: { Token } = cmd_index and { select(2, unpack(tokens, cmd_index)) } or {}
 
 	local at_arg = false
 	if cmd_index and cursor_pos - 1 > tokens[cmd_index].span.y then

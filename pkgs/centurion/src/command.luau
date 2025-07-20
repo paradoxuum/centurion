@@ -69,7 +69,7 @@ local function execute(executor: Player, name: string, args: { string }?): types
 		transformed_args = res.value
 	end
 
-	local success, value = pcall(command.callback, ctx, table.unpack(transformed_args))
+	local success, value = pcall(command.callback, ctx, unpack(transformed_args))
 	if not success then
 		warn(`Failed to execute '{ctx.input}': ` .. tostring(value))
 		ctx.error("Failed to execute command.")
