@@ -65,11 +65,18 @@ return story({}, function()
 			print("test1:", ...)
 		end,
 	})
-	centurion.command.register("test2", {
-		description = "Test command 2",
-		arguments = {},
-		callback = function(ctx)
-			print("test2:", ctx)
+
+	centurion.command.register("echo", {
+		description = "Prints the input back to the console",
+		arguments = {
+			{
+				name = "input",
+				type = "string",
+				num_args = "rest",
+			},
+		},
+		callback = function(ctx, text)
+			ctx.reply(table.concat(text, " "))
 		end,
 	})
 

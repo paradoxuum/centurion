@@ -33,17 +33,16 @@ local function app()
 		},
 		suggestions = {},
 	} :: types.AnalysisResult)
-	local over_interface = source(false)
 
 	local executing = source(false)
-
 	local selected_suggestion = source(1)
-	local next_cursor_pos = false
+	local over_interface = source(false)
 
+	local next_cursor_pos = false
 	local cmd_history = {}
 	local cmd_history_index = 0
 
-	local function handle_hover()
+	local function catch_hover()
 		return action(function(instance: Frame)
 			cleanup(instance.MouseEnter:Connect(function()
 				over_interface(true)
@@ -94,7 +93,7 @@ local function app()
 		selected_suggestion(math.clamp(selected_suggestion() + (up and -1 or 1), 1, #suggested))
 	end
 
-	local input_connection = UserInputService.InputBegan:Connect(function(input)
+	cleanup(UserInputService.InputBegan:Connect(function(input)
 		if input.UserInputState ~= Enum.UserInputState.Begin then
 			return
 		end
@@ -122,7 +121,7 @@ local function app()
 		end
 
 		state.opened(not state.opened())
-	end)
+	end))
 
 	local analysing = false
 	effect(function()
@@ -146,8 +145,6 @@ local function app()
 		end)
 	end)
 
-	cleanup(input_connection)
-
 	return create "Frame" {
 		Size = px(UDim2.new(1, 0, 0, 0)),
 		BackgroundTransparency = 1,
@@ -169,7 +166,7 @@ local function app()
 
 			flex():fill("horizontal"):vertical("bottom"),
 			corner(px(4)),
-			handle_hover(),
+			catch_hover(),
 
 			history(),
 
@@ -277,7 +274,7 @@ local function app()
 
 			corner(px(4)),
 			padding(px(8)),
-			handle_hover(),
+			catch_hover(),
 
 			text {
 				auto = "XY",
@@ -293,8 +290,11 @@ local function app()
 		suggestions {
 			analysis = analysis,
 			selected_suggestion = selected_suggestion,
+			on_select = function(suggestion: types.AnalysisSuggestion)
+				raw_text(autofill(raw_text(), suggestion.span, suggestion.replace))
+			end,
 
-			handle_hover(),
+			catch_hover(),
 		},
 	}
 end

@@ -16,6 +16,9 @@ local show = vide.show
 export type Suggestions = {
 	read analysis: () -> types.AnalysisResult,
 	read selected_suggestion: () -> number,
+	read on_select: (suggestion: types.AnalysisSuggestion) -> (),
+
+	[number]: unknown,
 }
 
 local function suggestions(props: Suggestions)
@@ -103,12 +106,17 @@ local function suggestions(props: Suggestions)
 			end
 			return limited
 		end, function(value: () -> types.AnalysisSuggestion, i)
-			return create "Frame" {
+			return create "TextButton" {
 				AutomaticSize = "XY",
 				BackgroundColor3 = function()
 					return props.selected_suggestion() == i and state.theme().surface or state.theme().background
 				end,
 				LayoutOrder = i,
+				Text = "",
+
+				Activated = function()
+					props.on_select(value())
+				end,
 
 				corner(px(4)),
 				padding(px(8)),
@@ -141,6 +149,8 @@ local function suggestions(props: Suggestions)
 				end),
 			}
 		end),
+
+		unpack(props),
 	}
 end
 
