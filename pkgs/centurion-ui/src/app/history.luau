@@ -97,6 +97,9 @@ local function history()
 							end,
 							ScaleType = Enum.ScaleType.Fit,
 							Size = px(UDim2.fromOffset(20, 20)),
+							Visible = function()
+								return state.icon() ~= ""
+							end,
 						},
 
 						textbox {

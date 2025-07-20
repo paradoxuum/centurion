@@ -4,7 +4,6 @@ local app = require("@self/app")
 local px = require("@self/px")
 local state = require("@self/state")
 local theme = require("@self/theme")
-local types = require("@self/types")
 local vide = require("./vide")
 
 local mounted = false
@@ -34,12 +33,15 @@ local function set_opt<T>(source: () -> T, value: T?)
 	source(value)
 end
 
-local function configure(options: types.Options)
+local function configure(options: unknown)
 	set_opt(state.hide_on_lost_focus, options.hide_on_lost_focus)
 	set_opt(state.activation_keys, options.activation_keys)
 	set_opt(state.theme, options.theme)
 	set_opt(state.icon, options.icon)
-	state.format_date = options.format_date
+
+	if options.format_date and typeof(options.format_date) == "function" then
+		state.format_date = options.format_date
+	end
 end
 
 return {
