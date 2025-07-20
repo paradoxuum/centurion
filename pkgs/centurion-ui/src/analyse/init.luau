@@ -43,11 +43,11 @@ local function parse(text: string): ParseResult
 	for i = 1, #text do
 		local c = text:sub(i, i)
 
-		if start == nil then
-			start = i
-		end
-
 		if escaped then
+			if start == nil then
+				start = i - 1
+			end
+
 			current = current .. parse_escaped_char(c)
 			escaped = false
 			continue
@@ -81,6 +81,10 @@ local function parse(text: string): ParseResult
 				current = ""
 			end
 			continue
+		end
+
+		if start == nil then
+			start = i
 		end
 
 		current = current .. c
@@ -176,10 +180,24 @@ local function analyse(text: string, cursor_pos: number): types.AnalysisResult
 			local num_args = arg.num_args or 1
 
 			local start_token = arg_tokens[input_index] or tokens[cmd_index]
+
+			local range_end = 0
 			if type(num_args) == "number" then
-				input_index += num_args
+				range_end = input_index + num_args
 			else
-				input_index = #arg_tokens
+				range_end = #arg_tokens
+			end
+
+			for j = input_index + 1, range_end do
+				if not arg_tokens[j] then
+					if j == 1 or cursor_pos - 1 > arg_tokens[j - 1].span.y then
+						input_index += 1
+					end
+
+					break
+				end
+
+				input_index = j
 			end
 
 			local end_token = arg_tokens[input_index]
@@ -190,11 +208,6 @@ local function analyse(text: string, cursor_pos: number): types.AnalysisResult
 				arg_index = i
 				break
 			end
-		end
-
-		input_index = math.min(input_index, #arg_tokens)
-		if arg_tokens[input_index] and cursor_pos - 1 > arg_tokens[input_index].span.y then
-			input_index += 1
 		end
 
 		local arg = cmd_args[arg_index]
