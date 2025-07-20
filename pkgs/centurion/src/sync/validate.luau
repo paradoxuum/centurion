@@ -1,3 +1,5 @@
+-- https://github.com/littensy/charm/blob/d7a1f62c3cf7b2bcd71813b3fa798a54c72c8cae/packages/charm-sync/src/validate.luau
+
 local SAFE_KEYS = { string = true, number = true }
 local UNSAFE_VALUES = { ["function"] = true, thread = true }
 

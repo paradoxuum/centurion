@@ -1,4 +1,7 @@
+-- https://github.com/littensy/charm/blob/d7a1f62c3cf7b2bcd71813b3fa798a54c72c8cae/packages/charm-sync/src/patch.luau
+
 local validate = require("./validate")
+
 --- A special symbol that denotes the absence of a value. Used to represent
 --- deleted values in patches.
 local None = { __none = "__none" }
