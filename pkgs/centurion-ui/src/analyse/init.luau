@@ -1,7 +1,7 @@
 local Players = game:GetService("Players")
 
 local centurion = require("../centurion")
-local leventine = require("@self/leventine")
+local suggest = require("@self/suggest")
 local types = require("./types")
 
 type ParseResult = {
@@ -212,6 +212,8 @@ local function analyse(text: string, cursor_pos: number): types.AnalysisResult
 
 		local arg = cmd_args[arg_index]
 		local arg_type = centurion.arg.types[arg.type]
+		assert(arg_type, "Unknown argument type: " .. tostring(arg.type))
+
 		local input_token = arg_tokens[input_index]
 
 		local arg_suggestions = arg_type.suggestions
@@ -226,10 +228,7 @@ local function analyse(text: string, cursor_pos: number): types.AnalysisResult
 
 		local suggestions = {}
 		if #arg_suggestions > 0 then
-			local matches = leventine.map(input_token and input_token.text or "", arg_suggestions, {
-				case_sensitive = false,
-			})
-
+			local matches = suggest(input_token and input_token.text or "", arg_suggestions)
 			local token = input_token
 			if not token then
 				local prev_token = tokens[cmd_index + math.min(input_index, #arg_tokens)]
@@ -268,14 +267,12 @@ local function analyse(text: string, cursor_pos: number): types.AnalysisResult
 			table.insert(to_match, k)
 		end
 
-		local parsed_text = ""
+		local token_text = {}
 		for _, token in tokens do
-			parsed_text = parsed_text .. token.text .. " "
+			table.insert(token_text, token.text)
 		end
 
-		local matches = leventine.map(parsed_text, to_match, {
-			case_sensitive = false,
-		})
+		local matches = suggest(table.concat(token_text, " "), to_match)
 		if cmd_name then
 			table.insert(matches, 1, cmd_name)
 		end
