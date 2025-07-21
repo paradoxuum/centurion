@@ -52,6 +52,16 @@ local themes = {
 		error = Color3.fromRGB(210, 15, 57),
 		font = font,
 	} :: types.Theme,
+	roblox = {
+		background = Color3.fromRGB(17, 18, 22),
+		surface = Color3.fromRGB(31, 32, 36),
+		text = Color3.fromRGB(255, 255, 255),
+		subtext = Color3.fromRGB(187, 188, 190),
+		highlight = Color3.fromRGB(51, 95, 255),
+		success = Color3.fromRGB(57, 197, 130),
+		error = Color3.fromRGB(240, 68, 51),
+		font = font,
+	} :: types.Theme,
 }
 
 return {
