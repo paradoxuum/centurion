@@ -14,14 +14,14 @@ return story({}, function()
 	end
 	centurion.arg.register("theme", centurion.arg.enum(theme_names))
 
-	centurion.command.register("clear", {
+	centurion.command.register("centurion clear", {
 		description = "Clear the command history",
 		callback = function()
 			state.logs({})
 			return ""
 		end,
 	})
-	centurion.command.register("theme", {
+	centurion.command.register("centurion theme", {
 		description = "Change the theme",
 		arguments = {
 			{
@@ -42,7 +42,7 @@ return story({}, function()
 		end,
 	})
 
-	centurion.command.register("test", {
+	centurion.command.register("test test", {
 		description = "Test command",
 		arguments = {
 			{
