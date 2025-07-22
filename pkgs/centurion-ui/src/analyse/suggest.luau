@@ -1,6 +1,6 @@
 local leventine = require("./leventine")
 
-local MIN_SORE = -math.huge
+local MIN_SCORE = -math.huge
 
 local function suggest(input: string, candidates: { string }): { string }
 	if #input == 0 then
@@ -16,12 +16,13 @@ local function suggest(input: string, candidates: { string }): { string }
 			score = 1000 - (#candidate - #normalized)
 		else
 			score = leventine.score(normalized, candidate, false)
+			score = (1 - score / math.max(#normalized, #candidate)) * 100
 			if leventine.has_match(candidate, normalized, false) then
 				score += 100
 			end
 		end
 
-		if score > MIN_SORE then
+		if score > MIN_SCORE then
 			table.insert(scored, { text = candidate, score = score })
 		end
 	end
