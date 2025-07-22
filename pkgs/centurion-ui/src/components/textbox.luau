@@ -1,3 +1,4 @@
+local px = require("../px")
 local state = require("../state")
 local theme = require("../theme")
 local types = require("../types")
@@ -43,7 +44,7 @@ return function(props: Background)
 
 		Text = props.text,
 		PlaceholderText = props.placeholder,
-		TextSize = props.text_size,
+		TextSize = props.text_size or px(state.text_size),
 		TextColor3 = function()
 			return theme.text_color(state.theme(), props.text_style and read(props.text_style) or "normal")
 		end,

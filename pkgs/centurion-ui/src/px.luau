@@ -37,7 +37,7 @@ local function px<T>(value: T | () -> T, mode: Mode? | () -> Mode?): () -> T
 				convert(value_raw.Y.Offset, mode_raw)
 			) :: any
 		else
-			error("unsupported type")
+			error("px: unsupported type")
 		end
 	end
 end

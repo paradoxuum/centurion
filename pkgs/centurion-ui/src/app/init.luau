@@ -69,6 +69,8 @@ local function app()
 		local after = string.sub(value, token.y + 1, -1)
 
 		task.defer(cursor_pos, span_start + #with + 2)
+		selected_suggestion(1)
+
 		return before .. with .. " " .. after
 	end
 
@@ -146,7 +148,13 @@ local function app()
 	end)
 
 	return create "Frame" {
-		Size = px(UDim2.new(1, 0, 0, 0)),
+		AutomaticSize = "Y",
+		AnchorPoint = state.anchor,
+		Position = px(state.position),
+		Size = px(function()
+			local w = state.width()
+			return UDim2.new(w.Scale, w.Offset, 0, 0)
+		end),
 		BackgroundTransparency = 1,
 
 		corner(px(8)),
@@ -162,6 +170,7 @@ local function app()
 			BackgroundColor3 = function()
 				return state.theme().background
 			end,
+			BackgroundTransparency = state.transparency,
 			Size = UDim2.new(1, 0, 0, 0),
 
 			flex():fill("horizontal"):vertical("bottom"),
@@ -177,11 +186,10 @@ local function app()
 				background_color = function()
 					return state.theme().surface
 				end,
-				background_transparency = 0,
+				background_transparency = state.transparency,
 
 				placeholder = "Enter command",
 				xalignment = Enum.TextXAlignment.Left,
-				text_size = px(24),
 				text_style = function()
 					local analysis_result = analysis()
 					return analysis_result.result.success and "normal" or "error"
@@ -271,6 +279,7 @@ local function app()
 			BackgroundColor3 = function()
 				return state.theme().surface
 			end,
+			BackgroundTransparency = state.transparency,
 
 			corner(px(4)),
 			padding(px(8)),
@@ -281,7 +290,6 @@ local function app()
 				text = function()
 					return analysis().result.error or ""
 				end,
-				text_size = px(18),
 				text_style = "error",
 				xalignment = Enum.TextXAlignment.Left,
 			},

@@ -17,6 +17,7 @@ export type Suggestions = {
 	read analysis: () -> types.AnalysisResult,
 	read selected_suggestion: () -> number,
 	read on_select: (suggestion: types.AnalysisSuggestion) -> (),
+	read position: () -> UDim2,
 
 	[number]: unknown,
 }
@@ -45,6 +46,7 @@ local function suggestions(props: Suggestions)
 				BackgroundColor3 = function()
 					return state.theme().surface
 				end,
+				BackgroundTransparency = state.transparency,
 
 				corner(px(4)),
 				padding(px(8)),
@@ -56,7 +58,6 @@ local function suggestions(props: Suggestions)
 					text = function()
 						return arg().name
 					end,
-					text_size = px(24),
 					xalignment = Enum.TextXAlignment.Left,
 				},
 
@@ -65,6 +66,7 @@ local function suggestions(props: Suggestions)
 					BackgroundColor3 = function()
 						return state.theme().highlight
 					end,
+					BackgroundTransparency = state.transparency,
 
 					corner(px(4)),
 					padding(px(4)),
@@ -74,7 +76,7 @@ local function suggestions(props: Suggestions)
 						text = function()
 							return arg().type
 						end,
-						text_size = px(16),
+						text_size = px(state.subtext_size),
 						text_style = "bg",
 						xalignment = Enum.TextXAlignment.Left,
 					},
@@ -88,7 +90,7 @@ local function suggestions(props: Suggestions)
 						text = function()
 							return arg().description
 						end,
-						text_size = px(16),
+						text_size = px(state.subtext_size),
 						text_style = "subtext",
 						xalignment = Enum.TextXAlignment.Left,
 					}
@@ -111,6 +113,7 @@ local function suggestions(props: Suggestions)
 				BackgroundColor3 = function()
 					return props.selected_suggestion() == i and state.theme().surface or state.theme().background
 				end,
+				BackgroundTransparency = state.transparency,
 				LayoutOrder = i,
 				Text = "",
 
@@ -118,17 +121,15 @@ local function suggestions(props: Suggestions)
 					props.on_select(value())
 				end,
 
+				flex():row():vertical("center"):gap(4),
 				corner(px(4)),
 				padding(px(8)),
-
-				flex():row():vertical("center"):gap(4),
 
 				text {
 					auto = "XY",
 					text = function()
 						return value().name
 					end,
-					text_size = px(24),
 					xalignment = Enum.TextXAlignment.Left,
 					order = i,
 				},
@@ -141,7 +142,7 @@ local function suggestions(props: Suggestions)
 						text = function()
 							return value().description or ""
 						end,
-						text_size = px(14),
+						text_size = px(state.subtext_size),
 						text_style = "subtext",
 						xalignment = Enum.TextXAlignment.Left,
 						order = i,
@@ -149,7 +150,6 @@ local function suggestions(props: Suggestions)
 				end),
 			}
 		end),
-
 		unpack(props),
 	}
 end

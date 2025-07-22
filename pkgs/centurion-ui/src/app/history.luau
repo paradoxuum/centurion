@@ -75,8 +75,7 @@ local function history()
 					flex():fill("horizontal"):vertical("center"):gap(8):column(),
 
 					create "Frame" {
-						AutomaticSize = "X",
-						Size = px(UDim2.fromOffset(0, 26)),
+						AutomaticSize = "XY",
 
 						BackgroundColor3 = function()
 							return value().response.success and state.theme().highlight or state.theme().error
@@ -96,7 +95,9 @@ local function history()
 								return state.theme().background
 							end,
 							ScaleType = Enum.ScaleType.Fit,
-							Size = px(UDim2.fromOffset(20, 20)),
+							Size = px(function()
+								return UDim2.fromOffset(state.subtext_size(), state.subtext_size())
+							end),
 							Visible = function()
 								return state.icon() ~= ""
 							end,
@@ -106,7 +107,7 @@ local function history()
 							text = function()
 								return state.format_date(value()) or ""
 							end,
-							text_size = px(20),
+							text_size = px(state.subtext_size),
 							text_style = "bg",
 							rich_text = true,
 							editable = false,
@@ -118,7 +119,6 @@ local function history()
 						text = function()
 							return value().command
 						end,
-						text_size = px(20),
 						xalignment = Enum.TextXAlignment.Left,
 						editable = false,
 					},
@@ -132,7 +132,6 @@ local function history()
 					text_style = function()
 						return value().response.success and "normal" or "error"
 					end,
-					text_size = px(20),
 					rich_text = true,
 					editable = false,
 					xalignment = Enum.TextXAlignment.Left,

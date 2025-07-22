@@ -1,10 +1,14 @@
 local Players = game:GetService("Players")
 
 local app = require("@self/app")
+local centurion = require("./centurion")
 local px = require("@self/px")
 local state = require("@self/state")
 local theme = require("@self/theme")
+local types = require("@self/types")
 local vide = require("./vide")
+
+local register = centurion.command.register
 
 local mounted = false
 
@@ -39,13 +43,58 @@ local function configure(options: unknown)
 	set_opt(state.theme, options.theme)
 	set_opt(state.icon, options.icon)
 
+	set_opt(state.text_size, options.text_size)
+	set_opt(state.subtext_size, options.subtext_size)
+
+	set_opt(state.anchor, options.anchor)
+	set_opt(state.position, options.position)
+	set_opt(state.width, options.width)
+
 	if options.format_date and typeof(options.format_date) == "function" then
 		state.format_date = options.format_date
 	end
 end
 
+local function register_commands()
+	register("centurion clear", {
+		description = "Clear the command history",
+		callback = function()
+			state.logs({})
+			return ""
+		end,
+	})
+
+	local theme_names: { types.Theme } = {}
+	for name in pairs(theme.themes) do
+		table.insert(theme_names, name)
+	end
+	centurion.arg.register("centurion-theme", centurion.arg.enum(theme_names))
+
+	register("centurion theme", {
+		description = "Change the theme",
+		arguments = {
+			{
+				name = "theme",
+				type = "centurion-theme",
+				description = "The name of the theme to switch to",
+			},
+		},
+		callback = function(ctx, theme_name)
+			local data = theme.themes[theme_name]
+			if not data then
+				ctx.error("Theme '" .. theme_name .. "' does not exist.")
+				return
+			end
+
+			state.theme(data)
+			return `Theme changed to {theme_name}`
+		end,
+	})
+end
+
 return {
 	mount = mount,
 	configure = configure,
+	register_commands = register_commands,
 	themes = theme.themes,
 }

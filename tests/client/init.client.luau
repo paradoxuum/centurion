@@ -27,3 +27,5 @@ end)
 network.RequestState.Fire()
 
 centurion_ui.mount({ Enum.KeyCode.F2 })
+centurion_ui.configure({})
+centurion_ui.register_commands()

@@ -10,7 +10,15 @@ export type Options = {
 	activation_keys: { Enum.KeyCode },
 	theme: Theme,
 	icon: string,
+	transparency: number,
 	format_date: (log: Log) -> string,
+
+	text_size: number,
+	subtext_size: number,
+
+	anchor: Vector2,
+	width: UDim,
+	position: UDim2,
 }
 
 export type Theme = {
