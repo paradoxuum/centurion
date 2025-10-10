@@ -1,45 +1,35 @@
-local create = require("../create")
-local theme = require("../themes")
 local vide = require("../../vide")
 
-local read = vide.read
+local create = vide.create
 
 type Can<T> = T | () -> T
 type Background = {
-	read width: Can<number>?,
-	read height: Can<number>?,
-	read x: Can<number>?,
-	read y: Can<number>?,
-	read xs: Can<number>?,
-	read xy: Can<number>?,
-	read anchor: Can<{ number }>?,
+	read size: Can<UDim2>?,
+	read position: Can<UDim2>?,
+	read anchor: Can<Vector2>?,
+	read color: Can<Color3>?,
 	read zindex: Can<number>?,
 	read auto: Can<Enum.AutomaticSize | "X" | "Y" | "XY">?,
-	read color: Can<Color3>?,
-	read layout: Can<number>?,
+	read order: Can<number>?,
+	read transparency: Can<number>?,
+	read visible: Can<boolean>?,
 
 	[number]: unknown,
 }
 
 return function(props: Background)
 	return create "Frame" {
-		Size = function()
-			local width, height = read(props.width), read(props.height)
-			return UDim2.new(if width then 0 else 1, width or 0, if height then 0 else 1, height or 0)
-		end,
-		Position = function()
-			return UDim2.new(read(props.xs) or 0, read(props.x) or 0, read(props.ys) or 0, read(props.y) or 0)
-		end,
-		AnchorPoint = if props.anchor
-			then function()
-				return Vector2.new(read(props.anchor)[1] or 0, read(props.anchor)[2] or 0)
-			end
-			else nil,
+		Size = props.size,
+		BackgroundColor3 = props.color,
+		BackgroundTransparency = props.transparency,
+		Position = props.position,
+		AnchorPoint = props.anchor,
 		AutomaticSize = props.auto,
-		LayoutOrder = props.layout,
+		LayoutOrder = props.order,
+		ZIndex = props.zindex,
+		Visible = props.visible,
 
-		BackgroundColor3 = props.color or theme.background,
-		BackgroundTransparency = theme.background_transparency,
+		AutoLocalize = false,
 
 		unpack(props),
 	}

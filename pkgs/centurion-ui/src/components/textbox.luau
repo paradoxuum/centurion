@@ -61,6 +61,7 @@ return function(props: Background)
 
 		BackgroundColor3 = props.background_color,
 		BackgroundTransparency = props.background_transparency or 1,
+		AutoLocalize = false,
 
 		if props.update_text then changed("Text", props.update_text) else nil,
 		changed("Text", raw_text),

@@ -1,7 +1,7 @@
-export type Command = {
-	callback: (ctx: ExecutionContext, ...any) -> any,
+export type Command<T...> = {
+	callback: (ctx: ExecutionContext, T...) -> any,
 	description: string?,
-	arguments: { Argument }?,
+	arguments: () -> T...,
 	guards: { string }?,
 }
 
@@ -50,6 +50,6 @@ export type Err = {
 
 export type Result = Ok | Err
 
-export type CommandMap = { [string]: Command }
+export type CommandMap = { [string]: Command<unknown> }
 
 return nil

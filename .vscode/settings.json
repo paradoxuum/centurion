@@ -24,5 +24,6 @@
 	"luau-lsp.completion.imports.enabled": true,
 	"luau-lsp.completion.imports.stringRequires.enabled": true,
 	"luau-lsp.completion.imports.separateGroupsWithLine": true,
-	"luau-lsp.fflags.enableNewSolver": true
+	"luau-lsp.fflags.enableNewSolver": true,
+	"stylua.targetReleaseVersion": "latest"
 }

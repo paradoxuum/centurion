@@ -1,5 +1,6 @@
-local create = require("../create")
 local vide = require("../../vide")
+
+local create = vide.create
 
 return function(px: number)
 	return create "UICorner" {

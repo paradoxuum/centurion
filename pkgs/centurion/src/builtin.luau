@@ -1,57 +1,64 @@
+--!nonstrict
+
 local argument = require("./argument")
 local result = require("./result")
 local types = require("./types")
 
 local register = argument.register
 
-local function register_types()
-	register("string", {
-		transform = function(value: string)
-			return result.success(value)
-		end,
-	})
+local str = register("string", {
+	transform = function(value: string)
+		return result.success(value)
+	end,
+})
 
-	register("number", {
-		transform = function(value: string): types.Result
-			local num = tonumber(value)
-			if num == nil then
-				return result.error(`Invalid number: {value}`)
-			end
-			return result.success(num)
-		end,
-	})
+local number = register("number", {
+	transform = function(value: string)
+		local num = tonumber(value)
+		if num == nil then
+			return result.error(`Invalid number: {value}`)
+		end
+		return result.success(num)
+	end,
+})
 
-	register("integer", {
-		transform = function(value: string): types.Result
-			local num = tonumber(value)
-			if num == nil or math.floor(num) ~= num then
-				return result.error(`Invalid integer: {value}`)
-			end
-			return result.success(num)
-		end,
-	})
+local int = register("integer", {
+	transform = function(value: string)
+		local num = tonumber(value)
+		if num == nil or math.floor(num) ~= num then
+			return result.error(`Invalid integer: {value}`)
+		end
+		return result.success(num)
+	end,
+})
 
-	local boolean = {
-		["true"] = true,
-		["false"] = false,
-		yes = true,
-		ye = true,
-		no = false,
-		y = true,
-		n = false,
-	}
+local bool_dict = {
+	["true"] = true,
+	["false"] = false,
+	yes = true,
+	ye = true,
+	no = false,
+	y = true,
+	n = false,
+}
 
-	register("boolean", {
-		transform = function(value: string): types.Result
-			local bool = boolean[value:lower()]
-			if bool == nil then
-				return result.error(`Invalid boolean: {value}`)
-			end
-			return result.success(bool)
-		end,
-	})
-end
+local bool = register("boolean", {
+	transform = function(value: string): types.Result
+		local bool_val = bool_dict[value:lower()]
+		if bool_val == nil then
+			return result.error(`Invalid boolean: {bool_val}`)
+		end
+		return result.success(bool_val)
+	end,
+})
+
+type Arg<T> = argument.ArgumentFn<T>
 
 return {
-	register_types = register_types,
+	types = {
+		string = str :: Arg<string>,
+		number = number :: Arg<number>,
+		integer = int :: Arg<number>,
+		boolean = bool :: Arg<boolean>,
+	},
 }

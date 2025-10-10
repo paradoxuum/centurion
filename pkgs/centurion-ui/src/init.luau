@@ -50,6 +50,7 @@ local function configure(options: unknown)
 	set_opt(state.position, options.position)
 	set_opt(state.width, options.width)
 
+	state.max_suggestions = options.max_suggestions or 5
 	if options.format_date and typeof(options.format_date) == "function" then
 		state.format_date = options.format_date
 	end
@@ -68,17 +69,13 @@ local function register_commands()
 	for name in pairs(theme.themes) do
 		table.insert(theme_names, name)
 	end
-	centurion.arg.register("centurion-theme", centurion.arg.enum(theme_names))
 
+	local centurion_theme = centurion.arg.register("centurion-theme", centurion.arg.enum(theme_names))
 	register("centurion theme", {
 		description = "Change the theme",
-		arguments = {
-			{
-				name = "theme",
-				type = "centurion-theme",
-				description = "The name of the theme to switch to",
-			},
-		},
+		arguments = function()
+			return centurion_theme("theme", "The name of the theme to switch to")
+		end,
 		callback = function(ctx, theme_name)
 			local data = theme.themes[theme_name]
 			if not data then

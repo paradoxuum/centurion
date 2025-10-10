@@ -44,6 +44,7 @@ return function(props: Background)
 		TextXAlignment = props.xalignment,
 		RichText = props.rich_text,
 
+		AutoLocalize = false,
 		BackgroundTransparency = 1,
 
 		unpack(props),

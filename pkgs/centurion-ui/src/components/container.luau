@@ -1,41 +1,29 @@
-local create = require("../create")
 local vide = require("../../vide")
 
-local read = vide.read
+local create = vide.create
 
 type Can<T> = T | () -> T
 type Container = {
-	read width: Can<number>?,
-	read height: Can<number>?,
-	read x: Can<number>?,
-	read y: Can<number>?,
-	read xs: Can<number>?,
-	read ys: Can<number>?,
-	read anchor: Can<{ number }>?,
+	read size: Can<UDim2>?,
+	read position: Can<UDim2>?,
+	read anchor: Can<Vector2>?,
 	read zindex: Can<number>?,
 	read auto: Can<Enum.AutomaticSize | "X" | "Y" | "XY">?,
-	read layout: Can<number>?,
+	read order: Can<number>?,
 
 	[number]: unknown,
 }
 
 return function(props: Container)
 	return create "Frame" {
-		Size = function()
-			return UDim2.fromOffset(read(props.width) or 0, read(props.height) or 0)
-		end,
-		Position = function()
-			return UDim2.new(read(props.xs) or 0, read(props.x) or 0, read(props.ys) or 0, read(props.y) or 0)
-		end,
-		AnchorPoint = if props.anchor
-			then function()
-				return Vector2.new(read(props.anchor)[1] or 0, read(props.anchor)[2] or 0)
-			end
-			else nil,
+		Size = props.size,
+		Position = props.position,
+		AnchorPoint = props.anchor,
 		AutomaticSize = props.auto,
-		LayoutOrder = props.layout,
+		LayoutOrder = props.order,
 		ZIndex = props.zindex,
 
+		AutoLocalize = false,
 		BackgroundTransparency = 1,
 
 		unpack(props),

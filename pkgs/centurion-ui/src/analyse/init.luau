@@ -103,7 +103,7 @@ local function parse(text: string): ParseResult
 	}
 end
 
-local function analyse(text: string, cursor_pos: number): types.AnalysisResult
+local function analyse(text: string, cursor_pos: number, max_suggestions: number?): types.AnalysisResult
 	local parse_result = parse(text)
 	local tokens = parse_result.tokens
 
@@ -155,7 +155,8 @@ local function analyse(text: string, cursor_pos: number): types.AnalysisResult
 		end
 
 		local cmd = cmds[cmd_name]
-		if not cmd or not cmd.arguments or #cmd.arguments == 0 then
+		local cmd_args: { centurion.Argument } = cmd.arguments and { cmd.arguments() } or {}
+		if not cmd or #cmd_args == 0 then
 			return nil
 		end
 
@@ -164,7 +165,6 @@ local function analyse(text: string, cursor_pos: number): types.AnalysisResult
 			table.insert(arg_text, token.text)
 		end
 
-		local cmd_args = cmd.arguments
 		local transform_result = centurion.arg.transform(Players.LocalPlayer, arg_text, cmd_args)
 
 		if not at_arg then
@@ -219,16 +219,26 @@ local function analyse(text: string, cursor_pos: number): types.AnalysisResult
 		local arg_suggestions = arg_type.suggestions
 				and arg_type.suggestions(input_token and input_token.text or "", Players.LocalPlayer)
 			or {}
-
 		if arg.suggestions then
 			for _, suggestion in arg.suggestions do
 				table.insert(arg_suggestions, suggestion)
 			end
 		end
 
+		-- check for duplicates
+		local seen = {}
+		for i = #arg_suggestions, 1, -1 do
+			local suggestion = arg_suggestions[i]
+			if seen[suggestion] then
+				table.remove(arg_suggestions, i)
+			else
+				seen[suggestion] = true
+			end
+		end
+
 		local suggestions = {}
 		if #arg_suggestions > 0 then
-			local matches = suggest(input_token and input_token.text or "", arg_suggestions)
+			local matches = suggest(input_token and input_token.text or "", arg_suggestions, max_suggestions)
 			local token = input_token
 			if not token then
 				local prev_token = tokens[cmd_index + math.min(input_index, #arg_tokens)]
@@ -239,12 +249,24 @@ local function analyse(text: string, cursor_pos: number): types.AnalysisResult
 			end
 
 			for _, match in matches do
+				local replacement = ""
+				local replacement_text = {}
+				for _, replacement_token in parse(match).tokens do
+					table.insert(replacement_text, replacement_token.text)
+				end
+
+				if #replacement_text == 1 then
+					replacement = replacement_text[1]
+				else
+					replacement = '"' .. table.concat(replacement_text, " ") .. '"'
+				end
+
 				local suggestion = {
 					kind = "argument",
 					name = match,
 
 					span = token.span,
-					replace = match,
+					replace = replacement,
 				} :: types.AnalysisSuggestion
 				table.insert(suggestions, suggestion)
 			end
@@ -272,7 +294,7 @@ local function analyse(text: string, cursor_pos: number): types.AnalysisResult
 			table.insert(token_text, token.text)
 		end
 
-		local matches = suggest(table.concat(token_text, " "), to_match)
+		local matches = suggest(table.concat(token_text, " "), to_match, max_suggestions)
 		if cmd_name then
 			table.insert(matches, 1, cmd_name)
 		end

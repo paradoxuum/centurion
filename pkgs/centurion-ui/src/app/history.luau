@@ -1,3 +1,5 @@
+local background = require("../components/background")
+local container = require("../components/container")
 local corner = require("../components/corner")
 local flex = require("../components/flex")
 local padding = require("../components/padding")
@@ -51,10 +53,9 @@ local function history()
 		end),
 
 		indexes(state.logs, function(value: () -> types.Log, i: number)
-			return create "Frame" {
-				AutomaticSize = "XY",
-				BackgroundTransparency = 1,
-				LayoutOrder = function()
+			return container {
+				auto = "XY",
+				order = function()
 					return #state.logs() - i + 1
 				end,
 
@@ -68,21 +69,18 @@ local function history()
 					end),
 				},
 
-				create "Frame" {
-					AutomaticSize = "XY",
-					BackgroundTransparency = 1,
+				container {
+					auto = "XY",
 
 					flex():fill("horizontal"):vertical("center"):gap(8):column(),
 
-					create "Frame" {
-						AutomaticSize = "XY",
-
-						BackgroundColor3 = function()
+					background {
+						auto = "XY",
+						color = function()
 							return value().response.success and state.theme().highlight or state.theme().error
 						end,
 
 						corner(px(4)),
-
 						padding(px(4)),
 						flex():fill("horizontal"):vertical("center"):gap(4):column(),
 

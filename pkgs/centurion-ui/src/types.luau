@@ -12,6 +12,7 @@ export type Options = {
 	icon: string,
 	transparency: number,
 	format_date: (log: Log) -> string,
+	max_suggestions: number,
 
 	text_size: number,
 	subtext_size: number,

@@ -1,7 +1,7 @@
-local create = require("../create")
 local px = require("../px")
 local vide = require("../../vide")
 
+local create = vide.create
 local source = vide.source
 
 return function()

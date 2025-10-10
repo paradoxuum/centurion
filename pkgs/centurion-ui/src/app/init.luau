@@ -2,9 +2,10 @@ local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 
 local analyse = require("./analyse")
+local background = require("./components/background")
 local centurion = require("../centurion")
+local container = require("./components/container")
 local corner = require("./components/corner")
-local create = require("./create")
 local flex = require("./components/flex")
 local history = require("@self/history")
 local padding = require("./components/padding")
@@ -17,6 +18,7 @@ local types = require("./types")
 local vide = require("../vide")
 
 local action = vide.action
+local create = vide.create
 local cleanup = vide.cleanup
 local changed = vide.changed
 local derive = vide.derive
@@ -147,15 +149,14 @@ local function app()
 		end)
 	end)
 
-	return create "Frame" {
-		AutomaticSize = "Y",
-		AnchorPoint = state.anchor,
-		Position = px(state.position),
-		Size = px(function()
+	return container {
+		auto = "Y",
+		anchor = state.anchor,
+		position = px(state.position),
+		size = px(function()
 			local w = state.width()
 			return UDim2.new(w.Scale, w.Offset, 0, 0)
 		end),
-		BackgroundTransparency = 1,
 
 		corner(px(8)),
 		padding(px(12)),
@@ -165,13 +166,13 @@ local function app()
 			Padding = px(UDim.new(0, 8)),
 		},
 
-		create "Frame" {
-			AutomaticSize = Enum.AutomaticSize.Y,
-			BackgroundColor3 = function()
+		background {
+			auto = "Y",
+			size = UDim2.new(1, 0, 0, 0),
+			color = function()
 				return state.theme().background
 			end,
-			BackgroundTransparency = state.transparency,
-			Size = UDim2.new(1, 0, 0, 0),
+			transparency = state.transparency,
 
 			flex():fill("horizontal"):vertical("bottom"),
 			corner(px(4)),
@@ -271,15 +272,15 @@ local function app()
 			},
 		},
 
-		create "Frame" {
-			AutomaticSize = "XY",
-			Visible = function()
+		background {
+			auto = "XY",
+			visible = function()
 				return analysis() and not analysis().result.success
 			end,
-			BackgroundColor3 = function()
+			color = function()
 				return state.theme().surface
 			end,
-			BackgroundTransparency = state.transparency,
+			transparency = state.transparency,
 
 			corner(px(4)),
 			padding(px(8)),

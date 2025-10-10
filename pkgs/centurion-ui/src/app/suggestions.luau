@@ -1,4 +1,6 @@
+local background = require("../components/background")
 local centurion = require("../../centurion")
+local container = require("../components/container")
 local corner = require("../components/corner")
 local flex = require("../components/flex")
 local padding = require("../components/padding")
@@ -28,12 +30,18 @@ local function suggestions(props: Suggestions)
 			return nil
 		end
 
-		return centurion.command.commands[props.analysis().command].arguments[props.analysis().argument]
+		local cmd = centurion.command.commands[props.analysis().command]
+		if cmd == nil or cmd.arguments == nil then
+			return nil
+		end
+
+		local args = { cmd.arguments() }
+		return args[props.analysis().argument]
 	end)
 
-	return create "Frame" {
-		AutomaticSize = "XY",
-		BackgroundTransparency = 1,
+	return container {
+		auto = "XY",
+		size = UDim2.fromScale(0, 0),
 
 		corner(px(4)),
 		flex():fill("horizontal"):vertical("top"):gap(8),
@@ -41,12 +49,12 @@ local function suggestions(props: Suggestions)
 		show(function()
 			return arg() ~= nil
 		end, function()
-			return create "Frame" {
-				AutomaticSize = "XY",
-				BackgroundColor3 = function()
+			return background {
+				auto = "XY",
+				color = function()
 					return state.theme().surface
 				end,
-				BackgroundTransparency = state.transparency,
+				transparency = state.transparency,
 
 				corner(px(4)),
 				padding(px(8)),
@@ -61,12 +69,12 @@ local function suggestions(props: Suggestions)
 					xalignment = Enum.TextXAlignment.Left,
 				},
 
-				create "Frame" {
-					AutomaticSize = "XY",
-					BackgroundColor3 = function()
+				background {
+					auto = "XY",
+					color = function()
 						return state.theme().highlight
 					end,
-					BackgroundTransparency = state.transparency,
+					transparency = state.transparency,
 
 					corner(px(4)),
 					padding(px(4)),
@@ -99,14 +107,7 @@ local function suggestions(props: Suggestions)
 		end),
 
 		indexes(function()
-			local suggested = props.analysis().suggestions
-			local limited = {}
-
-			-- todo: create constant or option for max suggestions
-			for i = 1, math.min(5, #suggested) do
-				limited[i] = suggested[i]
-			end
-			return limited
+			return props.analysis().suggestions
 		end, function(value: () -> types.AnalysisSuggestion, i)
 			return create "TextButton" {
 				AutomaticSize = "XY",

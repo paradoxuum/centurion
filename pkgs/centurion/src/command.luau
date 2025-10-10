@@ -5,7 +5,7 @@ local types = require("./types")
 
 local commands: types.CommandMap = {}
 
-type RegisterCallback = (name: string, command: types.Command) -> ()
+type RegisterCallback = (name: string, command: types.Command<unknown>) -> ()
 
 local on_register_callbacks: { RegisterCallback } = {}
 local on_unregister_callbacks: { RegisterCallback } = {}
@@ -20,7 +20,7 @@ local function set_network_handler(callback: NetworkHandler)
 end
 
 local function call_guard(ctx: types.ExecutionContext, name: string, callback: (ctx: types.ExecutionContext) -> boolean)
-	local result, value = pcall(callback, ctx)
+	local result, value = pcall(callback :: any, ctx)
 	if not result then
 		warn(`Guard execution failed for '{name}': ` .. tostring(value))
 		ctx.error("Failed to execute command.")
@@ -35,7 +35,7 @@ local function execute(executor: Player, name: string, args: { string }?): types
 	assert(command, "Command '" .. name .. "' is not registered.")
 
 	if not command.callback then
-		assert(network_handler, "Network handler must be set before client-sided server command execution.")
+		assert(network_handler, "Network handler must be set before server command execution on the client.")
 		return network_handler(name, args)
 	end
 
@@ -61,7 +61,7 @@ local function execute(executor: Player, name: string, args: { string }?): types
 
 	local transformed_args = {}
 	if command.arguments then
-		local res = argument.transform(executor, args, command.arguments)
+		local res = argument.transform(executor, args, { command.arguments() } :: { types.Argument })
 		if not res.success then
 			ctx.error(res.error)
 			return ctx
@@ -69,7 +69,7 @@ local function execute(executor: Player, name: string, args: { string }?): types
 		transformed_args = res.value
 	end
 
-	local success, value = pcall(command.callback, ctx, unpack(transformed_args))
+	local success, value = pcall(command.callback :: any, ctx, unpack(transformed_args))
 	if not success then
 		warn(`Failed to execute '{ctx.input}': ` .. tostring(value))
 		ctx.error("Failed to execute command.")
@@ -83,12 +83,12 @@ local function execute(executor: Player, name: string, args: { string }?): types
 	return ctx
 end
 
-local function register(name: string, command: types.Command)
+local function register<T...>(name: string, command: types.Command<T...>)
 	assert(commands[name] == nil, "Command with name '" .. name .. "' is already registered.")
 	commands[name] = command
 
 	for _, callback in on_register_callbacks do
-		callback(name, command)
+		callback(name, command :: types.Command<unknown>)
 	end
 end
 
@@ -99,7 +99,7 @@ local function unregister(name: string)
 	commands[name] = nil
 
 	for _, callback in on_unregister_callbacks do
-		callback(name, command)
+		callback(name, command :: types.Command<unknown>)
 	end
 end
 

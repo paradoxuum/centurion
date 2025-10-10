@@ -2,7 +2,7 @@ local leventine = require("./leventine")
 
 local MIN_SCORE = -math.huge
 
-local function suggest(input: string, candidates: { string }): { string }
+local function suggest(input: string, candidates: { string }, max_suggestions: number?): { string }
 	if #input == 0 then
 		return candidates
 	end
@@ -32,8 +32,8 @@ local function suggest(input: string, candidates: { string }): { string }
 	end)
 
 	local mapped = {}
-	for _, entry in scored do
-		table.insert(mapped, entry.text)
+	for i = 1, math.min(max_suggestions or #scored, #scored) do
+		table.insert(mapped, scored[i].text)
 	end
 	return mapped
 end
