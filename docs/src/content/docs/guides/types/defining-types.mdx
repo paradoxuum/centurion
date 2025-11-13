@@ -5,6 +5,9 @@ description: Learn how to define types.
 
 import { Code } from '@astrojs/starlight/components';
 
+Types are defined in a folder where both the client and server have access to them (i.e. `ReplicatedStorage/types`).
+That way both the client and the server will be able to add your custom defined types to the registry.
+
 In order to define a type, you should use `TypeBuilder`.
 This is a helper class to make defining types easier.
 
