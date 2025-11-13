@@ -12,7 +12,7 @@ This is a helper class to make defining types easier.
 This object is used to register the type.
 
 <Code lang="ts" code={`
-import { TransformResult, TypeBuilder } from "@rbxts/centurion";
+import { BaseRegistry, TransformResult, TypeBuilder } from "@rbxts/centurion";
 import { t } from "@rbxts/t";
 
 const playerType = TypeBuilder.create<Player>("player")
@@ -29,6 +29,10 @@ const playerType = TypeBuilder.create<Player>("player")
 	})
 	.suggestions(() => Players.GetPlayers().map((player) => player.Name))
 	.build();
+
+export = (registry: BaseRegistry) => {
+	registry.registerType(playerType);
+}
 `} />
 
 The `string` you provide to `TypeBuilder.create` will be the name of the type.
