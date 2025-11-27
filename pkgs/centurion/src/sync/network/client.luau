@@ -149,6 +149,10 @@ local remotes = ReplicatedStorage:WaitForChild("ZAP")
 local reliable = remotes:WaitForChild("CENTURION_RELIABLE")
 assert(reliable:IsA("RemoteEvent"), "Expected CENTURION_RELIABLE to be a RemoteEvent")
 
+export type Command = ({
+	["description"]: ((string)?),
+	["arguments"]: ((unknown)),
+})
 export type ExecutionContext = ({
 	["executor"]: (Player),
 	["command"]: (string),
@@ -160,30 +164,22 @@ export type ExecutionContext = ({
 		["timestamp"]: (number),
 	})?),
 })
-export type Command = ({
-	["description"]: ((string)?),
-	["arguments"]: ((unknown)),
-	["guards"]: (({ (string) })?),
-})
 export type SyncPayload = ({
 	["type"]: "init",
 	["data"]: ({ [(string)]: ({
 		["description"]: ((string)?),
 		["arguments"]: ((unknown)),
-		["guards"]: (({ (string) })?),
 	}) }),
 } | {
 	["type"]: "patch",
 	["data"]: ({ [(string)]: ({
 		["description"]: ((string)?),
 		["arguments"]: ((unknown)),
-		["guards"]: (({ (string) })?),
 	}) }),
 })
 export type CommandMap = ({ [(string)]: ({
 	["description"]: ((string)?),
 	["arguments"]: ((unknown)),
-	["guards"]: (({ (string) })?),
 }) })
 
 local function SendEvents()
@@ -241,18 +237,6 @@ reliable.OnClientEvent:Connect(function(buff, inst)
 						else
 							val_1["arguments"] = nil
 						end
-						if bit32.btest(bool_2, 0b0000000000000100) then
-							local len_3 = buffer.readu16(incoming_buff, read(2))
-							val_1["guards"] = table.create(len_3)
-							for i_1 = 1, len_3 do
-								local val_2
-								local len_4 = buffer.readu16(incoming_buff, read(2))
-								val_2 = buffer.readstring(incoming_buff, read(len_4), len_4)
-								val_1["guards"][i_1] = val_2
-							end
-						else
-							val_1["guards"] = nil
-						end
 						value["data"][key_1] = val_1
 					end
 				end
@@ -263,35 +247,23 @@ reliable.OnClientEvent:Connect(function(buff, inst)
 					for _ = 1, buffer.readu16(incoming_buff, read(2)) + 1 do
 						local bool_3 = buffer.readu8(incoming_buff, read(1))
 						local key_2
-						local val_3
-						local len_5 = buffer.readu16(incoming_buff, read(2))
-						key_2 = buffer.readstring(incoming_buff, read(len_5), len_5)
-						val_3 = {  }
+						local val_2
+						local len_3 = buffer.readu16(incoming_buff, read(2))
+						key_2 = buffer.readstring(incoming_buff, read(len_3), len_3)
+						val_2 = {  }
 						if bit32.btest(bool_3, 0b0000000000000001) then
-							local len_6 = buffer.readu16(incoming_buff, read(2))
-							val_3["description"] = buffer.readstring(incoming_buff, read(len_6), len_6)
+							local len_4 = buffer.readu16(incoming_buff, read(2))
+							val_2["description"] = buffer.readstring(incoming_buff, read(len_4), len_4)
 						else
-							val_3["description"] = nil
+							val_2["description"] = nil
 						end
 						if bit32.btest(bool_3, 0b0000000000000010) then
 							incoming_ipos = incoming_ipos + 1
-							val_3["arguments"] = incoming_inst[incoming_ipos]
+							val_2["arguments"] = incoming_inst[incoming_ipos]
 						else
-							val_3["arguments"] = nil
+							val_2["arguments"] = nil
 						end
-						if bit32.btest(bool_3, 0b0000000000000100) then
-							local len_7 = buffer.readu16(incoming_buff, read(2))
-							val_3["guards"] = table.create(len_7)
-							for i_2 = 1, len_7 do
-								local val_4
-								local len_8 = buffer.readu16(incoming_buff, read(2))
-								val_4 = buffer.readstring(incoming_buff, read(len_8), len_8)
-								val_3["guards"][i_2] = val_4
-							end
-						else
-							val_3["guards"] = nil
-						end
-						value["data"][key_2] = val_3
+						value["data"][key_2] = val_2
 					end
 				end
 			end
@@ -312,23 +284,23 @@ reliable.OnClientEvent:Connect(function(buff, inst)
 			value["executor"] = incoming_inst[incoming_ipos]
 			assert(value["executor"] ~= nil, "received instance is nil!")
 			assert(value["executor"]:IsA("Player"), "received instance is not of the Player class!")
-			local len_9 = buffer.readu16(incoming_buff, read(2))
-			value["command"] = buffer.readstring(incoming_buff, read(len_9), len_9)
-			local len_10 = buffer.readu16(incoming_buff, read(2))
-			value["input"] = buffer.readstring(incoming_buff, read(len_10), len_10)
-			local len_11 = buffer.readu16(incoming_buff, read(2))
-			value["arguments"] = table.create(len_11)
-			for i_3 = 1, len_11 do
-				local val_5
-				local len_12 = buffer.readu16(incoming_buff, read(2))
-				val_5 = buffer.readstring(incoming_buff, read(len_12), len_12)
-				value["arguments"][i_3] = val_5
+			local len_5 = buffer.readu16(incoming_buff, read(2))
+			value["command"] = buffer.readstring(incoming_buff, read(len_5), len_5)
+			local len_6 = buffer.readu16(incoming_buff, read(2))
+			value["input"] = buffer.readstring(incoming_buff, read(len_6), len_6)
+			local len_7 = buffer.readu16(incoming_buff, read(2))
+			value["arguments"] = table.create(len_7)
+			for i_1 = 1, len_7 do
+				local val_3
+				local len_8 = buffer.readu16(incoming_buff, read(2))
+				val_3 = buffer.readstring(incoming_buff, read(len_8), len_8)
+				value["arguments"][i_1] = val_3
 			end
 			if bit32.btest(bool_4, 0b0000000000000001) then
 				value["response"] = {  }
 				value["response"]["success"] = bit32.btest(bool_4, 0b0000000000000010)
-				local len_13 = buffer.readu16(incoming_buff, read(2))
-				value["response"]["message"] = buffer.readstring(incoming_buff, read(len_13), len_13)
+				local len_9 = buffer.readu16(incoming_buff, read(2))
+				value["response"]["message"] = buffer.readstring(incoming_buff, read(len_9), len_9)
 				value["response"]["timestamp"] = buffer.readu32(incoming_buff, read(4))
 			else
 				value["response"] = nil
@@ -355,14 +327,12 @@ local returns = {
 			["data"]: ({ [(string)]: ({
 				["description"]: ((string)?),
 				["arguments"]: ((unknown)),
-				["guards"]: (({ (string) })?),
 			}) }),
 		} | {
 			["type"]: "patch",
 			["data"]: ({ [(string)]: ({
 				["description"]: ((string)?),
 				["arguments"]: ((unknown)),
-				["guards"]: (({ (string) })?),
 			}) }),
 		})) -> ()): () -> ()
 			reliable_events[0] = Callback
@@ -405,23 +375,23 @@ local returns = {
 			buffer.writeu8(outgoing_buff, outgoing_apos, function_call_id)
 			local bool_5 = 0
 			local bool_5_pos_1 = alloc(1)
-			local len_14 = #Command
+			local len_10 = #Command
 			alloc(2)
-			buffer.writeu16(outgoing_buff, outgoing_apos, len_14)
-			alloc(len_14)
-			buffer.writestring(outgoing_buff, outgoing_apos, Command, len_14)
+			buffer.writeu16(outgoing_buff, outgoing_apos, len_10)
+			alloc(len_10)
+			buffer.writestring(outgoing_buff, outgoing_apos, Command, len_10)
 			if Args ~= nil then
 				bool_5 = bit32.bor(bool_5, 0b0000000000000001)
-				local len_15 = #Args
+				local len_11 = #Args
 				alloc(2)
-				buffer.writeu16(outgoing_buff, outgoing_apos, len_15)
-				for i_4 = 1, len_15 do
-					local val_6 = Args[i_4]
-					local len_16 = #val_6
+				buffer.writeu16(outgoing_buff, outgoing_apos, len_11)
+				for i_2 = 1, len_11 do
+					local val_4 = Args[i_2]
+					local len_12 = #val_4
 					alloc(2)
-					buffer.writeu16(outgoing_buff, outgoing_apos, len_16)
-					alloc(len_16)
-					buffer.writestring(outgoing_buff, outgoing_apos, val_6, len_16)
+					buffer.writeu16(outgoing_buff, outgoing_apos, len_12)
+					alloc(len_12)
+					buffer.writestring(outgoing_buff, outgoing_apos, val_4, len_12)
 				end
 			end
 			buffer.writeu8(outgoing_buff, bool_5_pos_1, bool_5)
