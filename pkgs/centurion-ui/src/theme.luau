@@ -1,6 +1,6 @@
 local types = require("./types")
 
-local font = Font.fromEnum(Enum.Font.SourceSans)
+local font = Font.fromId(12187370747)
 
 local function text_color(theme: types.Theme, style: types.TextStyle)
 	return if style == "normal"

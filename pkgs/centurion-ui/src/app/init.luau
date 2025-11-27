@@ -24,6 +24,7 @@ local changed = vide.changed
 local derive = vide.derive
 local effect = vide.effect
 local source = vide.source
+local spring = vide.spring
 
 local default_analysis = {
 	result = {
@@ -285,7 +286,7 @@ local function app()
 		},
 
 		container {
-			size = vide.spring(function()
+			size = spring(function()
 				local analysis_value = analysis()
 				if analysis_value == nil then
 					return UDim2.fromScale(1, 0)

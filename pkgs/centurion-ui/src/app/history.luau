@@ -15,6 +15,7 @@ local changed = vide.changed
 local cleanup = vide.cleanup
 local indexes = vide.indexes
 local source = vide.source
+local spring = vide.spring
 
 type Logs = {
 	[number]: unknown,
@@ -28,12 +29,9 @@ local function history()
 		BackgroundTransparency = 1,
 		CanvasSize = UDim2.new(1, 0, 0, 0),
 		ScrollingDirection = Enum.ScrollingDirection.Y,
-		Size = vide.spring(function()
+		Size = spring(function()
 			return UDim2.fromOffset(0, content_height().Y)
 		end, 0.1),
-		Visible = function()
-			return #state.logs() > 0
-		end,
 
 		create "UIListLayout" {
 			HorizontalFlex = Enum.UIFlexAlignment.Fill,

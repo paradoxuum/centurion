@@ -1,42 +1,12 @@
 local app = require("../app")
 local centurion = require("../../centurion")
-local state = require("../state")
 local story = require("./story")
-local theme = require("../theme")
-local types = require("../types")
+local ui = require("../../src")
 
 return story({}, function()
-	local theme_names = {}
-	for name in pairs(theme.themes :: { [string]: types.Theme }) do
-		table.insert(theme_names, name)
-	end
-	local theme_arg = centurion.arg.register("theme", centurion.arg.enum(theme_names))
+	ui.register_commands()
 
-	centurion.command.register("centurion clear", {
-		description = "Clear the command history",
-		callback = function()
-			state.logs({})
-			return ""
-		end,
-	})
-	centurion.command.register("centurion theme", {
-		description = "Change the theme",
-		arguments = function()
-			return theme_arg("theme", "The name of the theme to switch to")
-		end,
-		callback = function(ctx, theme_name)
-			local data = theme.themes[theme_name]
-			if not data then
-				ctx.error("Theme '" .. theme_name .. "' does not exist.")
-				return
-			end
-
-			state.theme(data)
-			return `Theme changed to {theme_name}`
-		end,
-	})
-
-	centurion.command.register("test test", {
+	centurion.command.register("test test2", {
 		description = "Test command",
 		arguments = function()
 			return centurion.types.number("arg1", "test argument", {
