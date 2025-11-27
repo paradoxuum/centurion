@@ -10,7 +10,6 @@ type SyncPayload = enum "type" {
 type Command = struct {
 	description: string.binary?,
 	arguments: unknown,
-	guards: string.binary[]?,
 }
 
 type ExecutionContext = struct {
