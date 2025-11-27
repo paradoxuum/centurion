@@ -223,7 +223,6 @@ local function network_server()
 end
 
 local function network_client()
-	local argument = require("./argument")
 	local client_remotes = require("@self/network/client")
 	local syncer = client()
 

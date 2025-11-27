@@ -12,10 +12,6 @@ end
 
 local strict = inlineTest() == "inlineTest"
 
-local function isNone(value: any): boolean
-	return type(value) == "table" and value.__none == "__none"
-end
-
 --- JSON serialization can drop the last values of a sparse array. For example,
 --- `{ [1] = 1, [3] = 3 }` becomes `[1]` in some cases. Ambiguity in the
 --- serialization of sparse arrays can be resolved by converting them to
@@ -109,7 +105,6 @@ local function apply(state: any, patches: any): any
 end
 
 return {
-	isNone = isNone,
 	diff = diff,
 	apply = apply,
 }
