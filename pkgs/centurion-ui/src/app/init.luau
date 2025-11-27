@@ -25,16 +25,21 @@ local derive = vide.derive
 local effect = vide.effect
 local source = vide.source
 
+local default_analysis = {
+	result = {
+		success = true,
+		value = nil,
+	},
+	suggestions = {},
+} :: types.AnalysisResult
+
 local function app()
 	local raw_text = source("")
 	local cursor_pos = source(0)
-	local analysis = source({
-		result = {
-			success = true,
-			value = nil,
-		},
-		suggestions = {},
-	} :: types.AnalysisResult)
+	local analysis = source(default_analysis)
+
+	-- same as analysis, but isn't reset when submitting (used for animations)
+	local display_analysis = source(default_analysis)
 
 	local executing = source(false)
 	local selected_suggestion = source(1)
@@ -96,6 +101,13 @@ local function app()
 
 		selected_suggestion(math.clamp(selected_suggestion() + (up and -1 or 1), 1, #suggested))
 	end
+
+	effect(function()
+		if raw_text() == "" then
+			return
+		end
+		display_analysis(analysis())
+	end)
 
 	cleanup(UserInputService.InputBegan:Connect(function(input)
 		if input.UserInputState ~= Enum.UserInputState.Begin then
@@ -272,38 +284,55 @@ local function app()
 			},
 		},
 
-		background {
-			auto = "XY",
-			visible = function()
-				return analysis() and not analysis().result.success
-			end,
-			color = function()
-				return state.theme().surface
-			end,
-			transparency = state.transparency,
+		container {
+			size = vide.spring(function()
+				local analysis_value = analysis()
+				if analysis_value == nil then
+					return UDim2.fromScale(1, 0)
+				end
 
-			corner(px(4)),
-			padding(px(8)),
-			catch_hover(),
+				return (not analysis_value.result.success or #analysis().suggestions > 0) and UDim2.fromScale(1, 1)
+					or UDim2.fromScale(1, 0)
+			end, 0.4),
+			clip = true,
 
-			text {
-				auto = "XY",
-				text = function()
-					return analysis().result.error or ""
-				end,
-				text_style = "error",
-				xalignment = Enum.TextXAlignment.Left,
+			create "UIListLayout" {
+				SortOrder = Enum.SortOrder.LayoutOrder,
+				Padding = px(UDim.new(0, 8)),
 			},
-		},
 
-		suggestions {
-			analysis = analysis,
-			selected_suggestion = selected_suggestion,
-			on_select = function(suggestion: types.AnalysisSuggestion)
-				raw_text(autofill(raw_text(), suggestion.span, suggestion.replace))
-			end,
+			background {
+				auto = "XY",
+				visible = function()
+					return display_analysis() and not display_analysis().result.success
+				end,
+				color = function()
+					return state.theme().surface
+				end,
+				transparency = state.transparency,
 
-			catch_hover(),
+				corner(px(4)),
+				padding(px(8)),
+				catch_hover(),
+
+				text {
+					auto = "XY",
+					text = function()
+						return display_analysis().result.error or ""
+					end,
+					text_style = "error",
+					xalignment = Enum.TextXAlignment.Left,
+				},
+			},
+			suggestions {
+				analysis = display_analysis,
+				selected_suggestion = selected_suggestion,
+				on_select = function(suggestion: types.AnalysisSuggestion)
+					raw_text(autofill(raw_text(), suggestion.span, suggestion.replace))
+				end,
+
+				catch_hover(),
+			},
 		},
 	}
 end

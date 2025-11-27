@@ -10,6 +10,7 @@ type Container = {
 	read zindex: Can<number>?,
 	read auto: Can<Enum.AutomaticSize | "X" | "Y" | "XY">?,
 	read order: Can<number>?,
+	read clip: Can<boolean>?,
 
 	[number]: unknown,
 }
@@ -22,6 +23,7 @@ return function(props: Container)
 		AutomaticSize = props.auto,
 		LayoutOrder = props.order,
 		ZIndex = props.zindex,
+		ClipsDescendants = props.clip,
 
 		AutoLocalize = false,
 		BackgroundTransparency = 1,
