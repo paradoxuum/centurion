@@ -292,7 +292,12 @@ local function app()
 					return UDim2.fromScale(1, 0)
 				end
 
-				return (not analysis_value.result.success or #analysis().suggestions > 0) and UDim2.fromScale(1, 1)
+				return (
+					not analysis_value.result.success
+					or analysis_value.argument ~= nil
+					or #analysis_value.suggestions > 0
+				)
+						and UDim2.fromScale(1, 1)
 					or UDim2.fromScale(1, 0)
 			end, 0.4),
 			clip = true,
