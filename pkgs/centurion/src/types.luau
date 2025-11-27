@@ -2,7 +2,7 @@ export type Command<T...> = {
 	callback: (ctx: ExecutionContext, T...) -> any,
 	description: string?,
 	arguments: () -> T...,
-	guards: { string }?,
+	guards: { string | Guard }?,
 }
 
 export type Argument = {

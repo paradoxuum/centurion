@@ -49,11 +49,18 @@ local function execute(executor: Player, name: string, args: { string }?): types
 	end
 
 	if command.guards then
-		for _, guard_name in command.guards do
-			local guard_callback = guard.guards[guard_name]
-			assert(guard_callback, "Guard '" .. guard_name .. "' is not registered.")
+		for i, cmd_guard in command.guards do
+			if type(cmd_guard) ~= "string" then
+				if not call_guard(ctx, `guard #{i}`, cmd_guard :: types.Guard) then
+					return ctx
+				end
+				continue
+			end
 
-			if not call_guard(ctx, guard_name, guard_callback) then
+			local guard_callback = guard.guards[cmd_guard]
+			assert(guard_callback, "Guard '" .. cmd_guard .. "' is not registered.")
+
+			if not call_guard(ctx, cmd_guard, guard_callback) then
 				return ctx
 			end
 		end
@@ -85,7 +92,7 @@ end
 
 local function register<T...>(name: string, command: types.Command<T...>)
 	assert(commands[name] == nil, "Command with name '" .. name .. "' is already registered.")
-	commands[name] = command
+	commands[name] = command :: any
 
 	for _, callback in on_register_callbacks do
 		callback(name, command :: types.Command<unknown>)
