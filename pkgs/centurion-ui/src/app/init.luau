@@ -137,7 +137,13 @@ local function app()
 			return
 		end
 
-		state.opened(not state.opened())
+		local opened = not state.opened()
+		state.opened(opened)
+
+		local input_text = raw_text()
+		if opened and #input_text > 0 then
+			analysis(analyse(input_text, #input_text + 1))
+		end
 	end))
 
 	local analysing = false
@@ -155,7 +161,7 @@ local function app()
 
 			local pos = cursor_pos()
 			if pos == -1 then
-				pos = #raw_text() + 1
+				return
 			end
 
 			analysis(analyse(raw_text(), pos))
