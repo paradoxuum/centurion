@@ -14,6 +14,7 @@ local create = vide.create
 local changed = vide.changed
 local cleanup = vide.cleanup
 local indexes = vide.indexes
+local read = vide.read
 local source = vide.source
 local spring = vide.spring
 
@@ -21,8 +22,17 @@ type Logs = {
 	[number]: unknown,
 }
 
-local function history()
+type History = {
+	read max_lines: number | () -> number,
+}
+
+local line_height = 35
+
+local function history(props: History)
 	local content_height = source(Vector2.new())
+	local max_height = px(function()
+		return line_height * (read(props.max_lines) :: number)
+	end)
 
 	return vide.create "ScrollingFrame" {
 		AutomaticCanvasSize = Enum.AutomaticSize.Y,
@@ -30,7 +40,7 @@ local function history()
 		CanvasSize = UDim2.new(1, 0, 0, 0),
 		ScrollingDirection = Enum.ScrollingDirection.Y,
 		Size = spring(function()
-			return UDim2.fromOffset(0, content_height().Y)
+			return UDim2.fromOffset(0, math.min(content_height().Y, max_height()))
 		end, 0.1),
 
 		create "UIListLayout" {

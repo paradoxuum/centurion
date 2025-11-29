@@ -33,6 +33,7 @@ local default_analysis = {
 	},
 	suggestions = {},
 } :: types.AnalysisResult
+local max_history_lines = 8
 
 local function app()
 	local raw_text = source("")
@@ -198,7 +199,9 @@ local function app()
 			corner(px(4)),
 			catch_hover(),
 
-			history(),
+			history {
+				max_lines = max_history_lines,
+			},
 
 			textbox {
 				corner(px(4)),
