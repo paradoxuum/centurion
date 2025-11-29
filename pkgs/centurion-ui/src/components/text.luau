@@ -36,7 +36,7 @@ return function(props: Background)
 			return theme.text_color(state.theme(), props.text_style and read(props.text_style) or "normal")
 		end,
 		FontFace = function()
-			local f: Font = state.theme().font
+			local f: Font = state.font()
 			local weight = read(props.weight) or Enum.FontWeight.Regular
 			return Font.new(f.Family, weight)
 		end,

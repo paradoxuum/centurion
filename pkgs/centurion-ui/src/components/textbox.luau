@@ -51,9 +51,7 @@ return function(props: Background)
 		TextXAlignment = props.xalignment,
 		TextEditable = props.editable,
 		MultiLine = props.multiline,
-		FontFace = function()
-			return state.theme().font
-		end,
+		FontFace = state.font,
 		RichText = props.rich_text,
 		PlaceholderColor3 = function()
 			return state.theme().subtext

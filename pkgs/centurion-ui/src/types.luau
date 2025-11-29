@@ -9,6 +9,7 @@ export type Options = {
 	hide_on_lost_focus: boolean,
 	activation_keys: { Enum.KeyCode },
 	theme: Theme,
+	font: Font,
 	icon: string,
 	transparency: number,
 	format_date: (log: Log) -> string,
@@ -30,7 +31,6 @@ export type Theme = {
 	highlight: Color3,
 	success: Color3,
 	error: Color3,
-	font: Font,
 }
 
 export type AnalysisSuggestion = {

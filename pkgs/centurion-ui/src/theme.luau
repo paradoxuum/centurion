@@ -1,7 +1,5 @@
 local types = require("./types")
 
-local font = Font.fromId(12187370747)
-
 local function text_color(theme: types.Theme, style: types.TextStyle)
 	return if style == "normal"
 		then theme.text
@@ -20,7 +18,6 @@ local themes = {
 		highlight = Color3.fromRGB(137, 180, 250),
 		success = Color3.fromRGB(166, 227, 161),
 		error = Color3.fromRGB(243, 139, 168),
-		font = font,
 	} :: types.Theme,
 	macchiato = {
 		background = Color3.fromRGB(36, 39, 58),
@@ -30,7 +27,6 @@ local themes = {
 		highlight = Color3.fromRGB(138, 173, 244),
 		success = Color3.fromRGB(166, 218, 149),
 		error = Color3.fromRGB(237, 135, 150),
-		font = font,
 	} :: types.Theme,
 	frappe = {
 		background = Color3.fromRGB(48, 52, 70),
@@ -40,7 +36,6 @@ local themes = {
 		highlight = Color3.fromRGB(140, 170, 238),
 		success = Color3.fromRGB(166, 209, 137),
 		error = Color3.fromRGB(231, 130, 132),
-		font = font,
 	} :: types.Theme,
 	latte = {
 		background = Color3.fromRGB(230, 233, 239),
@@ -50,7 +45,6 @@ local themes = {
 		highlight = Color3.fromRGB(30, 102, 245),
 		success = Color3.fromRGB(64, 160, 43),
 		error = Color3.fromRGB(210, 15, 57),
-		font = font,
 	} :: types.Theme,
 	roblox = {
 		background = Color3.fromRGB(17, 18, 22),
@@ -60,7 +54,6 @@ local themes = {
 		highlight = Color3.fromRGB(51, 95, 255),
 		success = Color3.fromRGB(57, 197, 130),
 		error = Color3.fromRGB(240, 68, 51),
-		font = font,
 	} :: types.Theme,
 }
 
