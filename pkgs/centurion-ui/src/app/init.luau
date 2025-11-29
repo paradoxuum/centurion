@@ -139,6 +139,7 @@ local function app()
 
 		local opened = not state.opened()
 		state.opened(opened)
+		state.focused(opened)
 
 		local input_text = raw_text()
 		if opened and #input_text > 0 then
@@ -233,13 +234,14 @@ local function app()
 
 				enter = function(value)
 					raw_text("")
+					if #value:gsub("%s", "") == 0 then
+						state.opened(false)
+						return
+					end
+
 					task.delay(0.1, function()
 						state.focused(true)
 					end)
-
-					if #value:gsub("%s", "") == 0 then
-						return
-					end
 
 					cmd_history_index = 0
 					table.insert(cmd_history, 1, value)
