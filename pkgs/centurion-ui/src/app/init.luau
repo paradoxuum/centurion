@@ -261,7 +261,7 @@ local function app()
 
 					executing(true)
 
-					local result = centurion.command.execute(Players.LocalPlayer, cmd, analysis().arguments or {})
+					local result = centurion.execute_command(Players.LocalPlayer, cmd, analysis().arguments or {})
 					if result.response then
 						if result.response.message ~= "" then
 							log(value, result.response)

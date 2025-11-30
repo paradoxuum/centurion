@@ -8,8 +8,6 @@ local theme = require("@self/theme")
 local types = require("@self/types")
 local vide = require("./vide")
 
-local register = centurion.command.register
-
 local mounted = false
 
 local function mount(keys: { Enum.KeyCode })
@@ -57,7 +55,8 @@ local function configure(options: unknown)
 end
 
 local function register_commands()
-	register("centurion clear", {
+	local cmd = centurion.register_command
+	cmd("centurion clear", {
 		description = "Clear the command history",
 		callback = function()
 			state.logs({})
@@ -70,8 +69,8 @@ local function register_commands()
 		table.insert(theme_names, name)
 	end
 
-	local centurion_theme = centurion.arg.register("centurion-theme", centurion.arg.enum(theme_names))
-	register("centurion theme", {
+	local centurion_theme = centurion.register_type("centurion-theme", centurion.create_enum(theme_names))
+	cmd("centurion theme", {
 		description = "Change the theme",
 		arguments = function()
 			return centurion_theme("theme", "The name of the theme to switch to")

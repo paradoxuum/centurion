@@ -1,1 +1,1 @@
-return require(script.Parent.Parent.DevPackages.vide)
+return require(script.Parent.Parent.vide.src)

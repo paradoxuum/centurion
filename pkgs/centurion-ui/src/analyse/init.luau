@@ -117,7 +117,7 @@ local function analyse(text: string, cursor_pos: number, max_suggestions: number
 		}
 	end
 
-	local cmds = centurion.command.commands
+	local cmds = centurion.registry.commands
 
 	local cmd_name: string? = nil
 	local cmd_index: number? = nil
@@ -165,7 +165,7 @@ local function analyse(text: string, cursor_pos: number, max_suggestions: number
 			table.insert(arg_text, token.text)
 		end
 
-		local transform_result = centurion.arg.transform(Players.LocalPlayer, arg_text, cmd_args)
+		local transform_result = centurion.transform_args(Players.LocalPlayer, arg_text, cmd_args)
 
 		if not at_arg then
 			return {
@@ -211,7 +211,7 @@ local function analyse(text: string, cursor_pos: number, max_suggestions: number
 		end
 
 		local arg = cmd_args[arg_index]
-		local arg_type = centurion.arg.types[arg.type]
+		local arg_type = centurion.registry.types[arg.type]
 		assert(arg_type, "Unknown argument type: " .. tostring(arg.type))
 
 		local input_token = arg_tokens[input_index]

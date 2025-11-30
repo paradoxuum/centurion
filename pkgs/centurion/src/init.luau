@@ -1,8 +1,12 @@
 local argument = require("@self/argument")
-local builtin = require("@self/builtin")
+local color = require("@self/argument/color")
 local command = require("@self/command")
+local duration = require("@self/argument/duration")
 local guard = require("@self/guard")
+local player = require("@self/argument/player")
+local primitives = require("@self/argument/primitives")
 local sync = require("@self/sync")
+local team = require("@self/argument/team")
 local types = require("@self/types")
 
 export type Argument = types.Argument
@@ -13,10 +17,42 @@ export type Context = types.ExecutionContext
 export type Response = types.Response
 
 return {
-	arg = argument,
-	builtin = builtin,
-	types = builtin.types,
-	command = command,
-	guard = guard,
+	register_command = command.register,
+	register_guard = guard.register,
+	register_type = argument.register,
+	unregister_command = command.unregister,
+
+	create_enum = argument.enum,
+	optional = argument.optional,
+	num_args = argument.num_args,
+	transform_args = argument.transform,
+
+	execute_command = command.execute,
+	set_network_handler = command.set_network_handler,
+	setup_networking = sync.setup,
+
+	registry = {
+		commands = command.commands,
+		types = argument.types,
+		guards = guard.guards,
+		global_guards = guard.global_guards,
+	},
 	sync = sync,
+	args = {
+		string = primitives.string,
+		boolean = primitives.boolean,
+		number = primitives.number,
+		integer = primitives.integer,
+		player = player.player,
+		players = player.players,
+		brick_color = color.brick_color,
+		hex_color = color.hex_color,
+		team = team,
+		duration = duration,
+	},
+	events = {
+		on_command_register = command.on_register,
+		on_command_unregister = command.on_unregister,
+		on_command_execute = command.on_execute,
+	},
 }

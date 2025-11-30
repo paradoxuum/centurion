@@ -1,8 +1,7 @@
 --!nonstrict
-
-local argument = require("./argument")
-local result = require("./result")
-local types = require("./types")
+local argument = require("./.")
+local result = require("../result")
+local types = require("../types")
 
 local register = argument.register
 
@@ -52,13 +51,11 @@ local bool = register("boolean", {
 	end,
 })
 
-type Arg<T> = argument.ArgumentFn<T>
+type Arg<T> = types.ArgumentFn<T>
 
 return {
-	types = {
-		string = str :: Arg<string>,
-		number = number :: Arg<number>,
-		integer = int :: Arg<number>,
-		boolean = bool :: Arg<boolean>,
-	},
+	string = str :: Arg<string>,
+	number = number :: Arg<number>,
+	integer = int :: Arg<number>,
+	boolean = bool :: Arg<boolean>,
 }

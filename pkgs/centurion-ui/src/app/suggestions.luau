@@ -30,7 +30,7 @@ local function suggestions(props: Suggestions)
 			return nil
 		end
 
-		local cmd = centurion.command.commands[props.analysis().command]
+		local cmd = centurion.registry.commands[props.analysis().command]
 		if cmd == nil or cmd.arguments == nil then
 			return nil
 		end

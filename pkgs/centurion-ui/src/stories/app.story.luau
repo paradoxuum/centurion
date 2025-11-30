@@ -6,24 +6,26 @@ local ui = require("../../src")
 return story({}, function()
 	ui.register_commands()
 
-	centurion.command.register("test test2", {
+	local cmd = centurion.register_command
+
+	cmd("test test2", {
 		description = "Test command",
 		arguments = function()
-			return centurion.types.number("arg1", "test argument", {
+			return centurion.args.number("arg1", "test argument", {
 				suggestions = { "1", "2", "invalid number" },
 				num_args = 3,
 			}),
-				centurion.types.boolean("arg2", "test argument 2")
+				centurion.args.boolean("arg2", "test argument 2")
 		end,
 		callback = function(...)
 			print("test1:", ...)
 		end,
 	})
 
-	centurion.command.register("echo", {
+	cmd("echo", {
 		description = "Prints the input back to the console",
 		arguments = function()
-			return centurion.types.string("input", nil, {
+			return centurion.args.string("input", nil, {
 				num_args = "rest",
 			})
 		end,

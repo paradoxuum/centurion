@@ -19,6 +19,8 @@ export type ArgumentType = {
 	suggestions: ((text: string, executor: Player) -> { string })?,
 }
 
+export type ArgumentFn<T> = (name: string, description: string?, suggestions: { string }?) -> T
+
 export type ExecutionContext = {
 	executor: Player,
 	command: string,

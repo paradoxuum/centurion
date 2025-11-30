@@ -2,7 +2,7 @@ local centurion = require("../pkgs/centurion/src")
 local centurion_ui = require("../pkgs/centurion-ui/src")
 -- local network = require("@self/network")
 
-centurion.sync.setup()
+centurion.setup_networking()
 
 -- local syncer = centurion.sync.client()
 -- centurion.command.set_network_handler(function(command, args)

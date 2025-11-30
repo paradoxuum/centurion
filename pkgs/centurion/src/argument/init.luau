@@ -3,8 +3,6 @@ local types = require("./types")
 
 local arg_types: { [string]: types.ArgumentType } = {}
 
-export type ArgumentFn<T> = (name: string, description: string?, suggestions: { string }?) -> T
-
 local function register<T>(type_name: string, data: types.ArgumentType)
 	arg_types[type_name] = data
 
@@ -46,10 +44,10 @@ local function enum(values: { string })
 	}
 end
 
-local function num_args<T>(argument: T, num: number | "rest"): T
+local function num_args<T>(argument: T, num: number | "rest"): { T }
 	local arg = argument :: types.Argument
 	arg.num_args = num
-	return arg
+	return arg :: { T }
 end
 
 local function optional<T>(argument: T): T | nil

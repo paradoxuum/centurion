@@ -10,8 +10,8 @@
 			"pkgs": {
 				"$className": "Folder",
 
-				"DevPackages": {
-					"$path": "DevPackages"
+				"vide": {
+					"$path": "node_modules/@rbxts/vide"
 				},
 
 				"centurion": {
