@@ -2,9 +2,7 @@ local centurion = require(script.Parent)
 local command = require("./command")
 local types = require("./types")
 
-local NO_PROP_MARKER = {}
-local CENTURION_KEY = "centurion"
-local COMMAND_KEY = "command"
+local CLASS_MARKER = {}
 
 type Guard = string | types.Guard
 
@@ -20,92 +18,117 @@ type CommandOptions = {
 	guards: { Guard }?,
 }
 
-type Table = { [any]: any }
+type Metadata = {
+	centurion: ClassOptions?,
+	commands: { [string]: CommandOptions },
+	groups: { [string | {}]: { string } },
+	guards: { [string | {}]: { Guard } },
+}
 
-local metadata: Table = {}
+local metadata: { [any]: Metadata } = {}
 
-local function get_or_create(obj: unknown, prop: string?)
-	local key = prop or NO_PROP_MARKER
-	local obj_metadata = metadata[obj]
-	if not obj_metadata then
-		obj_metadata = {}
-		metadata[obj] = obj_metadata
+-- local function register()
+-- 	return function(target: { [any]: unknown })
+-- 		if not metadata[target] then
+-- 			return
+-- 		end
+-- 		metadata[target].centurion = options
+-- 	end
+-- end
+
+local function get_metadata(target: { [any]: unknown }): Metadata
+	if not metadata[target] then
+		metadata[target] = {
+			commands = {},
+			groups = {},
+			guards = {},
+		}
 	end
-
-	local prop_metadata = obj_metadata[key]
-	if not prop_metadata then
-		prop_metadata = {}
-		obj_metadata[key] = prop_metadata
-	end
-	return prop_metadata :: { [any]: unknown }
-end
-
-local function get(obj: unknown, prop: string?)
-	local key = prop or NO_PROP_MARKER
-	return metadata[obj][key] :: { [any]: unknown } | nil
-end
-
-local function register(options: ClassOptions)
-	return function(target: Table)
-		local obj = setmetatable({}, target) :: { constructor: (unknown) -> any, [any]: unknown }
-		obj:constructor()
-
-		local data = get_or_create(obj)
-		data[CENTURION_KEY] = options
-	end
+	return metadata[target]
 end
 
 local function command_decorator(options: CommandOptions)
 	return function(target: { [any]: unknown }, key: string)
-		local data = get(target, key)
-		assert(data, "Class must be decorated with @Centurion()")
-
-		-- TODO: register command
-		data[COMMAND_KEY] = options
-		command.register(
-			options.name or key,
-			{
-				callback = target[key],
-				description = options.description,
-				arguments = options.arguments,
-				guards = options.guards,
-			} :: any
-		)
+		get_metadata(target).commands[key] = options
 	end
 end
 
--- local function Command(options: CommandOptions)
--- 	return function(target: { [any]: unknown }, key: string)
--- 		local register_opts = {
--- 			callback = target[key],
--- 		}
--- 		for k, v in pairs(options :: { [string]: unknown }) do
--- 			register_opts[k] = v
--- 		end
+local function group_decorator(...: string)
+	local group = { ... }
 
--- 		command.register(options.name or key, register_opts :: types.Command)
--- 	end
--- end
+	return function(target: { [any]: unknown }, key: string?)
+		get_metadata(target).groups[key or CLASS_MARKER] = group
+	end
+end
 
--- local function Group(name: string)
--- 	return function(target: { [any]: unknown }, key: string?)
--- 		groups[target] = key
--- 	end
--- end
+local function guard_decorator(...: Guard)
+	local guards = { ... }
 
--- return {
--- 	Command = Command,
--- }
+	return function(target: { [any]: unknown }, key: string?)
+		get_metadata(target).guards[key or CLASS_MARKER] = guards
+	end
+end
+
+local function register_classes()
+	for class, class_metadata in metadata do
+		if not class_metadata.commands then
+			continue
+		end
+
+		local instance = setmetatable({}, class) :: { constructor: (unknown) -> any, [any]: unknown }
+		instance:constructor()
+
+		local class_group = class_metadata.groups[CLASS_MARKER]
+		local class_guards = class_metadata.guards[CLASS_MARKER]
+
+		for key, cmd in class_metadata.commands do
+			local cmd_groups = class_group or {}
+			if class_metadata.groups[key] then
+				for _, group in class_metadata.groups[key] do
+					table.insert(cmd_groups, group)
+				end
+			end
+
+			local cmd_name = cmd.name or key
+			if #cmd_groups > 0 then
+				cmd_name = table.concat(cmd_groups, " ") .. " " .. cmd_name
+			end
+
+			local cmd_guards = cmd.guards or {}
+			if class_guards then
+				for _, guard in class_guards do
+					table.insert(cmd_guards, 1, guard)
+				end
+			end
+
+			if class_metadata.guards[key] then
+				for _, guard in class_metadata.guards[key] do
+					table.insert(cmd_guards, guard)
+				end
+			end
+
+			command.register(cmd_name, {
+				callback = function(ctx: types.ExecutionContext, ...)
+					return (instance[key] :: any)(instance, ctx, ...)
+				end,
+				description = cmd.description,
+				arguments = cmd.arguments,
+				guards = cmd_guards,
+			})
+		end
+	end
+	table.clear(metadata)
+end
 
 local exports = {
-	Register = register,
 	Command = command_decorator,
+	Group = group_decorator,
+	Guard = guard_decorator,
+	register_classes = register_classes,
 }
 
 for k, v in pairs(centurion :: any) do
 	exports[k] = v
 end
-
-print(exports)
 
 return exports

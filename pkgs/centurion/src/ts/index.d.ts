@@ -8,10 +8,10 @@ export interface Argument {
 }
 
 export interface Command<T extends unknown[]> {
-	callback: (ctx: ExecutionContext, ...args: T) => any;
 	description?: string;
+	guards?: (string | Guard)[];
 	arguments: () => LuaTuple<[...T]>;
-	guards: (string | Guard)[];
+	callback: (ctx: ExecutionContext, ...args: T) => any;
 }
 
 export interface Ok {
@@ -52,21 +52,27 @@ export interface ArgumentType {
 
 export type ArgumentFn<T> = (name: string, description?: string, suggestions?: string[]) => T;
 
-// export interface ClassOptions {
-// 	group: string[];
-// 	guards?: Array<string | Guard>;
-// }
+export interface ClassOptions {
+	group: string[];
+	guards?: Array<string | Guard>;
+}
 
-// export interface CommandOptions {
-// 	name?: string;
-// 	description?: string;
-// 	arguments?: () => unknown[];
-// 	guards: Array<string | Guard>;
-// }
+export interface CommandOptions {
+	name?: string;
+	description?: string;
+	arguments?: () => unknown[];
+	guards?: Array<string | Guard>;
+}
 
-// export function Register(options: ClassOptions): (target: unknown) => void;
+export function Centurion(options?: ClassOptions): (target: unknown) => void;
 
-// export function Command(options: CommandOptions): (target: unknown, key: string) => void;
+export function Command(options: CommandOptions): (target: unknown, key: string) => void;
+
+export function Group(...groups: string[]): (target: unknown, key?: string) => void;
+
+export function Guard(...guards: Array<string | Guard>): (target: unknown, key?: string) => void;
+
+export function register_classes(): void;
 
 export function register_command<const T extends unknown[]>(name: string, command: Command<T>): void;
 

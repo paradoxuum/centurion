@@ -9,8 +9,8 @@ local function register(name: string, guard: types.Guard)
 	guards[name] = guard
 end
 
-local function register_global(...: { types.Guard })
-	for _, guard in ... do
+local function register_global(...: types.Guard)
+	for _, guard in { ... } do
 		table.insert(global_guards, guard)
 	end
 end
