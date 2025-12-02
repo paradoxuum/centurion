@@ -6,11 +6,6 @@ local CLASS_MARKER = {}
 
 type Guard = string | types.Guard
 
-type ClassOptions = {
-	group: string?,
-	guards: { Guard }?,
-}
-
 type CommandOptions = {
 	name: string?,
 	description: string?,
@@ -19,22 +14,12 @@ type CommandOptions = {
 }
 
 type Metadata = {
-	centurion: ClassOptions?,
 	commands: { [string]: CommandOptions },
 	groups: { [string | {}]: { string } },
 	guards: { [string | {}]: { Guard } },
 }
 
 local metadata: { [any]: Metadata } = {}
-
--- local function register()
--- 	return function(target: { [any]: unknown })
--- 		if not metadata[target] then
--- 			return
--- 		end
--- 		metadata[target].centurion = options
--- 	end
--- end
 
 local function get_metadata(target: { [any]: unknown }): Metadata
 	if not metadata[target] then

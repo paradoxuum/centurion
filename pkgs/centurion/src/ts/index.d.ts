@@ -52,19 +52,12 @@ export interface ArgumentType {
 
 export type ArgumentFn<T> = (name: string, description?: string, suggestions?: string[]) => T;
 
-export interface ClassOptions {
-	group: string[];
-	guards?: Array<string | Guard>;
-}
-
 export interface CommandOptions {
 	name?: string;
 	description?: string;
 	arguments?: () => unknown[];
 	guards?: Array<string | Guard>;
 }
-
-export function Centurion(options?: ClassOptions): (target: unknown) => void;
 
 export function Command(options: CommandOptions): (target: unknown, key: string) => void;
 
