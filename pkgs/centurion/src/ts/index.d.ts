@@ -7,7 +7,7 @@ export interface Argument {
 	suggestions?: string[];
 }
 
-export interface Command<T extends unknown[]> {
+export interface CommandData<T extends unknown[]> {
 	description?: string;
 	guards?: (string | Guard)[];
 	arguments: () => LuaTuple<[...T]>;
@@ -52,14 +52,12 @@ export interface ArgumentType {
 
 export type ArgumentFn<T> = (name: string, description?: string, suggestions?: string[]) => T;
 
-export interface CommandOptions {
+export function Command(options: {
 	name?: string;
 	description?: string;
 	arguments?: () => unknown[];
 	guards?: Array<string | Guard>;
-}
-
-export function Command(options: CommandOptions): (target: unknown, key: string) => void;
+}): (target: unknown, key: string) => void;
 
 export function Group(...groups: string[]): (target: unknown, key?: string) => void;
 
@@ -67,7 +65,15 @@ export function Guard(...guards: Array<string | Guard>): (target: unknown, key?:
 
 export function register_classes(): void;
 
-export function register_command<const T extends unknown[]>(name: string, command: Command<T>): void;
+export function register_command<const T extends unknown[]>(
+	name: string,
+	command: {
+		description?: string;
+		guards?: (string | Guard)[];
+		arguments: () => [...T];
+		callback: (ctx: ExecutionContext, ...args: T) => any;
+	},
+): void;
 
 export function register_guard(name: string, guard: Guard): void;
 
@@ -90,7 +96,7 @@ export function set_network_handler(handler: (command: string, args?: string[]) 
 export function setup_networking(): void;
 
 export const registry: {
-	commands: Record<string, Command<unknown[]>>;
+	commands: Record<string, CommandData<unknown[]>>;
 	types: Record<string, ArgumentType>;
 	guards: Record<string, Guard>;
 	global_guards: Guard[];
@@ -110,7 +116,7 @@ export const args: {
 };
 
 export const events: {
-	on_command_register: (name: string, command: Command<unknown[]>) => () => void;
-	on_command_unregister: (name: string, command: Command<unknown[]>) => () => void;
+	on_command_register: (name: string, command: CommandData<unknown[]>) => () => void;
+	on_command_unregister: (name: string, command: CommandData<unknown[]>) => () => void;
 	on_command_execute: (ctx: ExecutionContext) => () => void;
 };

@@ -1,5 +1,4 @@
 local centurion = require(script.Parent)
-local command = require("./command")
 local types = require("./types")
 
 local CLASS_MARKER = {}
@@ -92,12 +91,15 @@ local function register_classes()
 				end
 			end
 
-			command.register(cmd_name, {
+			local args = cmd.arguments
+			centurion.register_command(cmd_name, {
 				callback = function(ctx: types.ExecutionContext, ...)
 					return (instance[key] :: any)(instance, ctx, ...)
 				end,
 				description = cmd.description,
-				arguments = cmd.arguments,
+				arguments = function()
+					return table.unpack(args() :: any)
+				end,
 				guards = cmd_guards,
 			})
 		end
@@ -105,15 +107,28 @@ local function register_classes()
 	table.clear(metadata)
 end
 
+local function register_command<T...>(name: string, command_object: types.Command<T...>)
+	local cmd = table.clone(command_object)
+
+	local args = cmd.arguments
+	cmd.arguments = function()
+		return table.unpack(args() :: any)
+	end
+	centurion.register_command(name, cmd)
+end
+
 local exports = {
 	Command = command_decorator,
 	Group = group_decorator,
 	Guard = guard_decorator,
 	register_classes = register_classes,
+	register_command = register_command,
 }
 
 for k, v in pairs(centurion :: any) do
-	exports[k] = v
+	if exports[k] == nil then
+		exports[k] = v
+	end
 end
 
 return exports
