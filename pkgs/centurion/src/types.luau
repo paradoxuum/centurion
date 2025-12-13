@@ -3,6 +3,8 @@ export type Command<T...> = {
 	description: string?,
 	arguments: () -> T...,
 	guards: { string | Guard }?,
+	roles: { string }?,
+	permissions: { string }?,
 }
 
 export type Argument = {
@@ -53,5 +55,11 @@ export type Err = {
 export type Result = Ok | Err
 
 export type CommandMap = { [string]: Command<unknown> }
+
+export type PermissionRole = {
+	name: string,
+	priority: number,
+	permissions: { [string]: boolean },
+}
 
 return nil

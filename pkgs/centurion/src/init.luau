@@ -3,6 +3,7 @@ local color = require("@self/argument/color")
 local command = require("@self/command")
 local duration = require("@self/argument/duration")
 local guard = require("@self/guard")
+local permission = require("@self/permission")
 local player = require("@self/argument/player")
 local primitives = require("@self/argument/primitives")
 local sync = require("@self/sync")
@@ -31,11 +32,20 @@ return {
 	set_network_handler = command.set_network_handler,
 	setup_networking = sync.setup,
 
+	create_role = permission.create_role,
+	set_roles = permission.set_roles,
+	get_roles = permission.get_roles,
+	add_roles = permission.add_roles,
+	remove_roles = permission.remove_roles,
+	can_execute = permission.can_execute,
+	set_permission_options = permission.set_permission_options,
+
 	registry = {
 		commands = command.commands,
 		types = argument.types,
 		guards = guard.guards,
 		global_guards = guard.global_guards,
+		roles = permission.roles,
 	},
 	sync = sync,
 	args = {
@@ -54,5 +64,6 @@ return {
 		on_command_register = command.on_register,
 		on_command_unregister = command.on_unregister,
 		on_command_execute = command.on_execute,
+		on_roles_changed = permission.on_roles_changed,
 	},
 }

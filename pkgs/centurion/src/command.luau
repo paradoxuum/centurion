@@ -1,6 +1,7 @@
 local argument = require("./argument")
 local context = require("./context")
 local guard = require("./guard")
+local permission = require("./permission")
 local types = require("./types")
 
 local commands: types.CommandMap = {}
@@ -32,7 +33,19 @@ end
 
 local function execute(executor: Player, name: string, args: { string }?): types.ExecutionContext
 	local command = commands[name]
-	assert(command, "Command '" .. name .. "' is not registered.")
+	if not command then
+		return context(executor, name, args or {})
+	end
+
+	if not permission.can_execute(executor, command) then
+		local ctx = context(executor, name, args or {})
+
+		if not permission.options.hide then
+			ctx.error("You do not have permission to execute this command.")
+		end
+
+		return ctx
+	end
 
 	if not command.callback then
 		assert(network_handler, "Network handler must be set before server command execution on the client.")

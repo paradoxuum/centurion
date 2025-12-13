@@ -1,9 +1,11 @@
+local PermissionsService = game:GetService("PermissionsService")
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 
 local argument = require("./argument")
 local command = require("./command")
 local patch = require("@self/patch")
+local permission = require("./permission")
 local types = require("./types")
 
 export type SyncPayload =
@@ -27,7 +29,11 @@ local function client()
 	local hydrated = false
 
 	local function process_cmd(cmd): any
-		local args: { any } = cmd.arguments
+		local args: { any }? = cmd.arguments
+		if not args then
+			return cmd
+		end
+
 		for _, arg in args do
 			local arg_type = argument.types[arg.type]
 			if not arg_type then
@@ -55,11 +61,15 @@ local function client()
 
 	local function apply(data: types.CommandMap)
 		local target = patch.apply(table.clone(command.commands), data)
-		for key, cmd in command.commands do
+		for key, _ in command.commands do
 			if target[key] == nil then
 				command.unregister(key)
-			else
-				command.commands[key] = process_cmd(cmd)
+			end
+		end
+
+		for key, cmd in target do
+			if command.commands[key] == nil then
+				command.register(key, process_cmd(cmd))
 			end
 		end
 	end
@@ -84,25 +94,43 @@ end
 local function player_syncer(player: Player, serialize: boolean?): PlayerSyncer
 	local sync: (player: Player, payload: SyncPayload) -> ()
 
-	local previousSnapshot = table.clone(command.commands)
-	local currentSnapshot = table.clone(previousSnapshot)
+	local previousSnapshot = {}
+	local currentSnapshot = {}
 	local changed = false
+
+	local function update()
+		previousSnapshot = table.clone(currentSnapshot)
+		currentSnapshot = {}
+		for k, v in command.commands do
+			if permission.can_execute(player, v) or not permission.options.hide then
+				currentSnapshot[k] = v
+			end
+		end
+	end
+
+	local function process(commands: types.CommandMap)
+		local processed = table.clone(commands)
+		for k, cmd in processed do
+			if cmd.arguments == nil then
+				continue
+			end
+
+			local sync_cmd = table.clone(cmd)
+			sync_cmd.arguments = { cmd.arguments() } :: any
+			processed[k] = sync_cmd
+		end
+		return processed
+	end
 
 	local function hydrate()
 		assert(sync, "connect() must be called before hydrate()")
 
-		local cmds: { [string]: any } = table.clone(command.commands)
-		for k, cmd in cmds do
-			local sync_cmd = table.clone(cmd)
-			sync_cmd.arguments = { cmd.arguments() }
-			cmds[k] = sync_cmd
-		end
-
+		update()
 		sync(
 			player,
 			{
 				type = "init",
-				data = cmds,
+				data = process(currentSnapshot),
 			} :: SyncPayload
 		)
 	end
@@ -118,24 +146,40 @@ local function player_syncer(player: Player, serialize: boolean?): PlayerSyncer
 			changed = true
 		end)
 
+		local disconnect_permission_roles = permission.on_roles_changed(player, function()
+			changed = true
+		end)
+
+		local disconnect_permission_opts = permission.on_options_changed(function()
+			changed = true
+		end)
+
 		local connection = RunService.Heartbeat:Connect(function()
 			if not changed then
 				return
 			end
 
+			update()
+
+			local diff = patch.diff(previousSnapshot, currentSnapshot, serialize) :: types.CommandMap
 			local payload = {
 				type = "patch",
-				data = patch.diff(previousSnapshot, currentSnapshot, serialize),
+				data = process(diff),
 			} :: SyncPayload
-
-			previousSnapshot = table.clone(currentSnapshot)
 			changed = false
+
+			if next(payload.data) == nil then
+				return
+			end
+
 			callback(player, payload)
 		end)
 
 		return function()
 			disconnect_register()
 			disconnect_unregister()
+			disconnect_permission_roles()
+			disconnect_permission_opts()
 			connection:Disconnect()
 		end
 	end
@@ -157,11 +201,15 @@ local function server()
 		end
 	end
 
+	local function setup_player(player: Player, callback: SyncCallback)
+		local syncer = player_syncer(player, true)
+		syncers[player] = syncer
+		connections[player] = syncer.connect(callback)
+	end
+
 	local function connect(callback: SyncCallback)
 		Players.PlayerAdded:Connect(function(player)
-			local syncer = player_syncer(player, true)
-			syncers[player] = syncer
-			connections[player] = syncer.connect(callback)
+			setup_player(player, callback)
 		end)
 
 		Players.PlayerRemoving:Connect(function(player)
@@ -174,8 +222,7 @@ local function server()
 
 		for _, player in Players:GetPlayers() do
 			if not syncers[player] then
-				syncers[player] = player_syncer(player, true)
-				connections[player] = syncers[player].connect(callback)
+				setup_player(player, callback)
 			end
 		end
 
@@ -197,18 +244,6 @@ local function network_server()
 	local syncer = server()
 
 	local server_remotes = require("@self/network/server")
-	-- local request = Instance.new("RemoteEvent")
-	-- request.Name = "request"
-	-- request.Parent = folder
-
-	-- local sync_state = Instance.new("RemoteEvent")
-	-- sync_state.Name = "sync"
-	-- sync_state.Parent = folder
-
-	-- local execute = Instance.new("RemoteFunction")
-	-- execute.Name = "execute"
-	-- execute.Parent = folder
-
 	server_remotes.RequestState.SetCallback(function(player)
 		syncer.hydrate(player)
 	end)

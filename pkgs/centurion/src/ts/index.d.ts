@@ -45,6 +45,12 @@ export interface ExecutionContext {
 
 export type Guard = (context: ExecutionContext) => boolean;
 
+export type PermissionRole = {
+	name: string;
+	priority: number;
+	permissions: Set<string>;
+};
+
 export interface ArgumentType {
 	transform: (text: string, executor: Player) => Result;
 	suggestions?: (text: string, executor: Player) => string[] | undefined;
@@ -93,6 +99,18 @@ export function execute_command(executor: Player, command: string, args: string[
 
 export function set_network_handler(handler: (command: string, args?: string[]) => ExecutionContext): void;
 
+export function create_role(name: string, priority: number, permissions?: string[]): void;
+
+export function set_roles(player: Player, roles: string[]): void;
+
+export function add_roles(player: Player, ...roles: string[]): void;
+
+export function remove_roles(player: Player, ...roles: string[]): void;
+
+export function get_roles(player: Player): string[];
+
+export function can_execute(player: Player, command: CommandData<unknown[]>): boolean;
+
 export function setup_networking(): void;
 
 export const registry: {
@@ -100,6 +118,7 @@ export const registry: {
 	types: Record<string, ArgumentType>;
 	guards: Record<string, Guard>;
 	global_guards: Guard[];
+	roles: Record<string, PermissionRole>;
 };
 
 export const args: {
@@ -119,4 +138,5 @@ export const events: {
 	on_command_register: (name: string, command: CommandData<unknown[]>) => () => void;
 	on_command_unregister: (name: string, command: CommandData<unknown[]>) => () => void;
 	on_command_execute: (ctx: ExecutionContext) => () => void;
+	on_roles_changed: (player: Player, roles: string[]) => () => void;
 };
