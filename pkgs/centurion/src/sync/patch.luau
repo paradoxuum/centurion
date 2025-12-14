@@ -105,6 +105,7 @@ local function apply(state: any, patches: any): any
 end
 
 return {
+	None = None,
 	diff = diff,
 	apply = apply,
 }

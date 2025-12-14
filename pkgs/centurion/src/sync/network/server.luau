@@ -182,6 +182,47 @@ export type Command = ({
 	["description"]: ((string)?),
 	["arguments"]: ((unknown)),
 })
+export type SyncPayload = ({
+	["type"]: "init",
+	["data"]: ({ [(string)]: ({
+		["kind"]: "command",
+		["data"]: ({
+			["description"]: ((string)?),
+			["arguments"]: ((unknown)),
+		}),
+	} | {
+		["kind"]: "none",
+	}) }),
+} | {
+	["type"]: "patch",
+	["data"]: ({ [(string)]: ({
+		["kind"]: "command",
+		["data"]: ({
+			["description"]: ((string)?),
+			["arguments"]: ((unknown)),
+		}),
+	} | {
+		["kind"]: "none",
+	}) }),
+})
+export type SyncMap = ({ [(string)]: ({
+	["kind"]: "command",
+	["data"]: ({
+		["description"]: ((string)?),
+		["arguments"]: ((unknown)),
+	}),
+} | {
+	["kind"]: "none",
+}) })
+export type SyncData = ({
+	["kind"]: "command",
+	["data"]: ({
+		["description"]: ((string)?),
+		["arguments"]: ((unknown)),
+	}),
+} | {
+	["kind"]: "none",
+})
 export type ExecutionContext = ({
 	["executor"]: (Player),
 	["command"]: (string),
@@ -193,23 +234,6 @@ export type ExecutionContext = ({
 		["timestamp"]: (number),
 	})?),
 })
-export type SyncPayload = ({
-	["type"]: "init",
-	["data"]: ({ [(string)]: ({
-		["description"]: ((string)?),
-		["arguments"]: ((unknown)),
-	}) }),
-} | {
-	["type"]: "patch",
-	["data"]: ({ [(string)]: ({
-		["description"]: ((string)?),
-		["arguments"]: ((unknown)),
-	}) }),
-})
-export type CommandMap = ({ [(string)]: ({
-	["description"]: ((string)?),
-	["arguments"]: ((unknown)),
-}) })
 
 local function SendEvents()
 	for player, outgoing in player_map do
@@ -325,14 +349,24 @@ local returns = {
 		Fire = function(Player: Player, Value: ({
 			["type"]: "init",
 			["data"]: ({ [(string)]: ({
-				["description"]: ((string)?),
-				["arguments"]: ((unknown)),
+				["kind"]: "command",
+				["data"]: ({
+					["description"]: ((string)?),
+					["arguments"]: ((unknown)),
+				}),
+			} | {
+				["kind"]: "none",
 			}) }),
 		} | {
 			["type"]: "patch",
 			["data"]: ({ [(string)]: ({
-				["description"]: ((string)?),
-				["arguments"]: ((unknown)),
+				["kind"]: "command",
+				["data"]: ({
+					["description"]: ((string)?),
+					["arguments"]: ((unknown)),
+				}),
+			} | {
+				["kind"]: "none",
 			}) }),
 		}))
 			load_player(Player)
@@ -356,17 +390,24 @@ local returns = {
 					buffer.writeu16(outgoing_buff, outgoing_apos, len_10)
 					alloc(len_10)
 					buffer.writestring(outgoing_buff, outgoing_apos, k_1, len_10)
-					if v_1["description"] ~= nil then
+					if v_1["kind"] == "command" then
 						bool_4 = bit32.bor(bool_4, 0b0000000000000001)
-						local len_11 = #v_1["description"]
-						alloc(2)
-						buffer.writeu16(outgoing_buff, outgoing_apos, len_11)
-						alloc(len_11)
-						buffer.writestring(outgoing_buff, outgoing_apos, v_1["description"], len_11)
-					end
-					if v_1["arguments"] ~= nil then
-						bool_4 = bit32.bor(bool_4, 0b0000000000000010)
-						table.insert(outgoing_inst, v_1["arguments"])
+						if v_1["data"]["description"] ~= nil then
+							bool_4 = bit32.bor(bool_4, 0b0000000000000010)
+							local len_11 = #v_1["data"]["description"]
+							alloc(2)
+							buffer.writeu16(outgoing_buff, outgoing_apos, len_11)
+							alloc(len_11)
+							buffer.writestring(outgoing_buff, outgoing_apos, v_1["data"]["description"], len_11)
+						end
+						if v_1["data"]["arguments"] ~= nil then
+							bool_4 = bit32.bor(bool_4, 0b0000000000000100)
+							table.insert(outgoing_inst, v_1["data"]["arguments"])
+						end
+					elseif v_1["kind"] == "none" then
+						local _
+					else
+						error("Invalid variant")
 					end
 					buffer.writeu8(outgoing_buff, bool_4_pos_1, bool_4)
 				end
@@ -391,17 +432,24 @@ local returns = {
 					buffer.writeu16(outgoing_buff, outgoing_apos, len_13)
 					alloc(len_13)
 					buffer.writestring(outgoing_buff, outgoing_apos, k_2, len_13)
-					if v_2["description"] ~= nil then
+					if v_2["kind"] == "command" then
 						bool_5 = bit32.bor(bool_5, 0b0000000000000001)
-						local len_14 = #v_2["description"]
-						alloc(2)
-						buffer.writeu16(outgoing_buff, outgoing_apos, len_14)
-						alloc(len_14)
-						buffer.writestring(outgoing_buff, outgoing_apos, v_2["description"], len_14)
-					end
-					if v_2["arguments"] ~= nil then
-						bool_5 = bit32.bor(bool_5, 0b0000000000000010)
-						table.insert(outgoing_inst, v_2["arguments"])
+						if v_2["data"]["description"] ~= nil then
+							bool_5 = bit32.bor(bool_5, 0b0000000000000010)
+							local len_14 = #v_2["data"]["description"]
+							alloc(2)
+							buffer.writeu16(outgoing_buff, outgoing_apos, len_14)
+							alloc(len_14)
+							buffer.writestring(outgoing_buff, outgoing_apos, v_2["data"]["description"], len_14)
+						end
+						if v_2["data"]["arguments"] ~= nil then
+							bool_5 = bit32.bor(bool_5, 0b0000000000000100)
+							table.insert(outgoing_inst, v_2["data"]["arguments"])
+						end
+					elseif v_2["kind"] == "none" then
+						local _
+					else
+						error("Invalid variant")
 					end
 					buffer.writeu8(outgoing_buff, bool_5_pos_1, bool_5)
 				end
@@ -419,14 +467,24 @@ local returns = {
 		FireAll = function(Value: ({
 			["type"]: "init",
 			["data"]: ({ [(string)]: ({
-				["description"]: ((string)?),
-				["arguments"]: ((unknown)),
+				["kind"]: "command",
+				["data"]: ({
+					["description"]: ((string)?),
+					["arguments"]: ((unknown)),
+				}),
+			} | {
+				["kind"]: "none",
 			}) }),
 		} | {
 			["type"]: "patch",
 			["data"]: ({ [(string)]: ({
-				["description"]: ((string)?),
-				["arguments"]: ((unknown)),
+				["kind"]: "command",
+				["data"]: ({
+					["description"]: ((string)?),
+					["arguments"]: ((unknown)),
+				}),
+			} | {
+				["kind"]: "none",
 			}) }),
 		}))
 			load_empty()
@@ -450,17 +508,24 @@ local returns = {
 					buffer.writeu16(outgoing_buff, outgoing_apos, len_16)
 					alloc(len_16)
 					buffer.writestring(outgoing_buff, outgoing_apos, k_3, len_16)
-					if v_3["description"] ~= nil then
+					if v_3["kind"] == "command" then
 						bool_7 = bit32.bor(bool_7, 0b0000000000000001)
-						local len_17 = #v_3["description"]
-						alloc(2)
-						buffer.writeu16(outgoing_buff, outgoing_apos, len_17)
-						alloc(len_17)
-						buffer.writestring(outgoing_buff, outgoing_apos, v_3["description"], len_17)
-					end
-					if v_3["arguments"] ~= nil then
-						bool_7 = bit32.bor(bool_7, 0b0000000000000010)
-						table.insert(outgoing_inst, v_3["arguments"])
+						if v_3["data"]["description"] ~= nil then
+							bool_7 = bit32.bor(bool_7, 0b0000000000000010)
+							local len_17 = #v_3["data"]["description"]
+							alloc(2)
+							buffer.writeu16(outgoing_buff, outgoing_apos, len_17)
+							alloc(len_17)
+							buffer.writestring(outgoing_buff, outgoing_apos, v_3["data"]["description"], len_17)
+						end
+						if v_3["data"]["arguments"] ~= nil then
+							bool_7 = bit32.bor(bool_7, 0b0000000000000100)
+							table.insert(outgoing_inst, v_3["data"]["arguments"])
+						end
+					elseif v_3["kind"] == "none" then
+						local _
+					else
+						error("Invalid variant")
 					end
 					buffer.writeu8(outgoing_buff, bool_7_pos_1, bool_7)
 				end
@@ -485,17 +550,24 @@ local returns = {
 					buffer.writeu16(outgoing_buff, outgoing_apos, len_19)
 					alloc(len_19)
 					buffer.writestring(outgoing_buff, outgoing_apos, k_4, len_19)
-					if v_4["description"] ~= nil then
+					if v_4["kind"] == "command" then
 						bool_8 = bit32.bor(bool_8, 0b0000000000000001)
-						local len_20 = #v_4["description"]
-						alloc(2)
-						buffer.writeu16(outgoing_buff, outgoing_apos, len_20)
-						alloc(len_20)
-						buffer.writestring(outgoing_buff, outgoing_apos, v_4["description"], len_20)
-					end
-					if v_4["arguments"] ~= nil then
-						bool_8 = bit32.bor(bool_8, 0b0000000000000010)
-						table.insert(outgoing_inst, v_4["arguments"])
+						if v_4["data"]["description"] ~= nil then
+							bool_8 = bit32.bor(bool_8, 0b0000000000000010)
+							local len_20 = #v_4["data"]["description"]
+							alloc(2)
+							buffer.writeu16(outgoing_buff, outgoing_apos, len_20)
+							alloc(len_20)
+							buffer.writestring(outgoing_buff, outgoing_apos, v_4["data"]["description"], len_20)
+						end
+						if v_4["data"]["arguments"] ~= nil then
+							bool_8 = bit32.bor(bool_8, 0b0000000000000100)
+							table.insert(outgoing_inst, v_4["data"]["arguments"])
+						end
+					elseif v_4["kind"] == "none" then
+						local _
+					else
+						error("Invalid variant")
 					end
 					buffer.writeu8(outgoing_buff, bool_8_pos_1, bool_8)
 				end
@@ -520,14 +592,24 @@ local returns = {
 		FireExcept = function(Except: Player, Value: ({
 			["type"]: "init",
 			["data"]: ({ [(string)]: ({
-				["description"]: ((string)?),
-				["arguments"]: ((unknown)),
+				["kind"]: "command",
+				["data"]: ({
+					["description"]: ((string)?),
+					["arguments"]: ((unknown)),
+				}),
+			} | {
+				["kind"]: "none",
 			}) }),
 		} | {
 			["type"]: "patch",
 			["data"]: ({ [(string)]: ({
-				["description"]: ((string)?),
-				["arguments"]: ((unknown)),
+				["kind"]: "command",
+				["data"]: ({
+					["description"]: ((string)?),
+					["arguments"]: ((unknown)),
+				}),
+			} | {
+				["kind"]: "none",
 			}) }),
 		}))
 			load_empty()
@@ -551,17 +633,24 @@ local returns = {
 					buffer.writeu16(outgoing_buff, outgoing_apos, len_22)
 					alloc(len_22)
 					buffer.writestring(outgoing_buff, outgoing_apos, k_5, len_22)
-					if v_5["description"] ~= nil then
+					if v_5["kind"] == "command" then
 						bool_10 = bit32.bor(bool_10, 0b0000000000000001)
-						local len_23 = #v_5["description"]
-						alloc(2)
-						buffer.writeu16(outgoing_buff, outgoing_apos, len_23)
-						alloc(len_23)
-						buffer.writestring(outgoing_buff, outgoing_apos, v_5["description"], len_23)
-					end
-					if v_5["arguments"] ~= nil then
-						bool_10 = bit32.bor(bool_10, 0b0000000000000010)
-						table.insert(outgoing_inst, v_5["arguments"])
+						if v_5["data"]["description"] ~= nil then
+							bool_10 = bit32.bor(bool_10, 0b0000000000000010)
+							local len_23 = #v_5["data"]["description"]
+							alloc(2)
+							buffer.writeu16(outgoing_buff, outgoing_apos, len_23)
+							alloc(len_23)
+							buffer.writestring(outgoing_buff, outgoing_apos, v_5["data"]["description"], len_23)
+						end
+						if v_5["data"]["arguments"] ~= nil then
+							bool_10 = bit32.bor(bool_10, 0b0000000000000100)
+							table.insert(outgoing_inst, v_5["data"]["arguments"])
+						end
+					elseif v_5["kind"] == "none" then
+						local _
+					else
+						error("Invalid variant")
 					end
 					buffer.writeu8(outgoing_buff, bool_10_pos_1, bool_10)
 				end
@@ -586,17 +675,24 @@ local returns = {
 					buffer.writeu16(outgoing_buff, outgoing_apos, len_25)
 					alloc(len_25)
 					buffer.writestring(outgoing_buff, outgoing_apos, k_6, len_25)
-					if v_6["description"] ~= nil then
+					if v_6["kind"] == "command" then
 						bool_11 = bit32.bor(bool_11, 0b0000000000000001)
-						local len_26 = #v_6["description"]
-						alloc(2)
-						buffer.writeu16(outgoing_buff, outgoing_apos, len_26)
-						alloc(len_26)
-						buffer.writestring(outgoing_buff, outgoing_apos, v_6["description"], len_26)
-					end
-					if v_6["arguments"] ~= nil then
-						bool_11 = bit32.bor(bool_11, 0b0000000000000010)
-						table.insert(outgoing_inst, v_6["arguments"])
+						if v_6["data"]["description"] ~= nil then
+							bool_11 = bit32.bor(bool_11, 0b0000000000000010)
+							local len_26 = #v_6["data"]["description"]
+							alloc(2)
+							buffer.writeu16(outgoing_buff, outgoing_apos, len_26)
+							alloc(len_26)
+							buffer.writestring(outgoing_buff, outgoing_apos, v_6["data"]["description"], len_26)
+						end
+						if v_6["data"]["arguments"] ~= nil then
+							bool_11 = bit32.bor(bool_11, 0b0000000000000100)
+							table.insert(outgoing_inst, v_6["data"]["arguments"])
+						end
+					elseif v_6["kind"] == "none" then
+						local _
+					else
+						error("Invalid variant")
 					end
 					buffer.writeu8(outgoing_buff, bool_11_pos_1, bool_11)
 				end
@@ -623,14 +719,24 @@ local returns = {
 		FireList = function(List: { [unknown]: Player }, Value: ({
 			["type"]: "init",
 			["data"]: ({ [(string)]: ({
-				["description"]: ((string)?),
-				["arguments"]: ((unknown)),
+				["kind"]: "command",
+				["data"]: ({
+					["description"]: ((string)?),
+					["arguments"]: ((unknown)),
+				}),
+			} | {
+				["kind"]: "none",
 			}) }),
 		} | {
 			["type"]: "patch",
 			["data"]: ({ [(string)]: ({
-				["description"]: ((string)?),
-				["arguments"]: ((unknown)),
+				["kind"]: "command",
+				["data"]: ({
+					["description"]: ((string)?),
+					["arguments"]: ((unknown)),
+				}),
+			} | {
+				["kind"]: "none",
 			}) }),
 		}))
 			load_empty()
@@ -654,17 +760,24 @@ local returns = {
 					buffer.writeu16(outgoing_buff, outgoing_apos, len_28)
 					alloc(len_28)
 					buffer.writestring(outgoing_buff, outgoing_apos, k_7, len_28)
-					if v_7["description"] ~= nil then
+					if v_7["kind"] == "command" then
 						bool_13 = bit32.bor(bool_13, 0b0000000000000001)
-						local len_29 = #v_7["description"]
-						alloc(2)
-						buffer.writeu16(outgoing_buff, outgoing_apos, len_29)
-						alloc(len_29)
-						buffer.writestring(outgoing_buff, outgoing_apos, v_7["description"], len_29)
-					end
-					if v_7["arguments"] ~= nil then
-						bool_13 = bit32.bor(bool_13, 0b0000000000000010)
-						table.insert(outgoing_inst, v_7["arguments"])
+						if v_7["data"]["description"] ~= nil then
+							bool_13 = bit32.bor(bool_13, 0b0000000000000010)
+							local len_29 = #v_7["data"]["description"]
+							alloc(2)
+							buffer.writeu16(outgoing_buff, outgoing_apos, len_29)
+							alloc(len_29)
+							buffer.writestring(outgoing_buff, outgoing_apos, v_7["data"]["description"], len_29)
+						end
+						if v_7["data"]["arguments"] ~= nil then
+							bool_13 = bit32.bor(bool_13, 0b0000000000000100)
+							table.insert(outgoing_inst, v_7["data"]["arguments"])
+						end
+					elseif v_7["kind"] == "none" then
+						local _
+					else
+						error("Invalid variant")
 					end
 					buffer.writeu8(outgoing_buff, bool_13_pos_1, bool_13)
 				end
@@ -689,17 +802,24 @@ local returns = {
 					buffer.writeu16(outgoing_buff, outgoing_apos, len_31)
 					alloc(len_31)
 					buffer.writestring(outgoing_buff, outgoing_apos, k_8, len_31)
-					if v_8["description"] ~= nil then
+					if v_8["kind"] == "command" then
 						bool_14 = bit32.bor(bool_14, 0b0000000000000001)
-						local len_32 = #v_8["description"]
-						alloc(2)
-						buffer.writeu16(outgoing_buff, outgoing_apos, len_32)
-						alloc(len_32)
-						buffer.writestring(outgoing_buff, outgoing_apos, v_8["description"], len_32)
-					end
-					if v_8["arguments"] ~= nil then
-						bool_14 = bit32.bor(bool_14, 0b0000000000000010)
-						table.insert(outgoing_inst, v_8["arguments"])
+						if v_8["data"]["description"] ~= nil then
+							bool_14 = bit32.bor(bool_14, 0b0000000000000010)
+							local len_32 = #v_8["data"]["description"]
+							alloc(2)
+							buffer.writeu16(outgoing_buff, outgoing_apos, len_32)
+							alloc(len_32)
+							buffer.writestring(outgoing_buff, outgoing_apos, v_8["data"]["description"], len_32)
+						end
+						if v_8["data"]["arguments"] ~= nil then
+							bool_14 = bit32.bor(bool_14, 0b0000000000000100)
+							table.insert(outgoing_inst, v_8["data"]["arguments"])
+						end
+					elseif v_8["kind"] == "none" then
+						local _
+					else
+						error("Invalid variant")
 					end
 					buffer.writeu8(outgoing_buff, bool_14_pos_1, bool_14)
 				end
@@ -724,14 +844,24 @@ local returns = {
 		FireSet = function(Set: { [Player]: any }, Value: ({
 			["type"]: "init",
 			["data"]: ({ [(string)]: ({
-				["description"]: ((string)?),
-				["arguments"]: ((unknown)),
+				["kind"]: "command",
+				["data"]: ({
+					["description"]: ((string)?),
+					["arguments"]: ((unknown)),
+				}),
+			} | {
+				["kind"]: "none",
 			}) }),
 		} | {
 			["type"]: "patch",
 			["data"]: ({ [(string)]: ({
-				["description"]: ((string)?),
-				["arguments"]: ((unknown)),
+				["kind"]: "command",
+				["data"]: ({
+					["description"]: ((string)?),
+					["arguments"]: ((unknown)),
+				}),
+			} | {
+				["kind"]: "none",
 			}) }),
 		}))
 			load_empty()
@@ -755,17 +885,24 @@ local returns = {
 					buffer.writeu16(outgoing_buff, outgoing_apos, len_34)
 					alloc(len_34)
 					buffer.writestring(outgoing_buff, outgoing_apos, k_9, len_34)
-					if v_9["description"] ~= nil then
+					if v_9["kind"] == "command" then
 						bool_16 = bit32.bor(bool_16, 0b0000000000000001)
-						local len_35 = #v_9["description"]
-						alloc(2)
-						buffer.writeu16(outgoing_buff, outgoing_apos, len_35)
-						alloc(len_35)
-						buffer.writestring(outgoing_buff, outgoing_apos, v_9["description"], len_35)
-					end
-					if v_9["arguments"] ~= nil then
-						bool_16 = bit32.bor(bool_16, 0b0000000000000010)
-						table.insert(outgoing_inst, v_9["arguments"])
+						if v_9["data"]["description"] ~= nil then
+							bool_16 = bit32.bor(bool_16, 0b0000000000000010)
+							local len_35 = #v_9["data"]["description"]
+							alloc(2)
+							buffer.writeu16(outgoing_buff, outgoing_apos, len_35)
+							alloc(len_35)
+							buffer.writestring(outgoing_buff, outgoing_apos, v_9["data"]["description"], len_35)
+						end
+						if v_9["data"]["arguments"] ~= nil then
+							bool_16 = bit32.bor(bool_16, 0b0000000000000100)
+							table.insert(outgoing_inst, v_9["data"]["arguments"])
+						end
+					elseif v_9["kind"] == "none" then
+						local _
+					else
+						error("Invalid variant")
 					end
 					buffer.writeu8(outgoing_buff, bool_16_pos_1, bool_16)
 				end
@@ -790,17 +927,24 @@ local returns = {
 					buffer.writeu16(outgoing_buff, outgoing_apos, len_37)
 					alloc(len_37)
 					buffer.writestring(outgoing_buff, outgoing_apos, k_10, len_37)
-					if v_10["description"] ~= nil then
+					if v_10["kind"] == "command" then
 						bool_17 = bit32.bor(bool_17, 0b0000000000000001)
-						local len_38 = #v_10["description"]
-						alloc(2)
-						buffer.writeu16(outgoing_buff, outgoing_apos, len_38)
-						alloc(len_38)
-						buffer.writestring(outgoing_buff, outgoing_apos, v_10["description"], len_38)
-					end
-					if v_10["arguments"] ~= nil then
-						bool_17 = bit32.bor(bool_17, 0b0000000000000010)
-						table.insert(outgoing_inst, v_10["arguments"])
+						if v_10["data"]["description"] ~= nil then
+							bool_17 = bit32.bor(bool_17, 0b0000000000000010)
+							local len_38 = #v_10["data"]["description"]
+							alloc(2)
+							buffer.writeu16(outgoing_buff, outgoing_apos, len_38)
+							alloc(len_38)
+							buffer.writestring(outgoing_buff, outgoing_apos, v_10["data"]["description"], len_38)
+						end
+						if v_10["data"]["arguments"] ~= nil then
+							bool_17 = bit32.bor(bool_17, 0b0000000000000100)
+							table.insert(outgoing_inst, v_10["data"]["arguments"])
+						end
+					elseif v_10["kind"] == "none" then
+						local _
+					else
+						error("Invalid variant")
 					end
 					buffer.writeu8(outgoing_buff, bool_17_pos_1, bool_17)
 				end

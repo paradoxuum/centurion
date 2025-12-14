@@ -1,21 +1,30 @@
-local PermissionsService = game:GetService("PermissionsService")
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 
-local argument = require("./argument")
 local command = require("./command")
 local patch = require("@self/patch")
 local permission = require("./permission")
 local types = require("./types")
 
+type CommandState = {
+	kind: "command",
+	data: types.Command<unknown>,
+}
+
+type NetworkedState = CommandState | { kind: "none" }
+
+type NetworkedMap = { [string]: NetworkedState }
+
+type PatchDiff = { [string]: types.Command<unknown> | { __none: string } }
+
 export type SyncPayload =
 	{
 		type: "init",
-		data: types.CommandMap,
+		data: NetworkedMap,
 	}
 	| {
 		type: "patch",
-		data: types.CommandMap,
+		data: NetworkedMap,
 	}
 
 export type SyncCallback = (player: Player, payload: SyncPayload) -> ()
@@ -34,16 +43,6 @@ local function client()
 			return cmd
 		end
 
-		for _, arg in args do
-			local arg_type = argument.types[arg.type]
-			if not arg_type then
-				error(`Unknown argument type '{arg.type}' for argument '{arg.name}'`)
-			end
-
-			arg.transform = arg_type.transform
-			arg.suggestions = arg_type.suggestions
-		end
-
 		cmd.arguments = function()
 			return table.unpack(args)
 		end :: any
@@ -51,15 +50,19 @@ local function client()
 		return cmd
 	end
 
-	local function hydrate(state: types.CommandMap)
+	local function hydrate(state: PatchDiff)
 		hydrated = true
 
 		for key, value in state do
+			if value == patch.None then
+				command.unregister(key)
+				continue
+			end
 			command.register(key, process_cmd(value))
 		end
 	end
 
-	local function apply(data: types.CommandMap)
+	local function apply(data: PatchDiff)
 		local target = patch.apply(table.clone(command.commands), data)
 		for key, _ in command.commands do
 			if target[key] == nil then
@@ -78,10 +81,19 @@ local function client()
 		for index = 1, select("#", ...) do
 			local payload: SyncPayload = select(index, ...)
 
+			local data: PatchDiff = {}
+			for k, v in payload.data do
+				if v.kind == "none" then
+					data[k] = patch.None
+				else
+					data[k] = v.data
+				end
+			end
+
 			if payload.type == "init" then
-				hydrate(payload.data)
+				hydrate(data)
 			elseif hydrated then
-				apply(payload.data)
+				apply(data)
 			end
 		end
 	end
@@ -108,16 +120,24 @@ local function player_syncer(player: Player, serialize: boolean?): PlayerSyncer
 		end
 	end
 
-	local function process(commands: types.CommandMap)
-		local processed = table.clone(commands)
-		for k, cmd in processed do
-			if cmd.arguments == nil then
+	local function process(commands: types.CommandMap): NetworkedMap
+		local processed = {}
+		for k, cmd in commands do
+			if cmd == patch.None then
+				processed[k] = { kind = "none" }
 				continue
 			end
 
-			local sync_cmd = table.clone(cmd)
-			sync_cmd.arguments = { cmd.arguments() } :: any
-			processed[k] = sync_cmd
+			local sync_cmd = cmd
+			if cmd.arguments ~= nil then
+				sync_cmd = table.clone(cmd)
+				sync_cmd.arguments = { cmd.arguments() } :: any
+			end
+
+			processed[k] = {
+				kind = "command",
+				data = sync_cmd,
+			}
 		end
 		return processed
 	end

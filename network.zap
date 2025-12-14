@@ -2,9 +2,16 @@ opt server_output = "pkgs/centurion/src/sync/network/server.luau"
 opt client_output = "pkgs/centurion/src/sync/network/client.luau"
 opt remote_scope = "CENTURION"
 
+type SyncData = enum "kind" {
+	command { data: Command },
+	none    {},
+}
+
+type SyncMap = map { [string.binary]: SyncData }
+
 type SyncPayload = enum "type" {
-	init  { data: CommandMap },
-	patch { data: CommandMap },
+	init  { data: SyncMap },
+	patch { data: SyncMap },
 }
 
 type Command = struct {
@@ -23,8 +30,6 @@ type ExecutionContext = struct {
 		timestamp: u32,
 	}?,
 }
-
-type CommandMap = map { [string.binary]: Command }
 
 event SyncState = {
 	from: Server,

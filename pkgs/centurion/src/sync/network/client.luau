@@ -153,6 +153,47 @@ export type Command = ({
 	["description"]: ((string)?),
 	["arguments"]: ((unknown)),
 })
+export type SyncPayload = ({
+	["type"]: "init",
+	["data"]: ({ [(string)]: ({
+		["kind"]: "command",
+		["data"]: ({
+			["description"]: ((string)?),
+			["arguments"]: ((unknown)),
+		}),
+	} | {
+		["kind"]: "none",
+	}) }),
+} | {
+	["type"]: "patch",
+	["data"]: ({ [(string)]: ({
+		["kind"]: "command",
+		["data"]: ({
+			["description"]: ((string)?),
+			["arguments"]: ((unknown)),
+		}),
+	} | {
+		["kind"]: "none",
+	}) }),
+})
+export type SyncMap = ({ [(string)]: ({
+	["kind"]: "command",
+	["data"]: ({
+		["description"]: ((string)?),
+		["arguments"]: ((unknown)),
+	}),
+} | {
+	["kind"]: "none",
+}) })
+export type SyncData = ({
+	["kind"]: "command",
+	["data"]: ({
+		["description"]: ((string)?),
+		["arguments"]: ((unknown)),
+	}),
+} | {
+	["kind"]: "none",
+})
 export type ExecutionContext = ({
 	["executor"]: (Player),
 	["command"]: (string),
@@ -164,23 +205,6 @@ export type ExecutionContext = ({
 		["timestamp"]: (number),
 	})?),
 })
-export type SyncPayload = ({
-	["type"]: "init",
-	["data"]: ({ [(string)]: ({
-		["description"]: ((string)?),
-		["arguments"]: ((unknown)),
-	}) }),
-} | {
-	["type"]: "patch",
-	["data"]: ({ [(string)]: ({
-		["description"]: ((string)?),
-		["arguments"]: ((unknown)),
-	}) }),
-})
-export type CommandMap = ({ [(string)]: ({
-	["description"]: ((string)?),
-	["arguments"]: ((unknown)),
-}) })
 
 local function SendEvents()
 	if outgoing_used ~= 0 then
@@ -224,18 +248,23 @@ reliable.OnClientEvent:Connect(function(buff, inst)
 						local val_1
 						local len_1 = buffer.readu16(incoming_buff, read(2))
 						key_1 = buffer.readstring(incoming_buff, read(len_1), len_1)
-						val_1 = {  }
 						if bit32.btest(bool_2, 0b0000000000000001) then
-							local len_2 = buffer.readu16(incoming_buff, read(2))
-							val_1["description"] = buffer.readstring(incoming_buff, read(len_2), len_2)
+							val_1 = { ["kind"] = "command" }
+							val_1["data"] = {  }
+							if bit32.btest(bool_2, 0b0000000000000010) then
+								local len_2 = buffer.readu16(incoming_buff, read(2))
+								val_1["data"]["description"] = buffer.readstring(incoming_buff, read(len_2), len_2)
+							else
+								val_1["data"]["description"] = nil
+							end
+							if bit32.btest(bool_2, 0b0000000000000100) then
+								incoming_ipos = incoming_ipos + 1
+								val_1["data"]["arguments"] = incoming_inst[incoming_ipos]
+							else
+								val_1["data"]["arguments"] = nil
+							end
 						else
-							val_1["description"] = nil
-						end
-						if bit32.btest(bool_2, 0b0000000000000010) then
-							incoming_ipos = incoming_ipos + 1
-							val_1["arguments"] = incoming_inst[incoming_ipos]
-						else
-							val_1["arguments"] = nil
+							val_1 = { ["kind"] = "none" }
 						end
 						value["data"][key_1] = val_1
 					end
@@ -250,18 +279,23 @@ reliable.OnClientEvent:Connect(function(buff, inst)
 						local val_2
 						local len_3 = buffer.readu16(incoming_buff, read(2))
 						key_2 = buffer.readstring(incoming_buff, read(len_3), len_3)
-						val_2 = {  }
 						if bit32.btest(bool_3, 0b0000000000000001) then
-							local len_4 = buffer.readu16(incoming_buff, read(2))
-							val_2["description"] = buffer.readstring(incoming_buff, read(len_4), len_4)
+							val_2 = { ["kind"] = "command" }
+							val_2["data"] = {  }
+							if bit32.btest(bool_3, 0b0000000000000010) then
+								local len_4 = buffer.readu16(incoming_buff, read(2))
+								val_2["data"]["description"] = buffer.readstring(incoming_buff, read(len_4), len_4)
+							else
+								val_2["data"]["description"] = nil
+							end
+							if bit32.btest(bool_3, 0b0000000000000100) then
+								incoming_ipos = incoming_ipos + 1
+								val_2["data"]["arguments"] = incoming_inst[incoming_ipos]
+							else
+								val_2["data"]["arguments"] = nil
+							end
 						else
-							val_2["description"] = nil
-						end
-						if bit32.btest(bool_3, 0b0000000000000010) then
-							incoming_ipos = incoming_ipos + 1
-							val_2["arguments"] = incoming_inst[incoming_ipos]
-						else
-							val_2["arguments"] = nil
+							val_2 = { ["kind"] = "none" }
 						end
 						value["data"][key_2] = val_2
 					end
@@ -325,14 +359,24 @@ local returns = {
 		SetCallback = function(Callback: (Value: ({
 			["type"]: "init",
 			["data"]: ({ [(string)]: ({
-				["description"]: ((string)?),
-				["arguments"]: ((unknown)),
+				["kind"]: "command",
+				["data"]: ({
+					["description"]: ((string)?),
+					["arguments"]: ((unknown)),
+				}),
+			} | {
+				["kind"]: "none",
 			}) }),
 		} | {
 			["type"]: "patch",
 			["data"]: ({ [(string)]: ({
-				["description"]: ((string)?),
-				["arguments"]: ((unknown)),
+				["kind"]: "command",
+				["data"]: ({
+					["description"]: ((string)?),
+					["arguments"]: ((unknown)),
+				}),
+			} | {
+				["kind"]: "none",
 			}) }),
 		})) -> ()): () -> ()
 			reliable_events[0] = Callback
