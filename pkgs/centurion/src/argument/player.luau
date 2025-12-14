@@ -34,10 +34,14 @@ end
 
 local player = register("player", {
 	transform = function(value: string, executor: Player): types.Result
-		return get_player(value, executor)
+		local plr = get_player(value, executor)
+		if plr == nil then
+			return result.error(`Player '{value}' not found.`)
+		end
+		return result.success(plr)
 	end,
 	suggestions = function(_value: string, _executor: Player): { string }
-		local suggestions: { string } = { "@me", "@random" }
+		local suggestions = { "@me", "@random" }
 		for _, p in Players:GetPlayers() do
 			table.insert(suggestions, p.Name)
 		end
