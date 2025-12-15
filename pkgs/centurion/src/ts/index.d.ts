@@ -9,9 +9,11 @@ export interface Argument {
 
 export interface CommandData<T extends unknown[]> {
 	description?: string;
-	guards?: (string | Guard)[];
-	arguments: () => LuaTuple<[...T]>;
+	arguments?: () => LuaTuple<[...T]>;
 	callback: (ctx: ExecutionContext, ...args: T) => any;
+	guards?: (string | Guard)[];
+	roles?: string[];
+	permissions?: string[];
 }
 
 export interface Ok {
@@ -63,11 +65,17 @@ export function Command(options: {
 	description?: string;
 	arguments?: () => unknown[];
 	guards?: Array<string | Guard>;
+	roles?: string[];
+	permissions?: string[];
 }): (target: unknown, key: string) => void;
 
 export function Group(...groups: string[]): (target: unknown, key?: string) => void;
 
 export function Guard(...guards: Array<string | Guard>): (target: unknown, key?: string) => void;
+
+export function Role(...roles: string[]): (target: unknown, key?: string) => void;
+
+export function Permission(...permissions: string[]): (target: unknown, key?: string) => void;
 
 export function register_classes(): void;
 
@@ -75,9 +83,11 @@ export function register_command<const T extends unknown[]>(
 	name: string,
 	command: {
 		description?: string;
-		guards?: (string | Guard)[];
-		arguments: () => [...T];
+		arguments?: () => [...T];
 		callback: (ctx: ExecutionContext, ...args: T) => any;
+		guards?: (string | Guard)[];
+		roles?: string[];
+		permissions?: string[];
 	},
 ): void;
 

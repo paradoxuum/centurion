@@ -178,15 +178,14 @@ local function player_syncer(player: Player, serialize: boolean?): PlayerSyncer
 			if not changed then
 				return
 			end
+			changed = false
 
 			update()
-
 			local diff = patch.diff(previousSnapshot, currentSnapshot, serialize) :: types.CommandMap
 			local payload = {
 				type = "patch",
 				data = process(diff),
 			} :: SyncPayload
-			changed = false
 
 			if next(payload.data) == nil then
 				return

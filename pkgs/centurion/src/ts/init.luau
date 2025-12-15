@@ -10,12 +10,16 @@ type CommandOptions = {
 	description: string?,
 	arguments: () -> { types.Argument }?,
 	guards: { Guard }?,
+	roles: { string }?,
+	permissions: { string }?,
 }
 
 type Metadata = {
 	commands: { [string]: CommandOptions },
 	groups: { [string | {}]: { string } },
 	guards: { [string | {}]: { Guard } },
+	roles: { [string | {}]: { string } },
+	permissions: { [string | {}]: { string } },
 }
 
 local metadata: { [any]: Metadata } = {}
@@ -26,9 +30,28 @@ local function get_metadata(target: { [any]: unknown }): Metadata
 			commands = {},
 			groups = {},
 			guards = {},
+			roles = {},
+			permissions = {},
 		}
 	end
 	return metadata[target]
+end
+
+local function collect_metadata(key: string, class_data: { [any]: { any } }, cmd_data: any?)
+	local data = table.clone(cmd_data or {}) :: { any }
+	if class_data[CLASS_MARKER] then
+		for _, v in class_data[CLASS_MARKER] do
+			table.insert(data, 1, v)
+		end
+	end
+
+	if class_data[key] then
+		for _, v in class_data[key] do
+			table.insert(data, v)
+		end
+	end
+
+	return data
 end
 
 local function command_decorator(options: CommandOptions)
@@ -53,6 +76,22 @@ local function guard_decorator(...: Guard)
 	end
 end
 
+local function role_decorator(...: string)
+	local roles = { ... }
+
+	return function(target: { [any]: unknown }, key: string?)
+		get_metadata(target).roles[key or CLASS_MARKER] = roles
+	end
+end
+
+local function permission_decorator(...: string)
+	local permissions = { ... }
+
+	return function(target: { [any]: unknown }, key: string?)
+		get_metadata(target).permissions[key or CLASS_MARKER] = permissions
+	end
+end
+
 local function register_classes()
 	for class, class_metadata in metadata do
 		if not class_metadata.commands then
@@ -63,7 +102,6 @@ local function register_classes()
 		instance:constructor()
 
 		local class_group = class_metadata.groups[CLASS_MARKER]
-		local class_guards = class_metadata.guards[CLASS_MARKER]
 
 		for key, cmd in class_metadata.commands do
 			local cmd_groups = class_group or {}
@@ -78,30 +116,22 @@ local function register_classes()
 				cmd_name = table.concat(cmd_groups, " ") .. " " .. cmd_name
 			end
 
-			local cmd_guards = cmd.guards or {}
-			if class_guards then
-				for _, guard in class_guards do
-					table.insert(cmd_guards, 1, guard)
-				end
-			end
-
-			if class_metadata.guards[key] then
-				for _, guard in class_metadata.guards[key] do
-					table.insert(cmd_guards, guard)
-				end
-			end
-
 			local args = cmd.arguments
-			centurion.register_command(cmd_name, {
-				callback = function(ctx: types.ExecutionContext, ...)
-					return (instance[key] :: any)(instance, ctx, ...)
-				end,
-				description = cmd.description,
-				arguments = function()
-					return table.unpack(args() :: any)
-				end,
-				guards = cmd_guards,
-			})
+			centurion.register_command(
+				cmd_name,
+				{
+					callback = function(ctx: types.ExecutionContext, ...)
+						return (instance[key] :: any)(instance, ctx, ...)
+					end,
+					description = cmd.description,
+					arguments = args and function()
+						return table.unpack(args() :: any)
+					end or nil,
+					guards = collect_metadata(key, class_metadata.guards, cmd.guards),
+					roles = collect_metadata(key, class_metadata.roles, cmd.roles),
+					permissions = collect_metadata(key, class_metadata.permissions, cmd.permissions),
+				} :: types.Command<unknown>
+			)
 		end
 	end
 	table.clear(metadata)
@@ -121,6 +151,8 @@ local exports = {
 	Command = command_decorator,
 	Group = group_decorator,
 	Guard = guard_decorator,
+	Role = role_decorator,
+	Permission = permission_decorator,
 	register_classes = register_classes,
 	register_command = register_command,
 }
