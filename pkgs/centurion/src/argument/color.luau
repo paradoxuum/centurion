@@ -3,7 +3,7 @@ local argument = require("./.")
 local result = require("../result")
 local types = require("../types")
 
-local register = argument.register
+local register = argument.register_type
 
 local brick_colors = {
 	"White",

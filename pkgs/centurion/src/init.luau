@@ -3,12 +3,14 @@ local color = require("@self/argument/color")
 local command = require("@self/command")
 local duration = require("@self/argument/duration")
 local guard = require("@self/guard")
+local parse = require("@self/parse")
 local permission = require("@self/permission")
 local player = require("@self/argument/player")
 local primitives = require("@self/argument/primitives")
 local sync = require("@self/sync")
 local team = require("@self/argument/team")
 local types = require("@self/types")
+local vector = require("@self/argument/vector")
 
 export type Argument = types.Argument
 export type Command<T...> = types.Command<T...>
@@ -17,10 +19,14 @@ export type Result = types.Result
 export type Context = types.ExecutionContext
 export type Response = types.Response
 
+export type Token = parse.Token
+export type ParseResult = parse.ParseResult
+
 return {
 	register_command = command.register,
 	register_guard = guard.register,
-	register_type = argument.register,
+	register_type = argument.register_type,
+	register_list_type = argument.register_list_type,
 	unregister_command = command.unregister,
 
 	create_enum = argument.enum,
@@ -39,6 +45,8 @@ return {
 	remove_roles = permission.remove_roles,
 	can_execute = permission.can_execute,
 	set_permission_options = permission.set_permission_options,
+
+	parse_text = parse,
 
 	registry = {
 		commands = command.commands,
@@ -59,6 +67,7 @@ return {
 		hex_color = color.hex_color,
 		team = team,
 		duration = duration,
+		vector = vector,
 	},
 	events = {
 		on_command_register = command.on_register,

@@ -44,8 +44,8 @@ export type AnalysisSuggestion = {
 export type AnalysisResult = {
 	result: centurion.Result,
 	command: string?,
-	argument: number?,
-	arguments: { string }?,
+	argument_index: number?,
+	argument_text: { string }?,
 	suggestions: { AnalysisSuggestion },
 }
 

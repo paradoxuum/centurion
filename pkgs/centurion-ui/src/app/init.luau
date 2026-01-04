@@ -261,7 +261,7 @@ local function app()
 
 					executing(true)
 
-					local result = centurion.execute_command(Players.LocalPlayer, cmd, analysis().arguments or {})
+					local result = centurion.execute_command(Players.LocalPlayer, cmd, analysis().argument_text or {})
 					if result.response then
 						if result.response.message ~= "" then
 							log(value, result.response)
@@ -305,7 +305,7 @@ local function app()
 
 				return (
 					not analysis_value.result.success
-					or analysis_value.argument ~= nil
+					or analysis_value.argument_index ~= nil
 					or #analysis_value.suggestions > 0
 				)
 						and UDim2.fromScale(1, 1)

@@ -7,6 +7,17 @@ centurion.create_role("user", 1, { "echo" })
 centurion.create_role("moderator", 50, { "kick" })
 centurion.create_role("admin", 100)
 
+centurion.register_command("to", {
+	description = "Teleport to a position",
+	arguments = function()
+		return centurion.args.vector("position")
+	end,
+	callback = function(ctx: centurion.Context, pos: vector)
+		ctx.executor.Character:PivotTo(CFrame.new(pos))
+		ctx.reply(`Teleported to ({pos.x}, {pos.y}, {pos.z})`)
+	end,
+})
+
 centurion.register_command("echo", {
 	description = "Prints a message to the terminal",
 	permissions = { "echo" },
@@ -15,6 +26,25 @@ centurion.register_command("echo", {
 	end,
 	callback = function(ctx: centurion.Context, message: string)
 		ctx.reply("Echo: " .. message)
+	end,
+})
+
+centurion.register_command("kill", {
+	description = "Kill player(s)",
+	arguments = function()
+		return centurion.args.players("target", "The players to kill")
+	end,
+	callback = function(ctx: centurion.Context, targets: { Player })
+		for _, target in targets do
+			local character = target.Character
+			if character then
+				local humanoid = character:FindFirstChildOfClass("Humanoid")
+				if humanoid then
+					humanoid.Health = 0
+				end
+			end
+		end
+		ctx.reply("Killed " .. #targets .. " player(s).")
 	end,
 })
 

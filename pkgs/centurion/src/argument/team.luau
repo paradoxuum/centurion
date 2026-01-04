@@ -4,7 +4,7 @@ local argument = require("./.")
 local result = require("../result")
 local types = require("../types")
 
-local team = argument.register("team", {
+local team = argument.register_type("team", {
 	transform = function(value: string, _executor: Player): types.Result
 		local team_obj = Teams:FindFirstChild(value)
 		if team_obj == nil or team_obj.ClassName ~= "Team" then

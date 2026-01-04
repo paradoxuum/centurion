@@ -16,10 +16,19 @@ export type Argument = {
 	suggestions: { string }?,
 }
 
-export type ArgumentType = {
+export type SingleArgumentType = {
+	kind: "single",
 	transform: (text: string, executor: Player) -> Result,
 	suggestions: ((text: string, executor: Player) -> { string })?,
 }
+
+export type ListArgumentType = {
+	kind: "list",
+	transform: (text: { string }, executor: Player) -> Result,
+	suggestions: ((text: string, executor: Player) -> { string })?,
+}
+
+export type ArgumentType = SingleArgumentType | ListArgumentType
 
 export type ArgumentFn<T> = (name: string, description: string?, suggestions: { string }?) -> T
 

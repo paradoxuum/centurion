@@ -19,7 +19,7 @@ unit(DAY_SECONDS * 7, { "w", "wk", "week", "weeks" })
 unit(DAY_SECONDS * (YEAR_DAYS / 12), { "mo", "month", "months" })
 unit(DAY_SECONDS * YEAR_DAYS, { "y", "yr", "year", "years" })
 
-local duration = argument.register("duration", {
+local duration = argument.register_type("duration", {
 	transform = function(value: string): types.Result
 		if value == "0" then
 			return result.success(0)
@@ -27,11 +27,16 @@ local duration = argument.register("duration", {
 
 		local total_seconds = 0
 		for amount, unit_name in value:gmatch("(%d+)%s*([a-zA-Z]+)") do
+			local amount_num = tonumber(amount)
+			if not amount_num or not unit_name then
+				return result.error(`Invalid duration format: {value}`)
+			end
+
 			local unit_seconds = units[unit_name:lower()]
 			if not unit_seconds then
 				return result.error(`Invalid duration unit: {unit_name}`)
 			end
-			total_seconds += tonumber(amount) * unit_seconds
+			total_seconds += amount_num * unit_seconds
 		end
 
 		if total_seconds == 0 then

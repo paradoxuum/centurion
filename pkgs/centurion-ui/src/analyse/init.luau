@@ -4,107 +4,8 @@ local centurion = require("../centurion")
 local suggest = require("@self/suggest")
 local types = require("./types")
 
-type ParseResult = {
-	tokens: { Token },
-	unclosed_quote: boolean,
-}
-
-export type Token = {
-	span: vector,
-	text: string,
-}
-
-local function parse_escaped_char(c: string): string
-	if c == "n" then
-		return "\n"
-	elseif c == "t" then
-		return "\t"
-	elseif c == "r" then
-		return "\r"
-	elseif c == "\\" then
-		return "\\"
-	elseif c == '"' then
-		return '"'
-	elseif c == "'" then
-		return "'"
-	end
-
-	return c
-end
-
-local function parse(text: string): ParseResult
-	local tokens: { Token } = {}
-
-	local start = nil
-	local escaped = false
-	local quote_char: string?
-	local current = ""
-
-	for i = 1, #text do
-		local c = text:sub(i, i)
-
-		if escaped then
-			if start == nil then
-				start = i - 1
-			end
-
-			current = current .. parse_escaped_char(c)
-			escaped = false
-			continue
-		end
-
-		if c == "\\" then
-			escaped = true
-			continue
-		end
-
-		if (c == '"' or c == "'") and not quote_char then
-			quote_char = c
-			if start == nil then
-				start = i
-			end
-			continue
-		end
-
-		if c == quote_char then
-			quote_char = nil
-			continue
-		end
-
-		if not quote_char and c == " " then
-			if start ~= nil then
-				table.insert(tokens, {
-					span = vector.create(start, i - 1, 0),
-					text = current,
-				})
-				start = nil
-				current = ""
-			end
-			continue
-		end
-
-		if start == nil then
-			start = i
-		end
-
-		current = current .. c
-	end
-
-	if start ~= nil then
-		table.insert(tokens, {
-			span = vector.create(start, #text, 0),
-			text = current,
-		})
-	end
-
-	return {
-		tokens = tokens,
-		unclosed_quote = quote_char ~= nil,
-	}
-end
-
 local function analyse(text: string, cursor_pos: number, max_suggestions: number?): types.AnalysisResult
-	local parse_result = parse(text)
+	local parse_result = centurion.parse_text(text, " ")
 	local tokens = parse_result.tokens
 
 	if #tokens == 0 then
@@ -138,7 +39,7 @@ local function analyse(text: string, cursor_pos: number, max_suggestions: number
 		cmd_text = {}
 	end
 
-	local arg_tokens: { Token } = cmd_index and { select(2, unpack(tokens, cmd_index)) } or {}
+	local arg_tokens: { centurion.Token } = cmd_index and { select(2, unpack(tokens, cmd_index)) } or {}
 
 	local at_arg = false
 	if cmd_index and cursor_pos - 1 > tokens[cmd_index].span.y then
@@ -162,9 +63,8 @@ local function analyse(text: string, cursor_pos: number, max_suggestions: number
 
 		local arg_text = {}
 		for _, token in arg_tokens do
-			table.insert(arg_text, token.text)
+			table.insert(arg_text, text:sub(token.span.x, token.span.y))
 		end
-
 		local transform_result = centurion.transform_args(Players.LocalPlayer, arg_text, cmd_args)
 
 		if not at_arg then
@@ -214,7 +114,7 @@ local function analyse(text: string, cursor_pos: number, max_suggestions: number
 		local arg_type = centurion.registry.types[arg.type]
 		assert(arg_type, "Unknown argument type: " .. tostring(arg.type))
 
-		local input_token = arg_tokens[input_index]
+		local input_token: centurion.Token? = arg_tokens[input_index]
 
 		local arg_suggestions = arg_type.suggestions
 				and arg_type.suggestions(input_token and input_token.text or "", Players.LocalPlayer)
@@ -239,6 +139,7 @@ local function analyse(text: string, cursor_pos: number, max_suggestions: number
 		local suggestions = {}
 		if #arg_suggestions > 0 then
 			local matches = suggest(input_token and input_token.text or "", arg_suggestions, max_suggestions)
+
 			local token = input_token
 			if not token then
 				local prev_token = tokens[cmd_index + math.min(input_index, #arg_tokens)]
@@ -248,10 +149,38 @@ local function analyse(text: string, cursor_pos: number, max_suggestions: number
 				}
 			end
 
+			if arg_type.kind == "list" then
+				local parsed_token = centurion.parse_text(text:sub(token.span.x, token.span.y), ",")
+
+				local at_list_token = false
+				for _, t in parsed_token.tokens do
+					if t.span.y + token.span.x - 1 >= cursor_pos - 1 then
+						at_list_token = true
+						token = {
+							span = vector.create(t.span.x + token.span.x - 1, t.span.y + token.span.x - 1, 0),
+							text = t.text,
+						}
+						break
+					end
+				end
+
+				if not at_list_token and #parsed_token.tokens > 0 then
+					local last_token = parsed_token.tokens[#parsed_token.tokens]
+					token = {
+						span = vector.create(
+							last_token.span.y + token.span.x + 1,
+							last_token.span.y + token.span.x + 1,
+							0
+						),
+						text = "",
+					}
+				end
+			end
+
 			for _, match in matches do
 				local replacement = ""
 				local replacement_text = {}
-				for _, replacement_token in parse(match).tokens do
+				for _, replacement_token in centurion.parse_text(match, " ").tokens do
 					table.insert(replacement_text, replacement_token.text)
 				end
 
@@ -274,8 +203,8 @@ local function analyse(text: string, cursor_pos: number, max_suggestions: number
 
 		return {
 			result = transform_result,
-			argument = arg_index,
-			arguments = arg_text,
+			argument_index = arg_index,
+			argument_text = arg_text,
 			suggestions = suggestions,
 		} :: types.AnalysisResult
 	end
@@ -351,8 +280,8 @@ local function analyse(text: string, cursor_pos: number, max_suggestions: number
 	return {
 		result = analysis_result,
 		command = cmd_name,
-		argument = arg_result and arg_result.argument or nil,
-		arguments = arg_result and arg_result.arguments or nil,
+		argument_index = arg_result and arg_result.argument_index or nil,
+		argument_text = arg_result and arg_result.argument_text or nil,
 		suggestions = (at_arg and arg_result) and arg_result.suggestions or cmd_result.suggestions,
 	}
 end
