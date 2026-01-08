@@ -11,14 +11,14 @@ export interface CommandData<T extends unknown[]> {
 	description?: string;
 	arguments?: () => LuaTuple<[...T]>;
 	callback: (ctx: ExecutionContext, ...args: T) => any;
-	guards?: (string | Guard)[];
+	guards?: (string | GuardCallback)[];
 	roles?: string[];
 	permissions?: string[];
 }
 
-export interface Ok {
+export interface Ok<T> {
 	success: true;
-	value: any;
+	value: T;
 }
 
 export interface Err {
@@ -26,7 +26,7 @@ export interface Err {
 	error: string;
 }
 
-export type Result = Ok | Err;
+export type Result<T> = Ok<T> | Err;
 
 export interface Response {
 	success: boolean;
@@ -45,7 +45,7 @@ export interface ExecutionContext {
 	error: (message: string) => void;
 }
 
-export type Guard = (context: ExecutionContext) => boolean;
+export type GuardCallback = (context: ExecutionContext) => boolean;
 
 export type PermissionRole = {
 	name: string;
@@ -53,10 +53,19 @@ export type PermissionRole = {
 	permissions: Set<string>;
 };
 
-export interface ArgumentType {
-	transform: (text: string, executor: Player) => Result;
+export interface SingleArgumentType<T> {
+	kind: "single";
+	transform: (text: string, executor: Player) => Result<T>;
 	suggestions?: (text: string, executor: Player) => string[] | undefined;
 }
+
+export interface ListArgumentType<T> {
+	kind: "list";
+	transform: (texts: string[], executor: Player) => Result<T>;
+	suggestions?: (text: string, executor: Player) => string[] | undefined;
+}
+
+export type ArgumentType<T> = SingleArgumentType<T> | ListArgumentType<T>;
 
 export type ArgumentFn<T> = (name: string, description?: string, suggestions?: string[]) => T;
 
@@ -64,14 +73,14 @@ export function Command(options: {
 	name?: string;
 	description?: string;
 	arguments?: () => unknown[];
-	guards?: Array<string | Guard>;
+	guards?: Array<string | GuardCallback>;
 	roles?: string[];
 	permissions?: string[];
 }): (target: unknown, key: string) => void;
 
 export function Group(...groups: string[]): (target: unknown, key?: string) => void;
 
-export function Guard(...guards: Array<string | Guard>): (target: unknown, key?: string) => void;
+export function Guard(...guards: Array<string | GuardCallback>): (target: unknown, key?: string) => void;
 
 export function Role(...roles: string[]): (target: unknown, key?: string) => void;
 
@@ -85,25 +94,27 @@ export function register_command<const T extends unknown[]>(
 		description?: string;
 		arguments?: () => [...T];
 		callback: (ctx: ExecutionContext, ...args: T) => any;
-		guards?: (string | Guard)[];
+		guards?: (string | GuardCallback)[];
 		roles?: string[];
 		permissions?: string[];
 	},
 ): void;
 
-export function register_guard(name: string, guard: Guard): void;
+export function register_guard(name: string, guard: GuardCallback): void;
 
-export function register_type<T>(name: string, argumentFn: ArgumentType): void;
+export function register_type<T>(name: string, argumentFn: Omit<SingleArgumentType<T>, "kind">): T;
+
+export function register_list_type<T>(name: string, argumentFn: Omit<ListArgumentType<T>, "kind">): T[];
 
 export function unregister_command(name: string): void;
 
-export function create_enum(name: string, values: string[]): ArgumentType;
+export function create_enum<T>(name: string, values: string[]): Omit<SingleArgumentType<T>, "kind">;
 
 export function optional<T>(arg: T): T | undefined;
 
 export function num_args<T>(arg: T, count: number | "rest"): T[];
 
-export function transform_args(executor: Player, input: string[], args: ArgumentType[]): Result;
+export function transform_args(executor: Player, input: string[], args: ArgumentType<unknown>[]): Result<unknown[]>;
 
 export function execute_command(executor: Player, command: string, args: string[]): Response;
 
@@ -125,9 +136,9 @@ export function setup_networking(): void;
 
 export const registry: {
 	commands: Record<string, CommandData<unknown[]>>;
-	types: Record<string, ArgumentType>;
-	guards: Record<string, Guard>;
-	global_guards: Guard[];
+	types: Record<string, ArgumentType<unknown>>;
+	guards: Record<string, GuardCallback>;
+	global_guards: GuardCallback[];
 	roles: Record<string, PermissionRole>;
 };
 
