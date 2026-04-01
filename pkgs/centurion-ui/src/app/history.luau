@@ -34,7 +34,7 @@ local function history(props: History)
 		return line_height * (read(props.max_lines) :: number)
 	end)
 
-	return vide.create "ScrollingFrame" {
+	return create "ScrollingFrame" {
 		AutomaticCanvasSize = Enum.AutomaticSize.Y,
 		BackgroundTransparency = 1,
 		CanvasSize = UDim2.new(1, 0, 0, 0),

@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@rbxts/vide':
-        specifier: 0.5.7
-        version: 0.5.7
+        specifier: 0.6.1
+        version: 0.6.1
     devDependencies:
       '@rbxts/compiler-types':
         specifier: 3.0.0-types.0
@@ -46,6 +46,9 @@ packages:
 
   '@rbxts/vide@0.5.7':
     resolution: {integrity: sha512-Q9R7ybzuHK1phtLicBHgAjQnlJ/dMsXDs2k296PIMLgLqK9aX/f1skOP7F1K/vo7IrSE0jCG3B3XTOtQL1Sb0Q==}
+
+  '@rbxts/vide@0.6.1':
+    resolution: {integrity: sha512-syFqx+HYXy0TauDCGLhc68K2cAlfgYookIJSRtJZ01W7mUI+EKyj80x2L91dQxos3BwAAGJqBD/ovWU4M//+Lg==}
 
   '@roblox-ts/luau-ast@2.0.0':
     resolution: {integrity: sha512-cmMi093IdwBOLVxwuordhM8AmtbyTIyRpsTbB0D/JauidW4SXsQRQowSwWjHo4QP0DRJBXvOIlxtqEQi50uNzQ==}
@@ -257,6 +260,8 @@ snapshots:
   '@rbxts/types@1.0.891': {}
 
   '@rbxts/vide@0.5.7': {}
+
+  '@rbxts/vide@0.6.1': {}
 
   '@roblox-ts/luau-ast@2.0.0': {}
 

@@ -1,7 +1,7 @@
 {
 	"name": "centurion-workspace",
 	"private": true,
-	"packageManager": "pnpm@10.22.0+sha512.bf049efe995b28f527fd2b41ae0474ce29186f7edcb3bf545087bd61fbbebb2bf75362d1307fda09c2d288e1e499787ac12d4fcb617a974718a6051f2eee741c",
+	"packageManager": "pnpm@10.29.3+sha512.498e1fb4cca5aa06c1dcf2611e6fafc50972ffe7189998c409e90de74566444298ffe43e6cd2acdc775ba1aa7cc5e092a8b7054c811ba8c5770f84693d33d2dc",
 	"devDependencies": {
 		"@rbxts/compiler-types": "3.0.0-types.0",
 		"@rbxts/types": "^1.0.891",
@@ -9,6 +9,6 @@
 		"typescript": "^5.9.3"
 	},
 	"dependencies": {
-		"@rbxts/vide": "0.5.7"
+		"@rbxts/vide": "0.6.1"
 	}
 }

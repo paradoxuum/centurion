@@ -64,7 +64,7 @@ local function suggestions(props: Suggestions)
 				text {
 					auto = "XY",
 					text = function()
-						return arg().name
+						return arg() and arg().name or ""
 					end,
 					xalignment = Enum.TextXAlignment.Left,
 				},
@@ -82,7 +82,7 @@ local function suggestions(props: Suggestions)
 					text {
 						auto = "XY",
 						text = function()
-							return arg().type
+							return arg() and arg().type or ""
 						end,
 						text_size = px(state.subtext_size),
 						text_style = "bg",
@@ -91,12 +91,12 @@ local function suggestions(props: Suggestions)
 				},
 
 				show(function()
-					return arg().description ~= nil
+					return arg() and arg().description ~= nil
 				end, function()
 					return text {
 						auto = "XY",
 						text = function()
-							return arg().description
+							return arg() and arg().description or ""
 						end,
 						text_size = px(state.subtext_size),
 						text_style = "subtext",
@@ -151,6 +151,7 @@ local function suggestions(props: Suggestions)
 				end),
 			}
 		end),
+
 		unpack(props),
 	}
 end

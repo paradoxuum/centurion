@@ -1,3 +1,5 @@
+--!nonstrict
+
 -- https://github.com/littensy/charm/blob/d7a1f62c3cf7b2bcd71813b3fa798a54c72c8cae/packages/charm-sync/src/patch.luau
 
 local validate = require("./validate")
