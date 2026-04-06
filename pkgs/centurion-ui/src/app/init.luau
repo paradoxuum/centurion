@@ -80,7 +80,18 @@ local function app()
 		task.defer(cursor_pos, span_start + #with + 2)
 		selected_suggestion(1)
 
-		return before .. with .. " " .. after
+		local arg = analysis().argument
+
+		local add_space = true
+		if arg ~= nil then
+			local cmd = centurion.registry.commands[analysis().command]
+			local args = { cmd.arguments() }
+			if arg.index == #args or arg.kind == "list" then
+				add_space = false
+			end
+		end
+
+		return before .. with .. (add_space and " " or "") .. after
 	end
 
 	local activation_keys = derive(function()
@@ -261,7 +272,11 @@ local function app()
 
 					executing(true)
 
-					local result = centurion.execute_command(Players.LocalPlayer, cmd, analysis().argument_text or {})
+					local result = centurion.execute_command(
+						Players.LocalPlayer,
+						cmd,
+						analysis().argument and analysis().argument.text or {}
+					)
 					if result.response then
 						if result.response.message ~= "" then
 							log(value, result.response)
@@ -305,7 +320,7 @@ local function app()
 
 				return (
 					not analysis_value.result.success
-					or analysis_value.argument_index ~= nil
+					or analysis_value.argument ~= nil
 					or #analysis_value.suggestions > 0
 				)
 						and UDim2.fromScale(1, 1)

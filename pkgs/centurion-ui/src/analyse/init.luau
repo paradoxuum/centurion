@@ -203,8 +203,12 @@ local function analyse(text: string, cursor_pos: number, max_suggestions: number
 
 		return {
 			result = transform_result,
-			argument_index = arg_index,
-			argument_text = arg_text,
+			argument = {
+				text = arg_text,
+				index = arg_index,
+				type = arg.type,
+				kind = arg_type.kind,
+			},
 			suggestions = suggestions,
 		} :: types.AnalysisResult
 	end
@@ -280,8 +284,7 @@ local function analyse(text: string, cursor_pos: number, max_suggestions: number
 	return {
 		result = analysis_result,
 		command = cmd_name,
-		argument_index = arg_result and arg_result.argument_index or nil,
-		argument_text = arg_result and arg_result.argument_text or nil,
+		argument = arg_result and arg_result.argument or nil,
 		suggestions = (at_arg and arg_result) and arg_result.suggestions or cmd_result.suggestions,
 	}
 end

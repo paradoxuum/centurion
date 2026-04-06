@@ -26,7 +26,7 @@ export type Suggestions = {
 
 local function suggestions(props: Suggestions)
 	local arg = derive(function()
-		if props.analysis().argument_index == nil or props.analysis().command == nil then
+		if props.analysis().argument == nil or props.analysis().command == nil then
 			return nil
 		end
 
@@ -36,7 +36,7 @@ local function suggestions(props: Suggestions)
 		end
 
 		local args = { cmd.arguments() }
-		return args[props.analysis().argument_index]
+		return args[props.analysis().argument.index]
 	end)
 
 	return container {
