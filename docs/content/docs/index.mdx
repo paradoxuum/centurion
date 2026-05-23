@@ -1,0 +1,114 @@
+---
+title: Getting Started
+description: Centurion is a flexible command framework for Roblox supporting both Luau and roblox-ts.
+icon: Rocket
+---
+
+Centurion provides a registry-based command system with built-in argument types, guards, role-based permissions, and an optional terminal UI.
+It supports Luau and roblox-ts.
+
+## Installation
+
+<CodeBlockTabs groupId="lang" defaultValue="luau" persist>
+  <CodeBlockTabsList>
+    <CodeBlockTabsTrigger value="luau">Luau</CodeBlockTabsTrigger>
+    <CodeBlockTabsTrigger value="ts">TypeScript</CodeBlockTabsTrigger>
+  </CodeBlockTabsList>
+  <CodeBlockTab value="luau">
+```toml title="wally.toml"
+[dependencies]
+centurion = "paradoxuum/centurion@2.0.0"
+centurion-ui = "paradoxuum/centurion-ui@2.0.0"
+```
+  </CodeBlockTab>
+  <CodeBlockTab value="ts">
+```bash
+npm install @rbxts/centurion @rbxts/centurion-ui
+```
+  </CodeBlockTab>
+</CodeBlockTabs>
+
+## Quick Start
+
+### Server
+
+<CodeBlockTabs groupId="lang" defaultValue="luau" persist>
+  <CodeBlockTabsList>
+    <CodeBlockTabsTrigger value="luau">Luau</CodeBlockTabsTrigger>
+    <CodeBlockTabsTrigger value="ts">TypeScript</CodeBlockTabsTrigger>
+  </CodeBlockTabsList>
+  <CodeBlockTab value="luau">
+```lua
+local centurion = require(path.to.centurion)
+
+local args = centurion.args
+
+centurion.setup_networking()
+centurion.create_role("admin", 100)
+
+centurion.register_command("greet", {
+    description = "Greet a player",
+    arguments = function()
+        return args.player("target", "The player to greet")
+    end,
+    callback = function(ctx, target)
+        ctx.reply("Hello, " .. target.Name .. "!")
+    end,
+})
+```
+  </CodeBlockTab>
+  <CodeBlockTab value="ts">
+```ts
+import { register_command, setup_networking, create_role, args } from "@rbxts/centurion";
+import type { ExecutionContext } from "@rbxts/centurion";
+
+setup_networking();
+create_role("admin", 100);
+
+register_command("greet", {
+    description: "Greet a player",
+    arguments: () => [args.player("target", "The player to greet")],
+    callback: (ctx, target) => {
+        ctx.reply(`Hello, ${target.Name}!`);
+    },
+});
+```
+  </CodeBlockTab>
+</CodeBlockTabs>
+
+### Client
+
+<CodeBlockTabs groupId="lang" defaultValue="luau" persist>
+  <CodeBlockTabsList>
+    <CodeBlockTabsTrigger value="luau">Luau</CodeBlockTabsTrigger>
+    <CodeBlockTabsTrigger value="ts">TypeScript</CodeBlockTabsTrigger>
+  </CodeBlockTabsList>
+  <CodeBlockTab value="luau">
+```lua
+local centurion = require(path.to.centurion)
+local centurion_ui = require(path.to.centurion_ui)
+
+centurion.setup_networking()
+
+centurion_ui.mount({ Enum.KeyCode.F2 })
+centurion_ui.configure({})
+centurion_ui.register_commands()
+```
+  </CodeBlockTab>
+  <CodeBlockTab value="ts">
+```ts
+import { setup_networking } from "@rbxts/centurion";
+import { CenturionUI } from "@rbxts/centurion-ui";
+
+setup_networking();
+
+CenturionUI.mount([Enum.KeyCode.F2]);
+CenturionUI.configure({});
+CenturionUI.register_commands();
+```
+  </CodeBlockTab>
+</CodeBlockTabs>
+
+<Callout>
+`setup_networking()` must be called on **both** the server and the client.
+</Callout>

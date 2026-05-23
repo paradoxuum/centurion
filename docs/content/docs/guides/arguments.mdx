@@ -1,0 +1,365 @@
+---
+title: Arguments
+description: Built-in argument types, modifiers, and defining custom types.
+icon: Braces
+---
+
+## Defining Arguments
+
+The `arguments` field of a command is a function that returns the argument definitions.
+Each argument is created by calling an argument factory function with a name, optional description, and optional static suggestions.
+
+<CodeBlockTabs groupId="lang" defaultValue="luau" persist>
+  <CodeBlockTabsList>
+    <CodeBlockTabsTrigger value="luau">Luau</CodeBlockTabsTrigger>
+    <CodeBlockTabsTrigger value="ts">TypeScript</CodeBlockTabsTrigger>
+  </CodeBlockTabsList>
+  <CodeBlockTab value="luau">
+```lua
+centurion.register_command("echo", {
+    arguments = function()
+        return centurion.args.string("message", "The message to echo")
+    end,
+    callback = function(ctx, message)
+        ctx.reply(message)
+    end,
+})
+```
+  </CodeBlockTab>
+  <CodeBlockTab value="ts">
+```ts
+import { register_command, args } from "@rbxts/centurion";
+
+register_command("echo", {
+    arguments: () => [args.string("message", "The message to echo")],
+    callback: (ctx, message) => ctx.reply(message),
+});
+```
+  </CodeBlockTab>
+</CodeBlockTabs>
+
+Multiple arguments are returned as multiple values in Luau, and as an array in TypeScript.
+
+<CodeBlockTabs groupId="lang" defaultValue="luau" persist>
+  <CodeBlockTabsList>
+    <CodeBlockTabsTrigger value="luau">Luau</CodeBlockTabsTrigger>
+    <CodeBlockTabsTrigger value="ts">TypeScript</CodeBlockTabsTrigger>
+  </CodeBlockTabsList>
+  <CodeBlockTab value="luau">
+```lua
+arguments = function()
+    return centurion.args.player("target"),
+        centurion.args.string("message")
+end,
+```
+  </CodeBlockTab>
+  <CodeBlockTab value="ts">
+```ts
+arguments: () => [args.player("target"), args.string("message")],
+```
+  </CodeBlockTab>
+</CodeBlockTabs>
+
+## Built-in Types
+
+| Name | Returns | Notes |
+| --- | --- | --- |
+| `args.string` | `string` | Pass-through |
+| `args.number` | `number` | Accepts any numeric value |
+| `args.integer` | `number` | Must be a whole number |
+| `args.boolean` | `boolean` | Accepts `true/false`, `yes/no`, `y/n` |
+| `args.player` | `Player` | Accepts `@me`, `.`, `@random`, `?`, or a player name |
+| `args.players` | `Player[]` | Comma-separated; also accepts `@all`, `@others`, `@random` |
+| `args.brick_color` | `BrickColor` | Roblox BrickColor names |
+| `args.hex_color` | `Color3` | Hex color string (e.g. `#ff0000`) |
+| `args.team` | `Team` | Team name from `game.Teams` |
+| `args.duration` | `number` | Duration string → seconds (e.g. `1h30m`) |
+| `args.vector` | `vector` | Two or three space-separated numbers |
+
+### Duration Format
+
+The `duration` type accepts compound duration strings:
+
+| Unit | Aliases |
+| --- | --- |
+| Seconds | `s`, `sec`, `second`, `seconds` |
+| Minutes | `m`, `min`, `minute`, `minutes` |
+| Hours | `h`, `hr`, `hour`, `hours` |
+| Days | `d`, `day`, `days` |
+| Weeks | `w`, `wk`, `week`, `weeks` |
+
+Example: `1h30m` → `5400` seconds, `2d12h` → `216000` seconds.
+
+## Optional Arguments
+
+Wrap an argument with `optional` to make it not required. Optional arguments must come last.
+
+<CodeBlockTabs groupId="lang" defaultValue="luau" persist>
+  <CodeBlockTabsList>
+    <CodeBlockTabsTrigger value="luau">Luau</CodeBlockTabsTrigger>
+    <CodeBlockTabsTrigger value="ts">TypeScript</CodeBlockTabsTrigger>
+  </CodeBlockTabsList>
+  <CodeBlockTab value="luau">
+```lua
+centurion.register_command("kick", {
+    arguments = function()
+        return centurion.args.player("target"),
+            centurion.optional(centurion.args.string("reason", "Reason for the kick"))
+    end,
+    callback = function(ctx, target, reason)
+        target:Kick(reason or "No reason provided")
+        ctx.reply("Kicked " .. target.Name)
+    end,
+})
+```
+  </CodeBlockTab>
+  <CodeBlockTab value="ts">
+```ts
+import { register_command, args, optional } from "@rbxts/centurion";
+
+register_command("kick", {
+    arguments: () => [
+        args.player("target"),
+        optional(args.string("reason", "Reason for the kick")),
+    ],
+    callback: (ctx, target, reason) => {
+        target.Kick(reason ?? "No reason provided");
+        ctx.reply(`Kicked ${target.Name}`);
+    },
+});
+```
+  </CodeBlockTab>
+</CodeBlockTabs>
+
+## List Arguments
+
+Use `num_args` to accept a fixed number of values, or `"rest"` to consume all remaining input.
+
+<CodeBlockTabs groupId="lang" defaultValue="luau" persist>
+  <CodeBlockTabsList>
+    <CodeBlockTabsTrigger value="luau">Luau</CodeBlockTabsTrigger>
+    <CodeBlockTabsTrigger value="ts">TypeScript</CodeBlockTabsTrigger>
+  </CodeBlockTabsList>
+  <CodeBlockTab value="luau">
+```lua
+-- accept exactly 3 numbers
+centurion.num_args(centurion.args.number("value"), 3)
+
+-- accept all remaining words as tags
+centurion.num_args(centurion.args.string("tag"), "rest")
+```
+  </CodeBlockTab>
+  <CodeBlockTab value="ts">
+```ts
+import { num_args, args } from "@rbxts/centurion";
+
+// accept exactly 3 numbers
+num_args(args.number("value"), 3)
+
+// accept all remaining words as tags
+num_args(args.string("tag"), "rest")
+```
+  </CodeBlockTab>
+</CodeBlockTabs>
+
+The callback receives the list as an array.
+
+<CodeBlockTabs groupId="lang" defaultValue="luau" persist>
+  <CodeBlockTabsList>
+    <CodeBlockTabsTrigger value="luau">Luau</CodeBlockTabsTrigger>
+    <CodeBlockTabsTrigger value="ts">TypeScript</CodeBlockTabsTrigger>
+  </CodeBlockTabsList>
+  <CodeBlockTab value="luau">
+```lua
+centurion.register_command("roles add", {
+    arguments = function()
+        return centurion.args.player("player"),
+            centurion.num_args(centurion.args.string("role"), "rest")
+    end,
+    callback = function(ctx, player, roles)
+        centurion.add_roles(player, table.unpack(roles))
+        ctx.reply("Added " .. #roles .. " role(s) to " .. player.Name)
+    end,
+})
+```
+  </CodeBlockTab>
+  <CodeBlockTab value="ts">
+```ts
+import { register_command, args, num_args, add_roles } from "@rbxts/centurion";
+
+register_command("roles add", {
+    arguments: () => [args.player("player"), num_args(args.string("role"), "rest")],
+    callback: (ctx, player, roles) => {
+        add_roles(player, ...roles);
+        ctx.reply(`Added ${roles.size()} role(s) to ${player.Name}`);
+    },
+});
+```
+  </CodeBlockTab>
+</CodeBlockTabs>
+
+## Enums
+
+`create_enum` creates a type that only accepts values from a fixed list. The suggestions list is populated automatically.
+
+<CodeBlockTabs groupId="lang" defaultValue="luau" persist>
+  <CodeBlockTabsList>
+    <CodeBlockTabsTrigger value="luau">Luau</CodeBlockTabsTrigger>
+    <CodeBlockTabsTrigger value="ts">TypeScript</CodeBlockTabsTrigger>
+  </CodeBlockTabsList>
+  <CodeBlockTab value="luau">
+```lua
+local difficulty = centurion.register_type("difficulty", centurion.create_enum({ "easy", "normal", "hard" }))
+
+centurion.register_command("set_difficulty", {
+    arguments = function()
+        return difficulty("level", "The difficulty level")
+    end,
+    callback = function(ctx, level)
+        -- level is "easy", "normal", or "hard"
+        ctx.reply("Difficulty set to " .. level)
+    end,
+})
+```
+  </CodeBlockTab>
+  <CodeBlockTab value="ts">
+```ts
+import { register_type, register_command, create_enum } from "@rbxts/centurion";
+
+const difficulty = register_type<string>("difficulty", create_enum(["easy", "normal", "hard"]));
+
+register_command("set_difficulty", {
+    arguments: () => [difficulty("level", "The difficulty level")],
+    callback: (ctx, level) => {
+        ctx.reply(`Difficulty set to ${level}`);
+    },
+});
+```
+  </CodeBlockTab>
+</CodeBlockTabs>
+
+## Custom Types
+
+Register a custom argument type with `register_type`. The `transform` function receives the raw string and the executing player, and returns a `Result`.
+
+<CodeBlockTabs groupId="lang" defaultValue="luau" persist>
+  <CodeBlockTabsList>
+    <CodeBlockTabsTrigger value="luau">Luau</CodeBlockTabsTrigger>
+    <CodeBlockTabsTrigger value="ts">TypeScript</CodeBlockTabsTrigger>
+  </CodeBlockTabsList>
+  <CodeBlockTab value="luau">
+```lua
+local positive_int = centurion.register_type("positive-integer", {
+    transform = function(text)
+        local n = tonumber(text)
+        if n == nil or n <= 0 or math.floor(n) ~= n then
+            return { success = false, error = "Expected a positive integer, got: " .. text }
+        end
+        return { success = true, value = n }
+    end,
+})
+
+centurion.register_command("repeat", {
+    arguments = function()
+        return centurion.args.string("message"),
+            positive_int("count", "How many times to repeat")
+    end,
+    callback = function(ctx, message, count)
+        for _ = 1, count do
+            print(message)
+        end
+        ctx.reply("Done")
+    end,
+})
+```
+  </CodeBlockTab>
+  <CodeBlockTab value="ts">
+```ts
+import { register_type, register_command } from "@rbxts/centurion";
+
+const positiveInt = register_type<number>("positive-integer", {
+    transform: (text) => {
+        const n = tonumber(text);
+        if (n === undefined || n <= 0 || math.floor(n) !== n) {
+            return { success: false, error: `Expected a positive integer, got: ${text}` };
+        }
+        return { success: true, value: n };
+    },
+});
+
+register_command("repeat", {
+    arguments: () => [positiveInt("count", "How many times to repeat")],
+    callback: (ctx, count) => {
+        ctx.reply("Done");
+    },
+});
+```
+  </CodeBlockTab>
+</CodeBlockTabs>
+
+### Dynamic Suggestions
+
+Provide a `suggestions` function to power tab completion for your custom type.
+
+<CodeBlockTabs groupId="lang" defaultValue="luau" persist>
+  <CodeBlockTabsList>
+    <CodeBlockTabsTrigger value="luau">Luau</CodeBlockTabsTrigger>
+    <CodeBlockTabsTrigger value="ts">TypeScript</CodeBlockTabsTrigger>
+  </CodeBlockTabsList>
+  <CodeBlockTab value="luau">
+```lua
+local map_type = centurion.register_type("map", {
+    transform = function(text)
+        -- validate...
+        return { success = true, value = text }
+    end,
+    suggestions = function(text, executor)
+        return { "lobby", "arena", "dungeon" }
+    end,
+})
+```
+  </CodeBlockTab>
+  <CodeBlockTab value="ts">
+```ts
+const mapType = register_type<string>("map", {
+    transform: (text) => ({ success: true, value: text }),
+    suggestions: (text, executor) => ["lobby", "arena", "dungeon"],
+});
+```
+  </CodeBlockTab>
+</CodeBlockTabs>
+
+### List Argument Types
+
+Register a list argument type with `register_list_type`. The `transform` function receives an array of strings (comma-separated input) instead of
+a single string.
+
+<CodeBlockTabs groupId="lang" defaultValue="luau" persist>
+  <CodeBlockTabsList>
+    <CodeBlockTabsTrigger value="luau">Luau</CodeBlockTabsTrigger>
+    <CodeBlockTabsTrigger value="ts">TypeScript</CodeBlockTabsTrigger>
+  </CodeBlockTabsList>
+  <CodeBlockTab value="luau">
+```lua
+local tags_type = centurion.register_list_type("tags", {
+    transform = function(texts)
+        -- texts is a { string } array split by commas
+        return { success = true, value = texts }
+    end,
+    suggestions = function(text)
+        return { "pvp", "pve", "creative" }
+    end,
+})
+```
+  </CodeBlockTab>
+  <CodeBlockTab value="ts">
+```ts
+import { register_list_type } from "@rbxts/centurion";
+
+const tagsType = register_list_type<string[]>("tags", {
+    transform: (texts) => ({ success: true, value: texts }),
+    suggestions: (text) => ["pvp", "pve", "creative"],
+});
+```
+  </CodeBlockTab>
+</CodeBlockTabs>

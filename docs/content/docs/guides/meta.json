@@ -1,0 +1,4 @@
+{
+  "title": "Guides",
+  "pages": ["commands", "arguments", "guards", "permissions", "ui"]
+}

@@ -1,7 +1,7 @@
 {
 	"name": "centurion-workspace",
 	"private": true,
-	"packageManager": "pnpm@10.29.3+sha512.498e1fb4cca5aa06c1dcf2611e6fafc50972ffe7189998c409e90de74566444298ffe43e6cd2acdc775ba1aa7cc5e092a8b7054c811ba8c5770f84693d33d2dc",
+	"packageManager": "pnpm@10.33.4+sha512.1c67b3b359b2d408119ba1ed289f34b8fc3c6873412bec6fd264fbdc82489e510fcbecb9ce9d22dae7f3b76269d8441046014bdca53b9979cd7a561ad631b800",
 	"devDependencies": {
 		"@rbxts/compiler-types": "3.0.0-types.0",
 		"@rbxts/types": "^1.0.891",

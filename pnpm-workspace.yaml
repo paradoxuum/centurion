@@ -1,2 +1,6 @@
 packages:
-    - pkgs/*
+  - pkgs/*
+  - docs
+
+ignoredBuiltDependencies:
+  - esbuild

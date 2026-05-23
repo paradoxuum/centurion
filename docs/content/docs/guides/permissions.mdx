@@ -1,0 +1,269 @@
+---
+title: Permissions
+description: Role-based access control for restricting command execution.
+icon: Lock
+---
+
+Centurion uses a role-based permission system. Roles have a priority level and an optional set of named permissions.
+A player can be assigned multiple roles, and command access is determined by whether the player's highest-priority role satisfies the command's requirements.
+
+## Creating Roles
+
+Define roles with `create_role`. The priority determines precedence; a role with a higher priority inherits all permissions from lower-priority roles.
+
+<CodeBlockTabs groupId="lang" defaultValue="luau" persist>
+  <CodeBlockTabsList>
+    <CodeBlockTabsTrigger value="luau">Luau</CodeBlockTabsTrigger>
+    <CodeBlockTabsTrigger value="ts">TypeScript</CodeBlockTabsTrigger>
+  </CodeBlockTabsList>
+  <CodeBlockTab value="luau">
+```lua
+centurion.create_role("user", 1, { "echo" })
+centurion.create_role("moderator", 50, { "kick", "ban" })
+centurion.create_role("admin", 100)  -- inherits all permissions from lower roles
+```
+  </CodeBlockTab>
+  <CodeBlockTab value="ts">
+```ts
+import { create_role } from "@rbxts/centurion";
+
+create_role("user", 1, ["echo"]);
+create_role("moderator", 50, ["kick", "ban"]);
+create_role("admin", 100); // inherits all permissions from lower roles
+```
+  </CodeBlockTab>
+</CodeBlockTabs>
+
+## Restricting Commands
+
+Commands can require a specific **role** (by minimum priority) or a specific **permission** (by name).
+Either restriction can be used independently or together.
+
+### By Role
+
+<CodeBlockTabs groupId="lang" defaultValue="luau" persist>
+  <CodeBlockTabsList>
+    <CodeBlockTabsTrigger value="luau">Luau</CodeBlockTabsTrigger>
+    <CodeBlockTabsTrigger value="ts">TypeScript</CodeBlockTabsTrigger>
+  </CodeBlockTabsList>
+  <CodeBlockTab value="luau">
+```lua
+centurion.register_command("shutdown", {
+    description = "Shut down the server",
+    roles = { "admin" },
+    callback = function(ctx)
+        game:GetService("TeleportService"):TeleportToPlaceInstance(...)
+    end,
+})
+```
+  </CodeBlockTab>
+  <CodeBlockTab value="ts">
+```ts
+import { register_command } from "@rbxts/centurion";
+
+register_command("shutdown", {
+    description: "Shut down the server",
+    roles: ["admin"],
+    callback: (ctx) => { /* ... */ },
+});
+```
+  </CodeBlockTab>
+</CodeBlockTabs>
+
+A player passes the role check if any of their assigned roles has a priority **less than or equal to** the required role's priority.
+This means a higher-priority role satisfies any lower-priority role requirement.
+
+### By Permission
+
+<CodeBlockTabs groupId="lang" defaultValue="luau" persist>
+  <CodeBlockTabsList>
+    <CodeBlockTabsTrigger value="luau">Luau</CodeBlockTabsTrigger>
+    <CodeBlockTabsTrigger value="ts">TypeScript</CodeBlockTabsTrigger>
+  </CodeBlockTabsList>
+  <CodeBlockTab value="luau">
+```lua
+centurion.register_command("kick", {
+    description = "Kick a player",
+    permissions = { "kick" },
+    arguments = function()
+        return centurion.args.player("target")
+    end,
+    callback = function(ctx, target)
+        target:Kick()
+        ctx.reply("Kicked " .. target.Name)
+    end,
+})
+```
+  </CodeBlockTab>
+  <CodeBlockTab value="ts">
+```ts
+register_command("kick", {
+    description: "Kick a player",
+    permissions: ["kick"],
+    arguments: () => [args.player("target")],
+    callback: (ctx, target) => {
+        target.Kick();
+        ctx.reply(`Kicked ${target.Name}`);
+    },
+});
+```
+  </CodeBlockTab>
+</CodeBlockTabs>
+
+## Managing Player Roles
+
+<CodeBlockTabs groupId="lang" defaultValue="luau" persist>
+  <CodeBlockTabsList>
+    <CodeBlockTabsTrigger value="luau">Luau</CodeBlockTabsTrigger>
+    <CodeBlockTabsTrigger value="ts">TypeScript</CodeBlockTabsTrigger>
+  </CodeBlockTabsList>
+  <CodeBlockTab value="luau">
+```lua
+local Players = game:GetService("Players")
+
+-- set roles (replaces existing)
+centurion.set_roles(player, { "moderator" })
+
+-- add one or more roles
+centurion.add_roles(player, "moderator")
+
+-- remove one or more roles
+centurion.remove_roles(player, "moderator")
+
+-- get current roles
+local roles = centurion.get_roles(player)
+print(table.concat(roles, ", "))
+```
+  </CodeBlockTab>
+  <CodeBlockTab value="ts">
+```ts
+import { set_roles, add_roles, remove_roles, get_roles } from "@rbxts/centurion";
+
+// set roles (replaces existing)
+set_roles(player, ["moderator"]);
+
+// add one or more roles
+add_roles(player, "moderator");
+
+// remove one or more roles
+remove_roles(player, "moderator");
+
+// get current roles
+const roles = get_roles(player);
+print(roles.join(", "));
+```
+  </CodeBlockTab>
+</CodeBlockTabs>
+
+## Default Roles
+
+Assign roles automatically when a player joins using `set_permission_options`.
+
+<CodeBlockTabs groupId="lang" defaultValue="luau" persist>
+  <CodeBlockTabsList>
+    <CodeBlockTabsTrigger value="luau">Luau</CodeBlockTabsTrigger>
+    <CodeBlockTabsTrigger value="ts">TypeScript</CodeBlockTabsTrigger>
+  </CodeBlockTabsList>
+  <CodeBlockTab value="luau">
+```lua
+centurion.set_permission_options({
+    default_roles = { "user" },
+})
+```
+  </CodeBlockTab>
+  <CodeBlockTab value="ts">
+```ts
+import { set_permission_options } from "@rbxts/centurion";
+
+set_permission_options({
+    default_roles: ["user"],
+});
+```
+  </CodeBlockTab>
+</CodeBlockTabs>
+
+## Hiding Unauthorized Commands
+
+By default (`hide = true`), commands that a player cannot execute are hidden silently - no error is shown.
+Set `hide` to false if you want to display an explicit "no permission" error instead.
+
+<CodeBlockTabs groupId="lang" defaultValue="luau" persist>
+  <CodeBlockTabsList>
+    <CodeBlockTabsTrigger value="luau">Luau</CodeBlockTabsTrigger>
+    <CodeBlockTabsTrigger value="ts">TypeScript</CodeBlockTabsTrigger>
+  </CodeBlockTabsList>
+  <CodeBlockTab value="luau">
+```lua
+centurion.set_permission_options({
+    hide = false,
+})
+```
+  </CodeBlockTab>
+  <CodeBlockTab value="ts">
+```ts
+set_permission_options({
+    hide: false,
+});
+```
+  </CodeBlockTab>
+</CodeBlockTabs>
+
+## Listening to Role Changes
+
+<CodeBlockTabs groupId="lang" defaultValue="luau" persist>
+  <CodeBlockTabsList>
+    <CodeBlockTabsTrigger value="luau">Luau</CodeBlockTabsTrigger>
+    <CodeBlockTabsTrigger value="ts">TypeScript</CodeBlockTabsTrigger>
+  </CodeBlockTabsList>
+  <CodeBlockTab value="luau">
+```lua
+local disconnect = centurion.events.on_roles_changed(player, function(roles)
+    print(player.Name .. " now has roles: " .. table.concat(roles, ", "))
+end)
+
+-- stop listening
+disconnect()
+```
+  </CodeBlockTab>
+  <CodeBlockTab value="ts">
+```ts
+import { events } from "@rbxts/centurion";
+
+const disconnect = events.on_roles_changed(player, (roles) => {
+    print(`${player.Name} now has roles: ${roles.join(", ")}`);
+});
+
+// stop listening
+disconnect();
+```
+  </CodeBlockTab>
+</CodeBlockTabs>
+
+## Class Decorators (TypeScript)
+
+Apply `@Role` or `@Permission` to a class or individual methods.
+
+```ts
+import { Command, Group, Role, Permission, register_classes, args } from "@rbxts/centurion";
+import type { ExecutionContext } from "@rbxts/centurion";
+
+@Group("mod")
+@Role("moderator")      // all methods require the moderator role
+class ModCommands {
+    @Command({ description: "Kick a player", arguments: () => [args.player("target")] })
+    kick(ctx: ExecutionContext, target: Player) {
+        target.Kick();
+        ctx.reply(`Kicked ${target.Name}`);
+    }
+
+    @Permission("ban")  // this method also requires the "ban" permission
+    @Command({ description: "Ban a player", arguments: () => [args.player("target")] })
+    ban(ctx: ExecutionContext, target: Player) {
+        // ...
+    }
+}
+
+register_classes();
+```
+
+Player cleanup (removing role data on disconnect) is handled automatically by the permission module.

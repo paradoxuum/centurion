@@ -1,0 +1,244 @@
+---
+title: Commands
+description: How to define and register commands in Centurion.
+icon: Terminal
+---
+
+## Registering a Command
+
+Use `register_command` to add a command to the registry. The command name, description, arguments, and callback are all defined in a single table.
+
+<CodeBlockTabs groupId="lang" defaultValue="luau" persist>
+  <CodeBlockTabsList>
+    <CodeBlockTabsTrigger value="luau">Luau</CodeBlockTabsTrigger>
+    <CodeBlockTabsTrigger value="ts">TypeScript</CodeBlockTabsTrigger>
+  </CodeBlockTabsList>
+  <CodeBlockTab value="luau">
+```lua
+centurion.register_command("ping", {
+    description = "Replies with pong",
+    callback = function(ctx)
+        ctx.reply("Pong!")
+    end,
+})
+```
+  </CodeBlockTab>
+  <CodeBlockTab value="ts">
+```ts
+import { register_command } from "@rbxts/centurion";
+import type { ExecutionContext } from "@rbxts/centurion";
+
+register_command("ping", {
+    description: "Replies with pong",
+    callback: (ctx: ExecutionContext) => {
+        ctx.reply("Pong!");
+    },
+});
+```
+  </CodeBlockTab>
+</CodeBlockTabs>
+
+Alternatively, returning a string from the callback automatically calls `ctx.reply` with that value.
+
+<CodeBlockTabs groupId="lang" defaultValue="luau" persist>
+  <CodeBlockTabsList>
+    <CodeBlockTabsTrigger value="luau">Luau</CodeBlockTabsTrigger>
+    <CodeBlockTabsTrigger value="ts">TypeScript</CodeBlockTabsTrigger>
+  </CodeBlockTabsList>
+  <CodeBlockTab value="luau">
+```lua
+centurion.register_command("ping", {
+    callback = function(ctx)
+        return "Pong!"
+    end,
+})
+```
+  </CodeBlockTab>
+  <CodeBlockTab value="ts">
+```ts
+register_command("ping", {
+    callback: () => "Pong!",
+});
+```
+  </CodeBlockTab>
+</CodeBlockTabs>
+
+## Execution Context
+
+Every callback receives an `ExecutionContext` as its first argument.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `executor` | `Player` | The player who ran the command |
+| `command` | `string` | The command name |
+| `input` | `string` | The full raw input string |
+| `arguments` | `string[]` | The raw argument tokens |
+| `response` | `Response?` | Set after `reply` or `error` is called |
+
+**Methods:**
+
+- `ctx.reply(message)`: sends a success response
+- `ctx.error(message)`: sends an error response
+
+## Groups
+
+Commands can be namespaced into groups by including spaces in the command name. This creates a hierarchy in the terminal UI.
+
+<CodeBlockTabs groupId="lang" defaultValue="luau" persist>
+  <CodeBlockTabsList>
+    <CodeBlockTabsTrigger value="luau">Luau</CodeBlockTabsTrigger>
+    <CodeBlockTabsTrigger value="ts">TypeScript</CodeBlockTabsTrigger>
+  </CodeBlockTabsList>
+  <CodeBlockTab value="luau">
+```lua
+centurion.register_command("roles get", {
+    description = "Get a player's roles",
+    arguments = function()
+        return centurion.args.player("player")
+    end,
+    callback = function(ctx, player)
+        local roles = centurion.get_roles(player)
+        ctx.reply(player.Name .. ": " .. table.concat(roles, ", "))
+    end,
+})
+
+centurion.register_command("roles add", {
+    description = "Add a role to a player",
+    arguments = function()
+        return centurion.args.player("player"),
+            centurion.args.string("role")
+    end,
+    callback = function(ctx, player, role)
+        centurion.add_roles(player, role)
+        ctx.reply("Added role " .. role .. " to " .. player.Name)
+    end,
+})
+```
+  </CodeBlockTab>
+  <CodeBlockTab value="ts">
+```ts
+import { register_command, get_roles, add_roles, args } from "@rbxts/centurion";
+import type { ExecutionContext } from "@rbxts/centurion";
+
+register_command("roles get", {
+    description = "Get a player's roles",
+    arguments = () => {
+        return [centurion.args.player("player")]
+    },
+    callback = (ctx, player) => {
+        local roles = centurion.get_roles(player)
+        ctx.reply(player.Name + ": " + roles.join(", "))
+    },
+})
+
+register_command("roles add", {
+    description = "Add a role to a player",
+    arguments = () => {
+        return [centurion.args.player("player"), centurion.args.string("role")]
+    },
+    callback = (ctx, player, role) => {
+        centurion.add_roles(player, role)
+        ctx.reply(`Added role ${role} to ${player.Name}`)
+    },
+})
+```
+  </CodeBlockTab>
+</CodeBlockTabs>
+
+## Class-Based Registration (TypeScript)
+
+For those using TypeScript and classes, commands can be defined using decorated classes.
+
+A typical pattern would be requiring all command modules in a folder, then calling `register_classes()`.
+
+```ts
+import { Command, Group, Guard, Role, register_classes, args } from "@rbxts/centurion";
+import type { ExecutionContext } from "@rbxts/centurion";
+
+@Group("admin")
+@Role("admin")
+class AdminCommands {
+    @Command({ description: "Echo a message", arguments: () => [args.string("message")] })
+    echo(ctx: ExecutionContext, message: string) {
+        ctx.reply(message);
+    }
+
+    @Command({ description: "Kick a player", arguments: () => [args.player("target")] })
+    kick(ctx: ExecutionContext, target: Player) {
+        target.Kick();
+        ctx.reply(`Kicked ${target.Name}`);
+    }
+}
+
+register_classes();
+```
+
+Decorators available on classes and methods:
+
+| Decorator | Scope | Description |
+| --- | --- | --- |
+| `@Command(options)` | Method | Registers the method as a command |
+| `@Group(...names)` | Class or Method | Prefixes the command name with a namespace |
+| `@Guard(...guards)` | Class or Method | Attaches guards to commands |
+| `@Role(...roles)` | Class or Method | Restricts commands to role holders |
+| `@Permission(...perms)` | Class or Method | Restricts commands by permission name |
+
+## Unregistering a Command
+
+<CodeBlockTabs groupId="lang" defaultValue="luau" persist>
+  <CodeBlockTabsList>
+    <CodeBlockTabsTrigger value="luau">Luau</CodeBlockTabsTrigger>
+    <CodeBlockTabsTrigger value="ts">TypeScript</CodeBlockTabsTrigger>
+  </CodeBlockTabsList>
+  <CodeBlockTab value="luau">
+```lua
+centurion.unregister_command("ping")
+```
+  </CodeBlockTab>
+  <CodeBlockTab value="ts">
+```ts
+import { unregister_command } from "@rbxts/centurion";
+
+unregister_command("ping");
+```
+  </CodeBlockTab>
+</CodeBlockTabs>
+
+## Events
+
+Subscribe to command lifecycle events. Each function returns a cleanup callback.
+
+<CodeBlockTabs groupId="lang" defaultValue="luau" persist>
+  <CodeBlockTabsList>
+    <CodeBlockTabsTrigger value="luau">Luau</CodeBlockTabsTrigger>
+    <CodeBlockTabsTrigger value="ts">TypeScript</CodeBlockTabsTrigger>
+  </CodeBlockTabsList>
+  <CodeBlockTab value="luau">
+```lua
+local disconnect = centurion.events.on_command_execute(function(ctx)
+    print(ctx.executor.Name .. " ran: " .. ctx.input)
+end)
+
+-- stop listening
+disconnect()
+```
+  </CodeBlockTab>
+  <CodeBlockTab value="ts">
+```ts
+import { events } from "@rbxts/centurion";
+
+const disconnect = events.on_command_execute((ctx) => {
+    print(`${ctx.executor.Name} ran: ${ctx.input}`);
+});
+
+// stop listening
+disconnect();
+```
+  </CodeBlockTab>
+</CodeBlockTabs>
+
+| Event | Arguments | Fires when |
+| --- | --- | --- |
+| `on_command_register` | `name, command` | A command is added to the registry |
+| `on_command_unregister` | `name, command` | A command is removed from the registry |
+| `on_command_execute` | `ctx` | A command finishes executing |

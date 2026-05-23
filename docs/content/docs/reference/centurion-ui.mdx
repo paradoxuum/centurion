@@ -1,0 +1,184 @@
+---
+title: centurion-ui
+description: Complete API reference for the centurion-ui package.
+icon: Monitor
+---
+
+## Functions
+
+### `mount`
+
+```lua
+centurion_ui.mount(keys: { Enum.KeyCode })
+```
+
+Creates the terminal UI and mounts it to `PlayerGui`.
+
+`keys` sets the keys that open and close the terminal. This can be updated later via `configure`.
+
+---
+
+### `configure`
+
+```lua
+centurion_ui.configure(options: {
+    hide_on_lost_focus: boolean?,
+    activation_keys:    { Enum.KeyCode }?,
+    theme:              Theme?,
+    text_size:          number?,
+    subtext_size:       number?,
+    max_suggestions:    number?,
+    anchor:             Vector2?,
+    position:           UDim2?,
+    width:              UDim?,
+    format_date:        ((log: Log) -> string)?,
+})
+```
+
+Updates UI configuration. All fields are optional, omitted fields keep their current value.
+
+| Option | Default | Description |
+| --- | --- | --- |
+| `hide_on_lost_focus` | `false` | Close the terminal when clicking outside the textbox. |
+| `activation_keys` | *(set by `mount`)* | Keys that toggle the terminal open/closed. |
+| `theme` | `themes.mocha` | Color theme. |
+| `text_size` | `14` | Primary text size. |
+| `subtext_size` | `13` | Secondary text size for descriptions and hints. |
+| `max_suggestions` | `5` | Maximum number of autocomplete entries shown. |
+| `anchor` | `Vector2.new(0.5, 1)` | Anchor point of the terminal frame. |
+| `position` | `UDim2.fromScale(0.5, 0.95)` | Position of the terminal frame. |
+| `width` | `UDim.new(0.5, 0)` | Width of the terminal frame. |
+| `format_date` | *(built-in)* | Custom timestamp formatter for log entries. Receives a `Log` and must return a string. |
+
+---
+
+### `register_commands`
+
+```lua
+centurion_ui.register_commands()
+```
+
+Registers built-in terminal commands.
+
+| Command | Description |
+| --- | --- |
+| `centurion clear` | Clears the command log history. |
+| `centurion theme <name>` | Switches to a built-in theme. |
+
+---
+
+### `themes`
+
+```lua
+centurion_ui.themes: { [string]: Theme }
+```
+
+A table of built-in themes. Pass a value directly to `configure({ theme = ... })`.
+
+| Key | Description |
+| --- | --- |
+| `mocha` | Dark, warm background (default). |
+| `macchiato` | Dark, slightly cooler. |
+| `frappe` | Medium dark. |
+| `latte` | Light. |
+| `roblox` | Matches Roblox's default dark UI. |
+
+---
+
+## Types
+
+### `Theme`
+
+```lua
+type Theme = {
+    background: Color3,  -- Terminal background
+    surface:    Color3,  -- Input bar and suggestion panel
+    text:       Color3,  -- Primary text
+    subtext:    Color3,  -- Descriptions and hints
+    highlight:  Color3,  -- Cursor and active suggestion
+    success:    Color3,  -- Success response text
+    error:      Color3,  -- Error response text
+}
+```
+
+---
+
+### `Log`
+
+A single entry in the command history.
+
+```lua
+type Log = {
+    command:  string,
+    response: centurion.Response,
+}
+```
+
+`response.timestamp` is a Unix timestamp usable with `os.date`.
+
+---
+
+### `Options`
+
+The full options type used internally by the UI state.
+
+```lua
+type Options = {
+    hide_on_lost_focus: boolean,
+    activation_keys:    { Enum.KeyCode },
+    theme:              Theme,
+    font:               Font,
+    icon:               string,
+    transparency:       number,
+    format_date:        (log: Log) -> string,
+    max_suggestions:    number,
+    text_size:          number,
+    subtext_size:       number,
+    anchor:             Vector2,
+    width:              UDim,
+    position:           UDim2,
+}
+```
+
+---
+
+### `Suggestion`
+
+An autocomplete entry shown in the suggestion panel.
+
+```lua
+type Suggestion = {
+    name:        string,
+    type:        string,
+    description: string?,
+}
+```
+
+---
+
+### `AnalysisResult`
+
+The result of analysing the current input string for suggestions.
+
+```lua
+type AnalysisResult = {
+    result:      centurion.Result,
+    command:     string?,
+    argument:    AnalysisArgument?,
+    suggestions: { AnalysisSuggestion },
+}
+
+type AnalysisArgument = {
+    text:  string,
+    index: number,
+    type:  string,
+    kind:  "single" | "list",
+}
+
+type AnalysisSuggestion = {
+    name:        string,
+    description: string?,
+    span:        vector,   -- x = start, y = end in the input string
+    replace:     string,   -- text to substitute at the span
+}
+```

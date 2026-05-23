@@ -1,0 +1,228 @@
+---
+title: Guards
+description: Guard execution to validate conditions before a command runs.
+icon: Shield
+---
+
+Guards are functions that run before a command's callback. If any guard returns `false` (or throws), the command is not executed.
+
+## Named Guards
+
+Register a reusable guard with `register_guard`, then reference it by name in any command.
+
+<CodeBlockTabs groupId="lang" defaultValue="luau" persist>
+  <CodeBlockTabsList>
+    <CodeBlockTabsTrigger value="luau">Luau</CodeBlockTabsTrigger>
+    <CodeBlockTabsTrigger value="ts">TypeScript</CodeBlockTabsTrigger>
+  </CodeBlockTabsList>
+  <CodeBlockTab value="luau">
+```lua
+centurion.register_guard("in-game", function(ctx)
+    local character = ctx.executor.Character
+    if not character then
+        ctx.error("You must be in-game to use this command.")
+        return false
+    end
+    return true
+end)
+
+centurion.register_command("respawn", {
+    guards = { "in-game" },
+    callback = function(ctx)
+        ctx.executor:LoadCharacter()
+        ctx.reply("Respawned!")
+    end,
+})
+```
+  </CodeBlockTab>
+  <CodeBlockTab value="ts">
+```ts
+import { register_guard, register_command } from "@rbxts/centurion";
+
+register_guard("in-game", (ctx) => {
+    if (!ctx.executor.Character) {
+        ctx.error("You must be in-game to use this command.");
+        return false;
+    }
+    return true;
+});
+
+register_command("respawn", {
+    guards: ["in-game"],
+    callback: (ctx) => {
+        ctx.executor.LoadCharacter();
+        ctx.reply("Respawned!");
+    },
+});
+```
+  </CodeBlockTab>
+</CodeBlockTabs>
+
+## Inline Guards
+
+Guards can also be defined as inline functions directly in the command definition, without registering them globally.
+
+<CodeBlockTabs groupId="lang" defaultValue="luau" persist>
+  <CodeBlockTabsList>
+    <CodeBlockTabsTrigger value="luau">Luau</CodeBlockTabsTrigger>
+    <CodeBlockTabsTrigger value="ts">TypeScript</CodeBlockTabsTrigger>
+  </CodeBlockTabsList>
+  <CodeBlockTab value="luau">
+```lua
+centurion.register_command("destroy", {
+    guards = {
+        function(ctx)
+            if not ctx.executor:GetAttribute("CanDestroy") then
+                ctx.error("You are not allowed to use this command.")
+                return false
+            end
+            return true
+        end,
+    },
+    callback = function(ctx)
+        -- ...
+    end,
+})
+```
+  </CodeBlockTab>
+  <CodeBlockTab value="ts">
+```ts
+import type { ExecutionContext } from "@rbxts/centurion";
+
+register_command("destroy", {
+    guards: [
+        (ctx: ExecutionContext) => {
+            if (!ctx.executor.GetAttribute("CanDestroy")) {
+                ctx.error("You are not allowed to use this command.");
+                return false;
+            }
+            return true;
+        },
+    ],
+    callback: (ctx) => {
+        // ...
+    },
+});
+```
+  </CodeBlockTab>
+</CodeBlockTabs>
+
+You can mix named and inline guards in the same list.
+
+<CodeBlockTabs groupId="lang" defaultValue="luau" persist>
+  <CodeBlockTabsList>
+    <CodeBlockTabsTrigger value="luau">Luau</CodeBlockTabsTrigger>
+    <CodeBlockTabsTrigger value="ts">TypeScript</CodeBlockTabsTrigger>
+  </CodeBlockTabsList>
+  <CodeBlockTab value="luau">
+```lua
+centurion.register_command("action", {
+    guards = {
+        "in-game",
+        function(ctx)
+            return ctx.executor:GetAttribute("Ready") == true
+        end,
+    },
+    callback = function(ctx)
+        ctx.reply("Action performed!")
+    end,
+})
+```
+  </CodeBlockTab>
+  <CodeBlockTab value="ts">
+```ts
+register_command("action", {
+    guards: [
+        "in-game",
+        (ctx) => ctx.executor.GetAttribute("Ready") === true,
+    ],
+    callback: (ctx) => ctx.reply("Action performed!"),
+});
+```
+  </CodeBlockTab>
+</CodeBlockTabs>
+
+## Global Guards
+
+Global guards run before every command. Register them with `register_guard` and then apply globally using the registry directly, or use the
+internal guard module.
+
+<Callout type="info">
+Global guards are currently registered by pushing directly to `centurion.registry.global_guards`. They run before per-command guards.
+</Callout>
+
+<CodeBlockTabs groupId="lang" defaultValue="luau" persist>
+  <CodeBlockTabsList>
+    <CodeBlockTabsTrigger value="luau">Luau</CodeBlockTabsTrigger>
+    <CodeBlockTabsTrigger value="ts">TypeScript</CodeBlockTabsTrigger>
+  </CodeBlockTabsList>
+  <CodeBlockTab value="luau">
+```lua
+-- runs before every command
+table.insert(centurion.registry.global_guards, function(ctx)
+    if ctx.executor:GetAttribute("Banned") then
+        ctx.error("You are banned from using commands.")
+        return false
+    end
+    return true
+end)
+```
+  </CodeBlockTab>
+  <CodeBlockTab value="ts">
+```ts
+import { registry } from "@rbxts/centurion";
+import type { ExecutionContext } from "@rbxts/centurion";
+
+registry.global_guards.push((ctx: ExecutionContext) => {
+    if (ctx.executor.GetAttribute("Banned")) {
+        ctx.error("You are banned from using commands.");
+        return false;
+    }
+    return true;
+});
+```
+  </CodeBlockTab>
+</CodeBlockTabs>
+
+## Guards with the Class Decorator (TypeScript)
+
+Apply `@Guard` to a class to protect all commands within it, or to individual methods for per-command guards.
+
+```ts
+import { Command, Guard, Group, register_classes, args } from "@rbxts/centurion";
+import type { ExecutionContext } from "@rbxts/centurion";
+
+const isAdmin = (ctx: ExecutionContext) => {
+    if (!ctx.executor.GetAttribute("IsAdmin")) {
+        ctx.error("Admins only.");
+        return false;
+    }
+    return true;
+};
+
+@Group("admin")
+@Guard(isAdmin)        // applied to every method in this class
+class AdminCommands {
+    @Command({ description: "Kick a player", arguments: () => [args.player("target")] })
+    kick(ctx: ExecutionContext, target: Player) {
+        target.Kick();
+        ctx.reply(`Kicked ${target.Name}`);
+    }
+
+    @Guard("in-game")  // additional guard on this method only
+    @Command({ description: "Teleport to spawn" })
+    spawn(ctx: ExecutionContext) {
+        // ...
+    }
+}
+
+register_classes();
+```
+
+## Guard Execution Order
+
+1. Global guards (in registration order)
+2. Per-command guards (in declaration order)
+3. Command callback
+
+If any guard returns `false` or throws, execution stops and no further guards or the callback are called.

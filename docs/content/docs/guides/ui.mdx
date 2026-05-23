@@ -1,0 +1,257 @@
+---
+title: Terminal UI
+description: Mounting and configuring the built-in Centurion terminal UI.
+icon: Monitor
+---
+
+The `centurion-ui` package provides a terminal UI that has command history, suggestions, and tab completion.
+
+## Mounting
+
+`mount` is used to create the UI, and a list of `KeyCode` values must be provided that will be used to open and close the terminal.
+
+<CodeBlockTabs groupId="lang" defaultValue="luau" persist>
+  <CodeBlockTabsList>
+    <CodeBlockTabsTrigger value="luau">Luau</CodeBlockTabsTrigger>
+    <CodeBlockTabsTrigger value="ts">TypeScript</CodeBlockTabsTrigger>
+  </CodeBlockTabsList>
+  <CodeBlockTab value="luau">
+```lua
+local centurion_ui = require(path.to.centurion_ui)
+
+centurion_ui.mount({ Enum.KeyCode.F2 })
+```
+  </CodeBlockTab>
+  <CodeBlockTab value="ts">
+```ts
+import { CenturionUI } from "@rbxts/centurion-ui";
+
+CenturionUI.mount([Enum.KeyCode.F2]);
+```
+  </CodeBlockTab>
+</CodeBlockTabs>
+
+## Configuration
+
+Call `configure` with a partial options table. All fields are optional, omitted fields keep their defaults.
+
+<CodeBlockTabs groupId="lang" defaultValue="luau" persist>
+  <CodeBlockTabsList>
+    <CodeBlockTabsTrigger value="luau">Luau</CodeBlockTabsTrigger>
+    <CodeBlockTabsTrigger value="ts">TypeScript</CodeBlockTabsTrigger>
+  </CodeBlockTabsList>
+  <CodeBlockTab value="luau">
+```lua
+centurion_ui.configure({
+    hide_on_lost_focus = true,
+    max_suggestions = 8,
+    text_size = 16,
+    subtext_size = 13,
+    theme = centurion_ui.themes.mocha,
+})
+```
+  </CodeBlockTab>
+  <CodeBlockTab value="ts">
+```ts
+CenturionUI.configure({
+    hide_on_lost_focus: true,
+    max_suggestions: 8,
+    text_size: 16,
+    subtext_size: 13,
+    theme: CenturionUI.themes.mocha,
+});
+```
+  </CodeBlockTab>
+</CodeBlockTabs>
+
+### Options Reference
+
+| Option | Type | Description |
+| --- | --- | --- |
+| `hide_on_lost_focus` | `boolean` | Close the terminal when clicking outside of it |
+| `activation_keys` | `KeyCode[]` | Keys used to open or close the terminal |
+| `theme` | `Theme` | The terminal's color theme |
+| `text_size` | `number` | Primary text size |
+| `subtext_size` | `number` | Secondary text size (command/argument descriptions) |
+| `max_suggestions` | `number` | Maximum number of autocomplete entries shown (default: 5) |
+| `anchor` | `Vector2` | Anchor point of the terminal window |
+| `position` | `UDim2` | Position of the terminal window |
+| `width` | `UDim` | Width of the terminal window |
+| `format_date` | `(log) -> string` | Custom timestamp formatter for log entries |
+
+## Built-in Commands
+
+Call `register_commands()` to add the built-in terminal commands to the registry.
+
+<CodeBlockTabs groupId="lang" defaultValue="luau" persist>
+  <CodeBlockTabsList>
+    <CodeBlockTabsTrigger value="luau">Luau</CodeBlockTabsTrigger>
+    <CodeBlockTabsTrigger value="ts">TypeScript</CodeBlockTabsTrigger>
+  </CodeBlockTabsList>
+  <CodeBlockTab value="luau">
+```lua
+centurion_ui.register_commands()
+```
+  </CodeBlockTab>
+  <CodeBlockTab value="ts">
+```ts
+CenturionUI.register_commands();
+```
+  </CodeBlockTab>
+</CodeBlockTabs>
+
+This registers:
+
+| Command | Description |
+| --- | --- |
+| `centurion clear` | Clears the command log history |
+| `centurion theme <name>` | Switches to a built-in theme |
+
+## Themes
+
+Five built-in themes are available, all based on the [Catppuccin](https://catppuccin.com) palette plus a Roblox default.
+
+| Name | Description |
+| --- | --- |
+| `mocha` | Dark, warm background (default) |
+| `macchiato` | Dark, slightly cooler |
+| `frappe` | Medium dark |
+| `latte` | Light theme |
+| `roblox` | Matches Roblox's default dark UI |
+
+<CodeBlockTabs groupId="lang" defaultValue="luau" persist>
+  <CodeBlockTabsList>
+    <CodeBlockTabsTrigger value="luau">Luau</CodeBlockTabsTrigger>
+    <CodeBlockTabsTrigger value="ts">TypeScript</CodeBlockTabsTrigger>
+  </CodeBlockTabsList>
+  <CodeBlockTab value="luau">
+```lua
+centurion_ui.configure({
+    theme = centurion_ui.themes.latte,
+})
+```
+  </CodeBlockTab>
+  <CodeBlockTab value="ts">
+```ts
+CenturionUI.configure({
+    theme: CenturionUI.themes.latte,
+});
+```
+  </CodeBlockTab>
+</CodeBlockTabs>
+
+### Custom Theme
+
+Provide a full `Theme` table to use a custom color scheme.
+
+<CodeBlockTabs groupId="lang" defaultValue="luau" persist>
+  <CodeBlockTabsList>
+    <CodeBlockTabsTrigger value="luau">Luau</CodeBlockTabsTrigger>
+    <CodeBlockTabsTrigger value="ts">TypeScript</CodeBlockTabsTrigger>
+  </CodeBlockTabsList>
+  <CodeBlockTab value="luau">
+```lua
+centurion_ui.configure({
+    theme = {
+        background = Color3.fromRGB(10, 10, 10),
+        surface   = Color3.fromRGB(25, 25, 25),
+        text      = Color3.fromRGB(240, 240, 240),
+        subtext   = Color3.fromRGB(160, 160, 160),
+        highlight = Color3.fromRGB(80, 140, 255),
+        success   = Color3.fromRGB(80, 200, 120),
+        error     = Color3.fromRGB(220, 60, 60),
+    },
+})
+```
+  </CodeBlockTab>
+  <CodeBlockTab value="ts">
+```ts
+import type { Theme } from "@rbxts/centurion-ui";
+
+const myTheme: Theme = {
+    background: Color3.fromRGB(10, 10, 10),
+    surface:    Color3.fromRGB(25, 25, 25),
+    text:       Color3.fromRGB(240, 240, 240),
+    subtext:    Color3.fromRGB(160, 160, 160),
+    highlight:  Color3.fromRGB(80, 140, 255),
+    success:    Color3.fromRGB(80, 200, 120),
+    error:      Color3.fromRGB(220, 60, 60),
+};
+
+CenturionUI.configure({ theme: myTheme });
+```
+  </CodeBlockTab>
+</CodeBlockTabs>
+
+## Custom Log Timestamps
+
+Override the default timestamp format by providing a `format_date` function.
+
+<CodeBlockTabs groupId="lang" defaultValue="luau" persist>
+  <CodeBlockTabsList>
+    <CodeBlockTabsTrigger value="luau">Luau</CodeBlockTabsTrigger>
+    <CodeBlockTabsTrigger value="ts">TypeScript</CodeBlockTabsTrigger>
+  </CodeBlockTabsList>
+  <CodeBlockTab value="luau">
+```lua
+centurion_ui.configure({
+    format_date = function(log)
+        -- log.response.timestamp is a Unix timestamp
+        return os.date("%H:%M:%S", log.response.timestamp)
+    end,
+})
+```
+  </CodeBlockTab>
+  <CodeBlockTab value="ts">
+```ts
+import type { Log } from "@rbxts/centurion-ui";
+
+CenturionUI.configure({
+    format_date: (log: Log) => {
+        return os.date("%H:%M:%S", log.response.timestamp) as string;
+    },
+});
+```
+  </CodeBlockTab>
+</CodeBlockTabs>
+
+## Full Client Setup Example
+
+<CodeBlockTabs groupId="lang" defaultValue="luau" persist>
+  <CodeBlockTabsList>
+    <CodeBlockTabsTrigger value="luau">Luau</CodeBlockTabsTrigger>
+    <CodeBlockTabsTrigger value="ts">TypeScript</CodeBlockTabsTrigger>
+  </CodeBlockTabsList>
+  <CodeBlockTab value="luau">
+```lua
+local centurion = require(path.to.centurion)
+local centurion_ui = require(path.to.centurion_ui)
+
+centurion.setup_networking()
+
+centurion_ui.mount({ Enum.KeyCode.F2 })
+centurion_ui.configure({
+    theme = centurion_ui.themes.mocha,
+    max_suggestions = 8,
+    hide_on_lost_focus = false,
+})
+centurion_ui.register_commands()
+```
+  </CodeBlockTab>
+  <CodeBlockTab value="ts">
+```ts
+import { setup_networking } from "@rbxts/centurion";
+import { CenturionUI } from "@rbxts/centurion-ui";
+
+setup_networking();
+
+CenturionUI.mount([Enum.KeyCode.F2]);
+CenturionUI.configure({
+    theme: CenturionUI.themes.mocha,
+    max_suggestions: 8,
+    hide_on_lost_focus: false,
+});
+CenturionUI.register_commands();
+```
+  </CodeBlockTab>
+</CodeBlockTabs>
