@@ -51,7 +51,7 @@ local player = register("player", {
 
 local players_type = argument.register_list_type("players", {
 	transform = function(input: { string }, executor: Player): types.Result
-		local players_result = {}
+		local player_map = {}
 		for _, text in input do
 			local text_lower = text:lower()
 			if text_lower == "@all" then
@@ -61,7 +61,7 @@ local players_type = argument.register_list_type("players", {
 			if text_lower == "@others" then
 				for _, p in Players:GetPlayers() do
 					if p ~= executor then
-						table.insert(players_result, p)
+						player_map[p] = true
 					end
 				end
 				continue
@@ -70,7 +70,7 @@ local players_type = argument.register_list_type("players", {
 			if text_lower == "@random" then
 				local players = Players:GetPlayers()
 				local random_player = players[math.random(1, #players)]
-				table.insert(players_result, random_player)
+				player_map[random_player] = true
 				continue
 			end
 
@@ -78,10 +78,14 @@ local players_type = argument.register_list_type("players", {
 			if plr == nil then
 				return result.error(`Player '{text}' not found.`)
 			end
-			table.insert(players_result, plr)
+			player_map[plr] = true
 		end
 
-		return result.success(players_result)
+		local players = {}
+		for player, _ in player_map do
+			table.insert(players, player)
+		end
+		return result.success(players)
 	end,
 	suggestions = function(_value: string, _executor: Player): { string }
 		local suggestions: { string } = { "@me", "@random", "@all", "@others" }
