@@ -18,6 +18,7 @@ type Background = {
 	read text: Can<string>,
 	read text_size: Can<number>?,
 	read text_style: Can<types.TextStyle>?,
+	read weight: Can<Enum.FontWeight>?,
 	read rich_text: Can<boolean>?,
 	read background_color: Can<Color3>?,
 	read background_transparency: Can<number>?,
@@ -51,7 +52,11 @@ return function(props: Background)
 		TextXAlignment = props.xalignment,
 		TextEditable = props.editable,
 		MultiLine = props.multiline,
-		FontFace = state.font,
+		FontFace = function()
+			local f: Font = state.font()
+			local weight = read(props.weight) or Enum.FontWeight.Regular
+			return Font.new(f.Family, weight)
+		end,
 		RichText = props.rich_text,
 		PlaceholderColor3 = function()
 			return state.theme().subtext

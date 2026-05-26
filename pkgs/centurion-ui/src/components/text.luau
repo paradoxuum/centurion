@@ -20,6 +20,7 @@ type Background = {
 	read xalignment: Can<Enum.TextXAlignment>?,
 	read wrapped: Can<boolean>?,
 	read rich_text: Can<boolean>?,
+	read zindex: Can<number>?,
 
 	[number]: unknown,
 }
@@ -43,6 +44,7 @@ return function(props: Background)
 		TextWrapped = props.wrapped,
 		TextXAlignment = props.xalignment,
 		RichText = props.rich_text,
+		ZIndex = props.zindex,
 
 		AutoLocalize = false,
 		BackgroundTransparency = 1,
