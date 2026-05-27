@@ -67,7 +67,8 @@ return {
 		hex_color = color.hex_color,
 		team = team,
 		duration = duration,
-		vector = vector,
+		vector2 = vector.vector2,
+		vector3 = vector.vector3,
 	},
 	events = {
 		on_command_register = command.on_register,

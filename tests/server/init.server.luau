@@ -10,7 +10,7 @@ centurion.create_role("admin", 100)
 centurion.register_command("to", {
 	description = "Teleport to a position",
 	arguments = function()
-		return centurion.args.vector("position")
+		return centurion.args.vector3("position")
 	end,
 	callback = function(ctx: centurion.Context, pos: vector)
 		ctx.executor.Character:PivotTo(CFrame.new(pos))
