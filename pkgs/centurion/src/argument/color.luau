@@ -244,7 +244,33 @@ local hex_color = register("hex_color", {
 	end,
 })
 
+local rgb_color = argument.register_list_type(
+	"rgb_color",
+	{
+		transform = function(text: { string }, _executor: Player): types.Result
+			if #text ~= 3 then
+				return result.error("RGB color must have exactly 3 components.")
+			end
+
+			local r = tonumber(text[1])
+			local g = tonumber(text[2])
+			local b = tonumber(text[3])
+
+			if not r or not g or not b then
+				return result.error("All RGB components must be valid numbers.")
+			end
+
+			if r < 0 or r > 255 or g < 0 or g > 255 or b < 0 or b > 255 then
+				return result.error("RGB components must be between 0 and 255.")
+			end
+
+			return result.success(Color3.fromRGB(r, g, b))
+		end,
+	} :: types.ListArgumentType
+)
+
 return {
 	brick_color = brick_color :: types.ArgumentFn<BrickColor>,
 	hex_color = hex_color :: types.ArgumentFn<Color3>,
+	rgb_color = rgb_color :: types.ArgumentFn<Color3>,
 }

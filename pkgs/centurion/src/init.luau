@@ -65,6 +65,7 @@ return {
 		players = player.players,
 		brick_color = color.brick_color,
 		hex_color = color.hex_color,
+		rgb_color = color.rgb_color,
 		team = team,
 		duration = duration,
 		vector2 = vector.vector2,

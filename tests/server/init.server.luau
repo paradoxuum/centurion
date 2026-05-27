@@ -18,6 +18,26 @@ centurion.register_command("to", {
 	end,
 })
 
+centurion.register_command("rgb", {
+	description = "Change the color of your character",
+	arguments = function()
+		return centurion.args.rgb_color("color")
+	end,
+	callback = function(ctx: centurion.Context, color: Color3)
+		local character = ctx.executor.Character
+		if character then
+			for _, part in character:GetChildren() do
+				if part:IsA("BasePart") then
+					part.Color = color
+				end
+			end
+			ctx.reply(`Changed color to RGB({color.r * 255}, {color.g * 255}, {color.b * 255})`)
+		else
+			ctx.reply("Character not found.")
+		end
+	end,
+})
+
 centurion.register_command("echo", {
 	description = "Prints a message to the terminal",
 	permissions = { "echo" },
