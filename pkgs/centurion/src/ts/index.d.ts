@@ -61,7 +61,7 @@ export interface SingleArgumentType<T> {
 
 export interface ListArgumentType<T> {
 	kind: "list";
-	transform: (texts: string[], executor: Player) => Result<T>;
+	transform: (text: string[], executor: Player) => Result<T>;
 	suggestions?: (text: string, executor: Player) => string[] | undefined;
 }
 
@@ -70,7 +70,7 @@ export type ArgumentType<T> = SingleArgumentType<T> | ListArgumentType<T>;
 export type ArgumentFn<T> = (name: string, description?: string, suggestions?: string[]) => T;
 
 export function Command(options: {
-	name?: string;
+	name?: string | string[];
 	description?: string;
 	arguments?: () => unknown[];
 	guards?: Array<string | GuardCallback>;
@@ -86,10 +86,10 @@ export function Role(...roles: string[]): (target: unknown, key?: string) => voi
 
 export function Permission(...permissions: string[]): (target: unknown, key?: string) => void;
 
-export function register_classes(): void;
+export function register_classes(classConstructor?: (ctor: new (...args: never[]) => object) => object): void;
 
 export function register_command<const T extends unknown[]>(
-	name: string,
+	name: string | string[],
 	command: {
 		description?: string;
 		arguments?: () => [...T];
@@ -102,9 +102,9 @@ export function register_command<const T extends unknown[]>(
 
 export function register_guard(name: string, guard: GuardCallback): void;
 
-export function register_type<T>(name: string, argumentFn: Omit<SingleArgumentType<T>, "kind">): T;
+export function register_type<T>(name: string, argumentFn: Omit<SingleArgumentType<T>, "kind">): ArgumentFn<T>;
 
-export function register_list_type<T>(name: string, argumentFn: Omit<ListArgumentType<T>, "kind">): T[];
+export function register_list_type<T>(name: string, argumentFn: Omit<ListArgumentType<T>, "kind">): ArgumentFn<T>;
 
 export function unregister_command(name: string): void;
 
@@ -153,6 +153,8 @@ export const args: {
 	hex_color: ArgumentFn<Color3>;
 	team: ArgumentFn<Team>;
 	duration: ArgumentFn<number>;
+	vector2: ArgumentFn<Vector2>;
+	vector3: ArgumentFn<vector>;
 };
 
 export const events: {

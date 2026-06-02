@@ -103,12 +103,16 @@ local function execute(executor: Player, name: string, args: { string }?): types
 	return ctx
 end
 
-local function register<T...>(name: string, command: types.Command<T...>)
-	assert(commands[name] == nil, "Command with name '" .. name .. "' is already registered.")
-	commands[name] = command :: any
+local function register<T...>(name: string | { string }, command: types.Command<T...>)
+	local names: { string } = typeof(name) == "string" and { name } or (name :: { string })
+
+	for _, name in names do
+		assert(commands[name] == nil, "Command with name '" .. name .. "' is already registered.")
+		commands[name] = command :: any
+	end
 
 	for _, callback in on_register_callbacks do
-		callback(name, command :: types.Command<unknown>)
+		callback(names[0], command :: types.Command<unknown>)
 	end
 end
 

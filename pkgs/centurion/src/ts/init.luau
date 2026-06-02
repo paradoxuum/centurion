@@ -6,7 +6,7 @@ local CLASS_MARKER = {}
 type Guard = string | types.Guard
 
 type CommandOptions = {
-	name: string?,
+	name: (string | { string })?,
 	description: string?,
 	arguments: () -> { types.Argument }?,
 	guards: { Guard }?,
@@ -92,14 +92,20 @@ local function permission_decorator(...: string)
 	end
 end
 
-local function register_classes()
+local function register_classes(constructor)
 	for class, class_metadata in metadata do
 		if not class_metadata.commands then
 			continue
 		end
 
-		local instance = setmetatable({}, class) :: { constructor: (unknown) -> any, [any]: unknown }
-		instance:constructor()
+		local instance: { [any]: unknown }
+		if constructor then
+			instance = constructor(class)
+			assert(type(instance) == "table", "Constructor function must return an object")
+		else
+			instance = setmetatable({}, class) :: { constructor: (unknown) -> any, [any]: unknown }
+			instance:constructor()
+		end
 
 		local class_group = class_metadata.groups[CLASS_MARKER]
 
@@ -112,8 +118,15 @@ local function register_classes()
 			end
 
 			local cmd_name = cmd.name or key
+			if type(cmd_name) == "string" then
+				cmd_name = { cmd_name }
+			end
+
 			if #cmd_groups > 0 then
-				cmd_name = table.concat(cmd_groups, " ") .. " " .. cmd_name
+				local group_prefix = table.concat(cmd_groups, " ")
+				for i, name in cmd_name :: { string } do
+					(cmd_name :: { string })[i] = group_prefix .. " " .. name
+				end
 			end
 
 			local args = cmd.arguments
@@ -121,7 +134,7 @@ local function register_classes()
 				cmd_name,
 				{
 					callback = function(ctx: types.ExecutionContext, ...)
-						return (instance[key] :: any)(instance, ctx, ...)
+						return (instance :: any)[key](instance, ctx, ...)
 					end,
 					description = cmd.description,
 					arguments = args and function()
