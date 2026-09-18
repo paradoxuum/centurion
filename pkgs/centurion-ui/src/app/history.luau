@@ -13,6 +13,7 @@ local action = vide.action
 local create = vide.create
 local changed = vide.changed
 local cleanup = vide.cleanup
+local effect = vide.effect
 local indexes = vide.indexes
 local read = vide.read
 local source = vide.source
@@ -61,6 +62,19 @@ local function history(props: History)
 		end),
 
 		indexes(state.logs, function(value: () -> types.Log, i: number)
+			-- 1 = hidden, 0 = shown
+			local enter = spring(function()
+				return 0
+			end, 0.3)
+
+			-- the first index always holds the newest log, so animate it whenever it changes
+			if i == 1 then
+				effect(function()
+					value()
+					enter(1)
+				end)
+			end
+
 			return container {
 				auto = "XY",
 				order = function()
@@ -71,6 +85,9 @@ local function history(props: History)
 
 				padding {
 					x = px(8),
+					left = px(function()
+						return 8 + 24 * enter()
+					end),
 					top = px(8),
 					bottom = px(function()
 						return i == 1 and 4 or 0
@@ -87,6 +104,7 @@ local function history(props: History)
 						color = function()
 							return value().response.success and state.theme().highlight or state.theme().error
 						end,
+						transparency = enter,
 
 						corner(px(4)),
 						padding(px(4)),
@@ -100,6 +118,7 @@ local function history(props: History)
 							ImageColor3 = function()
 								return state.theme().background
 							end,
+							ImageTransparency = enter,
 							ScaleType = Enum.ScaleType.Fit,
 							Size = px(function()
 								return UDim2.fromOffset(state.subtext_size(), state.subtext_size())
@@ -117,6 +136,8 @@ local function history(props: History)
 							text_style = "bg",
 							rich_text = true,
 							editable = false,
+
+							{ TextTransparency = enter },
 						},
 					},
 
@@ -125,8 +146,11 @@ local function history(props: History)
 						text = function()
 							return value().command
 						end,
+						weight = Enum.FontWeight.Bold,
 						xalignment = Enum.TextXAlignment.Left,
 						editable = false,
+
+						{ TextTransparency = enter },
 					},
 				},
 
@@ -141,6 +165,8 @@ local function history(props: History)
 					rich_text = true,
 					editable = false,
 					xalignment = Enum.TextXAlignment.Left,
+
+					{ TextTransparency = enter },
 				},
 			}
 		end),

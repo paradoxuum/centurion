@@ -60,6 +60,6 @@ export type Log = {
 	response: centurion.Response,
 }
 
-export type TextStyle = "normal" | "error" | "subtext" | "bg"
+export type TextStyle = "normal" | "error" | "subtext" | "bg" | "highlight"
 
 return nil

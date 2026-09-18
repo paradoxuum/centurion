@@ -6,7 +6,13 @@ local function text_color(theme: types.Theme, style: types.TextStyle)
 		elseif style == "error" then theme.error
 		elseif style == "subtext" then theme.subtext
 		elseif style == "bg" then theme.background
+		elseif style == "highlight" then theme.highlight
 		else theme.text
+end
+
+-- subtle outline color derived from the theme, so custom themes don't need an extra field
+local function border(theme: types.Theme)
+	return theme.surface:Lerp(theme.text, 0.15)
 end
 
 local themes = {
@@ -59,5 +65,6 @@ local themes = {
 
 return {
 	text_color = text_color,
+	border = border,
 	themes = themes,
 }

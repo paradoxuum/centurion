@@ -11,9 +11,11 @@ local history = require("@self/history")
 local padding = require("./components/padding")
 local px = require("./px")
 local state = require("./state")
+local stroke = require("./components/stroke")
 local suggestions = require("@self/suggestions")
 local text = require("./components/text")
 local textbox = require("./components/textbox")
+local theme = require("./theme")
 local types = require("./types")
 local vide = require("../vide")
 
@@ -51,6 +53,38 @@ local function app()
 	local cmd_history = {}
 	local cmd_history_index = 0
 
+	-- slides the interface into place when opened
+	local position = px(state.position)
+	local open_offset = spring(function()
+		return 0
+	end, 0.3)
+
+	effect(function()
+		if state.opened() then
+			open_offset(-16)
+		end
+	end)
+
+	-- shakes the input and flashes its outline when a command fails
+	local shake, shake_settings = spring(function()
+		return 0
+	end, 0.12, 0.25)
+	local failed = source(false)
+	local failures = 0
+
+	local function signal_failure()
+		failures += 1
+		local id = failures
+
+		shake_settings({ impulse = 300 })
+		failed(true)
+		task.delay(0.4, function()
+			if failures == id then
+				failed(false)
+			end
+		end)
+	end
+
 	local function catch_hover()
 		return action(function(instance: Frame)
 			cleanup(instance.MouseEnter:Connect(function()
@@ -70,6 +104,10 @@ local function app()
 		})
 		table.remove(logs, 100)
 		state.logs(logs)
+
+		if not response.success then
+			signal_failure()
+		end
 	end
 
 	local function autofill(value: string, token: vector, with: string, update_cursor_pos: boolean)
@@ -191,7 +229,9 @@ local function app()
 	return container {
 		auto = "Y",
 		anchor = state.anchor,
-		position = px(state.position),
+		position = function()
+			return position() + UDim2.fromOffset(0, px.convert(-open_offset()))
+		end,
 		size = px(function()
 			local w = state.width()
 			return UDim2.new(w.Scale, w.Offset, 0, 0)
@@ -214,7 +254,13 @@ local function app()
 			transparency = state.transparency,
 
 			flex():fill("horizontal"):vertical("bottom"),
-			corner(px(4)),
+			corner(px(8)),
+			padding(px(4)),
+			stroke {
+				color = function()
+					return theme.border(state.theme())
+				end,
+			},
 			catch_hover(),
 
 			history {
@@ -229,7 +275,40 @@ local function app()
 				transparency = state.transparency,
 
 				corner(px(4)),
-				padding(px(8)),
+				padding {
+					padding = px(8),
+					left = px(function()
+						return 32 + shake()
+					end),
+					right = px(function()
+						return 8 - shake()
+					end),
+				},
+				stroke {
+					color = spring(function()
+						local current = state.theme()
+						if failed() or not analysis().result.success then
+							return current.error
+						elseif state.focused() then
+							return current.highlight
+						end
+						return theme.border(current)
+					end, 0.15),
+				},
+
+				text {
+					text = ">",
+					text_style = function()
+						return analysis().result.success and "highlight" or "error"
+					end,
+					weight = Enum.FontWeight.Bold,
+					auto = "XY",
+
+					{
+						AnchorPoint = Vector2.new(0, 0.5),
+						Position = px(UDim2.new(0, -22, 0.5, 0)),
+					},
+				},
 
 				text {
 					size = UDim2.fromScale(1, 1),
@@ -276,7 +355,10 @@ local function app()
 					update_focused = state.focused,
 
 					enter = function(value)
+    					local submitted = analysis()
 						raw_text("")
+						analysis(default_analysis)
+
 						if #value:gsub("%s", "") == 0 then
 							state.opened(false)
 							return
@@ -289,7 +371,7 @@ local function app()
 						cmd_history_index = 0
 						table.insert(cmd_history, 1, value)
 
-						local cmd = analysis().command
+						local cmd = submitted.command
 						if not cmd then
 							log(value, {
 								success = false,
@@ -304,7 +386,7 @@ local function app()
 						local result = centurion.execute_command(
 							Players.LocalPlayer,
 							cmd,
-							analysis().argument and analysis().argument.text or {}
+							submitted.argument and submitted.argument.text or {}
 						)
 						if result.response then
 							if result.response.message ~= "" then
@@ -360,6 +442,9 @@ local function app()
 			end, 0.4),
 			clip = true,
 
+			-- keeps outlines from being clipped
+			padding(1),
+
 			create "UIListLayout" {
 				SortOrder = Enum.SortOrder.LayoutOrder,
 				Padding = px(UDim.new(0, 8)),
@@ -377,6 +462,12 @@ local function app()
 
 				corner(px(4)),
 				padding(px(8)),
+				stroke {
+					color = function()
+						return state.theme().error
+					end,
+					transparency = 0.5,
+				},
 				catch_hover(),
 
 				text {

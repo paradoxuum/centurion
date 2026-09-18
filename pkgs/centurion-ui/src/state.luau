@@ -4,8 +4,6 @@ local vide = require("../vide")
 
 local source = vide.source
 
-local font = Font.fromId(12187370747)
-
 return {
 	opened = source(false),
 	focused = source(false),
@@ -15,7 +13,7 @@ return {
 	activation_keys = source({}),
 	hide_on_lost_focus = source(true),
 	theme = source(theme.themes.mocha),
-	font = source(font),
+	font = source(Font.fromId(16658246179)),
 	icon = source("rbxassetid://115292290730914"),
 	transparency = source(0.2),
 	format_date = function(log: types.Log)

@@ -6,7 +6,9 @@ local flex = require("../components/flex")
 local padding = require("../components/padding")
 local px = require("../px")
 local state = require("../state")
+local stroke = require("../components/stroke")
 local text = require("../components/text")
+local theme = require("../theme")
 local types = require("../types")
 local vide = require("../../vide")
 
@@ -14,6 +16,7 @@ local create = vide.create
 local derive = vide.derive
 local indexes = vide.indexes
 local show = vide.show
+local spring = vide.spring
 
 export type Suggestions = {
 	read analysis: () -> types.AnalysisResult,
@@ -58,6 +61,11 @@ local function suggestions(props: Suggestions)
 
 				corner(px(4)),
 				padding(px(8)),
+				stroke {
+					color = function()
+						return theme.border(state.theme())
+					end,
+				},
 
 				flex():row():vertical("center"):gap(4),
 
@@ -66,6 +74,7 @@ local function suggestions(props: Suggestions)
 					text = function()
 						return arg() and arg().name or ""
 					end,
+					weight = Enum.FontWeight.Bold,
 					xalignment = Enum.TextXAlignment.Left,
 				},
 
@@ -109,11 +118,16 @@ local function suggestions(props: Suggestions)
 		indexes(function()
 			return props.analysis().suggestions
 		end, function(value: () -> types.AnalysisSuggestion, i)
+			local function selected()
+				return props.selected_suggestion() == i
+			end
+
 			return create "TextButton" {
 				AutomaticSize = "XY",
-				BackgroundColor3 = function()
-					return props.selected_suggestion() == i and state.theme().surface or state.theme().background
-				end,
+				AutoButtonColor = false,
+				BackgroundColor3 = spring(function()
+					return selected() and state.theme().surface or state.theme().background
+				end, 0.1),
 				BackgroundTransparency = state.transparency,
 				LayoutOrder = i,
 				Text = "",
@@ -125,11 +139,22 @@ local function suggestions(props: Suggestions)
 				flex():row():vertical("center"):gap(4),
 				corner(px(4)),
 				padding(px(8)),
+				stroke {
+					color = function()
+						return state.theme().highlight
+					end,
+					transparency = spring(function()
+						return selected() and 0 or 1
+					end, 0.1),
+				},
 
 				text {
 					auto = "XY",
 					text = function()
 						return value().name
+					end,
+					text_style = function()
+						return selected() and "highlight" or "normal"
 					end,
 					xalignment = Enum.TextXAlignment.Left,
 					order = i,
