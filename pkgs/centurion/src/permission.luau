@@ -83,7 +83,7 @@ local function remove_roles(player: Player, ...: string)
 end
 
 local function can_execute(player: Player, command: types.Command<unknown>): boolean
-    if RunService:IsEdit() then
+    if not RunService:IsRunning() then
         return true
     end
 
