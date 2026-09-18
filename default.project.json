@@ -10,10 +10,6 @@
 			"pkgs": {
 				"$className": "Folder",
 
-				"vide": {
-					"$path": "node_modules/@rbxts/vide"
-				},
-
 				"centurion": {
 					"$className": "Folder",
 					"src": {
@@ -29,7 +25,7 @@
 					},
 
 					"vide": {
-						"$path": "pkgs/centurion-ui/vide.luau"
+						"$path": "pkgs/centurion-ui/vide"
 					},
 
 					"centurion": {

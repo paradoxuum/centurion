@@ -1,6 +1,10 @@
 {
 	"name": "centurion-ui",
 	"tree": {
-		"$path": "src"
+  	 "$path": "src",
+
+		"vide": {
+		  "$path": "vide"
+		}
 	}
 }

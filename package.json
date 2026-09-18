@@ -1,14 +1,12 @@
 {
 	"name": "centurion-workspace",
 	"private": true,
-	"packageManager": "pnpm@10.33.4+sha512.1c67b3b359b2d408119ba1ed289f34b8fc3c6873412bec6fd264fbdc82489e510fcbecb9ce9d22dae7f3b76269d8441046014bdca53b9979cd7a561ad631b800",
+	"packageManager": "pnpm@12.0.0-rc.8+sha512.9a6389a9e5e58757dcd9fe011ba82637db4640e0fdfb373ec3356e5caf6cf9cbd6ad7690b030f679153b33d40c24a9be6e53e7534fc1f10ddca855e7f1d722d6",
 	"devDependencies": {
 		"@rbxts/compiler-types": "3.0.0-types.0",
 		"@rbxts/types": "^1.0.891",
 		"roblox-ts": "^3.0.0",
 		"typescript": "^5.9.3"
 	},
-	"dependencies": {
-		"@rbxts/vide": "0.6.1"
-	}
+	"dependencies": {}
 }

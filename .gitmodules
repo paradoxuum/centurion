@@ -1,3 +1,3 @@
-[submodule "pkgs/centurion-ui/modules/vide"]
-	path = pkgs/centurion-ui/modules/vide
+[submodule "pkgs/centurion-ui/vide"]
+	path = pkgs/centurion-ui/vide
 	url = https://github.com/centau/vide.git
