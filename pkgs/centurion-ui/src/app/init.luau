@@ -7,6 +7,7 @@ local centurion = require("../centurion")
 local container = require("./components/container")
 local corner = require("./components/corner")
 local flex = require("./components/flex")
+local highlight = require("./analyse/highlight")
 local history = require("@self/history")
 local padding = require("./components/padding")
 local px = require("./px")
@@ -52,18 +53,6 @@ local function app()
 	local next_cursor_pos = false
 	local cmd_history = {}
 	local cmd_history_index = 0
-
-	-- slides the interface into place when opened
-	local position = px(state.position)
-	local open_offset = spring(function()
-		return 0
-	end, 0.3)
-
-	effect(function()
-		if state.opened() then
-			open_offset(-16)
-		end
-	end)
 
 	-- shakes the input and flashes its outline when a command fails
 	local shake, shake_settings = spring(function()
@@ -229,9 +218,9 @@ local function app()
 	return container {
 		auto = "Y",
 		anchor = state.anchor,
-		position = function()
-			return position() + UDim2.fromOffset(0, px.convert(-open_offset()))
-		end,
+		position = spring(function()
+			return px.get(state.position() + UDim2.fromOffset(0, px.convert(state.opened() and 0 or 16)))
+		end, 0.3),
 		size = px(function()
 			local w = state.width()
 			return UDim2.new(w.Scale, w.Offset, 0, 0)
@@ -330,13 +319,22 @@ local function app()
 					zindex = -1,
 				},
 
+				-- syntax highlighted copy of the input, drawn over the textbox
+				text {
+					size = UDim2.fromScale(1, 1),
+					text = function()
+						return highlight(raw_text(), state.theme())
+					end,
+					rich_text = true,
+					xalignment = Enum.TextXAlignment.Left,
+					zindex = 2,
+
+					{ Interactable = false },
+				},
+
 				textbox {
 					placeholder = "Enter command",
 					xalignment = Enum.TextXAlignment.Left,
-					text_style = function()
-						local analysis_result = analysis()
-						return analysis_result.result.success and "normal" or "error"
-					end,
 
 					text = raw_text,
 					update_text = function(value)
@@ -355,7 +353,7 @@ local function app()
 					update_focused = state.focused,
 
 					enter = function(value)
-    					local submitted = analysis()
+						local submitted = analysis()
 						raw_text("")
 						analysis(default_analysis)
 
@@ -407,6 +405,10 @@ local function app()
 						AutomaticSize = Enum.AutomaticSize.None,
 						Size = UDim2.fromScale(1, 1),
 						CursorPosition = cursor_pos,
+						-- the highlighted overlay draws the text, but hiding it completely would also hide the cursor
+						TextTransparency = function()
+							return if raw_text() == "" then 0 else 0.5
+						end,
 
 						changed("CursorPosition", function(new)
 							if next_cursor_pos then

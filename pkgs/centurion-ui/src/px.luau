@@ -21,24 +21,28 @@ local function convert(value: number, mode: Mode?): number
 		else math.round(value * scale())
 end
 
+local function px_raw<T>(value: T | () -> T, mode: Mode? | () -> Mode?): T
+    local value_raw, mode_raw = read(value), read(mode)
+
+	if typeof(value_raw) == "number" then
+		return convert(value_raw, mode_raw) :: any
+	elseif typeof(value_raw) == "UDim" then
+		return UDim.new(value_raw.Scale, convert(value_raw.Offset, mode_raw)) :: any
+	elseif typeof(value_raw) == "UDim2" then
+		return UDim2.new(
+			value_raw.X.Scale,
+			convert(value_raw.X.Offset, mode_raw),
+			value_raw.Y.Scale,
+			convert(value_raw.Y.Offset, mode_raw)
+		) :: any
+	else
+		error("px: unsupported type")
+	end
+end
+
 local function px<T>(value: T | () -> T, mode: Mode? | () -> Mode?): () -> T
 	return function()
-		local value_raw, mode_raw = read(value), read(mode)
-
-		if typeof(value_raw) == "number" then
-			return convert(value_raw, mode_raw) :: any
-		elseif typeof(value_raw) == "UDim" then
-			return UDim.new(value_raw.Scale, convert(value_raw.Offset, mode_raw)) :: any
-		elseif typeof(value_raw) == "UDim2" then
-			return UDim2.new(
-				value_raw.X.Scale,
-				convert(value_raw.X.Offset, mode_raw),
-				value_raw.Y.Scale,
-				convert(value_raw.Y.Offset, mode_raw)
-			) :: any
-		else
-			error("px: unsupported type")
-		end
+    	return px_raw(value, mode)
 	end
 end
 
@@ -57,7 +61,7 @@ local function mount()
 	cleanup(camera:GetPropertyChangedSignal("ViewportSize"):Connect(update))
 end
 
-return setmetatable({ mount = mount, convert = convert }, {
+return setmetatable({ mount = mount, convert = convert, get = px_raw }, {
 	__call = function<T>(_, value: T | () -> T, mode: Mode? | () -> Mode?): () -> T
 		return px(value, mode)
 	end,
