@@ -2,6 +2,7 @@ local app = require("../app")
 local centurion = require("../../centurion")
 local story = require("./story")
 local ui = require("../../src")
+local px = require("../px")
 
 return story({}, function()
 	ui.register_commands()
@@ -30,6 +31,8 @@ return story({}, function()
 			ctx.reply(table.concat(text, " "))
 		end,
 	})
+
+	px.mount()
 
 	return app()
 end)
