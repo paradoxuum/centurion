@@ -1,4 +1,5 @@
 local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
 
 local types = require("./types")
 
@@ -82,6 +83,10 @@ local function remove_roles(player: Player, ...: string)
 end
 
 local function can_execute(player: Player, command: types.Command<unknown>): boolean
+    if RunService:IsEdit() then
+        return true
+    end
+
 	local user_roles = players[player.UserId]
 	if not user_roles then
 		return (not command.roles or #command.roles == 0) and (not command.permissions or #command.permissions == 0)
