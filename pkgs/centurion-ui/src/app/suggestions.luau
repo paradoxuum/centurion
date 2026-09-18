@@ -5,6 +5,7 @@ local corner = require("../components/corner")
 local flex = require("../components/flex")
 local padding = require("../components/padding")
 local px = require("../px")
+local rich = require("../rich")
 local state = require("../state")
 local stroke = require("../components/stroke")
 local text = require("../components/text")
@@ -150,9 +151,24 @@ local function suggestions(props: Suggestions)
 
 				text {
 					auto = "XY",
+					-- characters matching the input are emphasised
 					text = function()
-						return value().name
+						local suggestion = value()
+						local name = suggestion.name
+						local highlight = state.theme().highlight
+
+						local out = {}
+						local pos = 1
+						for _, range in suggestion.matches do
+							table.insert(out, rich.escape(name:sub(pos, range.x - 1)))
+							table.insert(out, `<b>{rich.color(rich.escape(name:sub(range.x, range.y)), highlight)}</b>`)
+							pos = range.y + 1
+						end
+						table.insert(out, rich.escape(name:sub(pos)))
+
+						return table.concat(out)
 					end,
+					rich_text = true,
 					text_style = function()
 						return selected() and "highlight" or "normal"
 					end,

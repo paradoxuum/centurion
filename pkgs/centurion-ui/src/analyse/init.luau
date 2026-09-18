@@ -1,6 +1,7 @@
 local Players = game:GetService("Players")
 
 local centurion = require("../centurion")
+local match = require("@self/match")
 local suggest = require("@self/suggest")
 local types = require("./types")
 
@@ -178,10 +179,10 @@ local function analyse(text: string, cursor_pos: number, max_suggestions: number
 		if #arg_suggestions > 0 then
 			local matches = suggest(input_token.text, arg_suggestions, max_suggestions)
 
-			for _, match in matches do
+			for _, suggestion_text in matches do
 				local replacement = ""
 				local replacement_text = {}
-				for _, replacement_token in centurion.parse_text(match, " ").tokens do
+				for _, replacement_token in centurion.parse_text(suggestion_text, " ").tokens do
 					table.insert(replacement_text, replacement_token.text)
 				end
 
@@ -193,7 +194,8 @@ local function analyse(text: string, cursor_pos: number, max_suggestions: number
 
 				local suggestion = {
 					kind = "argument",
-					name = match,
+					name = suggestion_text,
+					matches = match(input_token.text, suggestion_text),
 
 					span = input_token.span,
 					replace = replacement,
@@ -228,7 +230,8 @@ local function analyse(text: string, cursor_pos: number, max_suggestions: number
 			table.insert(token_text, token.text)
 		end
 
-		local matches = suggest(table.concat(token_text, " "), to_match, max_suggestions)
+		local query = table.concat(token_text, " ")
+		local matches = suggest(query, to_match, max_suggestions)
 		if cmd_name then
 			table.insert(matches, 1, cmd_name)
 		end
@@ -247,14 +250,15 @@ local function analyse(text: string, cursor_pos: number, max_suggestions: number
 		end
 
 		local suggestions = {}
-		for _, match in matches do
+		for _, cmd_match in matches do
 			local suggestion = {
 				kind = "command",
-				name = match,
-				description = cmds[match].description,
+				name = cmd_match,
+				description = cmds[cmd_match].description,
+				matches = match(query, cmd_match),
 
 				span = vector.create(1, tokens[#tokens].span.y, 0),
-				replace = match,
+				replace = cmd_match,
 			} :: types.AnalysisSuggestion
 			table.insert(suggestions, suggestion)
 		end

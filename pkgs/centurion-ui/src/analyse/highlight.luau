@@ -1,13 +1,10 @@
 local Players = game:GetService("Players")
 
 local centurion = require("../../centurion")
+local rich = require("../rich")
 local types = require("../types")
 
 type Kind = "command" | "argument" | "string" | "invalid"
-
-local function escape(text: string): string
-	return (text:gsub("&", "&amp;"):gsub("<", "&lt;"):gsub(">", "&gt;"):gsub('"', "&quot;"):gsub("'", "&apos;"))
-end
 
 local function is_valid(raw: string, arg: centurion.Argument): boolean
 	local arg_type = centurion.registry.types[arg.type]
@@ -102,7 +99,6 @@ local function classify(text: string): { { span: vector, kind: Kind } }
 	return highlights
 end
 
--- returns the input as rich text, coloured by the role of each token
 local function highlight(text: string, theme: types.Theme): string
 	local colors: { [Kind]: Color3 } = {
 		command = theme.highlight,
@@ -114,14 +110,11 @@ local function highlight(text: string, theme: types.Theme): string
 	local out = {}
 	local pos = 1
 	for _, item in classify(text) do
-		table.insert(out, escape(text:sub(pos, item.span.x - 1)))
-		table.insert(
-			out,
-			`<font color="#{colors[item.kind]:ToHex()}">{escape(text:sub(item.span.x, item.span.y))}</font>`
-		)
+		table.insert(out, rich.escape(text:sub(pos, item.span.x - 1)))
+		table.insert(out, rich.color(rich.escape(text:sub(item.span.x, item.span.y)), colors[item.kind]))
 		pos = item.span.y + 1
 	end
-	table.insert(out, escape(text:sub(pos)))
+	table.insert(out, rich.escape(text:sub(pos)))
 
 	return table.concat(out)
 end

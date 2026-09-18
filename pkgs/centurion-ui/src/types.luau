@@ -36,6 +36,8 @@ export type Theme = {
 export type AnalysisSuggestion = {
 	name: string,
 	description: string?,
+	-- ranges of `name` that match the input
+	matches: { vector },
 
 	span: vector,
 	replace: string,
