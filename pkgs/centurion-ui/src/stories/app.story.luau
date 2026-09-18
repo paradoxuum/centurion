@@ -3,9 +3,11 @@ local centurion = require("../../centurion")
 local story = require("./story")
 local ui = require("../../src")
 local px = require("../px")
+local state = require("../state")
 
 return story({}, function()
 	ui.register_commands()
+	state.opened(true)
 
 	local cmd = centurion.register_command
 
