@@ -54,9 +54,16 @@ local function configure(options: unknown)
 	end
 end
 
-local function register_commands()
+local function register_commands(prefix: string?)
+    local cmd_name = function(name: string)
+        if prefix then
+            return prefix .. " " .. name
+        end
+        return name
+    end
+
 	local cmd = centurion.register_command
-	cmd("centurion clear", {
+	cmd(cmd_name("clear"), {
 		description = "Clear the command history",
 		callback = function()
 			state.logs({})
@@ -70,8 +77,8 @@ local function register_commands()
 	end
 
 	local centurion_theme = centurion.register_type("centurion-theme", centurion.create_enum(theme_names))
-	cmd("centurion theme", {
-		description = "Change the theme",
+	cmd(cmd_name("theme"), {
+		description = "Change the terminal theme",
 		arguments = function()
 			return centurion_theme("theme", "The name of the theme to switch to")
 		end,

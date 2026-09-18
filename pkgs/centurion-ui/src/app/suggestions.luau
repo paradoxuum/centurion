@@ -28,19 +28,43 @@ export type Suggestions = {
 	[number]: unknown,
 }
 
+-- e.g. <name: type>, [name: type] if optional, <name: type...> if it takes the rest of the input
+local function format_argument(arg: centurion.Argument): string
+	local label = `{arg.name}: {arg.type}`
+
+	local num_args = arg.num_args
+	if num_args == "rest" then
+		label ..= "..."
+	elseif typeof(num_args) == "number" and num_args > 1 then
+		label ..= ` x{num_args}`
+	end
+
+	return if arg.optional then `[{label}]` else `<{label}>`
+end
+
 local function suggestions(props: Suggestions)
-	local arg = derive(function()
-		if props.analysis().argument == nil or props.analysis().command == nil then
+	local usage = derive(function()
+		local analysis = props.analysis()
+		if analysis.argument == nil or analysis.command == nil then
 			return nil
 		end
 
-		local cmd = centurion.registry.commands[props.analysis().command]
+		local cmd = centurion.registry.commands[analysis.command]
 		if cmd == nil or cmd.arguments == nil then
 			return nil
 		end
 
-		local args = { cmd.arguments() }
-		return args[props.analysis().argument.index]
+		local args: { centurion.Argument } = { cmd.arguments() }
+		return {
+			command = analysis.command,
+			args = args,
+			index = analysis.argument.index,
+		}
+	end)
+
+	local arg = derive(function()
+		local current = usage()
+		return current and current.args[current.index]
 	end)
 
 	return container {
@@ -69,6 +93,34 @@ local function suggestions(props: Suggestions)
 				},
 
 				flex():row():vertical("center"):gap(4),
+
+				-- full usage of the command, with the argument being typed emphasised
+				text {
+					auto = "XY",
+					text = function()
+						local current = usage()
+						if not current then
+							return ""
+						end
+
+						local colors = state.theme()
+						local parts = { rich.escape(current.command) }
+						for i, value in current.args do
+							local label = rich.escape(format_argument(value))
+							table.insert(
+								parts,
+								if i == current.index
+									then `<b>{rich.color(label, colors.highlight)}</b>`
+									else rich.color(label, colors.subtext)
+							)
+						end
+
+						return table.concat(parts, " ")
+					end,
+					rich_text = true,
+					text_size = px(state.subtext_size),
+					xalignment = Enum.TextXAlignment.Left,
+				},
 
 				text {
 					auto = "XY",
