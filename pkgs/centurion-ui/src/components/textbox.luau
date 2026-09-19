@@ -3,6 +3,7 @@ local state = require("../state")
 local theme = require("../theme")
 local types = require("../types")
 local vide = require("../../vide")
+local text = require("./text")
 
 local create = vide.create
 local changed = vide.changed
@@ -11,13 +12,14 @@ local effect = vide.effect
 local read = vide.read :: (<T>(() -> T) -> T) & (<T>(T) -> T)
 
 type Can<T> = T | () -> T
-type Background = {
+type TextBoxProps = {
 	read width: Can<number>?,
 	read height: Can<number>?,
 
 	read text: Can<string>,
 	read text_size: Can<number>?,
 	read text_style: Can<types.TextStyle>?,
+	read wrapped: Can<boolean>?,
 	read weight: Can<Enum.FontWeight>?,
 	read rich_text: Can<boolean>?,
 	read background_color: Can<Color3>?,
@@ -35,9 +37,9 @@ type Background = {
 	[number]: unknown,
 }
 
-return function(props: Background)
+return function(props: TextBoxProps)
 	local raw_text = source ""
-	local textbox: TextBox = create "TextBox" {
+	local textbox = create "TextBox" {
 		Size = function()
 			return UDim2.fromOffset(read(props.width) or 0, read(props.height) or 0)
 		end,
@@ -51,6 +53,7 @@ return function(props: Background)
 		end,
 		TextXAlignment = props.xalignment,
 		TextEditable = props.editable,
+		TextWrapped = props.wrapped,
 		MultiLine = props.multiline,
 		FontFace = function()
 			local f: Font = state.font()

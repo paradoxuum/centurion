@@ -182,6 +182,7 @@ local function history(props: History)
 					rich_text = true,
 					editable = false,
 					xalignment = Enum.TextXAlignment.Left,
+					wrapped = true,
 
 					{ TextTransparency = enter },
 				},
