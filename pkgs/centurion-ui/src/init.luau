@@ -54,19 +54,29 @@ local function configure(options: unknown)
 	end
 end
 
-local function register_commands(prefix: string?)
-    local cmd_name = function(name: string)
-        if prefix then
-            return prefix .. " " .. name
-        end
-        return name
-    end
+local function clear()
+    state.logs({})
+end
 
-	local cmd = centurion.register_command
-	cmd(cmd_name("clear"), {
+local function register_commands(options: { exclude: { string }?, prefix: string? }?)
+    options = options or {}
+
+	local cmd = function<T...>(name: string, cmd_data: centurion.Command<T...>)
+	    if options.exclude and table.find(options.exclude, name) then
+            return
+        end
+
+    	local cmd_name  = name
+    	if options.prefix then
+            cmd_name = options.prefix .. " " .. cmd_name
+        end
+    	centurion.register_command(cmd_name, cmd_data)
+	end
+
+	cmd("clear", {
 		description = "Clear the command history",
 		callback = function()
-			state.logs({})
+			clear()
 			return ""
 		end,
 	})
@@ -77,7 +87,7 @@ local function register_commands(prefix: string?)
 	end
 
 	local centurion_theme = centurion.register_type("centurion-theme", centurion.create_enum(theme_names))
-	cmd(cmd_name("theme"), {
+	cmd("theme", {
 		description = "Change the terminal theme",
 		arguments = function()
 			return centurion_theme("theme", "The name of the theme to switch to")
@@ -99,5 +109,6 @@ return {
 	mount = mount,
 	configure = configure,
 	register_commands = register_commands,
+	clear = clear,
 	themes = theme.themes,
 }
