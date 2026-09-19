@@ -17,6 +17,7 @@ local create = vide.create
 local derive = vide.derive
 local indexes = vide.indexes
 local show = vide.show
+local source = vide.source
 local spring = vide.spring
 
 export type Suggestions = {
@@ -174,16 +175,30 @@ local function suggestions(props: Suggestions)
 			local function selected()
 				return props.selected_suggestion() == i
 			end
+			local hovered = source(false)
 
 			return create "TextButton" {
 				AutomaticSize = "XY",
 				AutoButtonColor = false,
 				BackgroundColor3 = spring(function()
-					return selected() and state.theme().surface or state.theme().background
+					local current = state.theme()
+					if selected() then
+						return current.surface
+					elseif hovered() then
+						return current.background:Lerp(current.surface, 0.5)
+					end
+					return current.background
 				end, 0.1),
 				BackgroundTransparency = state.transparency,
 				LayoutOrder = i,
 				Text = "",
+
+				MouseEnter = function()
+					hovered(true)
+				end,
+				MouseLeave = function()
+					hovered(false)
+				end,
 
 				Activated = function()
 					props.on_select(value())
