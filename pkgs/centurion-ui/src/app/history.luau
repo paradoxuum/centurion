@@ -31,6 +31,7 @@ local line_height = 35
 
 local function history(props: History)
 	local content_height = source(Vector2.new())
+	local hovered = source(false)
 	local max_height = px(function()
 		return line_height * (read(props.max_lines) :: number)
 	end)
@@ -43,6 +44,22 @@ local function history(props: History)
 		Size = spring(function()
 			return UDim2.fromOffset(0, math.min(content_height().Y, max_height()))
 		end, 0.1),
+
+		ScrollBarThickness = px(4),
+		ScrollBarImageColor3 = function()
+			return state.theme().subtext
+		end,
+		ScrollBarImageTransparency = spring(function()
+			return if hovered() then 0 else 0.6
+		end, 0.2),
+		VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar,
+
+		MouseEnter = function()
+			hovered(true)
+		end,
+		MouseLeave = function()
+			hovered(false)
+		end,
 
 		create "UIListLayout" {
 			HorizontalFlex = Enum.UIFlexAlignment.Fill,
