@@ -1,4 +1,5 @@
 local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 
 local analyse = require("./analyse")
@@ -37,6 +38,7 @@ local default_analysis = {
 	suggestions = {},
 } :: types.AnalysisResult
 local max_history_lines = 8
+local spinner_frames = { "|", "/", "-", "\\" }
 
 local function app()
 	local raw_text = source("")
@@ -46,7 +48,12 @@ local function app()
 	-- same as analysis, but isn't reset when submitting (used for animations)
 	local display_analysis = source(default_analysis)
 
-	local executing = source(false)
+	-- commands waiting on a response
+	local executing = source(0)
+	local executing_command = source("")
+	local busy = source(false)
+	local spinner_frame = source(1)
+
 	local selected_suggestion = source(1)
 	local over_interface = source(false)
 
@@ -193,6 +200,28 @@ local function app()
 		end
 	end))
 
+	effect(function()
+		if executing() == 0 then
+			busy(false)
+			return
+		end
+
+		local thread = task.delay(0.1, busy, true)
+		cleanup(function()
+			task.cancel(thread)
+		end)
+	end)
+
+	effect(function()
+		if not busy() then
+			return
+		end
+
+		cleanup(RunService.Heartbeat:Connect(function()
+			spinner_frame(math.floor(os.clock() * 10) % #spinner_frames + 1)
+		end))
+	end)
+
 	local analysing = false
 	effect(function()
 		raw_text()
@@ -278,7 +307,7 @@ local function app()
 						local current = state.theme()
 						if failed() or not analysis().result.success then
 							return current.error
-						elseif state.focused() then
+						elseif busy() or state.focused() then
 							return current.highlight
 						end
 						return theme.border(current)
@@ -286,9 +315,11 @@ local function app()
 				},
 
 				text {
-					text = ">",
+					text = function()
+						return if busy() then spinner_frames[spinner_frame()] else ">"
+					end,
 					text_style = function()
-						return analysis().result.success and "highlight" or "error"
+						return (busy() or analysis().result.success) and "highlight" or "error"
 					end,
 					weight = Enum.FontWeight.Bold,
 					auto = "XY",
@@ -333,7 +364,9 @@ local function app()
 				},
 
 				textbox {
-					placeholder = "Enter command",
+					placeholder = function()
+						return if busy() then `Running {executing_command()}...` else "Enter command"
+					end,
 					xalignment = Enum.TextXAlignment.Left,
 
 					text = raw_text,
@@ -379,13 +412,27 @@ local function app()
 							return
 						end
 
-						executing(true)
+						executing_command(cmd)
+						executing(executing() + 1)
 
-						local result = centurion.execute_command(
+						local ok, result = pcall(
+							centurion.execute_command,
 							Players.LocalPlayer,
 							cmd,
 							submitted.argument and submitted.argument.text or {}
 						)
+						executing(executing() - 1)
+
+						if not ok then
+							warn(`Failed to execute '{value}': {result}`)
+							log(value, {
+								success = false,
+								message = "Failed to execute command",
+								timestamp = os.time(),
+							})
+							return
+						end
+
 						if result.response then
 							if result.response.message ~= "" then
 								log(value, result.response)
@@ -397,8 +444,6 @@ local function app()
 								timestamp = os.time(),
 							})
 						end
-
-						executing(false)
 					end,
 
 					{

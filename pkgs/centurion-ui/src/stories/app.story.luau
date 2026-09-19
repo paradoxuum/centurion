@@ -34,6 +34,17 @@ return story({}, function()
 		end,
 	})
 
+	cmd("wait", {
+        description = "Waits for a specified amount of time",
+        arguments = function()
+            return centurion.num_args(centurion.args.number("time", "Time to wait in seconds"), 1)
+        end,
+        callback = function(ctx, time)
+            task.wait(time)
+            ctx.reply(`Waited for {time} second(s)!`)
+        end,
+    })
+
 	cmd("lorem", {
         description = "Lorem ipsum",
         callback = function(ctx, text)
