@@ -2,7 +2,9 @@ local px = require("../px")
 local vide = require("../../vide")
 
 local create = vide.create
+local effect = vide.effect
 local source = vide.source
+local read = vide.read
 
 return function()
 	local gap = source(UDim.new())
@@ -95,8 +97,10 @@ return function()
 		return self
 	end
 
-	function mt:gap(value)
-		gap(UDim.new(0, value))
+	function mt:gap(value: number | () -> number)
+    	effect(function()
+    		gap(UDim.new(0, read(value)))
+        end)
 		return self
 	end
 

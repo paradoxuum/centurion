@@ -271,7 +271,9 @@ local function app()
 			end,
 			transparency = state.transparency,
 
-			flex():fill("horizontal"):vertical("bottom"),
+			flex():fill("horizontal"):vertical("bottom"):gap(function()
+    			return #state.logs() > 0 and 8 or 0
+			end),
 			corner(px(8)),
 			padding(px(4)),
 			stroke {
