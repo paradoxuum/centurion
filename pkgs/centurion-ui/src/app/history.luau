@@ -5,6 +5,7 @@ local flex = require("../components/flex")
 local padding = require("../components/padding")
 local px = require("../px")
 local state = require("../state")
+local text = require("../components/text")
 local textbox = require("../components/textbox")
 local types = require("../types")
 local vide = require("../../vide")
@@ -25,6 +26,7 @@ type Logs = {
 
 type History = {
 	read max_lines: number | () -> number,
+	read on_select: (command: string) -> (),
 }
 
 local line_height = 35
@@ -79,6 +81,8 @@ local function history(props: History)
 		end),
 
 		indexes(state.logs, function(value: () -> types.Log, i: number)
+			local hovered = source(false)
+
 			-- 1 = hidden, 0 = shown
 			local enter = spring(function()
 				return 0
@@ -111,8 +115,22 @@ local function history(props: History)
 					end),
 				},
 
-				container {
-					auto = "XY",
+				-- clicking the header puts the command back into the input
+				create "TextButton" {
+					AutomaticSize = Enum.AutomaticSize.XY,
+					AutoButtonColor = false,
+					BackgroundTransparency = 1,
+					Text = "",
+
+					Activated = function()
+						props.on_select(value().command)
+					end,
+					MouseEnter = function()
+						hovered(true)
+					end,
+					MouseLeave = function()
+						hovered(false)
+					end,
 
 					flex():fill("horizontal"):vertical("center"):gap(8):column(),
 
@@ -145,27 +163,29 @@ local function history(props: History)
 							end,
 						},
 
-						textbox {
+						text {
+							auto = "XY",
 							text = function()
 								return state.format_date(value()) or ""
 							end,
 							text_size = px(state.subtext_size),
 							text_style = "bg",
 							rich_text = true,
-							editable = false,
 
 							{ TextTransparency = enter },
 						},
 					},
 
-					textbox {
+					text {
 						auto = "XY",
 						text = function()
 							return value().command
 						end,
+						text_style = function()
+							return if hovered() then "highlight" else "normal"
+						end,
 						weight = Enum.FontWeight.Bold,
 						xalignment = Enum.TextXAlignment.Left,
-						editable = false,
 
 						{ TextTransparency = enter },
 					},

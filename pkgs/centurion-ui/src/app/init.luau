@@ -283,6 +283,13 @@ local function app()
 
 			history {
 				max_lines = max_history_lines,
+				on_select = function(command)
+					cmd_history_index = 0
+					raw_text(command)
+					state.focused(true)
+					-- after the textbox has recaptured focus, move the cursor to the end
+					task.defer(cursor_pos, #command + 1)
+				end,
 			},
 
 			background {
