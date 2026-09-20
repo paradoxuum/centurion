@@ -100,6 +100,10 @@ local function execute(executor: Player, name: string, args: { string }?): types
 		ctx.reply(value)
 	end
 
+	for _, callback in on_execute_callbacks do
+        callback(ctx)
+    end
+
 	return ctx
 end
 
