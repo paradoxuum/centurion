@@ -79,17 +79,19 @@ local function execute(executor: Player, name: string, args: { string }?): types
 		end
 	end
 
-	local transformed_args = {}
-	if command.arguments then
-		local res = argument.transform(executor, args, { command.arguments() } :: { types.Argument })
-		if not res.success then
-			ctx.error(res.error)
-			return ctx
-		end
-		transformed_args = res.value
+	-- always transform, even with no declared arguments, so that commands
+	-- taking none still reject extra input
+	local command_args: { types.Argument } = if command.arguments then { command.arguments() } else {}
+
+	local res = argument.transform(executor, args, command_args)
+	if not res.success then
+		ctx.error(res.error)
+		return ctx
 	end
 
-	local success, value = pcall(command.callback :: any, ctx, unpack(transformed_args))
+	-- unpack up to the declared argument count so that omitted optional
+	-- arguments don't truncate the ones after them
+	local success, value = pcall(command.callback :: any, ctx, unpack(res.value, 1, #command_args))
 	if not success then
 		warn(`Failed to execute '{ctx.input}': ` .. tostring(value))
 		ctx.error("Failed to execute command.")
@@ -116,7 +118,7 @@ local function register<T...>(name: string | { string }, command: types.Command<
 	end
 
 	for _, callback in on_register_callbacks do
-		callback(names[0], command :: types.Command<unknown>)
+		callback(names[1], command :: types.Command<unknown>)
 	end
 end
 
@@ -124,7 +126,12 @@ local function unregister(name: string)
 	assert(commands[name] ~= nil, "Command with name '" .. name .. "' is not registered.")
 
 	local command = commands[name]
-	commands[name] = nil
+
+	for name, cmd in commands do
+    	if command == cmd then
+            commands[name] = nil
+    	end
+    end
 
 	for _, callback in on_unregister_callbacks do
 		callback(name, command :: types.Command<unknown>)
