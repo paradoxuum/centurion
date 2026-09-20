@@ -91,36 +91,29 @@ local function transform(executor: Player, input: { string }, args: { types.Argu
 	for i, arg in args do
 		local n_args = arg.num_args or 1
 
+		local arg_type = arg_types[arg.type]
+		assert(arg_type, `Argument type '{arg.type}' is not registered`)
+
+		-- only "rest" consumes the remaining input, every other argument takes
+		-- exactly the number of values it asks for
+		local end_num = if n_args == "rest" then #input else input_index + n_args - 1
+
 		local arg_inputs = {}
-
-		local end_num = input_index
-		if n_args == "rest" or i == #args then
-			end_num = #input
-		else
-			end_num = input_index + n_args - 1
-		end
-
-		for j = input_index, end_num do
+		for j = input_index, math.min(end_num, #input) do
 			table.insert(arg_inputs, input[j])
 			input_index += 1
 		end
 
 		if #arg_inputs == 0 then
 			if arg.optional then
-				break
+				continue
 			end
 
-			return {
-				success = false,
-				error = `Missing required argument: {arg.name}`,
-			}
+			return result.error(`Missing required argument: {arg.name}`)
 		end
 
 		local values: { unknown } = {}
 		for j = 1, #arg_inputs do
-			local arg_type = arg_types[arg.type]
-			assert(arg_type, `Argument type '{arg.type}' is not registered`)
-
 			local parsed_input = parse(arg_inputs[j], arg_type.kind == "single" and " " or ",")
 			local parsed_text = {}
 			for _, token in parsed_input.tokens do
@@ -135,19 +128,33 @@ local function transform(executor: Player, input: { string }, args: { types.Argu
 			end
 
 			if not res.success then
-				return result.error(`[arg #{j}] {res.error}`)
+				local at = if #arg_inputs > 1 then ` #{j}` else ""
+				return result.error(`Invalid value{at} for '{arg.name}': {res.error}`)
 			end
 			values[j] = res.value
 		end
 
 		if type(n_args) == "number" and #arg_inputs ~= n_args then
-			return {
-				success = false,
-				error = `Expected {n_args} arguments for {arg.name}, got {#arg_inputs}`,
-			}
+			return result.error(
+				`Expected {n_args} {n_args == 1 and "value" or "values"} for '{arg.name}', got {#arg_inputs}`
+			)
 		end
 
-		transformed_args[i] = n_args == 1 and values[1] or values
+
+		if n_args == 1 then
+			transformed_args[i] = values[1]
+		else
+			transformed_args[i] = values
+		end
+	end
+
+	if input_index <= #input then
+		local expected = input_index - 1
+		if expected == 0 then
+			return result.error(`Expected no arguments, got {#input}`)
+		end
+
+		return result.error(`Expected at most {expected} {expected == 1 and "argument" or "arguments"}, got {#input}`)
 	end
 
 	return result.success(transformed_args)
