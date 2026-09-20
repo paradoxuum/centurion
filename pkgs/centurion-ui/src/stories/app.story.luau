@@ -11,7 +11,20 @@ return story({}, function()
 
 	local cmd = centurion.register_command
 
-	cmd("test test2", {
+	cmd("test", {
+        description = "Test command",
+        arguments = function()
+            return centurion.num_args(centurion.args.number("arg1", "test argument", {
+                 "1", "2", "invalid number"
+            }), 3),
+            centurion.args.boolean("arg2", "test argument 2")
+        end,
+        callback = function(...)
+            print("test1:", ...)
+        end,
+    })
+
+	cmd("test subcommand", {
 		description = "Test command",
 		arguments = function()
 			return centurion.num_args(centurion.args.number("arg1", "test argument", {

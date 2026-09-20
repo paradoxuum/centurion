@@ -5,6 +5,7 @@ local duration = require("@self/argument/duration")
 local guard = require("@self/guard")
 local parse = require("@self/parse")
 local permission = require("@self/permission")
+local resolve = require("@self/resolve")
 local player = require("@self/argument/player")
 local primitives = require("@self/argument/primitives")
 local sync = require("@self/sync")
@@ -21,6 +22,7 @@ export type Response = types.Response
 
 export type Token = parse.Token
 export type ParseResult = parse.ParseResult
+export type Resolution = resolve.Resolution
 
 return {
 	register_command = command.register,
@@ -48,6 +50,7 @@ return {
 	set_permission_options = permission.set_permission_options,
 
 	parse_text = parse,
+	resolve_command = resolve,
 
 	registry = {
 		commands = command.commands,

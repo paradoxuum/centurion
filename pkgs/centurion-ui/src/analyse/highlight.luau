@@ -28,8 +28,8 @@ local function is_valid(raw: string, arg: centurion.Argument): boolean
 end
 
 local function classify(text: string): { { span: vector, kind: Kind } }
-	local parse_result = centurion.parse_text(text, " ")
-	local tokens = parse_result.tokens
+	local resolution = centurion.resolve_command(text)
+	local tokens = resolution.tokens
 	local cmds = centurion.registry.commands
 
 	local highlights = {}
@@ -37,19 +37,8 @@ local function classify(text: string): { { span: vector, kind: Kind } }
 		table.insert(highlights, { span = token.span, kind = kind })
 	end
 
-	local cmd_name: string? = nil
-	local cmd_index = 0
-	local cmd_text = {}
-	for i, token in tokens do
-		table.insert(cmd_text, token.text)
-
-		local name = table.concat(cmd_text, " ")
-		if cmds[name] then
-			cmd_name = name
-			cmd_index = i
-			break
-		end
-	end
+	local cmd_name = resolution.name
+	local cmd_index = resolution.name_end
 
 	if not cmd_name then
 		for _, token in tokens do
@@ -67,9 +56,9 @@ local function classify(text: string): { { span: vector, kind: Kind } }
 
 	-- assign tokens to arguments the same way centurion.transform_args does
 	local token_index = cmd_index + 1
-	for i, arg in args do
+	for _, arg in args do
 		local num_args = arg.num_args or 1
-		local last = if num_args == "rest" or i == #args then #tokens else token_index + num_args - 1
+		local last = if num_args == "rest" then #tokens else token_index + num_args - 1
 
 		for j = token_index, math.min(last, #tokens) do
 			local token = tokens[j]
@@ -87,12 +76,13 @@ local function classify(text: string): { { span: vector, kind: Kind } }
 		token_index = last + 1
 	end
 
-	-- extra input is ignored by commands without arguments
+	-- input past the last argument is rejected, including by commands that
+	-- take no arguments at all
 	for j = token_index, #tokens do
-		add(tokens[j], "argument")
+		add(tokens[j], "invalid")
 	end
 
-	if parse_result.unclosed_quote and #highlights > 0 then
+	if resolution.unclosed_quote and #highlights > 0 then
 		highlights[#highlights].kind = "invalid"
 	end
 

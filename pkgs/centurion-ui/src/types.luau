@@ -44,7 +44,6 @@ export type AnalysisSuggestion = {
 }
 
 export type AnalysisArgument = {
-	text: string,
 	index: number,
 	type: string,
 	kind: "single" | "list",

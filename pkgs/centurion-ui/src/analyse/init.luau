@@ -6,8 +6,8 @@ local suggest = require("@self/suggest")
 local types = require("./types")
 
 local function analyse(text: string, cursor_pos: number, max_suggestions: number?): types.AnalysisResult
-	local parse_result = centurion.parse_text(text, " ")
-	local tokens = parse_result.tokens
+	local resolution = centurion.resolve_command(text)
+	local tokens = resolution.tokens
 
 	if #tokens == 0 then
 		return {
@@ -21,24 +21,8 @@ local function analyse(text: string, cursor_pos: number, max_suggestions: number
 
 	local cmds = centurion.registry.commands
 
-	local cmd_name: string? = nil
-	local cmd_index: number? = nil
-
-	local cmd_text = {}
-	for i, token in tokens do
-		table.insert(cmd_text, token.text)
-
-		local name = table.concat(cmd_text, " ")
-		if cmds[name] then
-			cmd_name = name
-			cmd_index = i
-			break
-		end
-	end
-
-	if not cmd_name then
-		cmd_text = {}
-	end
+	local cmd_name: string? = resolution.name
+	local cmd_index: number? = cmd_name and resolution.name_end or nil
 
 	local arg_tokens: { centurion.Token } = cmd_index and { select(2, unpack(tokens, cmd_index)) } or {}
 
@@ -57,15 +41,26 @@ local function analyse(text: string, cursor_pos: number, max_suggestions: number
 		end
 
 		local cmd = cmds[cmd_name]
-		local cmd_args: { centurion.Argument } = cmd.arguments and { cmd.arguments() } or {}
-		if not cmd or #cmd_args == 0 then
+		if not cmd then
 			return nil
 		end
 
-		local arg_text = {}
-		for _, token in arg_tokens do
-			table.insert(arg_text, text:sub(token.span.x, token.span.y))
+		local cmd_args: { centurion.Argument } = cmd.arguments and { cmd.arguments() } or {}
+		local arg_text = resolution.args
+
+		-- commands taking no arguments have nothing to suggest, but still
+		-- reject extra input
+		if #cmd_args == 0 then
+			if #arg_tokens == 0 then
+				return nil
+			end
+
+			return {
+				result = centurion.transform_args(Players.LocalPlayer, arg_text, cmd_args),
+				suggestions = {},
+			}
 		end
+
 		local transform_result = centurion.transform_args(Players.LocalPlayer, arg_text, cmd_args)
 
 		if not at_arg then
@@ -273,10 +268,10 @@ local function analyse(text: string, cursor_pos: number, max_suggestions: number
 
 	local arg_result = process_arg()
 	local cmd_result = process_command()
-	if parse_result.unclosed_quote then
+	if resolution.unclosed_quote then
 		analysis_result = {
 			success = false,
-			error = "Unclosed quote at position " .. parse_result.tokens[#parse_result.tokens].span.x,
+			error = "Unclosed quote at position " .. tokens[#tokens].span.x,
 		}
 	else
 		if arg_result then
@@ -286,11 +281,44 @@ local function analyse(text: string, cursor_pos: number, max_suggestions: number
 		end
 	end
 
+	local final_suggestions = cmd_result.suggestions
+	if at_arg and arg_result then
+		final_suggestions = arg_result.suggestions
+
+		-- a subcommand shares the position of its parent's first argument, so
+		-- both sets are offered there instead of the argument replacing them
+		local on_first_arg = arg_result.argument == nil or arg_result.argument.index == 1
+		if cmd_name and on_first_arg then
+			local prefix = cmd_name .. " "
+			local merged = {}
+
+			for _, suggestion in cmd_result.suggestions do
+				if suggestion.name ~= cmd_name and suggestion.name:sub(1, #prefix) == prefix then
+					table.insert(merged, suggestion)
+				end
+			end
+
+			if #merged > 0 then
+				for _, suggestion in final_suggestions do
+					table.insert(merged, suggestion)
+				end
+
+				if max_suggestions then
+					for i = #merged, max_suggestions + 1, -1 do
+						merged[i] = nil
+					end
+				end
+
+				final_suggestions = merged
+			end
+		end
+	end
+
 	return {
 		result = analysis_result,
 		command = cmd_name,
 		argument = arg_result and arg_result.argument or nil,
-		suggestions = (at_arg and arg_result) and arg_result.suggestions or cmd_result.suggestions,
+		suggestions = final_suggestions,
 	}
 end
 

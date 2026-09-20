@@ -395,7 +395,10 @@ local function app()
 					update_focused = state.focused,
 
 					enter = function(value)
-						local submitted = analysis()
+						-- resolve from the submitted text rather than the
+						-- analysis, which only carries arguments when the
+						-- cursor happens to sit on one
+						local submitted = centurion.resolve_command(value)
 						raw_text("")
 						analysis(default_analysis)
 
@@ -411,7 +414,7 @@ local function app()
 						cmd_history_index = 0
 						table.insert(cmd_history, 1, value)
 
-						local cmd = submitted.command
+						local cmd = submitted.name
 						if not cmd then
 							log(value, {
 								success = false,
@@ -424,12 +427,7 @@ local function app()
 						executing_command(cmd)
 						executing(executing() + 1)
 
-						local ok, result = pcall(
-							centurion.execute_command,
-							Players.LocalPlayer,
-							cmd,
-							submitted.argument and submitted.argument.text or {}
-						)
+						local ok, result = pcall(centurion.execute_command, Players.LocalPlayer, cmd, submitted.args)
 						executing(executing() - 1)
 
 						if not ok then

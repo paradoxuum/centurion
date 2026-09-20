@@ -6,6 +6,7 @@ export type ParseResult = {
 export type Token = {
 	span: vector,
 	text: string,
+	quoted: boolean,
 }
 
 local function parse_escaped_char(c: string): string
@@ -32,6 +33,7 @@ local function parse(text: string, split_char: string): ParseResult
 	local start = nil
 	local escaped = false
 	local quote_char: string?
+	local quoted = false
 	local current = ""
 
 	for i = 1, #text do
@@ -54,6 +56,7 @@ local function parse(text: string, split_char: string): ParseResult
 
 		if (c == '"' or c == "'") and not quote_char then
 			quote_char = c
+			quoted = true
 			if start == nil then
 				start = i
 			end
@@ -70,9 +73,11 @@ local function parse(text: string, split_char: string): ParseResult
 				table.insert(tokens, {
 					span = vector.create(start, i - 1, 0),
 					text = current,
+					quoted = quoted,
 				})
 				start = nil
 				current = ""
+				quoted = false
 			end
 			continue
 		end
@@ -88,6 +93,7 @@ local function parse(text: string, split_char: string): ParseResult
 		table.insert(tokens, {
 			span = vector.create(start, #text, 0),
 			text = current,
+			quoted = quoted,
 		})
 	end
 
