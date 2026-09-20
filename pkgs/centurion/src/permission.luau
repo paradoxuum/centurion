@@ -152,13 +152,19 @@ local function set_permission_options(options: PermissionOptions)
 	if options.default_roles ~= nil then
 		opts.default_roles = options.default_roles
 
+		if player_added_connection then
+		    player_added_connection:Disconnect()
+            player_added_connection = nil
+        end
+
 		if #options.default_roles > 0 then
+    		for _, player in Players:GetPlayers() do
+                add_roles(player, unpack(options.default_roles))
+            end
+
 			player_added_connection = Players.PlayerAdded:Connect(function(player)
 				add_roles(player, unpack(options.default_roles))
 			end)
-		elseif player_added_connection then
-			player_added_connection:Disconnect()
-			player_added_connection = nil
 		end
 	end
 
@@ -174,7 +180,10 @@ local function on_roles_changed(player: Player, callback: (roles: { string }) ->
 	table.insert(changed_callbacks[player.UserId], callback)
 
 	return function()
-		changed_callbacks[player.UserId] = nil
+		table.remove(changed_callbacks[player.UserId], table.find(changed_callbacks[player.UserId], callback))
+		if #changed_callbacks[player.UserId] == 0 then
+            changed_callbacks[player.UserId] = nil
+        end
 	end
 end
 
