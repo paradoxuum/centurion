@@ -1,10 +1,10 @@
 local types = require("./types")
 
-local function context(executor: Player, command: string, args: { string }): types.ExecutionContext
+local function context(executor: Player, command: string, args: { string }, input: string?): types.ExecutionContext
 	local ctx = {
 		executor = executor,
 		command = command,
-		input = command .. (#args > 0 and (" " .. table.concat(args, " ")) or ""),
+		input = input or (command .. (#args > 0 and (" " .. table.concat(args, " ")) or "")),
 		arguments = args,
 	} :: types.ExecutionContext
 

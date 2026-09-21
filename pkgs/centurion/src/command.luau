@@ -12,7 +12,7 @@ local on_register_callbacks: { RegisterCallback } = {}
 local on_unregister_callbacks: { RegisterCallback } = {}
 local on_execute_callbacks: { (ctx: types.ExecutionContext) -> () } = {}
 
-type NetworkHandler = (command: string, args: { string }?) -> types.ExecutionContext
+type NetworkHandler = (command: string, args: { string }?, input: string?) -> types.ExecutionContext
 
 local network_handler: NetworkHandler?
 
@@ -31,14 +31,16 @@ local function call_guard(ctx: types.ExecutionContext, name: string, callback: (
 	return value :: boolean
 end
 
-local function execute(executor: Player, name: string, args: { string }?): types.ExecutionContext
+-- `input` is the raw, untokenized string the executor submitted. Pass it
+-- whenever it's available so that `ctx.input` keeps the original quoting.
+local function execute(executor: Player, name: string, args: { string }?, input: string?): types.ExecutionContext
 	local command = commands[name]
 	if not command then
-		return context(executor, name, args or {})
+		return context(executor, name, args or {}, input)
 	end
 
 	if not permission.can_execute(executor, command) then
-		local ctx = context(executor, name, args or {})
+		local ctx = context(executor, name, args or {}, input)
 
 		if not permission.options.hide then
 			ctx.error("You do not have permission to execute this command.")
@@ -49,11 +51,11 @@ local function execute(executor: Player, name: string, args: { string }?): types
 
 	if not command.callback then
 		assert(network_handler, "Network handler must be set before server command execution on the client.")
-		return network_handler(name, args)
+		return network_handler(name, args, input)
 	end
 
 	args = args or {}
-	local ctx = context(executor, name, args)
+	local ctx = context(executor, name, args, input)
 
 	for i, v in guard.global_guards do
 		if not call_guard(ctx, `global guard #{i}`, v) then
@@ -81,7 +83,9 @@ local function execute(executor: Player, name: string, args: { string }?): types
 
 	-- always transform, even with no declared arguments, so that commands
 	-- taking none still reject extra input
-	local command_args: { types.Argument } = if command.arguments then { command.arguments() } else {}
+	local command_args: { types.Argument } = if command.arguments
+		then { command.arguments() } :: { types.Argument }
+		else {}
 
 	local res = argument.transform(executor, args, command_args)
 	if not res.success then
@@ -103,8 +107,8 @@ local function execute(executor: Player, name: string, args: { string }?): types
 	end
 
 	for _, callback in on_execute_callbacks do
-        callback(ctx)
-    end
+		callback(ctx)
+	end
 
 	return ctx
 end
@@ -128,10 +132,10 @@ local function unregister(name: string)
 	local command = commands[name]
 
 	for name, cmd in commands do
-    	if command == cmd then
-            commands[name] = nil
-    	end
-    end
+		if command == cmd then
+			commands[name] = nil
+		end
+	end
 
 	for _, callback in on_unregister_callbacks do
 		callback(name, command :: types.Command<unknown>)

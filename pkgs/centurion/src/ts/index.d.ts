@@ -116,7 +116,7 @@ export function num_args<T>(arg: T, count: number | "rest"): T[];
 
 export function transform_args(executor: Player, input: string[], args: ArgumentType<unknown>[]): Result<unknown[]>;
 
-export function execute_command(executor: Player, command: string, args: string[]): Response;
+export function execute_command(executor: Player, command: string, args: string[], input?: string): Response;
 
 export function set_network_handler(handler: (command: string, args?: string[]) => ExecutionContext): void;
 

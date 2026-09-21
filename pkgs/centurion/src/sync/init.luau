@@ -271,8 +271,8 @@ local function network_server()
 		server_remotes.SyncState.Fire(player, payload :: any)
 	end)
 
-	server_remotes.Execute.SetCallback(function(player, cmd, args): types.ExecutionContext
-		return command.execute(player, cmd, args)
+	server_remotes.Execute.SetCallback(function(player, cmd, args, input): types.ExecutionContext
+		return command.execute(player, cmd, args, input)
 	end)
 end
 
@@ -280,8 +280,8 @@ local function network_client()
 	local client_remotes = require("@self/network/client")
 	local syncer = client()
 
-	command.set_network_handler(function(cmd, args)
-		return client_remotes.Execute.Call(cmd, args) :: types.ExecutionContext
+	command.set_network_handler(function(cmd, args, input)
+		return client_remotes.Execute.Call(cmd, args, input) :: types.ExecutionContext
 	end)
 
 	client_remotes.SyncState.SetCallback(function(...)

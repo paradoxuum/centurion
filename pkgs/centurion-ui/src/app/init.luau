@@ -272,7 +272,7 @@ local function app()
 			transparency = state.transparency,
 
 			flex():fill("horizontal"):vertical("bottom"):gap(function()
-    			return #state.logs() > 0 and 8 or 0
+				return #state.logs() > 0 and 8 or 0
 			end),
 			corner(px(8)),
 			padding(px(4)),
@@ -427,7 +427,9 @@ local function app()
 						executing_command(cmd)
 						executing(executing() + 1)
 
-						local ok, result = pcall(centurion.execute_command, Players.LocalPlayer, cmd, submitted.args)
+						-- pass the submitted text so that ctx.input keeps its original quoting
+						local ok, result =
+							pcall(centurion.execute_command, Players.LocalPlayer, cmd, submitted.args, value)
 						executing(executing() - 1)
 
 						if not ok then
