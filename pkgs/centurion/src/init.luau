@@ -14,9 +14,13 @@ local types = require("@self/types")
 local vector = require("@self/argument/vector")
 
 export type Argument = types.Argument
+export type ArgumentType<T = unknown> = types.ArgumentType<T>
+export type ArgumentFn<T> = types.ArgumentFn<T>
 export type Command<T...> = types.Command<T...>
 
-export type Result = types.Result
+export type Ok<T = unknown> = types.Ok<T>
+export type Err = types.Err
+export type Result<T = unknown> = types.Result<T>
 export type Context = types.ExecutionContext
 export type Response = types.Response
 

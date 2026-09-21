@@ -50,7 +50,7 @@ export type AnalysisArgument = {
 }
 
 export type AnalysisResult = {
-	result: centurion.Result,
+	result: centurion.Result<unknown>,
 	command: string?,
 	argument: AnalysisArgument?,
 	suggestions: { AnalysisSuggestion },

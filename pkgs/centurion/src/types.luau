@@ -16,19 +16,19 @@ export type Argument = {
 	suggestions: { string }?,
 }
 
-export type SingleArgumentType = {
+export type SingleArgumentType<T = unknown> = {
 	kind: "single",
-	transform: (text: string, executor: Player) -> Result,
+	transform: (text: string, executor: Player) -> Result<T>,
 	suggestions: ((text: string, executor: Player) -> { string })?,
 }
 
-export type ListArgumentType = {
+export type ListArgumentType<T = unknown> = {
 	kind: "list",
-	transform: (text: { string }, executor: Player) -> Result,
+	transform: (text: { string }, executor: Player) -> Result<T>,
 	suggestions: ((text: string, executor: Player) -> { string })?,
 }
 
-export type ArgumentType = SingleArgumentType | ListArgumentType
+export type ArgumentType<T = unknown> = SingleArgumentType<T> | ListArgumentType<T>
 
 export type ArgumentFn<T> = (name: string, description: string?, suggestions: { string }?) -> T
 
@@ -51,17 +51,17 @@ export type Response = {
 	timestamp: number,
 }
 
-export type Ok = {
+export type Ok<T = unknown> = {
 	success: true,
-	value: any,
+	read value: T,
 }
 
 export type Err = {
 	success: false,
-	error: string,
+	read error: string,
 }
 
-export type Result = Ok | Err
+export type Result<T = unknown> = Ok<T> | Err
 
 export type CommandMap = { [string]: Command<unknown> }
 

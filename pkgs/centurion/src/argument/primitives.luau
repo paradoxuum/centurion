@@ -1,4 +1,3 @@
---!nonstrict
 local argument = require("./.")
 local result = require("../result")
 local types = require("../types")
@@ -6,13 +5,13 @@ local types = require("../types")
 local register = argument.register_type
 
 local str = register("string", {
-	transform = function(value: string)
+	transform = function(value: string): types.Result<string>
 		return result.success(value)
 	end,
 })
 
 local number = register("number", {
-	transform = function(value: string)
+	transform = function(value: string): types.Result<number>
 		local num = tonumber(value)
 		if num == nil then
 			return result.error(`Invalid number: {value}`)
@@ -22,7 +21,7 @@ local number = register("number", {
 })
 
 local int = register("integer", {
-	transform = function(value: string)
+	transform = function(value: string): types.Result<number>
 		local num = tonumber(value)
 		if num == nil or math.floor(num) ~= num then
 			return result.error(`Invalid integer: {value}`)
@@ -42,20 +41,18 @@ local bool_dict = {
 }
 
 local bool = register("boolean", {
-	transform = function(value: string): types.Result
+	transform = function(value: string): types.Result<boolean>
 		local bool_val = bool_dict[value:lower()]
 		if bool_val == nil then
-			return result.error(`Invalid boolean: {bool_val}`)
+			return result.error(`Invalid boolean: {value}`)
 		end
 		return result.success(bool_val)
 	end,
 })
 
-type Arg<T> = types.ArgumentFn<T>
-
 return {
-	string = str :: Arg<string>,
-	number = number :: Arg<number>,
-	integer = int :: Arg<number>,
-	boolean = bool :: Arg<boolean>,
+	string = str,
+	number = number,
+	integer = int,
+	boolean = bool,
 }

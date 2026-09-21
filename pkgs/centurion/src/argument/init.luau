@@ -2,22 +2,12 @@ local parse = require("./parse")
 local result = require("./result")
 local types = require("./types")
 
-local arg_types: { [string]: types.ArgumentType } = {}
+local arg_types: { [string]: types.ArgumentType<unknown> } = {}
 
-local function register_type<T>(
-	type_name: string,
-	data: {
-		transform: (text: string, executor: Player) -> types.Result,
-		suggestions: ((text: string, executor: Player) -> { string })?,
-	}
-)
-	arg_types[type_name] = {
-		kind = "single",
-		transform = data.transform,
-		suggestions = data.suggestions,
-	} :: types.ArgumentType
-
-	return function(name: string, description: string?, suggestions: { string }?): T
+-- the declarator returns an `Argument`, but it is typed as the transformed
+-- value so that a command's `arguments()` tuple types its callback parameters
+local function declarator<T>(type_name: string): types.ArgumentFn<T>
+	local function create(name: string, description: string?, suggestions: { string }?): types.Argument
 		return {
 			name = name,
 			description = description,
@@ -25,37 +15,46 @@ local function register_type<T>(
 			optional = false,
 			num_args = 1,
 			suggestions = suggestions,
-		} :: types.Argument
+		}
 	end
+
+	return (create :: any) :: types.ArgumentFn<T>
+end
+
+local function register_type<T>(
+	type_name: string,
+	data: {
+		transform: (text: string, executor: Player) -> types.Result<T>,
+		suggestions: ((text: string, executor: Player) -> { string })?,
+	}
+): types.ArgumentFn<T>
+	arg_types[type_name] = {
+		kind = "single",
+		transform = data.transform,
+		suggestions = data.suggestions,
+	} :: types.SingleArgumentType<T>
+
+	return declarator(type_name)
 end
 
 local function register_list_type<T>(
 	type_name: string,
 	data: {
-		transform: (text: { string }, executor: Player) -> types.Result,
+		transform: (text: { string }, executor: Player) -> types.Result<T>,
 		suggestions: ((text: string, executor: Player) -> { string })?,
 	}
-)
+): types.ArgumentFn<T>
 	arg_types[type_name] = {
 		kind = "list",
 		transform = data.transform,
 		suggestions = data.suggestions,
-	} :: types.ArgumentType
+	} :: types.ListArgumentType<T>
 
-	return function(name: string, description: string?, suggestions: { string }?): T
-		return {
-			name = name,
-			description = description,
-			type = type_name,
-			optional = false,
-			num_args = 1,
-			suggestions = suggestions,
-		} :: types.Argument
-	end
+	return declarator(type_name)
 end
 
 local function enum(values: { string })
-	local transform = function(value: string): types.Result
+	local transform = function(value: string): types.Result<string>
 		if not table.find(values, value) then
 			return result.error(`Invalid value '{value}'. Valid values are: {table.concat(values, ", ")}`)
 		end
@@ -84,7 +83,7 @@ local function optional<T>(argument: T): T | nil
 	return arg
 end
 
-local function transform(executor: Player, input: { string }, args: { types.Argument }): types.Result
+local function transform(executor: Player, input: { string }, args: { types.Argument }): types.Result<{ unknown }>
 	local transformed_args: { unknown } = {}
 
 	local input_index = 1
@@ -120,7 +119,7 @@ local function transform(executor: Player, input: { string }, args: { types.Argu
 				table.insert(parsed_text, token.text)
 			end
 
-			local res: types.Result
+			local res: types.Result<unknown>
 			if arg_type.kind == "single" then
 				res = arg_type.transform(parsed_text[1], executor)
 			else
@@ -139,7 +138,6 @@ local function transform(executor: Player, input: { string }, args: { types.Argu
 				`Expected {n_args} {n_args == 1 and "value" or "values"} for '{arg.name}', got {#arg_inputs}`
 			)
 		end
-
 
 		if n_args == 1 then
 			transformed_args[i] = values[1]

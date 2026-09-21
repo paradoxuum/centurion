@@ -231,7 +231,7 @@ local function analyse(text: string, cursor_pos: number, max_suggestions: number
 			table.insert(matches, 1, cmd_name)
 		end
 
-		local result: centurion.Result
+		local result: centurion.Result<unknown>
 		if cmd_name then
 			result = {
 				success = true,
@@ -264,7 +264,7 @@ local function analyse(text: string, cursor_pos: number, max_suggestions: number
 		} :: types.AnalysisResult
 	end
 
-	local analysis_result: centurion.Result
+	local analysis_result: centurion.Result<unknown>
 
 	local arg_result = process_arg()
 	local cmd_result = process_command()

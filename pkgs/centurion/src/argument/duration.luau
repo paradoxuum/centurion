@@ -20,7 +20,7 @@ unit(DAY_SECONDS * (YEAR_DAYS / 12), { "mo", "month", "months" })
 unit(DAY_SECONDS * YEAR_DAYS, { "y", "yr", "year", "years" })
 
 local duration = argument.register_type("duration", {
-	transform = function(value: string): types.Result
+	transform = function(value: string): types.Result<number>
 		if value == "0" then
 			return result.success(0)
 		end
@@ -50,4 +50,4 @@ local duration = argument.register_type("duration", {
 	end,
 })
 
-return duration :: types.ArgumentFn<number>
+return duration

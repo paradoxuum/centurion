@@ -1,4 +1,3 @@
---!nonstrict
 local Players = game:GetService("Players")
 
 local argument = require("./.")
@@ -20,7 +19,7 @@ local function get_player(name: string, executor: Player): Player?
 
 	local player = Players:FindFirstChild(name)
 	if player then
-		return player
+		return player :: Player
 	end
 
 	for _, p in Players:GetPlayers() do
@@ -33,7 +32,7 @@ local function get_player(name: string, executor: Player): Player?
 end
 
 local player = register("player", {
-	transform = function(value: string, executor: Player): types.Result
+	transform = function(value: string, executor: Player): types.Result<Player>
 		local plr = get_player(value, executor)
 		if plr == nil then
 			return result.error(`Player '{value}' not found.`)
@@ -50,7 +49,7 @@ local player = register("player", {
 })
 
 local players_type = argument.register_list_type("players", {
-	transform = function(input: { string }, executor: Player): types.Result
+	transform = function(input: { string }, executor: Player): types.Result<{ Player }>
 		local player_map = {}
 		for _, text in input do
 			local text_lower = text:lower()
@@ -97,6 +96,6 @@ local players_type = argument.register_list_type("players", {
 })
 
 return {
-	player = player :: types.ArgumentFn<Player>,
-	players = players_type :: types.ArgumentFn<{ Player }>,
+	player = player,
+	players = players_type,
 }
