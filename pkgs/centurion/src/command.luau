@@ -113,8 +113,48 @@ local function execute(executor: Player, name: string, args: { string }?, input:
 	return ctx
 end
 
+local function check_arity(name: string, callback: (...any) -> any, declared: number, offset: number)
+	local nparams, is_vararg = debug.info(callback, "a")
+
+	if is_vararg or nparams == 0 then
+    	return
+	end
+
+	local takes = (nparams :: number) - offset
+	if takes ~= declared then
+	    warn(`Command '{name}' declares {declared} {declared == 1 and "argument" or "arguments"} but its callback takes {takes}.`)
+    end
+end
+
+local function validate_command(name: string, command: types.Command<unknown>)
+	local args: { types.Argument } = command.arguments and { command.arguments() } :: { types.Argument } or {}
+
+	local optional_found = false
+	for i, arg in args do
+		assert(argument.types[arg.type], `Argument type '{arg.type}' for argument '{arg.name}' is not registered.`)
+
+		if arg.optional then
+			optional_found = true
+		elseif optional_found then
+			error(`Required argument '{arg.name}' cannot follow an optional argument.`)
+		end
+
+		if arg.num_args == "rest" and i ~= #args then
+			error(`Argument '{arg.name}' is declared as 'rest' but is not the last argument.`)
+		end
+	end
+
+	-- a command synced from the server has no callback on the client, since it
+	-- executes over the network handler instead
+	if command.callback then
+		check_arity(name, command.callback :: any, #args, 1)
+	end
+end
+
 local function register<T...>(name: string | { string }, command: types.Command<T...>)
 	local names: { string } = typeof(name) == "string" and { name } or (name :: { string })
+
+	validate_command(names[1], command :: types.Command<unknown>)
 
 	for _, name in names do
 		assert(commands[name] == nil, "Command with name '" .. name .. "' is already registered.")
@@ -175,4 +215,5 @@ return {
 	on_unregister = on_unregister,
 	on_execute = on_execute,
 	commands = commands,
+	validate_arity = check_arity,
 }

@@ -1,4 +1,5 @@
 local centurion = require(script.Parent)
+local command = require(script.Parent.command)
 local types = require("./types")
 
 local CLASS_MARKER = {}
@@ -130,6 +131,9 @@ local function register_classes(constructor)
 			end
 
 			local args = cmd.arguments
+
+			command.validate_arity((cmd_name :: { string })[1], (instance :: any)[key], args and #args() or 0, 2)
+
 			centurion.register_command(
 				cmd_name,
 				{
