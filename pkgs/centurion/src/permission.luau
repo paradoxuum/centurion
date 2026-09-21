@@ -82,10 +82,22 @@ local function remove_roles(player: Player, ...: string)
 	set_roles(player, new_roles)
 end
 
+local function resolve_permissions(role: types.PermissionRole): { [string]: boolean }
+	local granted = table.clone(role.permissions)
+	for _, other_role in roles do
+		if other_role.priority < role.priority then
+			for permission in other_role.permissions do
+				granted[permission] = true
+			end
+		end
+	end
+	return granted
+end
+
 local function can_execute(player: Player, command: types.Command<unknown>): boolean
-    if not RunService:IsRunning() then
-        return true
-    end
+	if not RunService:IsRunning() then
+		return true
+	end
 
 	local user_roles = players[player.UserId]
 	if not user_roles then
@@ -101,7 +113,7 @@ local function can_execute(player: Player, command: types.Command<unknown>): boo
 			local role = roles[role_name]
 			for _, user_role_name in user_roles do
 				local user_role = roles[user_role_name]
-				if user_role and role and user_role.priority <= role.priority then
+				if user_role and role and user_role.priority >= role.priority then
 					return true
 				end
 			end
@@ -115,28 +127,11 @@ local function can_execute(player: Player, command: types.Command<unknown>): boo
 				continue
 			end
 
-			local role_perms = role.permissions
-			for _, other_role in roles do
-				if other_role.priority < role.priority then
-					for perm, _ in other_role.permissions do
-						role_perms[perm] = true
-					end
-				end
-			end
-
-			local permission_count = 0
-			local permissions_met = 0
+			local granted = resolve_permissions(role)
 			for _, permission in command.permissions do
-				permission_count += 1
-
-				if role_perms[permission] then
-					permissions_met += 1
+				if granted[permission] then
 					return true
 				end
-			end
-
-			if permission_count == permissions_met then
-				return true
 			end
 		end
 	end
@@ -153,14 +148,14 @@ local function set_permission_options(options: PermissionOptions)
 		opts.default_roles = options.default_roles
 
 		if player_added_connection then
-		    player_added_connection:Disconnect()
-            player_added_connection = nil
-        end
+			player_added_connection:Disconnect()
+			player_added_connection = nil
+		end
 
 		if #options.default_roles > 0 then
-    		for _, player in Players:GetPlayers() do
-                add_roles(player, unpack(options.default_roles))
-            end
+			for _, player in Players:GetPlayers() do
+				add_roles(player, unpack(options.default_roles))
+			end
 
 			player_added_connection = Players.PlayerAdded:Connect(function(player)
 				add_roles(player, unpack(options.default_roles))
@@ -182,8 +177,8 @@ local function on_roles_changed(player: Player, callback: (roles: { string }) ->
 	return function()
 		table.remove(changed_callbacks[player.UserId], table.find(changed_callbacks[player.UserId], callback))
 		if #changed_callbacks[player.UserId] == 0 then
-            changed_callbacks[player.UserId] = nil
-        end
+			changed_callbacks[player.UserId] = nil
+		end
 	end
 end
 
