@@ -49,6 +49,7 @@ funct Execute = {
 	args: (
 		Command: string.binary,
 		Args: string.binary[]?,
+		Input: string.binary?,
 	),
 	rets: ExecutionContext,
 }
