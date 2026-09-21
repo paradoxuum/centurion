@@ -215,5 +215,5 @@ return {
 	on_unregister = on_unregister,
 	on_execute = on_execute,
 	commands = commands,
-	validate_arity = check_arity,
+	check_arity = check_arity,
 }
