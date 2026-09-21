@@ -132,7 +132,7 @@ local function register_classes(constructor)
 
 			local args = cmd.arguments
 
-			command.validate_arity((cmd_name :: { string })[1], (instance :: any)[key], args and #args() or 0, 2)
+			command.check_arity((cmd_name :: { string })[1], (instance :: any)[key], args and #args() or 0, 2)
 
 			centurion.register_command(
 				cmd_name,
