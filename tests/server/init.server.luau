@@ -96,11 +96,11 @@ centurion.register_command("roles add", {
 	description = "Add a role to a player",
 	arguments = function()
 		return centurion.args.player("player", "The player to add a role to"),
-			centurion.num_args(centurion.args.string("role", "The role to add"), "rest")
+			centurion.rest(centurion.args.string("role", "The role to add"))
 	end,
-	callback = function(ctx: centurion.Context, player: Player, ...: string)
-		centurion.add_roles(player, unpack(...))
-		ctx.reply("Added roles " .. table.concat(..., ",") .. " to " .. player.Name)
+	callback = function(ctx: centurion.Context, player: Player, roles: { string })
+		centurion.add_roles(player, unpack(roles))
+		ctx.reply("Added roles " .. table.concat(roles, ",") .. " to " .. player.Name)
 	end,
 })
 
@@ -108,10 +108,10 @@ centurion.register_command("roles remove", {
 	description = "Remove a role from a player",
 	arguments = function()
 		return centurion.args.player("player", "The player to remove a role from"),
-			centurion.num_args(centurion.args.string("role", "The role to remove"), "rest")
+			centurion.rest(centurion.args.string("role", "The role to remove"))
 	end,
-	callback = function(ctx: centurion.Context, player: Player, ...: string)
-		centurion.remove_roles(player, unpack(...))
-		ctx.reply("Removed roles " .. table.concat(..., ",") .. " from " .. player.Name)
+	callback = function(ctx: centurion.Context, player: Player, roles: { string })
+		centurion.remove_roles(player, unpack(roles))
+		ctx.reply("Removed roles " .. table.concat(roles, ",") .. " from " .. player.Name)
 	end,
 })

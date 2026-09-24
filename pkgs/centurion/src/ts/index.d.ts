@@ -112,7 +112,9 @@ export function create_enum<T>(name: string, values: string[]): Omit<SingleArgum
 
 export function optional<T>(arg: T): T | undefined;
 
-export function num_args<T>(arg: T, count: number | "rest"): T[];
+export function num_args<T>(arg: T, count: number): T[];
+
+export function rest<T>(arg: T): T[];
 
 export function transform_args(executor: Player, input: string[], args: ArgumentType<unknown>[]): Result<unknown[]>;
 

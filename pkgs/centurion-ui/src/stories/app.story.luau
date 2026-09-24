@@ -40,7 +40,7 @@ return story({}, function()
 	cmd("echo", {
 		description = "Prints the input back to the console",
 		arguments = function()
-			return centurion.num_args(centurion.args.string("input", nil), "rest")
+			return centurion.rest(centurion.args.string("input", nil))
 		end,
 		callback = function(ctx, text)
 			ctx.reply(table.concat(text, " "))
@@ -50,7 +50,7 @@ return story({}, function()
 	cmd("wait", {
         description = "Waits for a specified amount of time",
         arguments = function()
-            return centurion.num_args(centurion.args.number("time", "Time to wait in seconds"), 1)
+            return centurion.args.number("time", "Time to wait in seconds")
         end,
         callback = function(ctx, time)
             task.wait(time)

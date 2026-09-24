@@ -13,7 +13,6 @@ local function declarator<T>(type_name: string): types.ArgumentFn<T>
 			description = description,
 			type = type_name,
 			optional = false,
-			num_args = 1,
 			suggestions = suggestions,
 		}
 	end
@@ -71,14 +70,23 @@ local function enum(values: { string })
 	}
 end
 
-local function num_args<T>(argument: T, num: number | "rest"): { T }
-	local arg = argument :: types.Argument
+-- `num_args` and `rest` are typed as `{ T }` so the callback receives an array.
+-- that holds at runtime because any argument with `num_args` set, even to 1, is
+-- passed as an array; only arguments without it are passed as a single value
+local function num_args<T>(argument: T, num: number): { T }
+	local arg = table.clone(argument :: types.Argument)
 	arg.num_args = num
 	return arg :: { T }
 end
 
+local function rest<T>(argument: T): { T }
+	local arg = table.clone(argument :: types.Argument)
+	arg.num_args = "rest"
+	return arg :: { T }
+end
+
 local function optional<T>(argument: T): T | nil
-	local arg = argument :: types.Argument
+	local arg = table.clone(argument :: types.Argument)
 	arg.optional = true
 	return arg
 end
@@ -139,7 +147,7 @@ local function transform(executor: Player, input: { string }, args: { types.Argu
 			)
 		end
 
-		if n_args == 1 then
+		if arg.num_args == nil then
 			transformed_args[i] = values[1]
 		else
 			transformed_args[i] = values
@@ -164,6 +172,7 @@ return {
 	enum = enum,
 	optional = optional,
 	num_args = num_args,
+	rest = rest,
 	transform = transform,
 	types = arg_types,
 }

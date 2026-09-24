@@ -139,8 +139,13 @@ local function validate_command(name: string, command: types.Command<unknown>)
 			error(`Required argument '{arg.name}' cannot follow an optional argument.`)
 		end
 
-		if arg.num_args == "rest" and i ~= #args then
-			error(`Argument '{arg.name}' is declared as 'rest' but is not the last argument.`)
+		local n = arg.num_args
+		if n == "rest" then
+			if i ~= #args then
+				error(`Argument '{arg.name}' is declared as 'rest' but is not the last argument.`)
+			end
+		elseif n ~= nil and (type(n) ~= "number" or n < 1 or n % 1 ~= 0) then
+			error(`Argument '{arg.name}' has an invalid num_args: {n}. Expected a whole number of at least 1.`)
 		end
 	end
 

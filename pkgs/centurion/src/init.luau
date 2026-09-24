@@ -6,6 +6,7 @@ local guard = require("@self/guard")
 local parse = require("@self/parse")
 local permission = require("@self/permission")
 local resolve = require("@self/resolve")
+local result = require("@self/result")
 local player = require("@self/argument/player")
 local primitives = require("@self/argument/primitives")
 local sync = require("@self/sync")
@@ -39,6 +40,7 @@ return {
 	create_enum = argument.enum,
 	optional = argument.optional,
 	num_args = argument.num_args,
+	rest = argument.rest,
 	transform_args = argument.transform,
 
 	execute_command = command.execute,
@@ -55,6 +57,11 @@ return {
 
 	parse_text = parse,
 	resolve_command = resolve,
+
+	result = {
+	    ok = result.success,
+	    err = result.error,
+	},
 
 	registry = {
 		commands = command.commands,
