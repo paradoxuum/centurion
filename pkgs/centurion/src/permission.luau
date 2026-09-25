@@ -175,8 +175,17 @@ local function on_roles_changed(player: Player, callback: (roles: { string }) ->
 	table.insert(changed_callbacks[player.UserId], callback)
 
 	return function()
-		table.remove(changed_callbacks[player.UserId], table.find(changed_callbacks[player.UserId], callback))
-		if #changed_callbacks[player.UserId] == 0 then
+		local callbacks = changed_callbacks[player.UserId]
+		if not callbacks then
+			return
+		end
+
+		local index = table.find(callbacks, callback)
+		if index then
+			table.remove(callbacks, index)
+		end
+
+		if #callbacks == 0 then
 			changed_callbacks[player.UserId] = nil
 		end
 	end
