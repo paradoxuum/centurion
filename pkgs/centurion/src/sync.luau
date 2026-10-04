@@ -175,12 +175,42 @@ local function server()
 		end
 	end
 
+	local function add_player(player: Player): PlayerState
+		local existing = players[player]
+		if existing then
+			return existing
+		end
+
+		local state: PlayerState
+		state = {
+			visible = {},
+			hydrated = false,
+			dirty = false,
+			disconnect = permission.on_roles_changed(player, function()
+				state.dirty = true
+			end),
+		}
+		players[player] = state
+		return state
+	end
+
+	local function remove_player(player: Player)
+		local state = players[player]
+		if state then
+			state.disconnect()
+			players[player] = nil
+		end
+	end
+
 	local function hydrate(player: Player)
 		assert(send, "connect() must be called before hydrate()")
 
 		local state = players[player]
 		if not state then
-			return
+			if player.Parent ~= Players then
+				return
+			end
+			state = add_player(player)
 		end
 
 		state.hydrated = true
@@ -207,31 +237,6 @@ local function server()
 	local function connect(callback: SyncCallback)
 		send = callback
 		registry = table.clone(command.commands)
-
-		local function remove_player(player: Player)
-			local state = players[player]
-			if state then
-				state.disconnect()
-				players[player] = nil
-			end
-		end
-
-		local function add_player(player: Player)
-			if players[player] then
-				return
-			end
-
-			local state: PlayerState
-			state = {
-				visible = {},
-				hydrated = false,
-				dirty = false,
-				disconnect = permission.on_roles_changed(player, function()
-					state.dirty = true
-				end),
-			}
-			players[player] = state
-		end
 
 		local disconnect_register = command.on_register(function()
 			registry_dirty = true
@@ -318,7 +323,9 @@ local function server()
 			end
 		end)
 
-		local player_added = Players.PlayerAdded:Connect(add_player)
+		local player_added = Players.PlayerAdded:Connect(function(player)
+			add_player(player)
+		end)
 		local player_removing = Players.PlayerRemoving:Connect(remove_player)
 
 		for _, player in Players:GetPlayers() do
