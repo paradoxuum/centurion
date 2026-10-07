@@ -1,7 +1,6 @@
-local Players = game:GetService("Players")
-
 local argument = require("./.")
 local result = require("../result")
+local services = require("../services")
 local types = require("../types")
 
 local register = argument.register_type
@@ -13,16 +12,16 @@ local function get_player(name: string, executor: Player): Player?
 	end
 
 	if name_lower == "@random" or name_lower == "?" then
-		local players = Players:GetPlayers()
+		local players = services.Players:GetPlayers()
 		return players[math.random(1, #players)]
 	end
 
-	local player = Players:FindFirstChild(name)
+	local player = services.Players:FindFirstChild(name)
 	if player then
 		return player :: Player
 	end
 
-	for _, p in Players:GetPlayers() do
+	for _, p in services.Players:GetPlayers() do
 		if p.Name:lower() == name_lower then
 			return p
 		end
@@ -41,7 +40,7 @@ local player = register("player", {
 	end,
 	suggestions = function(_value: string, _executor: Player): { string }
 		local suggestions = { "@me", "@random" }
-		for _, p in Players:GetPlayers() do
+		for _, p in services.Players:GetPlayers() do
 			table.insert(suggestions, p.Name)
 		end
 		return suggestions
@@ -54,11 +53,11 @@ local players_type = argument.register_list_type("players", {
 		for _, text in input do
 			local text_lower = text:lower()
 			if text_lower == "@all" then
-				return result.success(Players:GetPlayers())
+				return result.success(services.Players:GetPlayers())
 			end
 
 			if text_lower == "@others" then
-				for _, p in Players:GetPlayers() do
+				for _, p in services.Players:GetPlayers() do
 					if p ~= executor then
 						player_map[p] = true
 					end
@@ -67,7 +66,7 @@ local players_type = argument.register_list_type("players", {
 			end
 
 			if text_lower == "@random" then
-				local players = Players:GetPlayers()
+				local players = services.Players:GetPlayers()
 				local random_player = players[math.random(1, #players)]
 				player_map[random_player] = true
 				continue
@@ -88,7 +87,7 @@ local players_type = argument.register_list_type("players", {
 	end,
 	suggestions = function(_value: string, _executor: Player): { string }
 		local suggestions: { string } = { "@me", "@random", "@all", "@others" }
-		for _, p in Players:GetPlayers() do
+		for _, p in services.Players:GetPlayers() do
 			table.insert(suggestions, p.Name)
 		end
 		return suggestions

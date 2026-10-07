@@ -4,10 +4,11 @@
 # New tools can be added by running `rokit add <tool>` in a terminal.
 
 [tools]
-rojo = "rojo-rbx/rojo@7.7.0"
+rojo = "rojo-rbx/rojo@7.7.1"
 wally = "UpliftGames/wally@0.3.2"
 zap = "red-blox/zap@0.6.29"
 StyLua = "JohnnyMorganz/StyLua@2.5.2"
 lune = "lune-org/lune@0.10.5"
-wally-package-types = "JohnnyMorganz/wally-package-types@1.6.2"
-selene = "Kampfkarren/selene@0.31.0"
+wally-package-types = "JohnnyMorganz/wally-package-types@1.7.0"
+selene = "Kampfkarren/selene@0.32.0"
+luau = "luau-lang/luau@0.741.0"

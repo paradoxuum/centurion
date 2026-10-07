@@ -1,8 +1,6 @@
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-
 local command = require("./command")
 local permission = require("./permission")
+local services = require("./services")
 local types = require("./types")
 
 type CommandState = {
@@ -207,7 +205,7 @@ local function server()
 
 		local state = players[player]
 		if not state then
-			if player.Parent ~= Players then
+			if player.Parent ~= services.Players then
 				return
 			end
 			state = add_player(player)
@@ -250,7 +248,7 @@ local function server()
 			options_dirty = true
 		end)
 
-		local heartbeat = RunService.Heartbeat:Connect(function()
+		local heartbeat = services.RunService.Heartbeat:Connect(function()
 			-- the registry is diffed once, and each player then only rechecks
 			-- the keys that changed. a player whose roles changed, or everyone
 			-- when the permission options change, is rechecked in full
@@ -323,12 +321,12 @@ local function server()
 			end
 		end)
 
-		local player_added = Players.PlayerAdded:Connect(function(player)
+		local player_added = services.Players.PlayerAdded:Connect(function(player)
 			add_player(player)
 		end)
-		local player_removing = Players.PlayerRemoving:Connect(remove_player)
+		local player_removing = services.Players.PlayerRemoving:Connect(remove_player)
 
-		for _, player in Players:GetPlayers() do
+		for _, player in services.Players:GetPlayers() do
 			add_player(player)
 		end
 
@@ -386,7 +384,7 @@ local function network_client()
 end
 
 local function setup_networking()
-	if RunService:IsServer() then
+	if services.RunService:IsServer() then
 		network_server()
 	else
 		network_client()

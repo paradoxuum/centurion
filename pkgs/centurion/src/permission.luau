@@ -1,6 +1,4 @@
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-
+local services = require("./services")
 local types = require("./types")
 
 type PermissionOptions = {
@@ -17,6 +15,20 @@ local changed_callbacks: { [number]: { (roles: { string }) -> () } } = {}
 local options_callbacks: { (options: PermissionOptions) -> () } = {}
 
 local player_added_connection: RBXScriptConnection?
+local player_removing_connection: RBXScriptConnection?
+
+-- per-player state is cleared when they leave. this is connected on first use
+-- rather than at load so that requiring this module never touches the datamodel
+local function track_players()
+	if player_removing_connection then
+		return
+	end
+
+	player_removing_connection = services.Players.PlayerRemoving:Connect(function(player)
+		players[player.UserId] = nil
+		changed_callbacks[player.UserId] = nil
+	end)
+end
 
 local function create_role(name: string, priority: number, permissions: { string }?)
 	local permission_set = {}
@@ -44,6 +56,7 @@ local function set_roles(player: Player, role_names: { string })
 			error("Role '" .. role_name .. "' does not exist.")
 		end
 	end
+	track_players()
 	players[player.UserId] = role_names
 
 	local callbacks = changed_callbacks[player.UserId]
@@ -95,7 +108,7 @@ local function resolve_permissions(role: types.PermissionRole): { [string]: bool
 end
 
 local function can_execute(player: Player, command: types.Command<unknown>): boolean
-	if not RunService:IsRunning() then
+	if not services.RunService:IsRunning() then
 		return true
 	end
 
@@ -153,11 +166,11 @@ local function set_permission_options(options: PermissionOptions)
 		end
 
 		if #options.default_roles > 0 then
-			for _, player in Players:GetPlayers() do
+			for _, player in services.Players:GetPlayers() do
 				add_roles(player, unpack(options.default_roles))
 			end
 
-			player_added_connection = Players.PlayerAdded:Connect(function(player)
+			player_added_connection = services.Players.PlayerAdded:Connect(function(player)
 				add_roles(player, unpack(options.default_roles))
 			end)
 		end
@@ -169,6 +182,8 @@ local function set_permission_options(options: PermissionOptions)
 end
 
 local function on_roles_changed(player: Player, callback: (roles: { string }) -> ())
+	track_players()
+
 	if not changed_callbacks[player.UserId] then
 		changed_callbacks[player.UserId] = {}
 	end
@@ -197,11 +212,6 @@ local function on_options_changed(callback: (options: PermissionOptions) -> ())
 		table.remove(options_callbacks, table.find(options_callbacks, callback))
 	end
 end
-
-Players.PlayerRemoving:Connect(function(player)
-	players[player.UserId] = nil
-	changed_callbacks[player.UserId] = nil
-end)
 
 return {
 	create_role = create_role,
