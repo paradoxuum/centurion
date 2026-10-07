@@ -1,5 +1,5 @@
-local command = require("./command")
 local parse = require("./parse")
+local types = require("./types")
 
 export type Resolution = {
 	-- the resolved command, or nil if the input doesn't name one
@@ -21,7 +21,7 @@ export type Resolution = {
 	A quoted token is literal text and can never form part of a
 	name, so `roles "get"` resolves to `roles` with `get` as its argument.
 ]]
-local function resolve(text: string): Resolution
+local function resolve(commands: types.CommandMap, text: string): Resolution
 	local parse_result = parse(text, " ")
 	local tokens = parse_result.tokens
 
@@ -37,7 +37,7 @@ local function resolve(text: string): Resolution
 		table.insert(candidate, token.text)
 
 		local candidate_name = table.concat(candidate, " ")
-		if command.commands[candidate_name] then
+		if commands[candidate_name] then
 			name = candidate_name
 			name_end = i
 		end

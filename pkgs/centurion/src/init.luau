@@ -56,7 +56,9 @@ return {
 	set_permission_options = permission.set_permission_options,
 
 	parse_text = parse,
-	resolve_command = resolve,
+	resolve_command = function(text: string): resolve.Resolution
+		return resolve(command.commands, text)
+	end,
 
 	result = {
 	    ok = result.success,
