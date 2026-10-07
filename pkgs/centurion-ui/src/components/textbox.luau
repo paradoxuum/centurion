@@ -3,7 +3,6 @@ local state = require("../state")
 local theme = require("../theme")
 local types = require("../types")
 local vide = require("../../vide")
-local text = require("./text")
 
 local create = vide.create
 local changed = vide.changed

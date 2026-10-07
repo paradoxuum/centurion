@@ -117,13 +117,15 @@ local function check_arity(name: string, callback: (...any) -> any, declared: nu
 	local nparams, is_vararg = debug.info(callback, "a")
 
 	if is_vararg or nparams == 0 then
-    	return
+		return
 	end
 
 	local takes = (nparams :: number) - offset
 	if takes ~= declared then
-	    warn(`Command '{name}' declares {declared} {declared == 1 and "argument" or "arguments"} but its callback takes {takes}.`)
-    end
+		warn(
+			`Command '{name}' declares {declared} {declared == 1 and "argument" or "arguments"} but its callback takes {takes}.`
+		)
+	end
 end
 
 local function validate_command(name: string, command: types.Command<unknown>)
@@ -161,9 +163,9 @@ local function register<T...>(name: string | { string }, command: types.Command<
 
 	validate_command(names[1], command :: types.Command<unknown>)
 
-	for _, name in names do
-		assert(commands[name] == nil, "Command with name '" .. name .. "' is already registered.")
-		commands[name] = command :: any
+	for _, v in names do
+		assert(commands[v] == nil, "Command with name '" .. v .. "' is already registered.")
+		commands[v] = command :: any
 	end
 
 	for _, callback in on_register_callbacks do
@@ -176,9 +178,9 @@ local function unregister(name: string)
 
 	local command = commands[name]
 
-	for name, cmd in commands do
-		if command == cmd then
-			commands[name] = nil
+	for k, v in commands do
+		if command == v then
+			commands[k] = nil
 		end
 	end
 

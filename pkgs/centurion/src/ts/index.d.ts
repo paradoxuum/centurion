@@ -69,6 +69,25 @@ export type ArgumentType<T> = SingleArgumentType<T> | ListArgumentType<T>;
 
 export type ArgumentFn<T> = (name: string, description?: string, suggestions?: string[]) => T;
 
+export interface Token {
+	span: vector;
+	text: string;
+	quoted: boolean;
+}
+
+export interface ParseResult {
+	tokens: Token[];
+	unclosed_quote: boolean;
+}
+
+export interface Resolution {
+	name?: string;
+	name_end: number;
+	args: string[];
+	tokens: Token[];
+	unclosed_quote: boolean;
+}
+
 export function Command(options: {
 	name?: string | string[];
 	description?: string;
@@ -102,13 +121,15 @@ export function register_command<const T extends unknown[]>(
 
 export function register_guard(name: string, guard: GuardCallback): void;
 
+export function register_global_guard(...guards: GuardCallback[]): void;
+
 export function register_type<T>(name: string, argumentFn: Omit<SingleArgumentType<T>, "kind">): ArgumentFn<T>;
 
 export function register_list_type<T>(name: string, argumentFn: Omit<ListArgumentType<T>, "kind">): ArgumentFn<T>;
 
 export function unregister_command(name: string): void;
 
-export function create_enum<T>(name: string, values: string[]): Omit<SingleArgumentType<T>, "kind">;
+export function create_enum(values: string[]): Omit<SingleArgumentType<string>, "kind">;
 
 export function optional<T>(arg: T): T | undefined;
 
@@ -116,11 +137,13 @@ export function num_args<T>(arg: T, count: number): T[];
 
 export function rest<T>(arg: T): T[];
 
-export function transform_args(executor: Player, input: string[], args: ArgumentType<unknown>[]): Result<unknown[]>;
+export function transform_args(executor: Player, input: string[], args: Argument[]): Result<unknown[]>;
 
-export function execute_command(executor: Player, command: string, args: string[], input?: string): Response;
+export function execute_command(executor: Player, command: string, args?: string[], input?: string): ExecutionContext;
 
-export function set_network_handler(handler: (command: string, args?: string[]) => ExecutionContext): void;
+export function set_network_handler(
+	handler: (command: string, args?: string[], input?: string) => ExecutionContext,
+): void;
 
 export function create_role(name: string, priority: number, permissions?: string[]): void;
 
@@ -134,7 +157,18 @@ export function get_roles(player: Player): string[];
 
 export function can_execute(player: Player, command: CommandData<unknown[]>): boolean;
 
+export function set_permission_options(options: { hide?: boolean; default_roles?: string[] }): void;
+
 export function setup_networking(): void;
+
+export function parse_text(text: string, split_char: string): ParseResult;
+
+export function resolve_command(text: string): Resolution;
+
+export const result: {
+	ok: <T>(value: T) => Ok<T>;
+	err: (message: string) => Err;
+};
 
 export const registry: {
 	commands: Record<string, CommandData<unknown[]>>;
@@ -153,6 +187,7 @@ export const args: {
 	players: ArgumentFn<Player[]>;
 	brick_color: ArgumentFn<BrickColor>;
 	hex_color: ArgumentFn<Color3>;
+	rgb_color: ArgumentFn<Color3>;
 	team: ArgumentFn<Team>;
 	duration: ArgumentFn<number>;
 	vector2: ArgumentFn<Vector2>;
@@ -160,8 +195,8 @@ export const args: {
 };
 
 export const events: {
-	on_command_register: (name: string, command: CommandData<unknown[]>) => () => void;
-	on_command_unregister: (name: string, command: CommandData<unknown[]>) => () => void;
-	on_command_execute: (ctx: ExecutionContext) => () => void;
-	on_roles_changed: (player: Player, roles: string[]) => () => void;
+	on_command_register: (callback: (name: string, command: CommandData<unknown[]>) => void) => () => void;
+	on_command_unregister: (callback: (name: string, command: CommandData<unknown[]>) => void) => () => void;
+	on_command_execute: (callback: (ctx: ExecutionContext) => void) => () => void;
+	on_roles_changed: (player: Player, callback: (roles: string[]) => void) => () => void;
 };

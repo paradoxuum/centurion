@@ -38,7 +38,9 @@ export namespace CenturionUI {
 
 	export function configure(options: Partial<Options>): void;
 
-	export function register_commands(): void;
+	export function register_commands(options?: { exclude?: string[]; prefix?: string }): void;
+
+	export function clear(): void;
 
 	export const themes: {
 		frappe: Theme;

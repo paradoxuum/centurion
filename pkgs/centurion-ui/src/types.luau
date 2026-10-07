@@ -23,6 +23,24 @@ export type Options = {
 	position: UDim2,
 }
 
+export type OptionsPartial = {
+	hide_on_lost_focus: boolean?,
+	activation_keys: { Enum.KeyCode }?,
+	theme: Theme?,
+	font: Font?,
+	icon: string?,
+	transparency: number?,
+	format_date: (log: Log) -> string?,
+	max_suggestions: number?,
+
+	text_size: number?,
+	subtext_size: number?,
+
+	anchor: Vector2?,
+	width: UDim?,
+	position: UDim2?,
+}
+
 export type Theme = {
 	background: Color3,
 	surface: Color3,

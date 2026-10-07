@@ -81,7 +81,7 @@ local function history(props: History)
 		end),
 
 		indexes(state.logs, function(value: () -> types.Log, i: number)
-			local hovered = source(false)
+			local log_hovered = source(false)
 
 			-- 1 = hidden, 0 = shown
 			local enter = spring(function()
@@ -126,10 +126,10 @@ local function history(props: History)
 						props.on_select(value().command)
 					end,
 					MouseEnter = function()
-						hovered(true)
+						log_hovered(true)
 					end,
 					MouseLeave = function()
-						hovered(false)
+						log_hovered(false)
 					end,
 
 					flex():fill("horizontal"):vertical("center"):gap(8):column(),
@@ -182,7 +182,7 @@ local function history(props: History)
 							return value().command
 						end,
 						text_style = function()
-							return if hovered() then "highlight" else "normal"
+							return if log_hovered() then "highlight" else "normal"
 						end,
 						weight = Enum.FontWeight.Bold,
 						xalignment = Enum.TextXAlignment.Left,

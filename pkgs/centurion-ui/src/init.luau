@@ -35,11 +35,13 @@ local function set_opt<T>(source: () -> T, value: T?)
 	source(value)
 end
 
-local function configure(options: unknown)
+local function configure(options: types.OptionsPartial)
 	set_opt(state.hide_on_lost_focus, options.hide_on_lost_focus)
 	set_opt(state.activation_keys, options.activation_keys)
 	set_opt(state.theme, options.theme)
 	set_opt(state.icon, options.icon)
+	set_opt(state.font, options.font)
+	set_opt(state.transparency, options.transparency)
 
 	set_opt(state.text_size, options.text_size)
 	set_opt(state.subtext_size, options.subtext_size)
@@ -55,22 +57,22 @@ local function configure(options: unknown)
 end
 
 local function clear()
-    state.logs({})
+	state.logs({})
 end
 
 local function register_commands(options: { exclude: { string }?, prefix: string? }?)
-    options = options or {}
+	options = options or {}
 
 	local cmd = function<T...>(name: string, cmd_data: centurion.Command<T...>)
-	    if options.exclude and table.find(options.exclude, name) then
-            return
-        end
+		if options.exclude and table.find(options.exclude, name) then
+			return
+		end
 
-    	local cmd_name  = name
-    	if options.prefix then
-            cmd_name = options.prefix .. " " .. cmd_name
-        end
-    	centurion.register_command(cmd_name, cmd_data)
+		local cmd_name = name
+		if options.prefix then
+			cmd_name = options.prefix .. " " .. cmd_name
+		end
+		centurion.register_command(cmd_name, cmd_data)
 	end
 
 	cmd("clear", {

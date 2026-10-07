@@ -81,8 +81,8 @@ local players_type = argument.register_list_type("players", {
 		end
 
 		local players = {}
-		for player, _ in player_map do
-			table.insert(players, player)
+		for p, _ in player_map do
+			table.insert(players, p)
 		end
 		return result.success(players)
 	end,

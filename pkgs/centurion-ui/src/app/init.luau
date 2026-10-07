@@ -342,12 +342,12 @@ local function app()
 				text {
 					size = UDim2.fromScale(1, 1),
 					text = function()
-						local suggestions = analysis().suggestions
-						if #suggestions == 0 then
+						local analysis_suggestions = analysis().suggestions
+						if #analysis_suggestions == 0 then
 							return ""
 						end
 
-						local selected = suggestions[selected_suggestion()]
+						local selected = analysis_suggestions[selected_suggestion()]
 						local suggested = autofill(raw_text(), selected.span, selected.replace, false)
 						if suggested:sub(1, #raw_text()) ~= raw_text() then
 							return ""
