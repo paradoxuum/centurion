@@ -67,14 +67,18 @@ arguments: () => [args.player("target"), args.string("message")],
 | `args.string` | `string` | Pass-through |
 | `args.number` | `number` | Accepts any numeric value |
 | `args.integer` | `number` | Must be a whole number |
-| `args.boolean` | `boolean` | Accepts `true/false`, `yes/no`, `y/n` |
-| `args.player` | `Player` | Accepts `@me`, `.`, `@random`, `?`, or a player name |
+| `args.boolean` | `boolean` | Accepts `true/false`, `yes/no`, `y/n` (case-insensitive) |
+| `args.player` | `Player` | Accepts `@me`, `.`, `@random`, `?`, or a player name (case-insensitive) |
 | `args.players` | `Player[]` | Comma-separated; also accepts `@all`, `@others`, `@random` |
-| `args.brick_color` | `BrickColor` | Roblox BrickColor names |
-| `args.hex_color` | `Color3` | Hex color string (e.g. `#ff0000`) |
+| `args.brick_color` | `BrickColor` | Roblox BrickColor names (case-insensitive) |
+| `args.hex_color` | `Color3` | Six-digit hex color, with or without `#` (e.g. `#ff0000`) |
+| `args.rgb_color` | `Color3` | Three comma-separated components from 0 to 255 (e.g. `255,0,0`) |
 | `args.team` | `Team` | Team name from `game.Teams` |
 | `args.duration` | `number` | Duration string → seconds (e.g. `1h30m`) |
-| `args.vector` | `vector` | Two or three space-separated numbers |
+| `args.vector2` | `Vector2` | Two comma-separated numbers (e.g. `10,20`) |
+| `args.vector3` | `vector` | Three comma-separated numbers (e.g. `0,10,0`) |
+
+`players`, `rgb_color`, `vector2` and `vector3` are list types: their components are separated by commas, not spaces, so the whole value is a single argument.
 
 ### Duration Format
 
@@ -87,12 +91,16 @@ The `duration` type accepts compound duration strings:
 | Hours | `h`, `hr`, `hour`, `hours` |
 | Days | `d`, `day`, `days` |
 | Weeks | `w`, `wk`, `week`, `weeks` |
+| Months | `mo`, `month`, `months` (365.25 / 12 days) |
+| Years | `y`, `yr`, `year`, `years` (365.25 days) |
 
-Example: `1h30m` → `5400` seconds, `2d12h` → `216000` seconds.
+Example: `1h30m` → `5400` seconds, `2d12h` → `216000` seconds. A bare `0` is accepted as zero seconds.
 
 ## Optional Arguments
 
-Wrap an argument with `optional` to make it not required. Optional arguments must come last.
+Wrap an argument with `optional` to make it not required. Optional arguments must come last: registering a command with a required argument after an optional one errors.
+
+Input that has more values than the command's arguments accept is rejected (`Expected at most 2 arguments, got 3`) rather than passed to the last argument. Use `rest` if an argument should take all remaining input.
 
 <CodeBlockTabs groupId="lang" defaultValue="luau" persist>
   <CodeBlockTabsList>
@@ -133,7 +141,7 @@ register_command("kick", {
 
 ## List Arguments
 
-Use `num_args` to accept a fixed number of values, or `"rest"` to consume all remaining input.
+Use `num_args` to accept a fixed number of values, or `rest` to consume all remaining input.
 
 <CodeBlockTabs groupId="lang" defaultValue="luau" persist>
   <CodeBlockTabsList>
@@ -146,23 +154,23 @@ Use `num_args` to accept a fixed number of values, or `"rest"` to consume all re
 centurion.num_args(centurion.args.number("value"), 3)
 
 -- accept all remaining words as tags
-centurion.num_args(centurion.args.string("tag"), "rest")
+centurion.rest(centurion.args.string("tag"))
 ```
   </CodeBlockTab>
   <CodeBlockTab value="ts">
 ```ts
-import { num_args, args } from "@rbxts/centurion";
+import { num_args, rest, args } from "@rbxts/centurion";
 
 // accept exactly 3 numbers
 num_args(args.number("value"), 3)
 
 // accept all remaining words as tags
-num_args(args.string("tag"), "rest")
+rest(args.string("tag"))
 ```
   </CodeBlockTab>
 </CodeBlockTabs>
 
-The callback receives the list as an array.
+The callback receives the values as an array, including when `num_args` is 1.
 
 <CodeBlockTabs groupId="lang" defaultValue="luau" persist>
   <CodeBlockTabsList>
@@ -174,7 +182,7 @@ The callback receives the list as an array.
 centurion.register_command("roles add", {
     arguments = function()
         return centurion.args.player("player"),
-            centurion.num_args(centurion.args.string("role"), "rest")
+            centurion.rest(centurion.args.string("role"))
     end,
     callback = function(ctx, player, roles)
         centurion.add_roles(player, table.unpack(roles))
@@ -185,10 +193,10 @@ centurion.register_command("roles add", {
   </CodeBlockTab>
   <CodeBlockTab value="ts">
 ```ts
-import { register_command, args, num_args, add_roles } from "@rbxts/centurion";
+import { register_command, args, rest, add_roles } from "@rbxts/centurion";
 
 register_command("roles add", {
-    arguments: () => [args.player("player"), num_args(args.string("role"), "rest")],
+    arguments: () => [args.player("player"), rest(args.string("role"))],
     callback: (ctx, player, roles) => {
         add_roles(player, ...roles);
         ctx.reply(`Added ${roles.size()} role(s) to ${player.Name}`);
@@ -241,6 +249,7 @@ register_command("set_difficulty", {
 ## Custom Types
 
 Register a custom argument type with `register_type`. The `transform` function receives the raw string and the executing player, and returns a `Result`.
+In Luau, `centurion.result.ok(value)` and `centurion.result.err(message)` build these for you.
 
 <CodeBlockTabs groupId="lang" defaultValue="luau" persist>
   <CodeBlockTabsList>

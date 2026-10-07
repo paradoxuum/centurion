@@ -6,6 +6,7 @@ icon: Lock
 
 Centurion uses a role-based permission system. Roles have a priority level and an optional set of named permissions.
 A player can be assigned multiple roles, and command access is determined by whether the player's highest-priority role satisfies the command's requirements.
+Higher priority numbers outrank lower ones.
 
 ## Creating Roles
 
@@ -39,6 +40,8 @@ create_role("admin", 100); // inherits all permissions from lower roles
 Commands can require a specific **role** (by minimum priority) or a specific **permission** (by name).
 Either restriction can be used independently or together.
 
+Both lists are **any-of**: the player needs one of the listed roles or one of the listed permissions, not all of them. A command listing both passes if either check succeeds.
+
 ### By Role
 
 <CodeBlockTabs groupId="lang" defaultValue="luau" persist>
@@ -70,7 +73,7 @@ register_command("shutdown", {
   </CodeBlockTab>
 </CodeBlockTabs>
 
-A player passes the role check if any of their assigned roles has a priority **less than or equal to** the required role's priority.
+A player passes the role check if any of their assigned roles has a priority **greater than or equal to** the required role's priority.
 This means a higher-priority role satisfies any lower-priority role requirement.
 
 ### By Permission
@@ -157,7 +160,8 @@ print(roles.join(", "));
 
 ## Default Roles
 
-Assign roles automatically when a player joins using `set_permission_options`.
+Assign roles automatically when a player joins using `set_permission_options`. Players already in the game when it's called are given
+the roles too.
 
 <CodeBlockTabs groupId="lang" defaultValue="luau" persist>
   <CodeBlockTabsList>
@@ -186,6 +190,9 @@ set_permission_options({
 
 By default (`hide = true`), commands that a player cannot execute are hidden silently - no error is shown.
 Set `hide` to false if you want to display an explicit "no permission" error instead.
+
+With the built-in networking, `hide` also controls which commands are synced to each client: a hidden command never reaches the client
+at all, and is synced or removed as the player's roles change.
 
 <CodeBlockTabs groupId="lang" defaultValue="luau" persist>
   <CodeBlockTabsList>

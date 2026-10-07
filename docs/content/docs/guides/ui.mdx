@@ -71,6 +71,7 @@ CenturionUI.configure({
 | `hide_on_lost_focus` | `boolean` | Close the terminal when clicking outside of it |
 | `activation_keys` | `KeyCode[]` | Keys used to open or close the terminal |
 | `theme` | `Theme` | The terminal's color theme |
+| `icon` | `string` | Asset ID of the icon shown in the terminal |
 | `text_size` | `number` | Primary text size |
 | `subtext_size` | `number` | Secondary text size (command/argument descriptions) |
 | `max_suggestions` | `number` | Maximum number of autocomplete entries shown (default: 5) |
@@ -104,8 +105,17 @@ This registers:
 
 | Command | Description |
 | --- | --- |
-| `centurion clear` | Clears the command log history |
-| `centurion theme <name>` | Switches to a built-in theme |
+| `clear` | Clears the command log history |
+| `theme <name>` | Switches to a built-in theme |
+
+Pass `exclude` to skip some of them, or `prefix` to group them under a name so they don't collide with your own commands:
+
+```lua
+centurion_ui.register_commands({
+    prefix = "centurion", -- registers "centurion clear"
+    exclude = { "theme" }, -- skips "theme"
+})
+```
 
 ## Themes
 

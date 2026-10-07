@@ -25,6 +25,7 @@ centurion_ui.configure(options: {
     hide_on_lost_focus: boolean?,
     activation_keys:    { Enum.KeyCode }?,
     theme:              Theme?,
+    icon:               string?,
     text_size:          number?,
     subtext_size:       number?,
     max_suggestions:    number?,
@@ -39,15 +40,16 @@ Updates UI configuration. All fields are optional, omitted fields keep their cur
 
 | Option | Default | Description |
 | --- | --- | --- |
-| `hide_on_lost_focus` | `false` | Close the terminal when clicking outside the textbox. |
+| `hide_on_lost_focus` | `true` | Close the terminal when clicking outside the textbox. |
 | `activation_keys` | *(set by `mount`)* | Keys that toggle the terminal open/closed. |
 | `theme` | `themes.mocha` | Color theme. |
-| `text_size` | `14` | Primary text size. |
-| `subtext_size` | `13` | Secondary text size for descriptions and hints. |
+| `icon` | *(Centurion logo)* | Asset ID of the icon shown in the terminal. |
+| `text_size` | `28` | Primary text size, in scaled pixels. |
+| `subtext_size` | `24` | Secondary text size for descriptions and hints, in scaled pixels. |
 | `max_suggestions` | `5` | Maximum number of autocomplete entries shown. |
-| `anchor` | `Vector2.new(0.5, 1)` | Anchor point of the terminal frame. |
-| `position` | `UDim2.fromScale(0.5, 0.95)` | Position of the terminal frame. |
-| `width` | `UDim.new(0.5, 0)` | Width of the terminal frame. |
+| `anchor` | `Vector2.zero` | Anchor point of the terminal frame. |
+| `position` | `UDim2.new()` | Position of the terminal frame. |
+| `width` | `UDim.new(1, 0)` | Width of the terminal frame. |
 | `format_date` | *(built-in)* | Custom timestamp formatter for log entries. Receives a `Log` and must return a string. |
 
 ---
@@ -55,15 +57,33 @@ Updates UI configuration. All fields are optional, omitted fields keep their cur
 ### `register_commands`
 
 ```lua
-centurion_ui.register_commands()
+centurion_ui.register_commands(options: {
+    exclude: { string }?,
+    prefix:  string?,
+}?)
 ```
 
-Registers built-in terminal commands.
+Registers built-in terminal commands. Call it on the client.
 
 | Command | Description |
 | --- | --- |
-| `centurion clear` | Clears the command log history. |
-| `centurion theme <name>` | Switches to a built-in theme. |
+| `clear` | Clears the command log history. |
+| `theme <name>` | Switches to a built-in theme. |
+
+| Option | Description |
+| --- | --- |
+| `exclude` | Names of built-in commands to skip, e.g. `{ "theme" }`. |
+| `prefix` | Prepended to each command name with a space, e.g. `prefix = "centurion"` registers `centurion clear`. |
+
+---
+
+### `clear`
+
+```lua
+centurion_ui.clear()
+```
+
+Clears the command log history.
 
 ---
 

@@ -1,0 +1,184 @@
+---
+title: Common Patterns
+description: Practical patterns for building commands with Centurion.
+icon: Layers
+---
+
+## Moderation Commands
+
+Kick, warn, and ban commands typically share the same shape: a required target and an optional reason.
+Define optional arguments after required ones using `optional`.
+
+<CodeBlockTabs groupId="lang" defaultValue="luau" persist>
+  <CodeBlockTabsList>
+    <CodeBlockTabsTrigger value="luau">Luau</CodeBlockTabsTrigger>
+    <CodeBlockTabsTrigger value="ts">TypeScript</CodeBlockTabsTrigger>
+  </CodeBlockTabsList>
+  <CodeBlockTab value="luau">
+```lua
+centurion.register_command("kick", {
+    description = "Kick a player from the server",
+    roles = { "moderator" },
+    arguments = function()
+        return centurion.args.player("target"),
+            centurion.optional(centurion.args.string("reason", "Reason for kick"))
+    end,
+    callback = function(ctx, target, reason)
+        target:Kick(reason or "You were kicked.")
+        ctx.reply("Kicked " .. target.Name)
+    end,
+})
+
+centurion.register_command("ban", {
+    description = "Ban a player for a duration",
+    roles = { "moderator" },
+    arguments = function()
+        return centurion.args.player("target"),
+            centurion.args.duration("duration", "How long to ban"),
+            centurion.optional(centurion.args.string("reason", "Reason for ban"))
+    end,
+    callback = function(ctx, target, duration, reason)
+        -- apply ban with expiry = os.time() + duration
+        ctx.reply(string.format("Banned %s for %ds", target.Name, duration))
+    end,
+})
+```
+  </CodeBlockTab>
+  <CodeBlockTab value="ts">
+```ts
+import { register_command, args, optional } from "@rbxts/centurion";
+
+register_command("kick", {
+    description: "Kick a player from the server",
+    roles: ["moderator"],
+    arguments: () => [
+        args.player("target"),
+        optional(args.string("reason", "Reason for kick")),
+    ],
+    callback: (ctx, target, reason) => {
+        target.Kick(reason ?? "You were kicked.");
+        ctx.reply(`Kicked ${target.Name}`);
+    },
+});
+
+register_command("ban", {
+    description: "Ban a player for a duration",
+    roles: ["moderator"],
+    arguments: () => [
+        args.player("target"),
+        args.duration("duration", "How long to ban"),
+        optional(args.string("reason", "Reason for ban")),
+    ],
+    callback: (ctx, target, duration, reason) => {
+        // apply ban with expiry = os.time() + duration
+        ctx.reply(`Banned ${target.Name} for ${duration}s`);
+    },
+});
+```
+  </CodeBlockTab>
+</CodeBlockTabs>
+
+## Commands with Guards and Roles
+
+Use `roles` to restrict a command to specific roles, and `guards` for runtime checks that go beyond role membership — for example, checking that the executor is not targeting themselves.
+
+<CodeBlockTabs groupId="lang" defaultValue="luau" persist>
+  <CodeBlockTabsList>
+    <CodeBlockTabsTrigger value="luau">Luau</CodeBlockTabsTrigger>
+    <CodeBlockTabsTrigger value="ts">TypeScript</CodeBlockTabsTrigger>
+  </CodeBlockTabsList>
+  <CodeBlockTab value="luau">
+```lua
+centurion.register_guard("not-self", function(ctx)
+    -- guard receives ctx but not the parsed args
+    -- check the raw argument tokens instead
+    local target_name = ctx.arguments[1]
+    if target_name == nil then return true end
+    if target_name == "@me" or target_name == "." then
+        ctx.error("You cannot target yourself")
+        return false
+    end
+    return true
+end)
+
+centurion.register_command("kick", {
+    roles = { "moderator" },
+    guards = { "not-self" },
+    arguments = function()
+        return centurion.args.player("target"),
+            centurion.optional(centurion.args.string("reason"))
+    end,
+    callback = function(ctx, target, reason)
+        target:Kick(reason or "You were kicked.")
+        ctx.reply("Kicked " .. target.Name)
+    end,
+})
+```
+  </CodeBlockTab>
+  <CodeBlockTab value="ts">
+```ts
+import { register_guard, register_command, args, optional } from "@rbxts/centurion";
+
+register_guard("not-self", (ctx) => {
+    const targetName = ctx.arguments[0];
+    if (targetName === undefined) return true;
+    if (targetName === "@me" || targetName === ".") {
+        ctx.error("You cannot target yourself");
+        return false;
+    }
+    return true;
+});
+
+register_command("kick", {
+    roles: ["moderator"],
+    guards: ["not-self"],
+    arguments: () => [
+        args.player("target"),
+        optional(args.string("reason")),
+    ],
+    callback: (ctx, target, reason) => {
+        target.Kick(reason ?? "You were kicked.");
+        ctx.reply(`Kicked ${target.Name}`);
+    },
+});
+```
+  </CodeBlockTab>
+</CodeBlockTabs>
+
+## Grouped Commands from a Single Class (TypeScript)
+
+When you have many related commands, group them into a class. Class-level decorators apply to all methods.
+
+```ts
+import { Command, Group, Role, Guard, register_classes, args, optional } from "@rbxts/centurion";
+import type { ExecutionContext } from "@rbxts/centurion";
+
+@Group("mod")
+@Role("moderator")
+class ModerationCommands {
+    @Command({ description: "Kick a player", arguments: () => [args.player("target"), optional(args.string("reason"))] })
+    kick(ctx: ExecutionContext, target: Player, reason?: string) {
+        target.Kick(reason ?? "You were kicked.");
+        ctx.reply(`Kicked ${target.Name}`);
+    }
+
+    @Command({ description: "Warn a player", arguments: () => [args.player("target"), args.string("reason")] })
+    warn(ctx: ExecutionContext, target: Player, reason: string) {
+        // send warning...
+        ctx.reply(`Warned ${target.Name}: ${reason}`);
+    }
+
+    @Command({ description: "Announce a message to all players", arguments: () => [args.string("message")] })
+    @Role("admin")
+    announce(ctx: ExecutionContext, message: string) {
+        // broadcast...
+        ctx.reply("Announced: " + message);
+    }
+}
+
+register_classes();
+```
+
+<Callout>
+The `@Role` on `announce` overrides the class-level `@Role("moderator")` for that method only, restricting it to admins.
+</Callout>

@@ -1,4 +1,4 @@
 {
   "title": "Guides",
-  "pages": ["commands", "arguments", "guards", "permissions", "ui"]
+  "pages": ["commands", "arguments", "guards", "permissions", "ui", "patterns", "migration", "flamework"]
 }

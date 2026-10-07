@@ -1,0 +1,79 @@
+---
+title: Flamework Integration
+description: Using Centurion with Flamework's dependency injection system.
+icon: Puzzle
+---
+
+Centurion's class-based registration integrates with [Flamework](https://flamework.fireboltofdeath.dev/) so command classes
+can receive injected dependencies through their constructors.
+
+## Loading command modules
+
+You can use `Flamework.addPaths` to load your command modules before registering them.
+
+```ts
+import { Flamework } from "@flamework/core";
+
+Flamework.addPaths("src/server/commands");
+```
+
+## Registering with dependency injection
+
+`register_classes` accepts an optional constructor callback. When provided, it is called with the class constructor
+and must return an instance. Pass `Modding.createDependency` here so Flamework resolves each command class's constructor
+dependencies automatically.
+
+```ts
+import { Flamework, Modding } from "@flamework/core";
+import { setup_networking, register_classes } from "@rbxts/centurion";
+
+Flamework.addPaths("src/server/commands");
+
+setup_networking();
+register_classes((ctor) => Modding.createDependency(ctor));
+
+Flamework.ignite();
+```
+
+## Writing command classes
+
+Constructor parameters are injected by Flamework. Declare your services as constructor arguments and use them in your command methods.
+
+```ts
+import { Command, Group, Role, args } from "@rbxts/centurion";
+import type { ExecutionContext } from "@rbxts/centurion";
+import type { DataService } from "server/services/DataService";
+import type { ModerationService } from "server/services/ModerationService";
+
+@Group("admin")
+@Role("admin")
+class AdminCommands {
+    constructor(
+        private readonly data: DataService,
+        private readonly moderation: ModerationService,
+    ) {}
+
+    @Command({
+        description: "Set a player's coin balance",
+        arguments: () => [args.player("target"), args.integer("amount")],
+    })
+    setCoins(ctx: ExecutionContext, target: Player, amount: number) {
+        this.data.set(target, "coins", amount);
+        ctx.reply(`Set ${target.Name}'s coins to ${amount}`);
+    }
+
+    @Command({
+        description: "Kick a player",
+        arguments: () => [args.player("target"), optional(args.string("reason"))],
+    })
+    kick(ctx: ExecutionContext, target: Player, reason?: string) {
+        this.moderation.kick(target, reason);
+        ctx.reply(`Kicked ${target.Name}`);
+    }
+}
+```
+
+<Callout>
+`register_classes` must be called **after** `Flamework.addPaths` so that the decorator metadata has been collected,
+and **before** `Flamework.ignite` if your services are instantiated there.
+</Callout>

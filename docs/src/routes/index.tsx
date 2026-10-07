@@ -1,19 +1,18 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { HomeLayout } from "fumadocs-ui/layouts/home";
-import { baseOptions } from "@/lib/layout.shared";
-import { Dithering, GrainGradient } from "@paper-design/shaders-react";
-import { useEffect, useState } from "react";
-import { motion } from "motion/react";
-import { ArrowRight } from "lucide-react";
-import { NavbarMenu, NavbarMenuTrigger } from "fumadocs-ui/layouts/home/navbar";
-import { useTheme } from "next-themes";
+import { createFileRoute, Link } from '@tanstack/react-router';
+import { HomeLayout } from 'fumadocs-ui/layouts/home';
+import { baseOptions } from '@/lib/layout.shared';
+import { useEffect, useState } from 'react';
+import { useTheme } from 'fumadocs-ui/provider/base';
+import { Dithering, GrainGradient } from '@paper-design/shaders-react'
+import { motion } from 'motion/react';
+import { ArrowRight } from 'lucide-react';
 
-export const Route = createFileRoute("/")({
-	component: Home,
+export const Route = createFileRoute('/')({
+  component: Home,
 });
 
 function Home() {
-	const [showShaders, setShowShaders] = useState(false);
+  const [showShaders, setShowShaders] = useState(false);
 
 	useEffect(() => {
 		// apply some delay, otherwise on slower devices, it errors with uniform images not being fully loaded.
@@ -22,30 +21,28 @@ function Home() {
 		}, 400);
 	}, []);
 
-	return (
-		<HomeLayout
-			{...baseOptions()}
-			links={[
-				{
-					type: "custom",
-					on: "nav",
-					children: (
-						<NavbarMenu>
-							<NavbarMenuTrigger>
-								<Link to="/docs/$">Documentation</Link>
-							</NavbarMenuTrigger>
-						</NavbarMenu>
-					),
-				},
-			]}
-		>
-			<main className="flex flex-col">
+  return (
+    <HomeLayout {...baseOptions()}>
+      {/*<div className="flex flex-col items-center justify-center text-center flex-1">
+        <h1 className="font-medium text-xl mb-4">Fumadocs on Tanstack Start.</h1>
+        <Link
+          to="/docs/$"
+          params={{
+            _splat: '',
+          }}
+          className="px-3 py-2 rounded-lg bg-fd-primary text-fd-primary-foreground font-medium text-sm mx-auto"
+        >
+          Open Docs
+        </Link>
+      </div>*/}
+
+      <main className="flex flex-col">
 				<Hero showShaders={showShaders} />
 				<Features showShaders={showShaders} />
 				<CodePreview showShaders={showShaders} />
 			</main>
-		</HomeLayout>
-	);
+    </HomeLayout>
+  );
 }
 
 function Hero({ showShaders }: { showShaders: boolean }) {

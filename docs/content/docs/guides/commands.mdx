@@ -63,6 +63,51 @@ register_command("ping", {
   </CodeBlockTab>
 </CodeBlockTabs>
 
+### Aliases
+
+Pass an array of names to register the same command under several names.
+
+<CodeBlockTabs groupId="lang" defaultValue="luau" persist>
+  <CodeBlockTabsList>
+    <CodeBlockTabsTrigger value="luau">Luau</CodeBlockTabsTrigger>
+    <CodeBlockTabsTrigger value="ts">TypeScript</CodeBlockTabsTrigger>
+  </CodeBlockTabsList>
+  <CodeBlockTab value="luau">
+```lua
+centurion.register_command({ "teleport", "tp" }, {
+    arguments = function()
+        return centurion.args.player("target")
+    end,
+    callback = function(ctx, target)
+        -- ...
+    end,
+})
+```
+  </CodeBlockTab>
+  <CodeBlockTab value="ts">
+```ts
+register_command(["teleport", "tp"], {
+    arguments: () => [args.player("target")],
+    callback: (ctx, target) => {
+        // ...
+    },
+});
+```
+  </CodeBlockTab>
+</CodeBlockTabs>
+
+### Validation
+
+Commands are checked when they're registered rather than when a player first runs them. `register_command` errors if:
+
+- a name is already registered
+- an argument uses a type that hasn't been registered
+- a required argument comes after an optional one
+- a `rest` argument isn't the last argument
+- a `num_args` count isn't a whole number of at least 1
+
+It also warns if the callback takes a different number of arguments (after `ctx`) than `arguments` declares.
+
 ## Execution Context
 
 Every callback receives an `ExecutionContext` as its first argument.
@@ -71,7 +116,7 @@ Every callback receives an `ExecutionContext` as its first argument.
 | --- | --- | --- |
 | `executor` | `Player` | The player who ran the command |
 | `command` | `string` | The command name |
-| `input` | `string` | The full raw input string |
+| `input` | `string` | The raw input string, quoting intact |
 | `arguments` | `string[]` | The raw argument tokens |
 | `response` | `Response?` | Set after `reply` or `error` is called |
 
@@ -147,6 +192,11 @@ register_command("roles add", {
 
 ## Class-Based Registration (TypeScript)
 
+<Callout type="warn">
+Type safety for arguments is lost when using class-based registration. If you want to maintain type safety,
+use the functional API instead.
+</Callout>
+
 For those using TypeScript and classes, commands can be defined using decorated classes.
 
 A typical pattern would be requiring all command modules in a folder, then calling `register_classes()`.
@@ -184,6 +234,8 @@ Decorators available on classes and methods:
 | `@Permission(...perms)` | Class or Method | Restricts commands by permission name |
 
 ## Unregistering a Command
+
+Unregistering a command removes it under every alias it was registered with.
 
 <CodeBlockTabs groupId="lang" defaultValue="luau" persist>
   <CodeBlockTabsList>
@@ -239,6 +291,6 @@ disconnect();
 
 | Event | Arguments | Fires when |
 | --- | --- | --- |
-| `on_command_register` | `name, command` | A command is added to the registry |
+| `on_command_register` | `name, command` | A command is added to the registry. Fires once per `register_command` call, with the first name. |
 | `on_command_unregister` | `name, command` | A command is removed from the registry |
-| `on_command_execute` | `ctx` | A command finishes executing |
+| `on_command_execute` | `ctx` | A command's callback runs successfully. Doesn't fire if a permission check, guard, argument or the callback fails. |

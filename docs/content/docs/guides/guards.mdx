@@ -144,12 +144,8 @@ register_command("action", {
 
 ## Global Guards
 
-Global guards run before every command. Register them with `register_guard` and then apply globally using the registry directly, or use the
-internal guard module.
-
-<Callout type="info">
-Global guards are currently registered by pushing directly to `centurion.registry.global_guards`. They run before per-command guards.
-</Callout>
+Global guards run before every command, ahead of any per-command guards. Register them with `register_global_guard`, which accepts one or
+more guard functions.
 
 <CodeBlockTabs groupId="lang" defaultValue="luau" persist>
   <CodeBlockTabsList>
@@ -158,8 +154,7 @@ Global guards are currently registered by pushing directly to `centurion.registr
   </CodeBlockTabsList>
   <CodeBlockTab value="luau">
 ```lua
--- runs before every command
-table.insert(centurion.registry.global_guards, function(ctx)
+centurion.register_global_guard(function(ctx)
     if ctx.executor:GetAttribute("Banned") then
         ctx.error("You are banned from using commands.")
         return false
@@ -170,10 +165,10 @@ end)
   </CodeBlockTab>
   <CodeBlockTab value="ts">
 ```ts
-import { registry } from "@rbxts/centurion";
+import { register_global_guard } from "@rbxts/centurion";
 import type { ExecutionContext } from "@rbxts/centurion";
 
-registry.global_guards.push((ctx: ExecutionContext) => {
+register_global_guard((ctx: ExecutionContext) => {
     if (ctx.executor.GetAttribute("Banned")) {
         ctx.error("You are banned from using commands.");
         return false;
@@ -226,3 +221,8 @@ register_classes();
 3. Command callback
 
 If any guard returns `false` or throws, execution stops and no further guards or the callback are called.
+
+A guard that returns `false` should call `ctx.error` to tell the player why; otherwise the command fails silently. A guard that throws
+is logged with `warn` on the machine running it, and the player sees `Failed to execute command.`
+
+Guards run after the permission check and before arguments are transformed, so `ctx.arguments` holds the raw argument strings.

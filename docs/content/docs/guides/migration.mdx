@@ -1,0 +1,232 @@
+---
+title: Migrating from 1.x
+description: How to update your roblox-ts code from Centurion 1.x to 2.x.
+icon: GitMerge
+---
+
+2.x is a full rewrite that adds native Luau support with a reworked API and a built-in permissions system.
+This guide covers every breaking change and how to update your code.
+
+## Updating Centurion
+
+```bash
+npm install @rbxts/centurion @rbxts/centurion-ui
+```
+
+## Initialization
+
+`Centurion.server()` and `Centurion.client()` have been removed. Call `setup_networking()` on both sides instead.
+
+```ts
+// Before
+const server = Centurion.server();
+server.registry.load(script.Parent.commands);
+await server.start();
+
+// After
+import { setup_networking, register_classes } from "@rbxts/centurion";
+setup_networking();
+// require your command modules first, then:
+register_classes();
+```
+
+On the client, `CenturionUI` no longer needs to be passed a 'client' instance. Just call `mount()` with activation keys.
+The UI can also be mounted at any point (e.g. before `setup_networking`, if needed).
+
+```ts
+// Before
+import { CenturionClient } from "@rbxts/centurion";
+import { CenturionUI } from "@rbxts/centurion-ui";
+
+const client = new CenturionClient();
+await client.start();
+CenturionUI.start(client);
+
+// After
+import { setup_networking } from "@rbxts/centurion";
+import { CenturionUI } from "@rbxts/centurion-ui";
+
+setup_networking();
+CenturionUI.mount([Enum.KeyCode.F2]);
+CenturionUI.configure({});
+CenturionUI.register_commands();
+```
+
+## Commands
+
+<Callout type="info">
+There is a [new API](../guides/commands) for defining commands in 2.x. The decorator-based API will continue to be supported, but the new API provides
+type safety for arguments and is more intuitive for those not using classes elsewhere in their project.
+</Callout>
+
+### `@Register` removed
+
+The `@Register` decorator has been removed. Require your command modules to load them, then call `register_classes()` once to register everything.
+
+```ts
+// Before
+@Register()
+class AdminCommands { ... }
+
+// After — no @Register; just remove it and call register_classes() at startup
+@Group("admin")
+class AdminCommands { ... }
+```
+
+### `CommandContext` → `ExecutionContext`
+
+The context type is now `ExecutionContext`. The `text` field (raw input string) is renamed to `input`.
+
+| 1.x | 2.x |
+| --- | --- |
+| `ctx.text` | `ctx.input` |
+| `ctx.executor` | `ctx.executor` |
+| `ctx.reply(msg)` | `ctx.reply(msg)` |
+| `ctx.error(msg)` | `ctx.error(msg)` |
+
+### Shortcuts removed
+
+The `shortcuts` command option was removed and has no equivalent in 2.x - this was done to keep the API and code simple. You can implement shortcuts
+through UserInputService (or another suitable API) and the `execute_command` function.
+
+## Arguments
+
+Arguments are no longer defined as plain objects with string type names. In 2.x, each argument is created by calling a factory function directly.
+
+### Before and after
+
+```ts
+// Before
+arguments: [
+    { name: "target", description: "The player", type: CenturionType.Player },
+    { name: "reason", description: "Reason", type: CenturionType.String, optional: true },
+]
+
+// After
+arguments: () => [
+    args.player("target", "The player"),
+    optional(args.string("reason", "Reason")),
+]
+```
+
+### Type name mapping
+
+| 1.x (`CenturionType`) | 2.x (`args`) |
+| --- | --- |
+| `CenturionType.String` | `args.string` |
+| `CenturionType.Number` | `args.number` |
+| `CenturionType.Integer` | `args.integer` |
+| `CenturionType.Boolean` | `args.boolean` |
+| `CenturionType.Player` | `args.player` |
+| `CenturionType.Players` | `args.players` |
+| `CenturionType.BrickColor` | `args.brick_color` |
+| `CenturionType.HexColor` | `args.hex_color` |
+| `CenturionType.Team` | `args.team` |
+| `CenturionType.Duration` | `args.duration` |
+
+`args.vector2`, `args.vector3` and `args.rgb_color` are new in 2.x.
+
+### `numArgs` and `optional` are now wrapper functions
+
+In 1.x, `numArgs` and `optional` were fields on the argument object. In 2.x, they are wrapper functions imported from the package. `numArgs: n` becomes `num_args(arg, n)`, and `numArgs: "rest"` becomes `rest(arg)`.
+
+```ts
+// Before
+{ name: "tags", type: CenturionType.String, numArgs: "rest" }
+{ name: "reason", type: CenturionType.String, optional: true }
+
+// After
+import { rest, optional, args } from "@rbxts/centurion";
+
+rest(args.string("tags"))
+optional(args.string("reason"))
+```
+
+## Custom Types
+
+The `ArgumentType` interface has been redesigned. The `transform` function now returns a plain `Result` object
+instead of using `TransformResult`.
+
+The `expensive` property and the functionality behind it (disabling UI type-checking) has been removed. This was a relatively niche feature and doesn't
+fit well with the new API and separation between core and UI packages. The UI should handle types with expensive transform functions better, though it's
+still recommended to avoid this where possible.
+
+```ts
+// Before
+import { SingleArgumentType, TransformResult } from "@rbxts/centurion";
+
+const myType: SingleArgumentType<number> = {
+    kind: "single",
+    name: "positive-int",
+    expensive: false,
+    transform: (text) => {
+        const n = tonumber(text);
+        return n !== undefined ? TransformResult.ok(n) : TransformResult.err("Not a number");
+    },
+};
+registry.registerType(myType);
+
+// After
+import { register_type } from "@rbxts/centurion";
+
+const myType = register_type<number>("positive-int", {
+    transform: (text) => {
+        const n = tonumber(text);
+        return n !== undefined
+            ? { success: true, value: n }
+            : { success: false, error: "Not a number" };
+    },
+});
+```
+
+`register_type` returns an argument factory function you use directly in `arguments`.
+
+## Guards
+
+Named guards are now registered with `register_guard`.
+In 1.x, global guards were passed through a config option; in 2.x, they are registered through `register_global_guard`.
+
+The guard signature is unchanged — a function that receives `ExecutionContext` and returns `boolean`.
+
+```ts
+// Before — global guards in config
+const server = Centurion.server({
+    guards: [(ctx) => ctx.executor.HasAppearanceLoaded()],
+});
+
+// After
+import { register_guard, register_global_guard, registry } from "@rbxts/centurion";
+
+register_guard("admin-only", (ctx) => isAdmin(ctx.executor));
+register_global_guard((ctx) => {
+  print("Guard check:", ctx.input);
+  return true;
+});
+```
+
+Reference named guards in commands or decorators by their registered name:
+
+```ts
+@Guard("admin-only")
+kick(ctx: ExecutionContext, target: Player) { ... }
+```
+
+## Permissions
+
+1.x had no built-in permissions system. 2.x introduces roles with priority levels and named permissions.
+See the [Permissions guide](/docs/guides/permissions) for details.
+
+## Command Discovery
+
+In 1.x, `registry.load(container)` automatically required all ModuleScripts in a folder.
+2.x has no automatic discovery — require your command modules explicitly, then call `register_classes()`.
+
+```ts
+// Before
+server.registry.load(script.Parent.commands);
+
+// After
+import "./commands/admin";
+import "./commands/moderation";
+register_classes();
+```
