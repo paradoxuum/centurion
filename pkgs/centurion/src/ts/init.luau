@@ -41,8 +41,8 @@ end
 local function collect_metadata(key: string, class_data: { [any]: { any } }, cmd_data: any?)
 	local data = table.clone(cmd_data or {}) :: { any }
 	if class_data[CLASS_MARKER] then
-		for _, v in class_data[CLASS_MARKER] do
-			table.insert(data, 1, v)
+		for i, v in class_data[CLASS_MARKER] do
+			table.insert(data, i, v)
 		end
 	end
 
@@ -111,7 +111,7 @@ local function register_classes(constructor)
 		local class_group = class_metadata.groups[CLASS_MARKER]
 
 		for key, cmd in class_metadata.commands do
-			local cmd_groups = class_group or {}
+			local cmd_groups = if class_group then table.clone(class_group) else {}
 			if class_metadata.groups[key] then
 				for _, group in class_metadata.groups[key] do
 					table.insert(cmd_groups, group)
@@ -121,6 +121,8 @@ local function register_classes(constructor)
 			local cmd_name = cmd.name or key
 			if type(cmd_name) == "string" then
 				cmd_name = { cmd_name }
+			else
+				cmd_name = table.clone(cmd_name)
 			end
 
 			if #cmd_groups > 0 then
@@ -158,8 +160,10 @@ local function register_command<T...>(name: string, command_object: types.Comman
 	local cmd = table.clone(command_object)
 
 	local args = cmd.arguments
-	cmd.arguments = function()
-		return table.unpack(args() :: any)
+	if args then
+		cmd.arguments = function()
+			return table.unpack(args() :: any)
+		end
 	end
 	centurion.register_command(name, cmd)
 end
