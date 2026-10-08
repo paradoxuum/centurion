@@ -12,7 +12,7 @@ local function suggest(input: string, candidates: { string }, max_suggestions: n
 	for _, candidate in candidates do
 		local score = 0
 
-		if candidate:sub(1, #normalized) == normalized then
+		if candidate:sub(1, #normalized):lower() == normalized then
 			score = 1000 - (#candidate - #normalized)
 		else
 			score = leventine.score(normalized, candidate, false)
