@@ -34,11 +34,12 @@ local function client()
 			return cmd
 		end
 
-		cmd.arguments = function()
+		local processed = table.clone(cmd)
+		processed.arguments = function()
 			return table.unpack(args)
 		end :: any
 
-		return cmd
+		return processed
 	end
 
 	local function remove(key: string)
