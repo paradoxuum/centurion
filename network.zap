@@ -1,5 +1,5 @@
-opt server_output = "pkgs/centurion/src/sync/network/server.luau"
-opt client_output = "pkgs/centurion/src/sync/network/client.luau"
+opt server_output = "pkgs/centurion/src/network/server.luau"
+opt client_output = "pkgs/centurion/src/network/client.luau"
 opt remote_scope = "CENTURION"
 
 type SyncData = enum "kind" {
