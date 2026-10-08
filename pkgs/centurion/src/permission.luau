@@ -209,7 +209,10 @@ end
 local function on_options_changed(callback: (options: PermissionOptions) -> ())
 	table.insert(options_callbacks, callback)
 	return function()
-		table.remove(options_callbacks, table.find(options_callbacks, callback))
+		local index = table.find(options_callbacks, callback)
+		if index then
+			table.remove(options_callbacks, index)
+		end
 	end
 end
 

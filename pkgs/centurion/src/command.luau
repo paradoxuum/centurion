@@ -165,6 +165,9 @@ local function register<T...>(name: string | { string }, command: types.Command<
 
 	for _, v in names do
 		assert(commands[v] == nil, "Command with name '" .. v .. "' is already registered.")
+	end
+
+	for _, v in names do
 		commands[v] = command :: any
 	end
 
@@ -193,7 +196,10 @@ local function on_register(callback: RegisterCallback)
 	table.insert(on_register_callbacks, callback)
 
 	return function()
-		table.remove(on_register_callbacks, table.find(on_register_callbacks, callback))
+		local index = table.find(on_register_callbacks, callback)
+		if index then
+			table.remove(on_register_callbacks, index)
+		end
 	end
 end
 
@@ -201,7 +207,10 @@ local function on_unregister(callback: RegisterCallback)
 	table.insert(on_unregister_callbacks, callback)
 
 	return function()
-		table.remove(on_unregister_callbacks, table.find(on_unregister_callbacks, callback))
+		local index = table.find(on_unregister_callbacks, callback)
+		if index then
+			table.remove(on_unregister_callbacks, index)
+		end
 	end
 end
 
@@ -209,7 +218,10 @@ local function on_execute(callback: (ctx: types.ExecutionContext) -> ())
 	table.insert(on_execute_callbacks, callback)
 
 	return function()
-		table.remove(on_execute_callbacks, table.find(on_execute_callbacks, callback))
+		local index = table.find(on_execute_callbacks, callback)
+		if index then
+			table.remove(on_execute_callbacks, index)
+		end
 	end
 end
 
