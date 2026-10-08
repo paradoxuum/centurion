@@ -5,10 +5,10 @@ local duration = require("@self/argument/duration")
 local guard = require("@self/guard")
 local parse = require("@self/parse")
 local permission = require("@self/permission")
-local resolve = require("@self/resolve")
-local result = require("@self/result")
 local player = require("@self/argument/player")
 local primitives = require("@self/argument/primitives")
+local resolve = require("@self/resolve")
+local result = require("@self/result")
 local sync = require("@self/sync")
 local team = require("@self/argument/team")
 local types = require("@self/types")
@@ -61,8 +61,8 @@ return {
 	end,
 
 	result = {
-	    ok = result.success,
-	    err = result.error,
+		ok = result.success,
+		err = result.error,
 	},
 
 	registry = {

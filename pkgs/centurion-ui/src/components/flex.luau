@@ -98,9 +98,9 @@ return function()
 	end
 
 	function mt:gap(value: number | () -> number)
-    	effect(function()
-    		gap(UDim.new(0, read(value)))
-        end)
+		effect(function()
+			gap(UDim.new(0, read(value)))
+		end)
 		return self
 	end
 

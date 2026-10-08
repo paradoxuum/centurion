@@ -22,7 +22,7 @@ local function convert(value: number, mode: Mode?): number
 end
 
 local function px_raw<T>(value: T | () -> T, mode: Mode? | () -> Mode?): T
-    local value_raw, mode_raw = read(value), read(mode)
+	local value_raw, mode_raw = read(value), read(mode)
 
 	if typeof(value_raw) == "number" then
 		return convert(value_raw, mode_raw) :: any
@@ -42,7 +42,7 @@ end
 
 local function px<T>(value: T | () -> T, mode: Mode? | () -> Mode?): () -> T
 	return function()
-    	return px_raw(value, mode)
+		return px_raw(value, mode)
 	end
 end
 

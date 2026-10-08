@@ -1,9 +1,9 @@
 local app = require("../app")
 local centurion = require("../../centurion")
-local story = require("./story")
-local ui = require("../../src")
 local px = require("../px")
 local state = require("../state")
+local story = require("./story")
+local ui = require("../../src")
 
 return story({}, function()
 	ui.register_commands()
@@ -12,25 +12,35 @@ return story({}, function()
 	local cmd = centurion.register_command
 
 	cmd("test", {
-        description = "Test command",
-        arguments = function()
-            return centurion.num_args(centurion.args.number("arg1", "test argument", {
-                 "1", "2", "invalid number"
-            }), 3),
-            centurion.args.boolean("arg2", "test argument 2")
-        end,
-        callback = function(...)
-            print("test1:", ...)
-        end,
-    })
+		description = "Test command",
+		arguments = function()
+			return centurion.num_args(
+				centurion.args.number("arg1", "test argument", {
+					"1",
+					"2",
+					"invalid number",
+				}),
+				3
+			),
+				centurion.args.boolean("arg2", "test argument 2")
+		end,
+		callback = function(...)
+			print("test1:", ...)
+		end,
+	})
 
 	cmd("test subcommand", {
 		description = "Test command",
 		arguments = function()
-			return centurion.num_args(centurion.args.number("arg1", "test argument", {
-				 "1", "2", "invalid number"
-			}), 3),
-			centurion.args.boolean("arg2", "test argument 2")
+			return centurion.num_args(
+				centurion.args.number("arg1", "test argument", {
+					"1",
+					"2",
+					"invalid number",
+				}),
+				3
+			),
+				centurion.args.boolean("arg2", "test argument 2")
 		end,
 		callback = function(...)
 			print("test1:", ...)
@@ -48,22 +58,24 @@ return story({}, function()
 	})
 
 	cmd("wait", {
-        description = "Waits for a specified amount of time",
-        arguments = function()
-            return centurion.args.number("time", "Time to wait in seconds")
-        end,
-        callback = function(ctx, time)
-            task.wait(time)
-            ctx.reply(`Waited for {time} second(s)!`)
-        end,
-    })
+		description = "Waits for a specified amount of time",
+		arguments = function()
+			return centurion.args.number("time", "Time to wait in seconds")
+		end,
+		callback = function(ctx, time)
+			task.wait(time)
+			ctx.reply(`Waited for {time} second(s)!`)
+		end,
+	})
 
 	cmd("lorem", {
-        description = "Lorem ipsum",
-        callback = function(ctx)
-            ctx.reply("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.")
-        end,
-    })
+		description = "Lorem ipsum",
+		callback = function(ctx)
+			ctx.reply(
+				"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+			)
+		end,
+	})
 
 	px.mount()
 
