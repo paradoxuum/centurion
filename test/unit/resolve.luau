@@ -1,7 +1,7 @@
 local resolve = require("../../pkgs/centurion/src/resolve")
 local testkit = require("./testkit").test()
 
-local TEST, CASE, CHECK, FINISH = testkit.TEST, testkit.CASE, testkit.CHECK, testkit.FINISH
+local TEST, CASE, CHECK = testkit.TEST, testkit.CASE, testkit.CHECK
 
 local commands = {
 	["roles"] = true,
@@ -95,10 +95,5 @@ TEST("unclosed quotes", function()
 	CASE("closed input isn't flagged")
 	CHECK(not resolve(commands, "kick Bob").unclosed_quote)
 end)
-
--- local ok = FINISH()
--- if not ok then
--- 	error("Tests failed", 0)
--- end
 
 return nil

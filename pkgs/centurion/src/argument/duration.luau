@@ -26,17 +26,19 @@ local duration = argument.register_type("duration", {
 		end
 
 		local total_seconds = 0
-		for amount, unit_name in value:gmatch("(%d+)%s*([a-zA-Z]+)") do
-			local amount_num = tonumber(amount)
-			if not amount_num or not unit_name then
+		local pos = value:find("[^%s,]")
+		while pos do
+			local _, last, amount, unit_name = value:find("^(%d*%.?%d+)%s*(%a+)", pos)
+			if not last then
 				return result.error(`Invalid duration format: {value}`)
 			end
 
-			local unit_seconds = units[unit_name:lower()]
+			local unit_seconds = unit_name and units[unit_name:lower()]
 			if not unit_seconds then
 				return result.error(`Invalid duration unit: {unit_name}`)
 			end
-			total_seconds += amount_num * unit_seconds
+			total_seconds += (tonumber(amount) :: number) * unit_seconds
+			pos = value:find("[^%s,]", last + 1)
 		end
 
 		if total_seconds == 0 then

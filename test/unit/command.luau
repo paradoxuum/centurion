@@ -3,7 +3,7 @@ local fakes = require("./fakes")
 local centurion = require("../../pkgs/centurion/src")
 local testkit = require("./testkit").test()
 
-local TEST, CASE, CHECK, FINISH = testkit.TEST, testkit.CASE, testkit.CHECK, testkit.FINISH
+local TEST, CASE, CHECK = testkit.TEST, testkit.CASE, testkit.CHECK
 
 local alice = fakes.add_player("Alice")
 local bob = fakes.add_player("Bob")
@@ -124,10 +124,5 @@ TEST("player lifecycle", function()
 	fakes.remove_player(carol)
 	CHECK(#centurion.get_roles(carol) == 0)
 end)
-
--- local ok = FINISH()
--- if not ok then
--- 	error("Tests failed", 0)
--- end
 
 return nil

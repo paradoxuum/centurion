@@ -3,7 +3,7 @@ local result = require("../../pkgs/centurion/src/result")
 local testkit = require("./testkit").test()
 local types = require("../../pkgs/centurion/src/types")
 
-local TEST, CASE, CHECK, FINISH = testkit.TEST, testkit.CASE, testkit.CHECK, testkit.FINISH
+local TEST, CASE, CHECK = testkit.TEST, testkit.CASE, testkit.CHECK
 
 local string_arg = argument.register_type("string", {
 	transform = function(text)
