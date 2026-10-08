@@ -34,7 +34,7 @@
 				}
 			},
 			"test": {
-				"$path": "tests"
+				"$path": "test"
 			}
 		}
 	}

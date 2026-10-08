@@ -125,9 +125,9 @@ TEST("player lifecycle", function()
 	CHECK(#centurion.get_roles(carol) == 0)
 end)
 
-local ok = FINISH()
-if not ok then
-	error("Tests failed", 0)
-end
+-- local ok = FINISH()
+-- if not ok then
+-- 	error("Tests failed", 0)
+-- end
 
 return nil

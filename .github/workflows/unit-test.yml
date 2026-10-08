@@ -1,0 +1,28 @@
+name: unit-test
+
+on: [push, pull_request, workflow_dispatch]
+
+jobs:
+    run:
+        name: Run Luau Tests
+        runs-on: ubuntu-latest
+        timeout-minutes: 2
+
+        steps:
+            - name: Checkout Project
+              uses: actions/checkout@v4
+
+            - name: Install Rokit
+              uses: CompeyDev/setup-rokit@v0.1.2
+
+            - name: Run Unit Tests
+              id: run_tests
+              run: |
+                  output=$(luau test/unit/tests.luau)
+                  echo "$output"
+                  if [[ "$output" == *"0 fails"* ]]; then
+                    echo "Unit Tests Passed"
+                  else
+                    echo "Error: One or More Unit Tests Failed."
+                    exit 1
+                  fi

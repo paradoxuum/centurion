@@ -154,9 +154,4 @@ TEST("no arguments", function()
 	CHECK(not res.success and res.error == "Expected no arguments, got 1")
 end)
 
-local ok = FINISH()
-if not ok then
-	error("Tests failed", 0)
-end
-
 return nil

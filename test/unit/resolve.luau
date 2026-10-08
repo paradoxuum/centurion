@@ -96,9 +96,9 @@ TEST("unclosed quotes", function()
 	CHECK(not resolve(commands, "kick Bob").unclosed_quote)
 end)
 
-local ok = FINISH()
-if not ok then
-	error("Tests failed", 0)
-end
+-- local ok = FINISH()
+-- if not ok then
+-- 	error("Tests failed", 0)
+-- end
 
 return nil
