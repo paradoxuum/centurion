@@ -150,7 +150,8 @@ local function analyse(text: string, cursor_pos: number, max_suggestions: number
 
 		local arg_suggestions: { string } = {}
 		if arg_type.suggestions then
-			arg_suggestions = arg_type.suggestions(input_token and input_token.text or "", Players.LocalPlayer)
+			arg_suggestions =
+				table.clone(arg_type.suggestions(input_token and input_token.text or "", Players.LocalPlayer))
 		end
 
 		if arg.suggestions then
