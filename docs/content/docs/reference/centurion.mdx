@@ -251,6 +251,34 @@ When using a custom solution for command networking, you can skip this and call 
 
 ---
 
+### `set_execute_limits`
+
+```lua
+type ExecuteLimits = {
+    rate:             number?,
+    burst:            number?,
+    max_args:         number?,
+    max_arg_length:   number?,
+    max_input_length: number?,
+}
+
+centurion.set_execute_limits(limits: ExecuteLimits)
+```
+
+Limits for commands executed remotely through `setup_networking`. Call it on the server. Each player has a token bucket: they can run
+`burst` commands at once, and get `rate` more per second up to that cap. Requests over a limit get an error response
+and never reach the command. Commands executed directly with `execute_command` on the server aren't limited.
+
+| Option | Default | Description |
+| --- | --- | --- |
+| `rate` | `2` | Commands per second each player regains. |
+| `burst` | `10` | Commands a player can run in quick succession. |
+| `max_args` | `32` | Maximum number of arguments. |
+| `max_arg_length` | `256` | Maximum length of the command name and of each argument, in bytes. |
+| `max_input_length` | `1024` | Maximum length of the raw input string, in bytes. |
+
+---
+
 ## Guards
 
 ### `register_guard`

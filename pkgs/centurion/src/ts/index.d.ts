@@ -161,6 +161,16 @@ export function set_permission_options(options: { hide?: boolean; default_roles?
 
 export function setup_networking(): void;
 
+export interface ExecuteLimits {
+	rate?: number;
+	burst?: number;
+	max_args?: number;
+	max_arg_length?: number;
+	max_input_length?: number;
+}
+
+export function set_execute_limits(limits: ExecuteLimits): void;
+
 export function parse_text(text: string, split_char: string): ParseResult;
 
 export function resolve_command(text: string): Resolution;

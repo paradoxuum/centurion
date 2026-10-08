@@ -5,6 +5,7 @@ local FINISH = testkit.FINISH
 require("./argument")
 require("./command")
 require("./duration")
+require("./limit")
 require("./resolve")
 
 local ok = FINISH()

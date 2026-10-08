@@ -1,4 +1,6 @@
 local command = require("./command")
+local context = require("./context")
+local limit = require("./limit")
 local permission = require("./permission")
 local services = require("./services")
 local types = require("./types")
@@ -365,6 +367,14 @@ local function network_server()
 	end)
 
 	server_remotes.Execute.SetCallback(function(player, cmd, args, input): types.ExecutionContext
+		local err = limit.check(player, cmd, args, input)
+		if err then
+			-- don't echo the rejected arguments or input back to the client
+			local ctx = context(player, if limit.check_name(cmd) then cmd else "", {}, "")
+			ctx.error(err)
+			return ctx
+		end
+
 		return command.execute(player, cmd, args, input)
 	end)
 end
