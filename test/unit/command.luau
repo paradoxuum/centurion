@@ -125,4 +125,72 @@ TEST("player lifecycle", function()
 	CHECK(#centurion.get_roles(carol) == 0)
 end)
 
+TEST("global guards", function()
+	CASE("block every command until removed")
+	local remove = centurion.add_global_guard(function(ctx)
+		ctx.error("blocked")
+		return false
+	end)
+	CHECK(message(centurion.execute_command(alice, "echo", { "hi" })) == "blocked")
+	remove()
+	CHECK(message(centurion.execute_command(alice, "echo", { "hi" })) == "hi")
+
+	CASE("removing twice is a no-op")
+	local remove_other = centurion.add_global_guard(function()
+		return true
+	end)
+	remove()
+	CHECK(#centurion.registry.global_guards == 1)
+	remove_other()
+	remove_other()
+	CHECK(#centurion.registry.global_guards == 0)
+
+	CASE("a guard removing itself doesn't skip the next one")
+	local remove_self
+	remove_self = centurion.add_global_guard(function()
+		remove_self()
+		return true
+	end)
+	local remove_blocker = centurion.add_global_guard(function(ctx)
+		ctx.error("blocked")
+		return false
+	end)
+	CHECK(message(centurion.execute_command(alice, "echo", { "hi" })) == "blocked")
+	remove_blocker()
+	CHECK(#centurion.registry.global_guards == 0)
+end)
+
+TEST("named guards", function()
+	CASE("registering a command with an unknown guard errors")
+	CHECK(not pcall(centurion.register_command, "guarded", {
+		guards = { "missing" },
+		callback = function() end,
+	}))
+	CHECK(centurion.registry.commands.guarded == nil)
+
+	CASE("can be unregistered and registered again")
+	centurion.register_guard("deny", function()
+		return false
+	end)
+	centurion.unregister_guard("deny")
+	CHECK(centurion.registry.guards.deny == nil)
+	centurion.register_guard("deny", function()
+		return false
+	end)
+	CHECK(centurion.registry.guards.deny ~= nil)
+	centurion.unregister_guard("deny")
+
+	CASE("unregistering an unknown guard errors")
+	CHECK(not pcall(centurion.unregister_guard, "deny"))
+end)
+
+TEST("argument types", function()
+	CASE("registering a duplicate type errors")
+	CHECK(not pcall(centurion.register_type, "string", {
+		transform = function(text)
+			return centurion.result.ok(text)
+		end,
+	}))
+end)
+
 return nil

@@ -5,13 +5,13 @@ local types = require("../../pkgs/centurion/src/types")
 
 local TEST, CASE, CHECK = testkit.TEST, testkit.CASE, testkit.CHECK
 
-local string_arg = argument.register_type("string", {
+local string_arg = argument.register_type("test-string", {
 	transform = function(text)
 		return result.success(text)
 	end,
 })
 
-local number_arg = argument.register_type("number", {
+local number_arg = argument.register_type("test-number", {
 	transform = function(text): types.Result<number>
 		local n = tonumber(text)
 		if not n then
@@ -21,7 +21,7 @@ local number_arg = argument.register_type("number", {
 	end,
 })
 
-local boolean_arg = argument.register_type("boolean", {
+local boolean_arg = argument.register_type("test-boolean", {
 	transform = function(text): types.Result<boolean>
 		if text == "true" then
 			return result.success(true)

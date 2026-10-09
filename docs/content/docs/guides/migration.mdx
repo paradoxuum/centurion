@@ -184,7 +184,7 @@ const myType = register_type<number>("positive-int", {
 ## Guards
 
 Named guards are now registered with `register_guard`.
-In 1.x, global guards were passed through a config option; in 2.x, they are registered through `register_global_guard`.
+In 1.x, global guards were passed through a config option; in 2.x, they are added with `add_global_guard`, which returns a function that removes the guard.
 
 The guard signature is unchanged — a function that receives `ExecutionContext` and returns `boolean`.
 
@@ -195,10 +195,10 @@ const server = Centurion.server({
 });
 
 // After
-import { register_guard, register_global_guard, registry } from "@rbxts/centurion";
+import { register_guard, add_global_guard, registry } from "@rbxts/centurion";
 
 register_guard("admin-only", (ctx) => isAdmin(ctx.executor));
-register_global_guard((ctx) => {
+add_global_guard((ctx) => {
   print("Guard check:", ctx.input);
   return true;
 });

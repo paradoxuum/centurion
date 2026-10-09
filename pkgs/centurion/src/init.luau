@@ -35,7 +35,8 @@ export type Resolution = resolve.Resolution
 return {
 	register_command = command.register,
 	register_guard = guard.register,
-	register_global_guard = guard.register_global,
+	unregister_guard = guard.unregister,
+	add_global_guard = guard.add_global,
 	register_type = argument.register_type,
 	register_list_type = argument.register_list_type,
 	unregister_command = command.unregister,

@@ -289,15 +289,29 @@ centurion.register_guard(name: string, guard: Guard)
 
 Registers a named guard. Reference it in a command's `guards` field by name. Errors if a guard with that name already exists.
 
+Named guards must be registered before any command that uses them: `register_command` errors on a guard name it doesn't recognise.
+
 ---
 
-### `register_global_guard`
+### `unregister_guard`
 
 ```lua
-centurion.register_global_guard(...: Guard)
+centurion.unregister_guard(name: string)
 ```
 
-Registers one or more guards that run before every command, ahead of the command's own guards, in registration order.
+Removes a named guard. Errors if no guard with that name is registered. A command that still references the guard fails to execute,
+replying `Failed to execute command.` and warning in the console, rather than running without it.
+
+---
+
+### `add_global_guard`
+
+```lua
+centurion.add_global_guard(guard: Guard) -> () -> ()
+```
+
+Adds a guard that runs before every command, ahead of the command's own guards, in the order they were added. Returns a function that
+removes the guard; calling it more than once does nothing.
 
 ---
 
@@ -310,7 +324,7 @@ centurion.register_type(name: string, data: ArgumentType) -> ArgumentFn<T>
 ```
 
 Registers a custom argument type and returns an argument factory function. The factory is called with `(name, description?, suggestions?)` when
-building a command's arguments.
+building a command's arguments. Errors if a type with that name is already registered, including the built-in types.
 
 ```lua
 local positive_int = centurion.register_type("positive-int", {

@@ -27,6 +27,8 @@ local function register_type<T>(
 		suggestions: ((text: string, executor: Player) -> { string })?,
 	}
 ): types.ArgumentFn<T>
+	assert(arg_types[type_name] == nil, `Argument type '{type_name}' is already registered.`)
+
 	arg_types[type_name] = {
 		kind = "single",
 		transform = data.transform,
@@ -43,6 +45,8 @@ local function register_list_type<T>(
 		suggestions: ((text: string, executor: Player) -> { string })?,
 	}
 ): types.ArgumentFn<T>
+	assert(arg_types[type_name] == nil, `Argument type '{type_name}' is already registered.`)
+
 	arg_types[type_name] = {
 		kind = "list",
 		transform = data.transform,

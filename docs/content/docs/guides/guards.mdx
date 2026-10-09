@@ -144,8 +144,8 @@ register_command("action", {
 
 ## Global Guards
 
-Global guards run before every command, ahead of any per-command guards. Register them with `register_global_guard`, which accepts one or
-more guard functions.
+Global guards run before every command, ahead of any per-command guards. Add one with `add_global_guard`, which returns a function that
+removes it again.
 
 <CodeBlockTabs groupId="lang" defaultValue="luau" persist>
   <CodeBlockTabsList>
@@ -154,27 +154,33 @@ more guard functions.
   </CodeBlockTabsList>
   <CodeBlockTab value="luau">
 ```lua
-centurion.register_global_guard(function(ctx)
+local remove_ban_guard = centurion.add_global_guard(function(ctx)
     if ctx.executor:GetAttribute("Banned") then
         ctx.error("You are banned from using commands.")
         return false
     end
     return true
 end)
+
+-- later, to stop checking
+remove_ban_guard()
 ```
   </CodeBlockTab>
   <CodeBlockTab value="ts">
 ```ts
-import { register_global_guard } from "@rbxts/centurion";
+import { add_global_guard } from "@rbxts/centurion";
 import type { ExecutionContext } from "@rbxts/centurion";
 
-register_global_guard((ctx: ExecutionContext) => {
+const removeBanGuard = add_global_guard((ctx: ExecutionContext) => {
     if (ctx.executor.GetAttribute("Banned")) {
         ctx.error("You are banned from using commands.");
         return false;
     }
     return true;
 });
+
+// later, to stop checking
+removeBanGuard();
 ```
   </CodeBlockTab>
 </CodeBlockTabs>

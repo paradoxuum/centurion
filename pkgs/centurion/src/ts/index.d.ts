@@ -121,7 +121,10 @@ export function register_command<const T extends unknown[]>(
 
 export function register_guard(name: string, guard: GuardCallback): void;
 
-export function register_global_guard(...guards: GuardCallback[]): void;
+export function unregister_guard(name: string): void;
+
+/** Adds a guard that runs before every command. Returns a function that removes it. */
+export function add_global_guard(guard: GuardCallback): () => void;
 
 export function register_type<T>(name: string, argumentFn: Omit<SingleArgumentType<T>, "kind">): ArgumentFn<T>;
 

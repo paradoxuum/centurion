@@ -57,7 +57,9 @@ local function execute(executor: Player, name: string, args: { string }?, input:
 	args = args or {}
 	local ctx = context(executor, name, args, input)
 
-	for i, v in guard.global_guards do
+	-- clone so that a guard removing itself (or another global
+	-- guard) mid-loop can't cause the next one to be skipped
+	for i, v in table.clone(guard.global_guards) do
 		if not call_guard(ctx, `global guard #{i}`, v) then
 			return ctx
 		end
@@ -72,8 +74,14 @@ local function execute(executor: Player, name: string, args: { string }?, input:
 				continue
 			end
 
+			-- registration checks that named guards exist, but one can be
+			-- unregistered afterwards. fail closed rather than skip it
 			local guard_callback = guard.guards[cmd_guard]
-			assert(guard_callback, "Guard '" .. cmd_guard .. "' is not registered.")
+			if not guard_callback then
+				warn(`Guard '{cmd_guard}' used by command '{name}' is not registered.`)
+				ctx.error("Failed to execute command.")
+				return ctx
+			end
 
 			if not call_guard(ctx, cmd_guard, guard_callback) then
 				return ctx
@@ -130,6 +138,14 @@ end
 
 local function validate_command(name: string, command: types.Command<unknown>)
 	local args: { types.Argument } = command.arguments and { command.arguments() } :: { types.Argument } or {}
+
+	if command.guards then
+		for _, cmd_guard in command.guards do
+			if type(cmd_guard) == "string" then
+				assert(guard.guards[cmd_guard], `Guard '{cmd_guard}' used by command '{name}' is not registered.`)
+			end
+		end
+	end
 
 	local optional_found = false
 	for i, arg in args do
