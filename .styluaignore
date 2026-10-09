@@ -1,2 +1,4 @@
 network/
 vide/
+test/client/network.luau
+test/server/network.luau

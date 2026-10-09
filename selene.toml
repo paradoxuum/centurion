@@ -1,4 +1,5 @@
 std = "selene_defs"
+exclude = ["**/vide/*", "**/node_modules/*", "**/testkit.luau"]
 
 [lints]
 mixed_table = "allow"

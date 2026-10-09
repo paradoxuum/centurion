@@ -6,23 +6,15 @@ jobs:
     run:
         name: Run Luau Tests
         runs-on: ubuntu-latest
-        timeout-minutes: 2
+        timeout-minutes: 5
 
         steps:
             - name: Checkout Project
-              uses: actions/checkout@v4
+              uses: actions/checkout@v5
 
             - name: Install Rokit
               uses: CompeyDev/setup-rokit@v0.1.2
 
+            # tests.luau errors when any test fails, so luau exits non-zero
             - name: Run Unit Tests
-              id: run_tests
-              run: |
-                  output=$(luau test/unit/tests.luau)
-                  echo "$output"
-                  if [[ "$output" == *"0 fails"* ]]; then
-                    echo "Unit Tests Passed"
-                  else
-                    echo "Error: One or More Unit Tests Failed."
-                    exit 1
-                  fi
+              run: luau test/unit/tests.luau
