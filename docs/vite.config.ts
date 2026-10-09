@@ -13,12 +13,9 @@ export default defineConfig({
     fumadocsMdx(),
     tailwindcss(),
     tanstackStart({
-      spa: {
+      prerender: {
         enabled: true,
-        prerender: {
-          enabled: true,
-          crawlLinks: true,
-        },
+        crawlLinks: true,
       },
 
       pages: [
