@@ -38,7 +38,10 @@ export default defineConfig({
     }),
     react(),
     // please see https://tanstack.com/start/latest/docs/framework/react/guide/hosting#nitro for guides on hosting
-    nitro(),
+    // the site is fully prerendered and served as static files. Cloudflare presets prerender
+    // through `wrangler pages dev`, which rejects the `--host` flag nitro passes to it, so
+    // prerender with node-server instead and deploy `.output/public`
+    nitro({ preset: 'node-server' }),
   ],
   resolve: {
     tsconfigPaths: true,
