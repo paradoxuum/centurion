@@ -109,11 +109,11 @@ function Hero() {
 					</Link>
 
 					<h1 className="mt-6 text-4xl sm:text-6xl font-semibold tracking-tight text-balance bg-gradient-to-b from-fd-foreground to-fd-foreground/60 bg-clip-text text-transparent">
-						The command framework for Roblox
+						A command framework for Roblox
 					</h1>
 					<p className="mt-5 max-w-xl text-base sm:text-lg text-fd-muted-foreground text-balance">
-						Typed arguments, guards, role-based permissions and a terminal with live suggestions. Write your
-						commands in Luau or roblox-ts.
+						Define commands with typed arguments, guards and role-based permissions, then run them from an
+						in-game terminal. Works with Luau and roblox-ts.
 					</p>
 
 					<div className="mt-8 flex flex-wrap items-center justify-center gap-3">
@@ -258,8 +258,8 @@ function Features() {
 		<section className="px-6 py-24 sm:py-32 max-w-6xl mx-auto w-full">
 			<SectionHeading
 				eyebrow="Features"
-				title="Everything a command needs"
-				description="Centurion handles parsing, validation, access control and syncing, so your commands only contain the logic that matters."
+				title="What's included"
+				description="Centurion parses arguments, checks permissions and syncs commands to clients, so your callbacks only have to do the actual work."
 			/>
 
 			<div className="mt-14 grid grid-cols-1 lg:grid-cols-6 gap-4">
@@ -354,7 +354,7 @@ function ArgumentsCard() {
 			index={0}
 			icon={Variable}
 			title="Typed arguments"
-			description="Arguments are parsed, validated and suggested for you. Use the built-in types or define your own with custom parsing and suggestions."
+			description="Arguments are parsed and validated before your command runs. There are built-in types for common values, and you can add your own with custom parsing and suggestions."
 			className="lg:col-span-4"
 			background={
 				<ShaderLayer
@@ -406,7 +406,7 @@ function GuardsCard() {
 			index={1}
 			icon={ShieldCheck}
 			title="Guards"
-			description="Reusable checks that run before a command executes, attached per command or globally."
+			description="Checks that run before a command executes. Attach them to individual commands or register them globally."
 			className="lg:col-span-2"
 		>
 			<div className="flex flex-col gap-1.5 font-mono text-xs">
@@ -444,7 +444,7 @@ function RolesCard() {
 			index={2}
 			icon={Crown}
 			title="Roles & permissions"
-			description="Higher-priority roles inherit everything below them. Enforced on the server."
+			description="Roles have a priority, and a role inherits the permissions of every role below it. Permission checks run on the server."
 			className="lg:col-span-2"
 		>
 			<div className="flex flex-col gap-2 font-mono text-xs">
@@ -518,8 +518,8 @@ function TerminalCard() {
 		<Card
 			index={3}
 			icon={SquareTerminal}
-			title="A terminal that helps you type"
-			description="centurion-ui ships an in-game terminal with fuzzy suggestions, tab completion, history and themes."
+			title="In-game terminal"
+			description="centurion-ui provides a terminal with fuzzy suggestions, tab completion, command history and theming."
 			className="lg:col-span-4"
 			background={
 				<ShaderLayer
@@ -576,7 +576,7 @@ function SyncCard() {
 			index={4}
 			icon={RefreshCw}
 			title="Client–server sync"
-			description="Commands registered on the server are replicated to each client with patch-based updates, optionally hiding the ones a player can't run."
+			description="Commands registered on the server are sent to clients and kept up to date with patches. Commands a player can't run can be hidden from them."
 			className="lg:col-span-3"
 		>
 			<div className="flex items-center gap-3 font-mono text-xs">
@@ -612,7 +612,7 @@ function LanguagesCard() {
 			index={5}
 			icon={Layers}
 			title="Luau and TypeScript"
-			description="Register commands with plain function calls, or use decorators on classes in roblox-ts, with Flamework dependency injection if you like."
+			description="Register commands with function calls in Luau, or with class decorators in roblox-ts. Flamework dependency injection is supported."
 			className="lg:col-span-3"
 		>
 			<div className="flex flex-wrap gap-1.5 font-mono text-xs">
@@ -641,20 +641,20 @@ function CodeSection() {
 					transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
 				>
 					<p className="font-mono text-xs uppercase tracking-[0.2em] text-amber-600 dark:text-amber-400">
-						One definition
+						Example
 					</p>
 					<h2 className="mt-3 text-3xl sm:text-4xl font-semibold tracking-tight text-balance">
-						Declare it once. Centurion does the rest.
+						Defining a command
 					</h2>
 					<p className="mt-4 text-fd-muted-foreground">
-						A single table describes the command: its arguments, who can run it and what it does.
-						Suggestions, validation and permission checks all come from that definition.
+						A command is a table with a name, its arguments, who is allowed to run it and a callback.
+						The terminal's suggestions and the validation and permission checks are all based on it.
 					</p>
 					<ul className="mt-6 flex flex-col gap-2 text-sm">
 						{[
-							"Arguments arrive parsed and typed",
-							"Permission checks before your callback runs",
-							"Return a string to reply to the executor",
+							"The callback receives arguments already parsed",
+							"Permissions are checked before the callback runs",
+							"Return a string to send a reply to the executor",
 						].map((item) => (
 							<li key={item} className="flex items-center gap-2.5">
 								<span className="flex size-5 items-center justify-center rounded-full bg-amber-500/15">
@@ -705,10 +705,10 @@ function CallToAction() {
 				</ShaderLayer>
 
 				<h2 className="text-3xl sm:text-5xl font-semibold tracking-tight text-balance">
-					Ready to take command?
+					Getting started
 				</h2>
 				<p className="mx-auto mt-4 max-w-lg text-fd-muted-foreground text-balance">
-					Set up Centurion and register your first command in a few minutes.
+					The docs cover installing Centurion, registering commands and setting up the terminal.
 				</p>
 				<div className="mt-8 flex flex-wrap justify-center gap-3">
 					<Link
@@ -726,7 +726,7 @@ function CallToAction() {
 						className="inline-flex items-center gap-2 rounded-lg border border-fd-border bg-fd-background/60 px-5 py-2.5 text-sm font-medium backdrop-blur-sm transition-colors hover:bg-fd-background"
 					>
 						<GitHubIcon />
-						Star on GitHub
+						View on GitHub
 					</a>
 				</div>
 			</div>
