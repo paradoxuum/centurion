@@ -1,0 +1,12 @@
+[package]
+name = "paradoxuum/centurion-ui"
+description = "Terminal UI for the Centurion command framework"
+license = "MIT"
+version = "2.0.0"
+registry = "https://github.com/UpliftGames/wally-index"
+realm = "shared"
+exclude = ["TODO.md", "package.json", "centurion.luau", "node_modules", "vide", "src/stories"]
+
+[dependencies]
+vide = "centau/vide@0.4.1"
+centurion = "paradoxuum/centurion@2.0.0"
