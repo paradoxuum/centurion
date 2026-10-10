@@ -10,13 +10,13 @@ local vide = require("./vide")
 
 local mounted = false
 
-local function mount(keys: { Enum.KeyCode })
+local function mount(keys: { Enum.KeyCode }?)
 	if mounted then
 		return
 	end
 	mounted = true
 
-	state.activation_keys(keys)
+	state.activation_keys(keys or { Enum.KeyCode.F2 })
 
 	vide.mount(function()
 		px.mount()

@@ -30,7 +30,7 @@ export type OptionsPartial = {
 	font: Font?,
 	icon: string?,
 	transparency: number?,
-	format_date: (log: Log) -> string?,
+	format_date: ((log: Log) -> string)?,
 	max_suggestions: number?,
 
 	text_size: number?,

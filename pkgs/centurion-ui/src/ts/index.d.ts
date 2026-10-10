@@ -34,7 +34,7 @@ export interface Log {
 }
 
 export namespace CenturionUI {
-	export function mount(keys: Enum.KeyCode[]): void;
+	export function mount(keys?: Enum.KeyCode[]): void;
 
 	export function configure(options: Partial<Options>): void;
 
