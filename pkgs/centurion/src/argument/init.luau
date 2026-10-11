@@ -59,7 +59,7 @@ end
 local function enum(values: { string })
 	local transform = function(value: string): types.Result<string>
 		if not table.find(values, value) then
-			return result.error(`Invalid value '{value}'. Valid values are: {table.concat(values, ", ")}`)
+			return result.error(`'{value}' is not a valid option`)
 		end
 		return result.success(value)
 	end
