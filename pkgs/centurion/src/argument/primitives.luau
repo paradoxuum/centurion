@@ -48,6 +48,9 @@ local bool = register("boolean", {
 		end
 		return result.success(bool_val)
 	end,
+	suggestions = function(_value: string, _executor: Player): { string }
+		return { "true", "false" }
+	end,
 })
 
 return {
