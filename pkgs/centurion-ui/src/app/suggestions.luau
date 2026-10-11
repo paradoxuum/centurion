@@ -1,3 +1,5 @@
+local UserInputService = game:GetService("UserInputService")
+
 local background = require("../components/background")
 local centurion = require("../../centurion")
 local container = require("../components/container")
@@ -15,6 +17,7 @@ local theme = require("../theme")
 local types = require("../types")
 local vide = require("../../vide")
 
+local cleanup = vide.cleanup
 local create = vide.create
 local derive = vide.derive
 local indexes = vide.indexes
@@ -43,6 +46,14 @@ local function format_argument(arg: centurion.Argument): string
 	end
 
 	return if arg.optional then `[{label}]` else `<{label}>`
+end
+
+local function preferred_input(): () -> Enum.PreferredInput
+	local preferred = source(UserInputService.PreferredInput)
+	cleanup(UserInputService:GetPropertyChangedSignal("PreferredInput"):Connect(function()
+		preferred(UserInputService.PreferredInput)
+	end))
+	return preferred
 end
 
 -- small filled label, e.g. the type of an argument
@@ -202,6 +213,8 @@ local function suggestions(props: Suggestions)
 	local has_suggestions = derive(function()
 		return #props.analysis().suggestions > 0
 	end)
+
+	local input = preferred_input()
 
 	-- the sections above the list, which are divided from it when both are shown
 	local has_details = derive(function()
@@ -370,7 +383,6 @@ local function suggestions(props: Suggestions)
 			visible = has_suggestions,
 		},
 
-		-- keyboard hints
 		show(has_suggestions, function()
 			return container {
 				auto = "XY",
@@ -382,6 +394,12 @@ local function suggestions(props: Suggestions)
 					auto = "XY",
 					text = function()
 						local key = rich.color("%s", state.theme().text)
+						if input() == Enum.PreferredInput.Touch then
+							return `<b>{key:format("Tap")}</b> a suggestion to complete it`
+						elseif input() == Enum.PreferredInput.Gamepad then
+							return `<b>{key:format("Select")}</b> a suggestion to complete it`
+						end
+
 						local hints = {
 							`<b>{key:format("Tab")}</b> complete`,
 							`<b>{key:format("↑↓")}</b> select`,
