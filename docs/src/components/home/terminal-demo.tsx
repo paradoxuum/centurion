@@ -1,5 +1,5 @@
-import { motion, useReducedMotion } from "motion/react";
-import { useEffect, useState } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { Fragment, type ReactNode, useEffect, useState } from "react";
 
 // Catppuccin Mocha, matching `themes.mocha` in centurion-ui
 const theme = {
@@ -18,11 +18,20 @@ interface Suggestion {
   description?: string;
 }
 
+interface Argument {
+  name: string;
+  type: string;
+  optional?: boolean;
+  description?: string;
+}
+
 interface SuggestionState {
-  /** Shown above the options when suggesting an argument */
-  argument?: { name: string; type: string; description: string };
+  /** The command being typed and which of its arguments the cursor is on */
+  usage?: { command: string; args: Argument[]; index: number };
+  /** Shown at the top of the popover when the input can't be run */
+  error?: string;
   options: Suggestion[];
-  /** The text typed so far for the current token, used for ghost text */
+  /** The text typed so far for the current token, used for ghost text and matching */
   prefix: string;
 }
 
@@ -31,6 +40,7 @@ interface Log {
   command: string;
   success: boolean;
   message: string;
+  time: string;
 }
 
 type Step =
@@ -46,6 +56,26 @@ const commands = {
   to: { name: "to", description: "Teleport to a position" },
 };
 
+const players = [
+  { name: "Builderman" },
+  { name: "Bubbles_Dev" },
+  { name: "Noob2763" },
+];
+
+const kickArgs: Argument[] = [
+  { name: "target", type: "player", description: "The player to kick" },
+  {
+    name: "reason",
+    type: "string",
+    optional: true,
+    description: "The reason for the kick",
+  },
+];
+
+const toArgs: Argument[] = [
+  { name: "position", type: "vector3", description: "x, y and z coordinates" },
+];
+
 const script: Step[] = [
   { kind: "type", text: "ki" },
   {
@@ -57,16 +87,8 @@ const script: Step[] = [
   {
     kind: "suggest",
     state: {
-      argument: {
-        name: "target",
-        type: "player",
-        description: "The player to kick",
-      },
-      options: [
-        { name: "Builderman" },
-        { name: "Bubbles_Dev" },
-        { name: "Noob2763" },
-      ],
+      usage: { command: "kick", args: kickArgs, index: 0 },
+      options: players,
       prefix: "",
     },
   },
@@ -75,12 +97,8 @@ const script: Step[] = [
   {
     kind: "suggest",
     state: {
-      argument: {
-        name: "target",
-        type: "player",
-        description: "The player to kick",
-      },
-      options: [{ name: "Builderman" }, { name: "Bubbles_Dev" }],
+      usage: { command: "kick", args: kickArgs, index: 0 },
+      options: players.slice(0, 2),
       prefix: "Bu",
     },
   },
@@ -89,11 +107,7 @@ const script: Step[] = [
   {
     kind: "suggest",
     state: {
-      argument: {
-        name: "reason",
-        type: "string?",
-        description: "The reason for the kick",
-      },
+      usage: { command: "kick", args: kickArgs, index: 1 },
       options: [],
       prefix: "",
     },
@@ -110,11 +124,7 @@ const script: Step[] = [
   {
     kind: "suggest",
     state: {
-      argument: {
-        name: "position",
-        type: "vector3",
-        description: "x, y and z coordinates",
-      },
+      usage: { command: "to", args: toArgs, index: 0 },
       options: [],
       prefix: "",
     },
@@ -128,16 +138,8 @@ const script: Step[] = [
   {
     kind: "suggest",
     state: {
-      argument: {
-        name: "target",
-        type: "player",
-        description: "The player to kick",
-      },
-      options: [
-        { name: "Builderman" },
-        { name: "Bubbles_Dev" },
-        { name: "Noob2763" },
-      ],
+      usage: { command: "kick", args: kickArgs, index: 0 },
+      options: players,
       prefix: "",
     },
   },
@@ -145,16 +147,13 @@ const script: Step[] = [
   {
     kind: "suggest",
     state: {
-      argument: {
-        name: "target",
-        type: "player",
-        description: "The player to kick",
-      },
+      usage: { command: "kick", args: kickArgs, index: 0 },
+      error: 'Invalid player: "Guest"',
       options: [],
       prefix: "Guest",
     },
   },
-  { kind: "wait", ms: 500 },
+  { kind: "wait", ms: 700 },
   { kind: "submit", success: false, message: 'Invalid player: "Guest"' },
   { kind: "wait", ms: 2400 },
 ];
@@ -166,16 +165,24 @@ const staticLogs: Log[] = [
     command: "to 0 50 0",
     success: true,
     message: "Teleported to (0, 50, 0)",
+    time: "12:01 PM",
   },
   {
     id: 1,
     command: "kick Builderman spamming",
     success: true,
     message: "Kicked Builderman",
+    time: "12:00 PM",
   },
 ];
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const formatTime = () =>
+  new Date().toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+  });
 
 export function TerminalDemo() {
   const reduced = useReducedMotion();
@@ -226,7 +233,13 @@ export function TerminalDemo() {
               setSuggestions(undefined);
               setLogs((prev) =>
                 [
-                  { id, command, success: step.success, message: step.message },
+                  {
+                    id,
+                    command,
+                    success: step.success,
+                    message: step.message,
+                    time: formatTime(),
+                  },
                   ...prev,
                 ].slice(0, 4),
               );
@@ -258,6 +271,13 @@ export function TerminalDemo() {
     ? selected.name.slice(suggestions?.prefix.length ?? 0)
     : "";
 
+  const invalid = flash || suggestions?.error !== undefined;
+  const showPopover =
+    suggestions !== undefined &&
+    (suggestions.usage !== undefined ||
+      suggestions.error !== undefined ||
+      suggestions.options.length > 0);
+
   return (
     <div
       className="w-full max-w-xl font-mono text-[13px] leading-relaxed text-left select-none"
@@ -265,125 +285,307 @@ export function TerminalDemo() {
       role="img"
       aria-label="Animated preview of the Centurion terminal: commands are typed with live suggestions and their results are logged."
     >
-      {/* History */}
-      <div className="flex flex-col-reverse gap-1.5 h-[132px] overflow-hidden mb-2 px-1 [mask-image:linear-gradient(to_bottom,transparent,black_45%)]">
-        {logs.map((log) => (
-          <motion.div
-            key={log.id}
-            layout={!reduced}
-            initial={reduced ? false : { opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-            className="flex flex-col"
-          >
-            <span style={{ color: theme.subtext }}>
-              <span style={{ color: theme.highlight }}>›</span> {log.command}
-            </span>
-            <span style={{ color: log.success ? theme.success : theme.error }}>
-              {log.message}
-            </span>
-          </motion.div>
-        ))}
-      </div>
-
-      {/* Input */}
-      <motion.div
-        key={failed}
-        animate={failed && !reduced ? { x: [0, -7, 6, -4, 3, 0] } : undefined}
-        transition={{ duration: 0.35 }}
-        className="relative flex items-center gap-2 rounded-lg px-3.5 py-2.5 border transition-colors duration-300"
+      {/* Console: header, history and input */}
+      <div
+        className="rounded-[10px] border backdrop-blur-sm"
         style={{
-          background: theme.background,
-          borderColor: flash ? theme.error : theme.border,
+          background: `${theme.background}cc`,
+          borderColor: theme.border,
         }}
       >
-        <span style={{ color: theme.highlight }}>›</span>
-        <span className="flex items-center whitespace-pre">
-          <HighlightedInput value={input} />
-          <span
-            className="inline-block w-[2px] h-4 -mr-[2px] animate-[terminal-caret_1.1s_steps(1)_infinite]"
-            style={{ background: theme.text }}
-          />
-          <span style={{ color: theme.subtext, opacity: 0.55 }}>{ghost}</span>
-          {!input && (
-            <span style={{ color: theme.subtext, opacity: 0.45 }}>
-              Enter a command…
+        {/* Header */}
+        <div className="flex h-[34px] items-center justify-between px-3 text-xs">
+          <div className="flex items-center gap-2">
+            <span
+              aria-hidden
+              className="size-3.5 [mask:url(/logo.svg)_center/contain_no-repeat]"
+              style={{ background: theme.highlight }}
+            />
+            <span className="font-bold" style={{ color: theme.subtext }}>
+              Centurion
             </span>
-          )}
-        </span>
-      </motion.div>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span
+              className="rounded px-1.5 py-px font-bold"
+              style={{ background: theme.surface }}
+            >
+              F2
+            </span>
+            <span style={{ color: theme.subtext }}>to close</span>
+          </div>
+        </div>
+        <div className="h-px" style={{ background: theme.border }} />
 
-      {/* Suggestions */}
-      <div className="h-[132px] pt-2">
-        {suggestions &&
-          (suggestions.argument || suggestions.options.length > 0) && (
+        {/* History, newest at the bottom */}
+        <div className="flex h-[148px] flex-col-reverse gap-0.5 overflow-hidden px-1 pt-1 [mask-image:linear-gradient(to_bottom,transparent,black_35%)]">
+          {logs.map((log) => (
             <motion.div
-              initial={{ opacity: 0, y: -4 }}
+              key={log.id}
+              layout={!reduced}
+              initial={reduced ? false : { opacity: 0, x: -16 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+              className="rounded-md px-2 py-1.5"
+              style={{
+                background: log.success ? undefined : `${theme.error}1f`,
+              }}
+            >
+              <div className="flex items-baseline justify-between gap-3">
+                <span className="flex min-w-0 font-bold">
+                  <span
+                    className="w-[18px] shrink-0"
+                    style={{
+                      color: log.success ? theme.highlight : theme.error,
+                    }}
+                  >
+                    &gt;
+                  </span>
+                  <span className="truncate">{log.command}</span>
+                </span>
+                <span
+                  className="shrink-0 text-xs opacity-60"
+                  style={{ color: theme.subtext }}
+                >
+                  {log.time}
+                </span>
+              </div>
+              <div
+                className="pl-[18px]"
+                style={{ color: log.success ? theme.text : theme.error }}
+              >
+                {log.message}
+              </div>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Input */}
+        <div className="p-2">
+          <motion.div
+            key={failed}
+            animate={
+              failed && !reduced ? { x: [0, -7, 6, -4, 3, 0] } : undefined
+            }
+            transition={{ duration: 0.35 }}
+            className="flex items-center rounded-md border py-2 pr-2.5 transition-colors duration-150"
+            style={{
+              background: theme.surface,
+              borderColor: invalid ? theme.error : theme.highlight,
+            }}
+          >
+            <span
+              className="w-[34px] shrink-0 pl-3 font-bold"
+              style={{ color: invalid ? theme.error : theme.highlight }}
+            >
+              &gt;
+            </span>
+            <span className="flex items-center whitespace-pre">
+              <HighlightedInput
+                value={input}
+                invalid={suggestions?.error !== undefined}
+              />
+              <span
+                className="inline-block w-[2px] h-4 -mr-[2px] animate-[terminal-caret_1.1s_steps(1)_infinite]"
+                style={{ background: theme.text }}
+              />
+              <span style={{ color: theme.subtext, opacity: 0.7 }}>
+                {ghost}
+              </span>
+              {!input && (
+                <span style={{ color: theme.subtext }}>Type a command</span>
+              )}
+            </span>
+          </motion.div>
+        </div>
+      </div>
+
+      {/* Completion popover, sized to its contents */}
+      <div className="h-[184px] pl-2 pt-1.5">
+        <AnimatePresence>
+          {showPopover && suggestions && (
+            <motion.div
+              initial={{ opacity: 0, y: -6 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.15 }}
-              className="rounded-lg border overflow-hidden"
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.12 }}
+              className="w-fit min-w-[280px] max-w-full rounded-lg border"
               style={{
                 background: theme.background,
                 borderColor: theme.border,
               }}
             >
-              {suggestions.argument && (
-                <div
-                  className="px-3.5 py-2"
-                  style={{ background: theme.surface }}
-                >
-                  <div>
-                    <span style={{ color: theme.highlight }}>
-                      {suggestions.argument.name}
-                    </span>
-                    <span style={{ color: theme.subtext }}>
-                      : {suggestions.argument.type}
-                    </span>
-                  </div>
-                  <div className="text-xs" style={{ color: theme.subtext }}>
-                    {suggestions.argument.description}
-                  </div>
-                </div>
-              )}
-              {suggestions.options.map((option, i) => (
-                <div
-                  key={option.name}
-                  className="flex items-baseline gap-3 px-3.5 py-1"
-                  style={{
-                    background: i === 0 ? `${theme.highlight}1f` : undefined,
-                  }}
-                >
-                  <span
-                    style={{ color: i === 0 ? theme.highlight : theme.text }}
-                  >
-                    {option.name}
-                  </span>
-                  {option.description && (
-                    <span
-                      className="truncate text-xs"
-                      style={{ color: theme.subtext }}
-                    >
-                      {option.description}
-                    </span>
-                  )}
-                </div>
-              ))}
+              <Popover state={suggestions} />
             </motion.div>
           )}
+        </AnimatePresence>
       </div>
     </div>
   );
 }
 
-function HighlightedInput({ value }: { value: string }) {
+function Popover({ state }: { state: SuggestionState }) {
+  const { usage, error, options, prefix } = state;
+  const arg = usage?.args[usage.index];
+  const hasDetails = error !== undefined || arg !== undefined;
+
+  return (
+    <>
+      {error && (
+        <div className="flex items-center gap-2 px-3 py-2 text-xs">
+          <Pill color={theme.error}>error</Pill>
+          <span style={{ color: theme.error }}>{error}</span>
+        </div>
+      )}
+
+      {usage && arg && (
+        <div className="flex flex-col gap-1.5 px-3 py-2">
+          <div className="text-xs">
+            <span className="font-bold">{usage.command}</span>
+            {usage.args.map((value, i) => (
+              <Fragment key={value.name}>
+                {" "}
+                <span
+                  className={i === usage.index ? "font-bold" : undefined}
+                  style={{
+                    color: i === usage.index ? theme.highlight : theme.subtext,
+                  }}
+                >
+                  {formatArgument(value)}
+                </span>
+              </Fragment>
+            ))}
+          </div>
+          <div className="flex items-center gap-2">
+            <Pill color={theme.highlight}>{arg.type}</Pill>
+            <span className="font-bold">{arg.name}</span>
+            {arg.description && (
+              <span className="text-xs" style={{ color: theme.subtext }}>
+                {arg.description}
+              </span>
+            )}
+          </div>
+        </div>
+      )}
+
+      {options.length > 0 && (
+        <>
+          {hasDetails && (
+            <div className="h-px" style={{ background: theme.border }} />
+          )}
+          <div className="flex flex-col p-1">
+            {options.map((option, i) => (
+              <div
+                key={option.name}
+                className="flex items-baseline justify-between rounded px-2 py-[3px]"
+                style={{
+                  background: i === 0 ? `${theme.surface}cc` : undefined,
+                }}
+              >
+                <span className="flex">
+                  <span
+                    className="w-[18px] font-bold"
+                    style={{ color: theme.highlight, opacity: i === 0 ? 1 : 0 }}
+                  >
+                    &gt;
+                  </span>
+                  <span style={{ color: i === 0 ? theme.text : theme.subtext }}>
+                    <MatchedName name={option.name} prefix={prefix} />
+                  </span>
+                </span>
+                {option.description && (
+                  <span
+                    className="pl-8 text-xs"
+                    style={{ color: theme.subtext }}
+                  >
+                    {option.description}
+                  </span>
+                )}
+              </div>
+            ))}
+          </div>
+          <div className="h-px" style={{ background: theme.border }} />
+          <div
+            className="flex gap-4 px-3 py-1.5 text-xs"
+            style={{ color: theme.subtext }}
+          >
+            {[
+              ["Tab", "complete"],
+              ["↑↓", "select"],
+              ["Enter", "run"],
+            ].map(([key, action]) => (
+              <span key={key}>
+                <span className="font-bold" style={{ color: theme.text }}>
+                  {key}
+                </span>{" "}
+                {action}
+              </span>
+            ))}
+          </div>
+        </>
+      )}
+    </>
+  );
+}
+
+function Pill({ color, children }: { color: string; children: ReactNode }) {
+  return (
+    <span
+      className="rounded px-1.5 py-px text-xs font-bold"
+      style={{ background: color, color: theme.background }}
+    >
+      {children}
+    </span>
+  );
+}
+
+// e.g. <name: type>, or [name: type] if optional
+function formatArgument(arg: Argument) {
+  const label = `${arg.name}: ${arg.type}`;
+  return arg.optional ? `[${label}]` : `<${label}>`;
+}
+
+// characters matching the input are emphasised
+function MatchedName({ name, prefix }: { name: string; prefix: string }) {
+  const matched = name.toLowerCase().startsWith(prefix.toLowerCase())
+    ? prefix.length
+    : 0;
+  return (
+    <>
+      <span className="font-bold" style={{ color: theme.highlight }}>
+        {name.slice(0, matched)}
+      </span>
+      {name.slice(matched)}
+    </>
+  );
+}
+
+function HighlightedInput({
+  value,
+  invalid,
+}: {
+  value: string;
+  invalid: boolean;
+}) {
   const space = value.indexOf(" ");
   if (space === -1)
     return <span style={{ color: theme.highlight }}>{value}</span>;
 
+  // the last argument is the one being validated
+  const rest = value.slice(space);
+  const last = rest.lastIndexOf(" ") + 1;
   return (
     <>
       <span style={{ color: theme.highlight }}>{value.slice(0, space)}</span>
-      {value.slice(space)}
+      {/* wrapped in spans, since the parent is a flex container and would drop a bare " " */}
+      {invalid ? (
+        <>
+          <span>{rest.slice(0, last)}</span>
+          <span style={{ color: theme.error }}>{rest.slice(last)}</span>
+        </>
+      ) : (
+        <span>{rest}</span>
+      )}
     </>
   );
 }

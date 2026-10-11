@@ -9,7 +9,6 @@ import { useTheme } from "fumadocs-ui/provider/base";
 import {
 	ArrowRight,
 	Check,
-	Copy,
 	Crown,
 	Layers,
 	type LucideIcon,
@@ -20,7 +19,7 @@ import {
 	X,
 } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
-import { type ReactNode, useState } from "react";
+import type { ReactNode } from "react";
 
 export const Route = createFileRoute("/")({
 	component: Home,
@@ -125,7 +124,6 @@ function Hero() {
 							Get started
 							<ArrowRight className="size-3.5 transition-transform group-hover:translate-x-0.5" />
 						</Link>
-						<InstallCommand />
 					</div>
 				</motion.div>
 			</div>
@@ -170,32 +168,6 @@ function HeroLogo() {
 				/>
 			)}
 		</div>
-	);
-}
-
-function InstallCommand() {
-	const command = "wally install centurion";
-	const [copied, setCopied] = useState(false);
-
-	const copy = () => {
-		navigator.clipboard.writeText(command).then(() => {
-			setCopied(true);
-			setTimeout(() => setCopied(false), 1500);
-		});
-	};
-
-	return (
-		<button
-			type="button"
-			onClick={copy}
-			className="group inline-flex items-center gap-3 rounded-lg border border-fd-border bg-fd-card/60 px-4 py-2.5 font-mono text-sm text-fd-muted-foreground backdrop-blur-sm transition-colors hover:text-fd-foreground"
-			aria-label={`Copy install command: ${command}`}
-		>
-			<span>
-				<span className="text-amber-600 dark:text-amber-400">$</span> {command}
-			</span>
-			{copied ? <Check className="size-3.5 text-emerald-500" /> : <Copy className="size-3.5 opacity-60" />}
-		</button>
 	);
 }
 
@@ -647,8 +619,8 @@ function CodeSection() {
 						Defining a command
 					</h2>
 					<p className="mt-4 text-fd-muted-foreground">
-						A command is a table with a name, its arguments, who is allowed to run it and a callback.
-						The terminal's suggestions and the validation and permission checks are all based on it.
+						A command is a table with a name, its arguments, who is allowed to run it and a callback. The
+						terminal's suggestions and the validation and permission checks are all based on it.
 					</p>
 					<ul className="mt-6 flex flex-col gap-2 text-sm">
 						{[
@@ -704,9 +676,7 @@ function CallToAction() {
 					/>
 				</ShaderLayer>
 
-				<h2 className="text-3xl sm:text-5xl font-semibold tracking-tight text-balance">
-					Getting started
-				</h2>
+				<h2 className="text-3xl sm:text-5xl font-semibold tracking-tight text-balance">Getting started</h2>
 				<p className="mx-auto mt-4 max-w-lg text-fd-muted-foreground text-balance">
 					The docs cover installing Centurion, registering commands and setting up the terminal.
 				</p>
