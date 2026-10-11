@@ -21,7 +21,9 @@ local function mount(keys: { Enum.KeyCode }?)
 	vide.mount(function()
 		px.mount()
 		return vide.create "ScreenGui" {
-			Enabled = state.opened,
+			Name = "Centurion",
+			ResetOnSpawn = false,
+			ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
 
 			app(),
 		}

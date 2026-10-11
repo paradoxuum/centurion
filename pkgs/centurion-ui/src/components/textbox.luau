@@ -1,3 +1,4 @@
+local fade = require("../fade")
 local px = require("../px")
 local state = require("../state")
 local theme = require("../theme")
@@ -28,6 +29,7 @@ type TextBoxProps = {
 	read xalignment: Can<Enum.TextXAlignment>?,
 	read multiline: Can<boolean>?,
 	read editable: Can<boolean>?,
+	read transparency: Can<number>?,
 
 	read update_text: ((string) -> ())?,
 	read update_focused: ((boolean) -> ())?,
@@ -47,6 +49,7 @@ return function(props: TextBoxProps)
 		Text = props.text,
 		PlaceholderText = props.placeholder,
 		TextSize = props.text_size or px(state.text_size),
+		TextTransparency = fade.fade(props.transparency),
 		TextColor3 = function()
 			return theme.text_color(state.theme(), props.text_style and read(props.text_style) or "normal")
 		end,

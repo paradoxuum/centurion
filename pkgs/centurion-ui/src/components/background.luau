@@ -1,3 +1,4 @@
+local fade = require("../fade")
 local vide = require("../../vide")
 
 local create = vide.create
@@ -21,7 +22,7 @@ return function(props: Background)
 	return create "Frame" {
 		Size = props.size,
 		BackgroundColor3 = props.color,
-		BackgroundTransparency = props.transparency,
+		BackgroundTransparency = fade.fade(props.transparency),
 		Position = props.position,
 		AnchorPoint = props.anchor,
 		AutomaticSize = props.auto,

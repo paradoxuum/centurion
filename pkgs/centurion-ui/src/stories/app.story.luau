@@ -7,6 +7,7 @@ local ui = require("../../src")
 
 return story({}, function()
 	ui.register_commands()
+	state.activation_keys({ Enum.KeyCode.F2 })
 	state.opened(true)
 
 	local cmd = centurion.register_command

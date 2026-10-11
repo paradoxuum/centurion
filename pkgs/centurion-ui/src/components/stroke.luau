@@ -1,3 +1,4 @@
+local fade = require("../fade")
 local vide = require("../../vide")
 
 local create = vide.create
@@ -14,6 +15,6 @@ return function(props: Stroke)
 		ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
 		Color = props.color,
 		Thickness = props.thickness or 1,
-		Transparency = props.transparency,
+		Transparency = fade.fade(props.transparency),
 	}
 end

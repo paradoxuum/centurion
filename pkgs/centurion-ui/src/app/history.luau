@@ -1,6 +1,7 @@
 local background = require("../components/background")
 local container = require("../components/container")
 local corner = require("../components/corner")
+local fade = require("../fade")
 local flex = require("../components/flex")
 local padding = require("../components/padding")
 local px = require("../px")
@@ -20,19 +21,164 @@ local read = vide.read
 local source = vide.source
 local spring = vide.spring
 
-type Logs = {
-	[number]: unknown,
-}
-
 type History = {
 	read max_lines: number | () -> number,
 	read on_select: (command: string) -> (),
+	read order: number?,
 }
 
 local line_height = 35
+-- width of the status glyph column, which the message is indented by
+local gutter = 18
+
+local function entry(value: () -> types.Log, i: number, on_select: (command: string) -> ())
+	local hovered = source(false)
+
+	-- 1 = hidden, 0 = shown
+	local enter = spring(function()
+		return 0
+	end, 0.3)
+
+	-- the first index always holds the newest log, so animate it whenever it changes
+	if i == 1 then
+		effect(function()
+			value()
+			enter(1)
+		end)
+	end
+
+	local function success()
+		return value().response.success
+	end
+
+	return background {
+		auto = "Y",
+		size = UDim2.fromScale(1, 0),
+		order = function()
+			return #state.logs() - i + 1
+		end,
+		-- failed commands get a faint tint so they stand out when scrolling
+		color = function()
+			return state.theme().error
+		end,
+		transparency = function()
+			return if success() then 1 else 0.88 + 0.12 * enter()
+		end,
+
+		corner(px(6)),
+		padding {
+			left = px(function()
+				return 8 + 16 * enter()
+			end),
+			right = px(8),
+			y = px(6),
+		},
+		flex():row():fill("horizontal"):gap(2),
+
+		-- clicking the header puts the command back into the input
+		create "TextButton" {
+			AutomaticSize = Enum.AutomaticSize.Y,
+			Size = UDim2.fromScale(1, 0),
+			AutoButtonColor = false,
+			BackgroundTransparency = 1,
+			LayoutOrder = 1,
+			Text = "",
+
+			Activated = function()
+				on_select(value().command)
+			end,
+			MouseEnter = function()
+				hovered(true)
+			end,
+			MouseLeave = function()
+				hovered(false)
+			end,
+
+			flex():column():vertical("center"):between("horizontal"),
+
+			container {
+				auto = "XY",
+				order = 1,
+
+				flex():column():vertical("center"),
+
+				text {
+					size = px(UDim2.fromOffset(gutter, 0)),
+					auto = "Y",
+					order = 1,
+					text = ">",
+					text_style = function()
+						return if success() then "highlight" else "error"
+					end,
+					weight = Enum.FontWeight.Bold,
+					xalignment = Enum.TextXAlignment.Left,
+					transparency = enter,
+				},
+
+				text {
+					auto = "XY",
+					order = 2,
+					text = function()
+						return value().command
+					end,
+					text_style = function()
+						return if hovered() then "highlight" else "normal"
+					end,
+					weight = Enum.FontWeight.Bold,
+					xalignment = Enum.TextXAlignment.Left,
+					transparency = enter,
+				},
+			},
+
+			text {
+				auto = "XY",
+				order = 2,
+				text = function()
+					return state.format_date(value()) or ""
+				end,
+				text_size = px(state.subtext_size),
+				text_style = "subtext",
+				rich_text = true,
+				transparency = function()
+					-- dimmed until the entry is hovered
+					return enter() + (1 - enter()) * (if hovered() then 0 else 0.4)
+				end,
+			},
+		},
+
+		container {
+			auto = "Y",
+			size = UDim2.fromScale(1, 0),
+			order = 2,
+
+			padding { left = px(gutter) },
+
+			textbox {
+				text = function()
+					return value().response.message or "N/A"
+				end,
+				text_style = function()
+					return if success() then "normal" else "error"
+				end,
+				rich_text = true,
+				editable = false,
+				xalignment = Enum.TextXAlignment.Left,
+				wrapped = true,
+				transparency = enter,
+
+				-- fill the width so long messages wrap instead of overflowing
+				{
+					AutomaticSize = Enum.AutomaticSize.Y,
+					Size = UDim2.fromScale(1, 0),
+					ClearTextOnFocus = false,
+				},
+			},
+		},
+	}
+end
 
 local function history(props: History)
-	local content_height = source(Vector2.new())
+	local content_height = source(0)
 	local hovered = source(false)
 	local max_height = px(function()
 		return line_height * (read(props.max_lines) :: number)
@@ -41,19 +187,21 @@ local function history(props: History)
 	return create "ScrollingFrame" {
 		AutomaticCanvasSize = Enum.AutomaticSize.Y,
 		BackgroundTransparency = 1,
+		BorderSizePixel = 0,
 		CanvasSize = UDim2.new(1, 0, 0, 0),
 		ScrollingDirection = Enum.ScrollingDirection.Y,
+		LayoutOrder = props.order,
 		Size = spring(function()
-			return UDim2.fromOffset(0, math.min(content_height().Y, max_height()))
+			return UDim2.fromOffset(0, math.min(content_height(), max_height()))
 		end, 0.1),
 
 		ScrollBarThickness = px(4),
 		ScrollBarImageColor3 = function()
 			return state.theme().subtext
 		end,
-		ScrollBarImageTransparency = spring(function()
+		ScrollBarImageTransparency = fade.fade(spring(function()
 			return if hovered() then 0 else 0.6
-		end, 0.2),
+		end, 0.2)),
 		VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar,
 
 		MouseEnter = function()
@@ -63,150 +211,46 @@ local function history(props: History)
 			hovered(false)
 		end,
 
+		padding { x = px(4) },
+
 		create "UIListLayout" {
 			HorizontalFlex = Enum.UIFlexAlignment.Fill,
 			SortOrder = Enum.SortOrder.LayoutOrder,
+			Padding = px(UDim.new(0, 2)),
 
-			changed("AbsoluteContentSize", content_height),
+			changed("AbsoluteContentSize", function(size: Vector2)
+				content_height(size.Y)
+			end),
 		},
 
+		-- follow new output, unless the user has scrolled up to read something
 		action(function(instance: ScrollingFrame)
-			local connection = instance:GetPropertyChangedSignal("AbsoluteCanvasSize"):Connect(function()
-				instance.CanvasPosition = Vector2.new(0, instance.AbsoluteCanvasSize.Y)
-			end)
+			local stick = true
 
-			cleanup(function()
-				return connection:Disconnect()
+			local function bottom()
+				return math.max(instance.AbsoluteCanvasSize.Y - instance.AbsoluteWindowSize.Y, 0)
+			end
+
+			cleanup(instance:GetPropertyChangedSignal("CanvasPosition"):Connect(function()
+				stick = instance.CanvasPosition.Y >= bottom() - 2
+			end))
+
+			cleanup(instance:GetPropertyChangedSignal("AbsoluteCanvasSize"):Connect(function()
+				if stick then
+					instance.CanvasPosition = Vector2.new(0, bottom())
+				end
+			end))
+
+			-- a new entry always scrolls back down
+			effect(function()
+				state.logs()
+				stick = true
+				instance.CanvasPosition = Vector2.new(0, bottom())
 			end)
 		end),
 
 		indexes(state.logs, function(value: () -> types.Log, i: number)
-			local log_hovered = source(false)
-
-			-- 1 = hidden, 0 = shown
-			local enter = spring(function()
-				return 0
-			end, 0.3)
-
-			-- the first index always holds the newest log, so animate it whenever it changes
-			if i == 1 then
-				effect(function()
-					value()
-					enter(1)
-				end)
-			end
-
-			return container {
-				auto = "XY",
-				order = function()
-					return #state.logs() - i + 1
-				end,
-
-				flex():row(),
-
-				padding {
-					x = px(8),
-					left = px(function()
-						return 8 + 24 * enter()
-					end),
-					top = px(8),
-					bottom = px(function()
-						return i == 1 and 4 or 0
-					end),
-				},
-
-				-- clicking the header puts the command back into the input
-				create "TextButton" {
-					AutomaticSize = Enum.AutomaticSize.XY,
-					AutoButtonColor = false,
-					BackgroundTransparency = 1,
-					Text = "",
-
-					Activated = function()
-						props.on_select(value().command)
-					end,
-					MouseEnter = function()
-						log_hovered(true)
-					end,
-					MouseLeave = function()
-						log_hovered(false)
-					end,
-
-					flex():fill("horizontal"):vertical("center"):gap(8):column(),
-
-					background {
-						auto = "XY",
-						color = function()
-							return value().response.success and state.theme().highlight or state.theme().error
-						end,
-						transparency = enter,
-
-						corner(px(4)),
-						padding(px(4)),
-						flex():fill("horizontal"):vertical("center"):gap(4):column(),
-
-						create "ImageLabel" {
-							BackgroundTransparency = 1,
-							Image = function()
-								return state.icon()
-							end,
-							ImageColor3 = function()
-								return state.theme().background
-							end,
-							ImageTransparency = enter,
-							ScaleType = Enum.ScaleType.Fit,
-							Size = px(function()
-								return UDim2.fromOffset(state.subtext_size(), state.subtext_size())
-							end),
-							Visible = function()
-								return state.icon() ~= ""
-							end,
-						},
-
-						text {
-							auto = "XY",
-							text = function()
-								return state.format_date(value()) or ""
-							end,
-							text_size = px(state.subtext_size),
-							text_style = "bg",
-							rich_text = true,
-
-							{ TextTransparency = enter },
-						},
-					},
-
-					text {
-						auto = "XY",
-						text = function()
-							return value().command
-						end,
-						text_style = function()
-							return if log_hovered() then "highlight" else "normal"
-						end,
-						weight = Enum.FontWeight.Bold,
-						xalignment = Enum.TextXAlignment.Left,
-
-						{ TextTransparency = enter },
-					},
-				},
-
-				textbox {
-					auto = "XY",
-					text = function()
-						return value().response.message or "N/A"
-					end,
-					text_style = function()
-						return value().response.success and "normal" or "error"
-					end,
-					rich_text = true,
-					editable = false,
-					xalignment = Enum.TextXAlignment.Left,
-					wrapped = true,
-
-					{ TextTransparency = enter },
-				},
-			}
+			return entry(value, i, props.on_select)
 		end),
 	}
 end

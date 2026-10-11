@@ -7,7 +7,10 @@ local background = require("./components/background")
 local centurion = require("../centurion")
 local container = require("./components/container")
 local corner = require("./components/corner")
+local divider = require("./components/divider")
+local fade = require("./fade")
 local flex = require("./components/flex")
+local header = require("@self/header")
 local highlight = require("./analyse/highlight")
 local history = require("@self/history")
 local padding = require("./components/padding")
@@ -22,7 +25,6 @@ local types = require("./types")
 local vide = require("../vide")
 
 local action = vide.action
-local create = vide.create
 local cleanup = vide.cleanup
 local changed = vide.changed
 local derive = vide.derive
@@ -37,7 +39,7 @@ local default_analysis = {
 	},
 	suggestions = {},
 } :: types.AnalysisResult
-local max_history_lines = 8
+local max_history_lines = 10
 local spinner_frames = { "|", "/", "-", "\\" }
 
 local function app()
@@ -106,28 +108,49 @@ local function app()
 		end
 	end
 
-	local function autofill(value: string, token: vector, with: string, update_cursor_pos: boolean)
-		local span_start = token.x - 1
-		local before = string.sub(value, 1, span_start)
-		local after = string.sub(value, token.y + 1, -1)
+	-- whether a space should follow the completed suggestion, so that the next
+	-- token can be typed straight away
+	local function needs_space(suggestion: types.AnalysisSuggestion): boolean
+		if suggestion.kind == "command" then
+			local cmd = centurion.registry.commands[suggestion.name]
+			if cmd and cmd.arguments and select("#", cmd.arguments()) > 0 then
+				return true
+			end
 
-		if update_cursor_pos then
-			task.defer(cursor_pos, span_start + #with + 2)
-			selected_suggestion(1)
+			-- subcommands still have to be typed after it
+			local prefix = suggestion.name .. " "
+			for name in centurion.registry.commands do
+				if name:sub(1, #prefix) == prefix then
+					return true
+				end
+			end
+			return false
 		end
 
 		local arg = analysis().argument
-
-		local add_space = true
 		if arg ~= nil then
 			local cmd = centurion.registry.commands[analysis().command]
 			local args = { cmd.arguments() }
 			if arg.index == #args or arg.kind == "list" then
-				add_space = false
+				return false
 			end
 		end
+		return true
+	end
 
-		return before .. with .. (add_space and " " or "") .. after
+	local function autofill(value: string, suggestion: types.AnalysisSuggestion, update_cursor_pos: boolean)
+		local token, with = suggestion.span, suggestion.replace
+		local span_start = token.x - 1
+		local before = string.sub(value, 1, span_start)
+		local after = string.sub(value, token.y + 1, -1)
+		local space = if needs_space(suggestion) then " " else ""
+
+		if update_cursor_pos then
+			task.defer(cursor_pos, span_start + #with + #space + 1)
+			selected_suggestion(1)
+		end
+
+		return before .. with .. space .. after
 	end
 
 	local activation_keys = derive(function()
@@ -180,10 +203,12 @@ local function app()
 			return
 		end
 
-		if input.KeyCode == Enum.KeyCode.Up then
-			handle_navigation(true)
-		elseif input.KeyCode == Enum.KeyCode.Down then
-			handle_navigation(false)
+		if state.opened() then
+			if input.KeyCode == Enum.KeyCode.Up then
+				handle_navigation(true)
+			elseif input.KeyCode == Enum.KeyCode.Down then
+				handle_navigation(false)
+			end
 		end
 
 		if not activation_keys()[input.KeyCode] then
@@ -244,308 +269,314 @@ local function app()
 		end)
 	end)
 
-	return container {
-		auto = "Y",
-		anchor = state.anchor,
-		position = spring(function()
-			return px.get(state.position() + UDim2.fromOffset(0, px.convert(state.opened() and 0 or 16)))
-		end, 0.3),
-		size = px(function()
-			local w = state.width()
-			return UDim2.new(w.Scale, w.Offset, 0, 0)
-		end),
+	local function submit(value: string)
+		-- resolve from the submitted text rather than the analysis, which only
+		-- carries arguments when the cursor happens to sit on one
+		local submitted = centurion.resolve_command(value)
+		raw_text("")
+		analysis(default_analysis)
 
-		corner(px(8)),
-		padding(px(12)),
+		if #value:gsub("%s", "") == 0 then
+			state.opened(false)
+			return
+		end
 
-		create "UIListLayout" {
-			SortOrder = Enum.SortOrder.LayoutOrder,
-			Padding = px(UDim.new(0, 8)),
-		},
+		task.delay(0.1, function()
+			state.focused(true)
+		end)
 
-		background {
-			auto = "Y",
-			size = UDim2.new(1, 0, 0, 0),
+		cmd_history_index = 0
+		table.insert(cmd_history, 1, value)
+
+		local cmd = submitted.name
+		if not cmd then
+			log(value, {
+				success = false,
+				message = "Unknown command",
+				timestamp = os.time(),
+			})
+			return
+		end
+
+		executing_command(cmd)
+		executing(executing() + 1)
+
+		-- pass the submitted text so that ctx.input keeps its original quoting
+		local ok, result = pcall(centurion.execute_command, Players.LocalPlayer, cmd, submitted.args, value)
+		executing(executing() - 1)
+
+		if not ok then
+			warn(`Failed to execute '{value}': {result}`)
+			log(value, {
+				success = false,
+				message = "Failed to execute command",
+				timestamp = os.time(),
+			})
+			return
+		end
+
+		if result.response then
+			if result.response.message ~= "" then
+				log(value, result.response)
+			end
+		else
+			log(value, {
+				success = true,
+				message = "Command executed",
+				timestamp = os.time(),
+			})
+		end
+	end
+
+	-- 0 when closed, 1 when open. The console fades and slides with it, and
+	-- stays visible until it has finished closing
+	local reveal = spring(function()
+		return if state.opened() then 1 else 0
+	end, 0.15)
+
+	-- the popover only shows when there's something to say about the input
+	local has_popover = derive(function()
+		local value = analysis()
+		return not value.result.success or value.argument ~= nil or #value.suggestions > 0
+	end)
+	local pop = spring(function()
+		return if has_popover() then 1 else 0
+	end, 0.12)
+
+	-- created inside the console so that it fades with it
+	local function input_field()
+		return background {
+			auto = "XY",
+			size = UDim2.fromScale(1, 0),
 			color = function()
-				return state.theme().background
+				return state.theme().surface
 			end,
 			transparency = state.transparency,
 
-			flex():fill("horizontal"):vertical("bottom"):gap(function()
-				return #state.logs() > 0 and 8 or 0
-			end),
-			corner(px(8)),
-			padding(px(4)),
+			corner(px(6)),
+			padding {
+				y = px(8),
+				left = px(function()
+					return 34 + shake()
+				end),
+				right = px(function()
+					return 10 - shake()
+				end),
+			},
 			stroke {
-				color = function()
-					return theme.border(state.theme())
-				end,
-			},
-			catch_hover(),
-
-			history {
-				max_lines = max_history_lines,
-				on_select = function(command)
-					cmd_history_index = 0
-					raw_text(command)
-					state.focused(true)
-					-- after the textbox has recaptured focus, move the cursor to the end
-					task.defer(cursor_pos, #command + 1)
-				end,
+				color = spring(function()
+					local current = state.theme()
+					if failed() or not analysis().result.success then
+						return current.error
+					elseif busy() or state.focused() then
+						return current.highlight
+					end
+					return theme.border(current)
+				end, 0.15),
 			},
 
-			background {
+			text {
+				text = function()
+					return if busy() then spinner_frames[spinner_frame()] else ">"
+				end,
+				text_style = function()
+					return (busy() or analysis().result.success) and "highlight" or "error"
+				end,
+				weight = Enum.FontWeight.Bold,
 				auto = "XY",
-				color = function()
-					return state.theme().surface
+
+				{
+					AnchorPoint = Vector2.new(0, 0.5),
+					Position = px(UDim2.new(0, -22, 0.5, 0)),
+				},
+			},
+
+			-- the rest of the selected suggestion, shown after the input
+			text {
+				size = UDim2.fromScale(1, 1),
+				text = function()
+					local analysis_suggestions = analysis().suggestions
+					if #analysis_suggestions == 0 then
+						return ""
+					end
+
+					local selected = analysis_suggestions[selected_suggestion()]
+					local suggested = autofill(raw_text(), selected, false)
+					if suggested:sub(1, #raw_text()) ~= raw_text() then
+						return ""
+					end
+					return suggested
 				end,
-				transparency = state.transparency,
+				text_style = "subtext",
+				transparency = 0.3,
+				xalignment = Enum.TextXAlignment.Left,
+				zindex = -1,
+			},
 
-				corner(px(4)),
-				padding {
-					padding = px(8),
-					left = px(function()
-						return 32 + shake()
-					end),
-					right = px(function()
-						return 8 - shake()
-					end),
-				},
-				stroke {
-					color = spring(function()
-						local current = state.theme()
-						if failed() or not analysis().result.success then
-							return current.error
-						elseif busy() or state.focused() then
-							return current.highlight
-						end
-						return theme.border(current)
-					end, 0.15),
-				},
+			-- syntax highlighted copy of the input, drawn over the textbox
+			text {
+				size = UDim2.fromScale(1, 1),
+				text = function()
+					return highlight(raw_text(), state.theme())
+				end,
+				rich_text = true,
+				xalignment = Enum.TextXAlignment.Left,
+				zindex = 2,
 
-				text {
-					text = function()
-						return if busy() then spinner_frames[spinner_frame()] else ">"
-					end,
-					text_style = function()
-						return (busy() or analysis().result.success) and "highlight" or "error"
-					end,
-					weight = Enum.FontWeight.Bold,
-					auto = "XY",
+				{ Interactable = false },
+			},
 
-					{
-						AnchorPoint = Vector2.new(0, 0.5),
-						Position = px(UDim2.new(0, -22, 0.5, 0)),
-					},
-				},
+			textbox {
+				placeholder = function()
+					return if busy() then `Running {executing_command()}...` else "Type a command"
+				end,
+				xalignment = Enum.TextXAlignment.Left,
+				-- the highlighted overlay draws the text, but hiding it completely would also hide the cursor
+				transparency = function()
+					return if raw_text() == "" then 0 else 0.5
+				end,
 
-				text {
-					size = UDim2.fromScale(1, 1),
-					text = function()
-						local analysis_suggestions = analysis().suggestions
-						if #analysis_suggestions == 0 then
-							return ""
-						end
+				text = raw_text,
+				update_text = function(value)
+					local pos = next_cursor_pos or cursor_pos()
+					local last_char = string.sub(value, pos - 1, pos - 1)
 
-						local selected = analysis_suggestions[selected_suggestion()]
-						local suggested = autofill(raw_text(), selected.span, selected.replace, false)
-						if suggested:sub(1, #raw_text()) ~= raw_text() then
-							return ""
-						end
-						return suggested
-					end,
-					text_style = "subtext",
-					xalignment = Enum.TextXAlignment.Left,
-					zindex = -1,
-				},
+					local suggested = analysis().suggestions
+					if last_char == "\t" and suggested[1] then
+						local selected = suggested[selected_suggestion()]
+						value = autofill(raw_text(), selected, true)
+					end
+					raw_text(value)
+				end,
 
-				-- syntax highlighted copy of the input, drawn over the textbox
-				text {
-					size = UDim2.fromScale(1, 1),
-					text = function()
-						return highlight(raw_text(), state.theme())
-					end,
-					rich_text = true,
-					xalignment = Enum.TextXAlignment.Left,
-					zindex = 2,
+				focused = state.focused,
+				update_focused = state.focused,
 
-					{ Interactable = false },
-				},
+				enter = submit,
 
-				textbox {
-					placeholder = function()
-						return if busy() then `Running {executing_command()}...` else "Enter command"
-					end,
-					xalignment = Enum.TextXAlignment.Left,
+				{
+					AutomaticSize = Enum.AutomaticSize.None,
+					Size = UDim2.fromScale(1, 1),
+					CursorPosition = cursor_pos,
 
-					text = raw_text,
-					update_text = function(value)
-						local pos = next_cursor_pos or cursor_pos()
-						local last_char = string.sub(value, pos - 1, pos - 1)
-
-						local suggested = analysis().suggestions
-						if last_char == "\t" and suggested[1] then
-							local selected = suggested[selected_suggestion()]
-							value = autofill(raw_text(), selected.span, selected.replace, true)
-						end
-						raw_text(value)
-					end,
-
-					focused = state.focused,
-					update_focused = state.focused,
-
-					enter = function(value)
-						-- resolve from the submitted text rather than the
-						-- analysis, which only carries arguments when the
-						-- cursor happens to sit on one
-						local submitted = centurion.resolve_command(value)
-						raw_text("")
-						analysis(default_analysis)
-
-						if #value:gsub("%s", "") == 0 then
-							state.opened(false)
-							return
-						end
-
-						task.delay(0.1, function()
-							state.focused(true)
-						end)
-
-						cmd_history_index = 0
-						table.insert(cmd_history, 1, value)
-
-						local cmd = submitted.name
-						if not cmd then
-							log(value, {
-								success = false,
-								message = "Unknown command",
-								timestamp = os.time(),
-							})
-							return
-						end
-
-						executing_command(cmd)
-						executing(executing() + 1)
-
-						-- pass the submitted text so that ctx.input keeps its original quoting
-						local ok, result =
-							pcall(centurion.execute_command, Players.LocalPlayer, cmd, submitted.args, value)
-						executing(executing() - 1)
-
-						if not ok then
-							warn(`Failed to execute '{value}': {result}`)
-							log(value, {
-								success = false,
-								message = "Failed to execute command",
-								timestamp = os.time(),
-							})
-							return
-						end
-
-						if result.response then
-							if result.response.message ~= "" then
-								log(value, result.response)
-							end
-						else
-							log(value, {
-								success = true,
-								message = "Command executed",
-								timestamp = os.time(),
-							})
-						end
-					end,
-
-					{
-						AutomaticSize = Enum.AutomaticSize.None,
-						Size = UDim2.fromScale(1, 1),
-						CursorPosition = cursor_pos,
-						-- the highlighted overlay draws the text, but hiding it completely would also hide the cursor
-						TextTransparency = function()
-							return if raw_text() == "" then 0 else 0.5
-						end,
-
-						changed("CursorPosition", function(new)
-							if next_cursor_pos then
-								next_cursor_pos = new
-								return
-							end
-
+					changed("CursorPosition", function(new)
+						if next_cursor_pos then
 							next_cursor_pos = new
-							task.defer(function()
-								cursor_pos(next_cursor_pos)
-								next_cursor_pos = false
-							end)
-						end),
-					},
+							return
+						end
+
+						next_cursor_pos = new
+						task.defer(function()
+							cursor_pos(next_cursor_pos)
+							next_cursor_pos = false
+						end)
+					end),
 				},
 			},
-		},
+		}
+	end
 
-		container {
-			size = spring(function()
-				local analysis_value = analysis()
-				if analysis_value == nil then
-					return UDim2.fromScale(1, 0)
-				end
+	return fade.opacity(reveal, function()
+		return container {
+			auto = "Y",
+			anchor = state.anchor,
+			position = function()
+				local offset = px.convert((reveal() - 1) * 12)
+				return px.get(state.position) + UDim2.fromOffset(0, offset)
+			end,
+			size = px(function()
+				local w = state.width()
+				return UDim2.new(w.Scale, w.Offset, 0, 0)
+			end),
 
-				return (
-					not analysis_value.result.success
-					or analysis_value.argument ~= nil
-					or #analysis_value.suggestions > 0
-				)
-						and UDim2.fromScale(1, 1)
-					or UDim2.fromScale(1, 0)
-			end, 0.4),
-			clip = true,
+			padding(px(12)),
+			flex():row():gap(2),
 
-			-- keeps outlines from being clipped
-			padding(1),
-
-			create "UIListLayout" {
-				SortOrder = Enum.SortOrder.LayoutOrder,
-				Padding = px(UDim.new(0, 8)),
+			{
+				Visible = function()
+					return state.opened() or reveal() > 0.01
+				end,
 			},
 
+			-- the console itself: header, history and input
 			background {
-				auto = "XY",
-				visible = function()
-					return display_analysis() and not display_analysis().result.success
-				end,
+				auto = "Y",
+				size = UDim2.fromScale(1, 0),
+				order = 1,
 				color = function()
-					return state.theme().surface
+					return state.theme().background
 				end,
 				transparency = state.transparency,
 
-				corner(px(4)),
-				padding(px(8)),
+				corner(px(10)),
 				stroke {
 					color = function()
-						return state.theme().error
+						return theme.border(state.theme())
 					end,
-					transparency = 0.5,
 				},
+				flex():row():fill("horizontal"),
 				catch_hover(),
 
-				text {
+				header { order = 1 },
+				divider { order = 2 },
+
+				history {
+					order = 3,
+					max_lines = max_history_lines,
+					on_select = function(command)
+						cmd_history_index = 0
+						raw_text(command)
+						state.focused(true)
+						-- after the textbox has recaptured focus, move the cursor to the end
+						task.defer(cursor_pos, #command + 1)
+					end,
+				},
+
+				container {
+					auto = "Y",
+					size = UDim2.fromScale(1, 0),
+					order = 4,
+
+					padding(px(8)),
+
+					input_field(),
+				},
+			},
+
+			-- completion popover, dropping down from the input
+			fade.opacity(function()
+				return reveal() * pop()
+			end, function()
+				return container {
 					auto = "XY",
-					text = function()
-						return display_analysis().result.error or ""
-					end,
-					text_style = "error",
-					xalignment = Enum.TextXAlignment.Left,
-				},
-			},
-			suggestions {
-				analysis = display_analysis,
-				selected_suggestion = selected_suggestion,
-				on_select = function(suggestion: types.AnalysisSuggestion)
-					raw_text(autofill(raw_text(), suggestion.span, suggestion.replace, true))
-				end,
+					order = 2,
 
-				catch_hover(),
-			},
-		},
-	}
+					padding {
+						left = px(8),
+						top = px(function()
+							return 6 * pop()
+						end),
+					},
+
+					{
+						Visible = function()
+							return pop() > 0.01
+						end,
+					},
+
+					suggestions {
+						analysis = display_analysis,
+						selected_suggestion = selected_suggestion,
+						on_select = function(suggestion: types.AnalysisSuggestion)
+							raw_text(autofill(raw_text(), suggestion, true))
+						end,
+
+						catch_hover(),
+					},
+				}
+			end),
+		}
+	end)
 end
 
 return app

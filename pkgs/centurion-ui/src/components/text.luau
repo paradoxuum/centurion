@@ -1,3 +1,4 @@
+local fade = require("../fade")
 local px = require("../px")
 local state = require("../state")
 local theme = require("../theme")
@@ -8,7 +9,7 @@ local create = vide.create
 local read = vide.read :: (<T>(() -> T) -> T) & (<T>(T) -> T)
 
 type Can<T> = T | () -> T
-type Background = {
+type Text = {
 	read size: Can<UDim2>?,
 	read auto: Can<Enum.AutomaticSize | "X" | "Y" | "XY">?,
 	read order: Can<number>?,
@@ -21,11 +22,12 @@ type Background = {
 	read wrapped: Can<boolean>?,
 	read rich_text: Can<boolean>?,
 	read zindex: Can<number>?,
+	read transparency: Can<number>?,
 
 	[number]: unknown,
 }
 
-return function(props: Background)
+return function(props: Text)
 	return create "TextLabel" {
 		Size = props.size,
 		AutomaticSize = props.auto,
@@ -33,6 +35,7 @@ return function(props: Background)
 
 		Text = props.text,
 		TextSize = props.text_size or px(state.text_size),
+		TextTransparency = fade.fade(props.transparency),
 		TextColor3 = function()
 			return theme.text_color(state.theme(), props.text_style and read(props.text_style) or "normal")
 		end,

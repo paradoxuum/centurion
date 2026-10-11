@@ -52,6 +52,7 @@ export type Theme = {
 }
 
 export type AnalysisSuggestion = {
+	kind: "command" | "argument",
 	name: string,
 	description: string?,
 	-- ranges of `name` that match the input
