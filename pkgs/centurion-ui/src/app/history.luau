@@ -134,7 +134,7 @@ local function entry(value: () -> types.Log, i: number, on_select: (command: str
 				auto = "XY",
 				order = 2,
 				text = function()
-					return state.format_date(value()) or ""
+					return state.format_date()(value()) or ""
 				end,
 				text_size = px(state.subtext_size),
 				text_style = "subtext",

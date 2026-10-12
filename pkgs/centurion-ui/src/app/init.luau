@@ -221,7 +221,7 @@ local function app()
 
 		local input_text = raw_text()
 		if opened and #input_text > 0 then
-			analysis(analyse(input_text, #input_text + 1, state.max_suggestions))
+			analysis(analyse(input_text, #input_text + 1, state.max_suggestions()))
 		end
 	end))
 
@@ -265,7 +265,7 @@ local function app()
 				return
 			end
 
-			analysis(analyse(raw_text(), pos, state.max_suggestions))
+			analysis(analyse(raw_text(), pos, state.max_suggestions()))
 		end)
 	end)
 

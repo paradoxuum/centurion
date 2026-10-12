@@ -52,10 +52,8 @@ local function configure(options: types.OptionsPartial)
 	set_opt(state.position, options.position)
 	set_opt(state.width, options.width)
 
-	state.max_suggestions = options.max_suggestions or 5
-	if options.format_date and typeof(options.format_date) == "function" then
-		state.format_date = options.format_date
-	end
+	set_opt(state.max_suggestions, options.max_suggestions)
+	set_opt(state.format_date, options.format_date)
 end
 
 local function clear()

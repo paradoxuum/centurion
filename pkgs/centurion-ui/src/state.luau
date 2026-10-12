@@ -17,12 +17,12 @@ return {
 	title = source("Centurion"),
 	icon = source("rbxassetid://115292290730914"),
 	transparency = source(0.2),
-	format_date = function(log: types.Log)
+	format_date = source(function(log: types.Log): string
 		local dateTime = DateTime.fromUnixTimestamp(log.response.timestamp):FormatLocalTime("LT", "en-us")
 		local dateParts = dateTime:split(" ")
 		return `<b>{dateParts[1]}</b> {dateParts[2]}`
-	end,
-	max_suggestions = 5,
+	end),
+	max_suggestions = source(5),
 
 	text_size = source(28),
 	subtext_size = source(24),
