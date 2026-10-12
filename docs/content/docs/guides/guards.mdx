@@ -6,6 +6,10 @@ icon: Shield
 
 Guards are functions that run before a command's callback. If any guard returns `false` (or throws), the command is not executed.
 
+To tell the player why, call `ctx.error` before returning `false`. A guard that returns `false` without responding shows a default
+`You cannot execute this command.` error. Anything other than `true` blocks the command, so a guard that forgets to `return true`
+denies every call and logs a warning.
+
 ## Named Guards
 
 Register a reusable guard with `register_guard`, then reference it by name in any command.

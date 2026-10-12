@@ -28,7 +28,19 @@ local function call_guard(ctx: types.ExecutionContext, name: string, callback: (
 		return false
 	end
 
-	return value :: boolean
+	if value == true then
+		return true
+	end
+
+	if value ~= false then
+		warn(`Guard '{name}' returned {typeof(value)} instead of a boolean. Did you forget to return true?`)
+	end
+
+	if not ctx.response then
+		ctx.error("You cannot execute this command.")
+	end
+
+	return false
 end
 
 -- `input` is the raw, untokenized string the executor submitted. Pass it

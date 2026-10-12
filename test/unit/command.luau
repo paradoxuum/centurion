@@ -184,6 +184,51 @@ TEST("named guards", function()
 	CHECK(not pcall(centurion.unregister_guard, "deny"))
 end)
 
+TEST("guard responses", function()
+	local remove
+
+	CASE("a guard's own error is kept")
+	remove = centurion.add_global_guard(function(ctx)
+		ctx.error("blocked")
+		return false
+	end)
+	CHECK(message(centurion.execute_command(alice, "echo", { "hi" })) == "blocked")
+	remove()
+
+	CASE("a guard's own reply is kept")
+	remove = centurion.add_global_guard(function(ctx)
+		ctx.reply("not now")
+		return false
+	end)
+	local ctx = centurion.execute_command(alice, "echo", { "hi" })
+	CHECK(message(ctx) == "not now")
+	CHECK(ctx.response.success)
+	remove()
+
+	CASE("denying without a response gives a default error")
+	remove = centurion.add_global_guard(function()
+		return false
+	end)
+	ctx = centurion.execute_command(alice, "echo", { "hi" })
+	CHECK(message(ctx) == "You cannot execute this command.")
+	CHECK(not ctx.response.success)
+	remove()
+
+	CASE("a named guard gets the default error too")
+	centurion.register_guard("deny", function()
+		return false
+	end)
+	centurion.register_command("denied", {
+		guards = { "deny" },
+		callback = function()
+			return "ran"
+		end,
+	})
+	CHECK(message(centurion.execute_command(alice, "denied")) == "You cannot execute this command.")
+	centurion.unregister_command("denied")
+	centurion.unregister_guard("deny")
+end)
+
 TEST("argument types", function()
 	CASE("registering a duplicate type errors")
 	CHECK(not pcall(centurion.register_type, "string", {
