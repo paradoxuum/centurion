@@ -59,7 +59,7 @@ See the [documentation](https://centurion.paradoxum.dev/) to get started.
 
 - [💻 Conch](https://github.com/alicesaidhi/conch): UI utility components and text box state handling
 
-- [🌿 Vide](https://github.com/centau/vide): Reactive UI library powering Centurion UI
+- [🌿 Vide](https://github.com/centau/vide): Reactive UI library powering the terminal UI
 
 ---
 
