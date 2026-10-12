@@ -249,18 +249,18 @@ function leventine.map(s: string, t: { string }, info: MapInfo?): { string }
 end
 
 --[[
-	Checks if `a` is a subsequence of `b`
+	Checks if `b` is a subsequence of `a`
 
 	```luau
-	local has_match = leventine.has_match("meow", "mrrp")
-	print(has_match) --> false
+	print(leventine.has_match("meow", "mw")) --> true
+	print(leventine.has_match("meow", "mrrp")) --> false
 	```
 ]]
 function leventine.has_match(a: string, b: string, case_sensitive: boolean?): boolean
 	a, b = APPLY_CASE_SENSITIVITY(case_sensitive, a, b)
 	local char_index: number? = 1
 
-	for _, character in SPLIT(b) do
+	for _, character in SPLIT(b, "") do
 		char_index = FIND(a, character, char_index, true)
 
 		if char_index then
