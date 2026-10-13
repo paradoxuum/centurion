@@ -1,3 +1,5 @@
+local GuiService = game:GetService("GuiService")
+
 local fade = require("../fade")
 local px = require("../px")
 local state = require("../state")
@@ -40,6 +42,14 @@ type TextBoxProps = {
 
 return function(props: TextBoxProps)
 	local raw_text = source ""
+
+	local function submit()
+		if not props.focused then
+			return
+		end
+		props.enter(raw_text())
+	end
+
 	local textbox = create "TextBox" {
 		Size = function()
 			return UDim2.fromOffset(read(props.width) or 0, read(props.height) or 0)
@@ -88,11 +98,12 @@ return function(props: TextBoxProps)
 			if not enter then
 				return
 			end
-			if not props.focused then
-				return
-			end
-			props.enter(raw_text())
+			submit()
 		end,
+
+		-- consoles don't fire enter through FocusLost, so this workaround is required
+		-- Roblox have shown some interest in fixing this, so it should be removed in that case to prevent duplicate submissions
+		ReturnPressedFromOnScreenKeyboard = if GuiService:IsTenFootInterface() then submit else nil,
 
 		unpack(props),
 	}
