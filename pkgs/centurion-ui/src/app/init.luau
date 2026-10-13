@@ -31,6 +31,7 @@ local derive = vide.derive
 local effect = vide.effect
 local source = vide.source
 local spring = vide.spring
+local untrack = vide.untrack
 
 local default_analysis = {
 	result = {
@@ -58,6 +59,14 @@ local function app()
 
 	local selected_suggestion = source(1)
 	local over_interface = source(false)
+
+	-- touch devices draw a focused textbox with the native text field, which
+	-- ignores TextTransparency and sits at a different offset, so the
+	-- highlighted and suggested text overlays can't line up with it
+	local touch = source(UserInputService.PreferredInput == Enum.PreferredInput.Touch)
+	cleanup(UserInputService:GetPropertyChangedSignal("PreferredInput"):Connect(function()
+		touch(UserInputService.PreferredInput == Enum.PreferredInput.Touch)
+	end))
 
 	local next_cursor_pos = false
 	local cmd_history = {}
@@ -218,12 +227,22 @@ local function app()
 		local opened = not state.opened()
 		state.opened(opened)
 		state.focused(opened)
-
-		local input_text = raw_text()
-		if opened and #input_text > 0 then
-			analysis(analyse(input_text, #input_text + 1, state.max_suggestions()))
-		end
 	end))
+
+	-- refresh suggestions for leftover input whenever the console opens, which
+	-- can also happen through the public open/toggle functions
+	effect(function()
+		if not state.opened() then
+			return
+		end
+
+		untrack(function()
+			local input_text = raw_text()
+			if #input_text > 0 then
+				analysis(analyse(input_text, #input_text + 1, state.max_suggestions()))
+			end
+		end)
+	end)
 
 	effect(function()
 		if executing() == 0 then
@@ -396,7 +415,7 @@ local function app()
 				size = UDim2.fromScale(1, 1),
 				text = function()
 					local analysis_suggestions = analysis().suggestions
-					if #analysis_suggestions == 0 then
+					if touch() or #analysis_suggestions == 0 then
 						return ""
 					end
 
@@ -417,7 +436,7 @@ local function app()
 			text {
 				size = UDim2.fromScale(1, 1),
 				text = function()
-					return highlight(raw_text(), state.theme())
+					return if touch() then "" else highlight(raw_text(), state.theme())
 				end,
 				rich_text = true,
 				xalignment = Enum.TextXAlignment.Left,
@@ -433,7 +452,7 @@ local function app()
 				xalignment = Enum.TextXAlignment.Left,
 				-- the highlighted overlay draws the text, but hiding it completely would also hide the cursor
 				transparency = function()
-					return if raw_text() == "" then 0 else 0.5
+					return if raw_text() == "" or touch() then 0 else 0.5
 				end,
 
 				text = raw_text,

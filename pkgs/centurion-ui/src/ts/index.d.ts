@@ -42,6 +42,14 @@ export namespace CenturionUI {
 
 	export function clear(): void;
 
+	export function open(): void;
+
+	export function close(): void;
+
+	export function toggle(): void;
+
+	export function is_open(): boolean;
+
 	export const themes: {
 		frappe: Theme;
 		macchiato: Theme;

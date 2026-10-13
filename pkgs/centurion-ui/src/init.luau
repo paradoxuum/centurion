@@ -60,6 +60,28 @@ local function clear()
 	state.logs({})
 end
 
+local function open()
+	state.opened(true)
+	state.focused(true)
+end
+
+local function close()
+	state.opened(false)
+	state.focused(false)
+end
+
+local function toggle()
+	if state.opened() then
+		close()
+	else
+		open()
+	end
+end
+
+local function is_open(): boolean
+	return state.opened()
+end
+
 local function register_commands(options: { exclude: { string }?, prefix: string? }?)
 	options = options or {}
 
@@ -112,5 +134,9 @@ return {
 	configure = configure,
 	register_commands = register_commands,
 	clear = clear,
+	open = open,
+	close = close,
+	toggle = toggle,
+	is_open = is_open,
 	themes = theme.themes,
 }
