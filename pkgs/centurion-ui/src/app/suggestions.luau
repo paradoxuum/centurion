@@ -1,5 +1,3 @@
-local UserInputService = game:GetService("UserInputService")
-
 local background = require("../components/background")
 local centurion = require("../../centurion")
 local container = require("../components/container")
@@ -8,6 +6,7 @@ local divider = require("../components/divider")
 local fade = require("../fade")
 local flex = require("../components/flex")
 local padding = require("../components/padding")
+local preferred_input = require("../input")
 local px = require("../px")
 local rich = require("../rich")
 local state = require("../state")
@@ -17,7 +16,6 @@ local theme = require("../theme")
 local types = require("../types")
 local vide = require("../../vide")
 
-local cleanup = vide.cleanup
 local create = vide.create
 local derive = vide.derive
 local indexes = vide.indexes
@@ -46,14 +44,6 @@ local function format_argument(arg: centurion.Argument): string
 	end
 
 	return if arg.optional then `[{label}]` else `<{label}>`
-end
-
-local function preferred_input(): () -> Enum.PreferredInput
-	local preferred = source(UserInputService.PreferredInput)
-	cleanup(UserInputService:GetPropertyChangedSignal("PreferredInput"):Connect(function()
-		preferred(UserInputService.PreferredInput)
-	end))
-	return preferred
 end
 
 -- small filled label, e.g. the type of an argument

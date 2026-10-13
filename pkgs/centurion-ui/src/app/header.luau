@@ -4,6 +4,7 @@ local corner = require("../components/corner")
 local flex = require("../components/flex")
 local image = require("../components/image")
 local padding = require("../components/padding")
+local preferred_input = require("../input")
 local px = require("../px")
 local state = require("../state")
 local text = require("../components/text")
@@ -36,6 +37,8 @@ local function key_label(key: Enum.KeyCode): string
 end
 
 local function header(props: Header)
+	local input = preferred_input()
+
 	return container {
 		size = px(UDim2.new(1, 0, 0, 34)),
 		order = props.order,
@@ -73,9 +76,8 @@ local function header(props: Header)
 			},
 		},
 
-		-- how to close the console again
 		show(function()
-			return #state.activation_keys() > 0
+			return input() == Enum.PreferredInput.KeyboardAndMouse and #state.activation_keys() > 0
 		end, function()
 			return container {
 				auto = "XY",

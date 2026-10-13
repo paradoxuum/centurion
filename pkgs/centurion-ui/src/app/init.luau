@@ -14,6 +14,7 @@ local header = require("@self/header")
 local highlight = require("./analyse/highlight")
 local history = require("@self/history")
 local padding = require("./components/padding")
+local preferred_input = require("./input")
 local px = require("./px")
 local state = require("./state")
 local stroke = require("./components/stroke")
@@ -63,10 +64,10 @@ local function app()
 	-- touch devices draw a focused textbox with the native text field, which
 	-- ignores TextTransparency and sits at a different offset, so the
 	-- highlighted and suggested text overlays can't line up with it
-	local touch = source(UserInputService.PreferredInput == Enum.PreferredInput.Touch)
-	cleanup(UserInputService:GetPropertyChangedSignal("PreferredInput"):Connect(function()
-		touch(UserInputService.PreferredInput == Enum.PreferredInput.Touch)
-	end))
+	local preferred = preferred_input()
+	local touch = derive(function()
+		return preferred() == Enum.PreferredInput.Touch
+	end)
 
 	local next_cursor_pos = false
 	local cmd_history = {}
