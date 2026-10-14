@@ -1,3 +1,15 @@
+# Prettier's support for these is lossy (it rewrites MDX code blocks and the README's HTML header)
 **/*.md
 **/*.mdx
 **/*.json
+
+# Generated
+pnpm-lock.yaml
+pnpm-workspace.yaml
+docs/src/routeTree.gen.ts
+.output/
+.tanstack/
+.source/
+
+# Submodules
+pkgs/centurion-ui/vide/

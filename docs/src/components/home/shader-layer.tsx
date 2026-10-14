@@ -5,35 +5,32 @@ import { type ReactNode, useEffect, useRef, useState } from "react";
  * when their uniform images aren't fully loaded yet, so give them a moment.
  */
 export function useMounted(delay = 400) {
-  const [mounted, setMounted] = useState(false);
+	const [mounted, setMounted] = useState(false);
 
-  useEffect(() => {
-    const id = setTimeout(() => setMounted(true), delay);
-    return () => clearTimeout(id);
-  }, [delay]);
+	useEffect(() => {
+		const id = setTimeout(() => setMounted(true), delay);
+		return () => clearTimeout(id);
+	}, [delay]);
 
-  return mounted;
+	return mounted;
 }
 
 export function useInView<T extends Element>(rootMargin = "200px") {
-  const ref = useRef<T>(null);
-  const [inView, setInView] = useState(false);
+	const ref = useRef<T>(null);
+	const [inView, setInView] = useState(false);
 
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
+	useEffect(() => {
+		const el = ref.current;
+		if (!el) return;
 
-    const observer = new IntersectionObserver(
-      ([entry]) => setInView(entry.isIntersecting),
-      {
-        rootMargin,
-      },
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [rootMargin]);
+		const observer = new IntersectionObserver(([entry]) => setInView(entry.isIntersecting), {
+			rootMargin,
+		});
+		observer.observe(el);
+		return () => observer.disconnect();
+	}, [rootMargin]);
 
-  return [ref, inView] as const;
+	return [ref, inView] as const;
 }
 
 /**
@@ -41,29 +38,20 @@ export function useInView<T extends Element>(rootMargin = "200px") {
  * keeping the number of live WebGL contexts (and GPU work) low.
  */
 export function ShaderLayer({
-  children,
-  className = "",
-  style,
+	children,
+	className = "",
+	style,
 }: {
-  children: ReactNode;
-  className?: string;
-  style?: React.CSSProperties;
+	children: ReactNode;
+	className?: string;
+	style?: React.CSSProperties;
 }) {
-  const [ref, inView] = useInView<HTMLDivElement>();
-  const mounted = useMounted();
+	const [ref, inView] = useInView<HTMLDivElement>();
+	const mounted = useMounted();
 
-  return (
-    <div
-      ref={ref}
-      aria-hidden
-      className={`pointer-events-none absolute inset-0 ${className}`}
-      style={style}
-    >
-      {mounted && inView && (
-        <div className="absolute inset-0 animate-fd-fade-in duration-1000">
-          {children}
-        </div>
-      )}
-    </div>
-  );
+	return (
+		<div ref={ref} aria-hidden className={`pointer-events-none absolute inset-0 ${className}`} style={style}>
+			{mounted && inView && <div className="absolute inset-0 animate-fd-fade-in duration-1000">{children}</div>}
+		</div>
+	);
 }

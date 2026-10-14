@@ -8,9 +8,7 @@
     "build": "vite build",
     "start": "serve .output/public --config ../../serve.json",
     "preview": "vite preview",
-    "types:check": "tsc --noEmit",
-    "lint": "biome check",
-    "format": "biome format --write"
+    "types:check": "tsc --noEmit"
   },
   "dependencies": {
     "@paper-design/shaders-react": "^0.0.81",
@@ -28,7 +26,6 @@
     "react-dom": "^19.2.8"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.5.12",
     "@tailwindcss/vite": "^4.3.3",
     "@types/mdx": "^2.0.14",
     "@types/node": "^26.5.0",
