@@ -7,6 +7,7 @@ require("./command")
 require("./duration")
 require("./leventine")
 require("./limit")
+require("./log")
 require("./resolve")
 
 local ok = FINISH()

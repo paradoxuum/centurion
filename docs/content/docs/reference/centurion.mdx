@@ -281,6 +281,47 @@ and never reach the command. Commands executed directly with `execute_command` o
 
 ---
 
+### `set_logger`
+
+```lua
+type LogLevel = "warn" | "error"
+
+type LogInfo = {
+    executor:  Player?,
+    command:   string?,
+    input:     string?,
+    guard:     string?,
+    traceback: string?,
+}
+
+centurion.set_logger(logger: ((level: LogLevel, message: string, info: LogInfo) -> ())?)
+```
+
+Routes everything Centurion logs to your own function, such as a logging or analytics service. By default, both levels are
+printed with `warn`. Call `set_logger` with no argument to restore that default. The logger runs on whichever machine produced
+the log, so set it on both the server and the client if you want both.
+
+| Level | Logged when |
+| --- | --- |
+| `error` | A guard or command callback throws. `info.traceback` holds the stack trace from where the error was thrown. |
+| `warn` | Something is misconfigured but Centurion can carry on: a guard returns a non-boolean, a named guard was unregistered after a command used it, a callback's arity doesn't match its arguments, or a synced command couldn't be registered on the client. |
+
+Invalid input from players, such as an argument that fails to transform, isn't logged. It's returned to the player as an error response instead.
+
+If the logger itself throws, Centurion falls back to the default logger for that message.
+
+```lua
+centurion.set_logger(function(level, message, info)
+    if level == "error" then
+        Analytics.report(message, info.traceback, info.executor)
+    else
+        warn(message)
+    end
+end)
+```
+
+---
+
 ## Guards
 
 ### `register_guard`

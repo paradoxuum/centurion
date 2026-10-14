@@ -1,6 +1,7 @@
 local argument = require("./argument")
 local context = require("./context")
 local guard = require("./guard")
+local log = require("./log")
 local permission = require("./permission")
 local types = require("./types")
 
@@ -21,9 +22,16 @@ local function set_network_handler(callback: NetworkHandler)
 end
 
 local function call_guard(ctx: types.ExecutionContext, name: string, callback: (ctx: types.ExecutionContext) -> boolean)
-	local result, value = pcall(callback :: any, ctx)
+	local result, value = xpcall(callback :: any, log.capture, ctx)
 	if not result then
-		warn(`Guard execution failed for '{name}': ` .. tostring(value))
+		local caught: log.CaughtError = value
+		log.error(`Guard execution failed for '{name}': {caught.message}`, {
+			executor = ctx.executor,
+			command = ctx.command,
+			input = ctx.input,
+			guard = name,
+			traceback = caught.traceback,
+		})
 		ctx.error("Failed to execute command.")
 		return false
 	end
@@ -33,7 +41,12 @@ local function call_guard(ctx: types.ExecutionContext, name: string, callback: (
 	end
 
 	if value ~= false then
-		warn(`Guard '{name}' returned {typeof(value)} instead of a boolean. Did you forget to return true?`)
+		log.warn(`Guard '{name}' returned {typeof(value)} instead of a boolean. Did you forget to return true?`, {
+			executor = ctx.executor,
+			command = ctx.command,
+			input = ctx.input,
+			guard = name,
+		})
 	end
 
 	if not ctx.response then
@@ -90,7 +103,12 @@ local function execute(executor: Player, name: string, args: { string }?, input:
 			-- unregistered afterwards. fail closed rather than skip it
 			local guard_callback = guard.guards[cmd_guard]
 			if not guard_callback then
-				warn(`Guard '{cmd_guard}' used by command '{name}' is not registered.`)
+				log.warn(`Guard '{cmd_guard}' used by command '{name}' is not registered.`, {
+					executor = executor,
+					command = name,
+					input = ctx.input,
+					guard = cmd_guard,
+				})
 				ctx.error("Failed to execute command.")
 				return ctx
 			end
@@ -115,9 +133,15 @@ local function execute(executor: Player, name: string, args: { string }?, input:
 
 	-- unpack up to the declared argument count so that omitted optional
 	-- arguments don't truncate the ones after them
-	local success, value = pcall(command.callback :: any, ctx, unpack(res.value, 1, #command_args))
+	local success, value = xpcall(command.callback :: any, log.capture, ctx, unpack(res.value, 1, #command_args))
 	if not success then
-		warn(`Failed to execute '{ctx.input}': ` .. tostring(value))
+		local caught: log.CaughtError = value
+		log.error(`Failed to execute '{ctx.input}': {caught.message}`, {
+			executor = executor,
+			command = name,
+			input = ctx.input,
+			traceback = caught.traceback,
+		})
 		ctx.error("Failed to execute command.")
 		return ctx
 	end
@@ -142,8 +166,9 @@ local function check_arity(name: string, callback: (...any) -> any, declared: nu
 
 	local takes = (nparams :: number) - offset
 	if takes ~= declared then
-		warn(
-			`Command '{name}' declares {declared} {declared == 1 and "argument" or "arguments"} but its callback takes {takes}.`
+		log.warn(
+			`Command '{name}' declares {declared} {declared == 1 and "argument" or "arguments"} but its callback takes {takes}.`,
+			{ command = name }
 		)
 	end
 end

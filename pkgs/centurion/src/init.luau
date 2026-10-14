@@ -4,6 +4,7 @@ local command = require("@self/command")
 local duration = require("@self/argument/duration")
 local guard = require("@self/guard")
 local limit = require("@self/limit")
+local log = require("@self/log")
 local parse = require("@self/parse")
 local permission = require("@self/permission")
 local player = require("@self/argument/player")
@@ -28,6 +29,10 @@ export type Response = types.Response
 
 export type ExecuteLimits = limit.ExecuteLimits
 
+export type LogLevel = log.LogLevel
+export type LogInfo = log.LogInfo
+export type Logger = log.Logger
+
 export type Token = parse.Token
 export type ParseResult = parse.ParseResult
 export type Resolution = resolve.Resolution
@@ -51,6 +56,7 @@ return {
 	set_network_handler = command.set_network_handler,
 	setup_networking = sync.setup,
 	set_execute_limits = limit.set_options,
+	set_logger = log.set_logger,
 
 	create_role = permission.create_role,
 	set_roles = permission.set_roles,

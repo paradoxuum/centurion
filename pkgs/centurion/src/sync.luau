@@ -1,6 +1,7 @@
 local command = require("./command")
 local context = require("./context")
 local limit = require("./limit")
+local log = require("./log")
 local permission = require("./permission")
 local services = require("./services")
 local types = require("./types")
@@ -60,7 +61,9 @@ local function client()
 		remove(key)
 
 		if command.commands[key] ~= nil then
-			warn(`Command '{key}' is already registered on the client, so the server's command was not synced.`)
+			log.warn(`Command '{key}' is already registered on the client, so the server's command was not synced.`, {
+				command = key,
+			})
 			return
 		end
 
@@ -71,7 +74,7 @@ local function client()
 			command.register(key, cmd)
 		end)
 		if not ok then
-			warn(`Failed to sync command '{key}': {err}`)
+			log.warn(`Failed to sync command '{key}': {err}`, { command = key })
 			return
 		end
 

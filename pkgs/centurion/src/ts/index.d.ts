@@ -174,6 +174,20 @@ export interface ExecuteLimits {
 
 export function set_execute_limits(limits: ExecuteLimits): void;
 
+export type LogLevel = "warn" | "error";
+
+export interface LogInfo {
+	executor?: Player;
+	command?: string;
+	input?: string;
+	guard?: string;
+	traceback?: string;
+}
+
+export type Logger = (level: LogLevel, message: string, info: LogInfo) => void;
+
+export function set_logger(logger?: Logger): void;
+
 export function parse_text(text: string, split_char: string): ParseResult;
 
 export function resolve_command(text: string): Resolution;
