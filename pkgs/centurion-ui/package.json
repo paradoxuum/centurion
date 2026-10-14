@@ -9,7 +9,7 @@
   "types": "src/ts/index.d.ts",
   "files": [
     "src",
-    "vide",
+    "vide/src",
     "*.luau",
     "!wally.toml",
     "!wally.lock",
