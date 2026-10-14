@@ -24,13 +24,18 @@ server.registry.load(script.Parent.commands);
 await server.start();
 
 // After
+import { Flamework } from "@flamework/core"; // If you are using Flamework
 import { setup_networking, register_classes } from "@rbxts/centurion";
 setup_networking();
-// require your command modules first, then:
+
+// load your command modules, e.g. through Flamework if you are using it
+Flamework.addPaths("src/server/commands");
+
+// register your command classes after loading them
 register_classes();
 ```
 
-On the client, `CenturionUI` no longer needs to be passed a 'client' instance. Just call `mount()` with activation keys.
+On the client, `CenturionUI` no longer needs to be passed a 'client' instance. Just call `mount()`, optionally passing the keys that open the terminal (`F2` by default).
 The UI can also be mounted at any point (e.g. before `setup_networking`, if needed).
 
 ```ts
@@ -47,8 +52,7 @@ import { setup_networking } from "@rbxts/centurion";
 import { CenturionUI } from "@rbxts/centurion-ui";
 
 setup_networking();
-CenturionUI.mount([Enum.KeyCode.F2]);
-CenturionUI.configure({});
+CenturionUI.mount();
 CenturionUI.register_commands();
 ```
 
@@ -219,7 +223,7 @@ See the [Permissions guide](/docs/guides/permissions) for details.
 ## Command Discovery
 
 In 1.x, `registry.load(container)` automatically required all ModuleScripts in a folder.
-2.x has no automatic discovery — require your command modules explicitly, then call `register_classes()`.
+2.x has no automatic discovery — require your command modules explicitly (e.g. through `Flamework.addPaths`), then call `register_classes()`.
 
 ```ts
 // Before

@@ -55,7 +55,7 @@ centurion.register_command("shutdown", {
     description = "Shut down the server",
     roles = { "admin" },
     callback = function(ctx)
-        game:GetService("TeleportService"):TeleportToPlaceInstance(...)
+        -- ...
     end,
 })
 ```
@@ -263,7 +263,7 @@ class ModCommands {
         ctx.reply(`Kicked ${target.Name}`);
     }
 
-    @Permission("ban")  // this method also requires the "ban" permission
+    @Permission("ban")  // players with the "ban" permission can also run this
     @Command({ description: "Ban a player", arguments: () => [args.player("target")] })
     ban(ctx: ExecutionContext, target: Player) {
         // ...
@@ -272,5 +272,9 @@ class ModCommands {
 
 register_classes();
 ```
+
+Decorators on a method add to the ones on its class rather than replacing them. Since roles and permissions are any-of, `ban` can be run
+by moderators (from the class's `@Role`) **or** by anyone with the `ban` permission. To restrict a command further than its class, put it
+in a separate class.
 
 Player cleanup (removing role data on disconnect) is handled automatically by the permission module.

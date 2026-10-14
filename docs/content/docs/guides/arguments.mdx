@@ -69,7 +69,7 @@ arguments: () => [args.player("target"), args.string("message")],
 | `args.integer` | `number` | Must be a whole number |
 | `args.boolean` | `boolean` | Accepts `true/false`, `yes/no`, `y/n` (case-insensitive) |
 | `args.player` | `Player` | Accepts `@me`, `.`, `@random`, `?`, or a player name (case-insensitive) |
-| `args.players` | `Player[]` | Comma-separated; also accepts `@all`, `@others`, `@random` |
+| `args.players` | `Player[]` | Comma-separated list of anything `args.player` accepts, plus `@all` and `@others` |
 | `args.brick_color` | `BrickColor` | Roblox BrickColor names (case-insensitive) |
 | `args.hex_color` | `Color3` | Six-digit hex color, with or without `#` (e.g. `#ff0000`) |
 | `args.rgb_color` | `Color3` | Three comma-separated components from 0 to 255 (e.g. `255,0,0`) |
@@ -284,7 +284,7 @@ centurion.register_command("repeat", {
   </CodeBlockTab>
   <CodeBlockTab value="ts">
 ```ts
-import { register_type, register_command } from "@rbxts/centurion";
+import { register_type, register_command, args } from "@rbxts/centurion";
 
 const positiveInt = register_type<number>("positive-integer", {
     transform: (text) => {
@@ -297,8 +297,11 @@ const positiveInt = register_type<number>("positive-integer", {
 });
 
 register_command("repeat", {
-    arguments: () => [positiveInt("count", "How many times to repeat")],
-    callback: (ctx, count) => {
+    arguments: () => [args.string("message"), positiveInt("count", "How many times to repeat")],
+    callback: (ctx, message, count) => {
+        for (let i = 0; i < count; i++) {
+            print(message);
+        }
         ctx.reply("Done");
     },
 });

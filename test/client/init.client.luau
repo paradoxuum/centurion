@@ -19,7 +19,6 @@ centurion.setup_networking()
 -- network.RequestState.Fire()
 
 centurion_ui.mount({ Enum.KeyCode.F2 })
-centurion_ui.configure({})
 centurion_ui.register_commands()
 
 local mobile_gui = Instance.new("ScreenGui")

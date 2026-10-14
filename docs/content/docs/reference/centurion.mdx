@@ -108,8 +108,8 @@ type ExecutionContext = {
 
 A function that runs before a command's callback. Return `true` to continue, or `false` (or throw) to halt execution. A guard that
 returns `false` should call `ctx.error` to explain why; if it sets no response, the response is set to `You cannot execute this command.`
-Any return value other than `true` or `false` halts execution and is logged with `warn`. A guard that throws is logged with `warn`, and
-the response is set to `Failed to execute command.`
+Any return value other than `true` or `false` halts execution and is logged at the `warn` level. A guard that throws is logged at the
+`error` level with a traceback, and the response is set to `Failed to execute command.`
 
 ```lua
 type Guard = (context: ExecutionContext) -> boolean
@@ -642,7 +642,7 @@ args.TYPE(name: string, description: string?, suggestions: { string }?) -> Argum
 | `args.integer` | `number` | Whole numbers only. |
 | `args.boolean` | `boolean` | Accepts `true`/`false`, `yes`/`no`, `y`/`n`, case-insensitive. |
 | `args.player` | `Player` | Accepts `@me` or `.` (self), `@random` or `?` (random player), or a player name (case-insensitive). |
-| `args.players` | `{ Player }` | Comma-separated player names. Also accepts `@all`, `@others`, `@random`. |
+| `args.players` | `{ Player }` | Comma-separated list of anything `args.player` accepts. Also accepts `@all` and `@others`. |
 | `args.brick_color` | `BrickColor` | Any Roblox BrickColor name, case-insensitive. |
 | `args.hex_color` | `Color3` | Six-digit hex string, with or without `#`, e.g. `#ff0000`. |
 | `args.rgb_color` | `Color3` | Three comma-separated components from 0 to 255, e.g. `255,0,0`. |

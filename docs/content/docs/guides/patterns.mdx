@@ -150,7 +150,7 @@ register_command("kick", {
 When you have many related commands, group them into a class. Class-level decorators apply to all methods.
 
 ```ts
-import { Command, Group, Role, Guard, register_classes, args, optional } from "@rbxts/centurion";
+import { Command, Group, Role, register_classes, args, optional } from "@rbxts/centurion";
 import type { ExecutionContext } from "@rbxts/centurion";
 
 @Group("mod")
@@ -167,18 +167,12 @@ class ModerationCommands {
         // send warning...
         ctx.reply(`Warned ${target.Name}: ${reason}`);
     }
-
-    @Command({ description: "Announce a message to all players", arguments: () => [args.string("message")] })
-    @Role("admin")
-    announce(ctx: ExecutionContext, message: string) {
-        // broadcast...
-        ctx.reply("Announced: " + message);
-    }
 }
 
 register_classes();
 ```
 
 <Callout>
-The `@Role` on `announce` overrides the class-level `@Role("moderator")` for that method only, restricting it to admins.
+Decorators on a method add to the class-level ones rather than overriding them. Because roles are any-of, adding `@Role("admin")` to a
+method here would still let moderators run it. Put commands that need a different role in their own class.
 </Callout>

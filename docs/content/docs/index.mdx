@@ -90,8 +90,7 @@ local centurion_ui = require(path.to.centurion_ui)
 
 centurion.setup_networking()
 
-centurion_ui.mount({ Enum.KeyCode.F2 })
-centurion_ui.configure({})
+centurion_ui.mount()
 centurion_ui.register_commands()
 ```
   </CodeBlockTab>
@@ -102,8 +101,7 @@ import { CenturionUI } from "@rbxts/centurion-ui";
 
 setup_networking();
 
-CenturionUI.mount([Enum.KeyCode.F2]);
-CenturionUI.configure({});
+CenturionUI.mount();
 CenturionUI.register_commands();
 ```
   </CodeBlockTab>

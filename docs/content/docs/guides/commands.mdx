@@ -163,29 +163,24 @@ centurion.register_command("roles add", {
   <CodeBlockTab value="ts">
 ```ts
 import { register_command, get_roles, add_roles, args } from "@rbxts/centurion";
-import type { ExecutionContext } from "@rbxts/centurion";
 
 register_command("roles get", {
-    description = "Get a player's roles",
-    arguments = () => {
-        return [centurion.args.player("player")]
+    description: "Get a player's roles",
+    arguments: () => [args.player("player")],
+    callback: (ctx, player) => {
+        const roles = get_roles(player);
+        ctx.reply(`${player.Name}: ${roles.join(", ")}`);
     },
-    callback = (ctx, player) => {
-        local roles = centurion.get_roles(player)
-        ctx.reply(player.Name + ": " + roles.join(", "))
-    },
-})
+});
 
 register_command("roles add", {
-    description = "Add a role to a player",
-    arguments = () => {
-        return [centurion.args.player("player"), centurion.args.string("role")]
+    description: "Add a role to a player",
+    arguments: () => [args.player("player"), args.string("role")],
+    callback: (ctx, player, role) => {
+        add_roles(player, role);
+        ctx.reply(`Added role ${role} to ${player.Name}`);
     },
-    callback = (ctx, player, role) => {
-        centurion.add_roles(player, role)
-        ctx.reply(`Added role ${role} to ${player.Name}`)
-    },
-})
+});
 ```
   </CodeBlockTab>
 </CodeBlockTabs>

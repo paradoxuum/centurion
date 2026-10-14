@@ -232,8 +232,8 @@ register_classes();
 
 If any guard returns `false` or throws, execution stops and no further guards or the callback are called.
 
-A guard that returns `false` should call `ctx.error` to tell the player why; otherwise the command fails silently. A guard that throws
-is logged as an error, and the player sees `Failed to execute command.`
+A guard that returns `false` should call `ctx.error` to tell the player why; otherwise they see `You cannot execute this command.`
+A guard that throws is logged as an error, and the player sees `Failed to execute command.`
 Use [`set_logger`](/docs/reference/centurion#set_logger) to send these logs somewhere other than the output.
 
 Guards run after the permission check and before arguments are transformed, so `ctx.arguments` holds the raw argument strings.
