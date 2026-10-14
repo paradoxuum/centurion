@@ -231,6 +231,20 @@ print(CenturionUI.is_open());
   </CodeBlockTab>
 </CodeBlockTabs>
 
+### Consoles
+
+The console keyboard covers the whole screen, so suggestions show once it's confirmed and closed. While the keyboard is closed, the gamepad controls the terminal:
+
+| Button (Xbox / PlayStation) | Action |
+| --- | --- |
+| D-pad up/down | Select a suggestion, or browse command history |
+| A / Cross | Complete the selected suggestion |
+| X / Square | Open the keyboard to edit the input |
+| Y / Triangle | Run the command |
+| B / Circle | Close the terminal |
+
+Activation keys default to `F2`, so console players need another way to open the terminal. Either add a gamepad button to `activation_keys`, or call `open()` / `toggle()` from your own input handling.
+
 ## Custom Log Timestamps
 
 Override the default timestamp format by providing a `format_date` function.

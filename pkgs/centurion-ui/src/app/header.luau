@@ -1,4 +1,5 @@
 local background = require("../components/background")
+local button_name = require("../button")
 local container = require("../components/container")
 local corner = require("../components/corner")
 local flex = require("../components/flex")
@@ -77,6 +78,9 @@ local function header(props: Header)
 		},
 
 		show(function()
+			if input() == Enum.PreferredInput.Gamepad then
+				return true
+			end
 			return input() == Enum.PreferredInput.KeyboardAndMouse and #state.activation_keys() > 0
 		end, function()
 			return container {
@@ -98,6 +102,10 @@ local function header(props: Header)
 					text {
 						auto = "XY",
 						text = function()
+							-- gamepads close with B rather than an activation key
+							if input() == Enum.PreferredInput.Gamepad then
+								return button_name(Enum.KeyCode.ButtonB)
+							end
 							return key_label(state.activation_keys()[1])
 						end,
 						text_size = px(state.subtext_size),

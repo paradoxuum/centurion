@@ -1,4 +1,5 @@
 local background = require("../components/background")
+local button_name = require("../button")
 local centurion = require("../../centurion")
 local container = require("../components/container")
 local corner = require("../components/corner")
@@ -387,7 +388,13 @@ local function suggestions(props: Suggestions)
 						if input() == Enum.PreferredInput.Touch then
 							return `<b>{key:format("Tap")}</b> a suggestion to complete it`
 						elseif input() == Enum.PreferredInput.Gamepad then
-							return `<b>{key:format("Select")}</b> a suggestion to complete it`
+							return table.concat({
+								`<b>{key:format(button_name(Enum.KeyCode.ButtonA))}</b> complete`,
+								`<b>{key:format("D-pad")}</b> select`,
+								`<b>{key:format(button_name(Enum.KeyCode.ButtonX))}</b> edit`,
+								`<b>{key:format(button_name(Enum.KeyCode.ButtonY))}</b> run`,
+								`<b>{key:format(button_name(Enum.KeyCode.ButtonB))}</b> close`,
+							}, "    ")
 						end
 
 						local hints = {

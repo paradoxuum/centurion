@@ -33,6 +33,10 @@ type TextBoxProps = {
 	read multiline: Can<boolean>?,
 	read editable: Can<boolean>?,
 	read transparency: Can<number>?,
+	-- whether confirming the console keyboard submits, rather than only committing the text
+	read submit_on_keyboard_return: boolean?,
+	-- receives a function that opens the keyboard, even if the textbox is already focused without it
+	read bind_open_keyboard: ((open: () -> ()) -> ())?,
 
 	read update_text: ((string) -> ())?,
 	read update_focused: ((boolean) -> ())?,
@@ -53,7 +57,8 @@ return function(props: TextBoxProps)
 		props.enter(raw_text())
 	end
 
-	local textbox = create "TextBox" {
+	local textbox: TextBox
+	textbox = create "TextBox" {
 		Size = function()
 			return UDim2.fromOffset(read(props.width) or 0, read(props.height) or 0)
 		end,
@@ -109,10 +114,27 @@ return function(props: TextBoxProps)
 
 		-- consoles don't fire enter through FocusLost, so this workaround is required
 		-- Roblox have shown some interest in fixing this, so it should be removed in that case to prevent duplicate submissions
-		ReturnPressedFromOnScreenKeyboard = if GuiService:IsTenFootInterface() then submit else nil,
+		ReturnPressedFromOnScreenKeyboard = if GuiService:IsTenFootInterface()
+			then function()
+				if props.submit_on_keyboard_return ~= false then
+					submit()
+				else
+					-- the textbox can stay focused once the keyboard closes, so release it explicitly
+					textbox:ReleaseFocus(false)
+				end
+			end
+			else nil,
 
 		unpack(props),
 	}
+
+	-- releases focus without reporting it, so that it can be captured again
+	local function detach()
+		reattaching = true
+		textbox:ReleaseFocus(false)
+		task.wait()
+		reattaching = false
+	end
 
 	local function capture()
 		if textbox:IsFocused() then
@@ -125,15 +147,23 @@ return function(props: TextBoxProps)
 				return
 			end
 
-			reattaching = true
-			textbox:ReleaseFocus(false)
-			task.wait()
-			reattaching = false
+			detach()
 		end
 
 		if read(props.focused) then
 			textbox:CaptureFocus()
 		end
+	end
+
+	if props.bind_open_keyboard then
+		props.bind_open_keyboard(function()
+			task.defer(function()
+				if textbox:IsFocused() then
+					detach()
+				end
+				textbox:CaptureFocus()
+			end)
+		end)
 	end
 
 	if props.focused ~= nil then

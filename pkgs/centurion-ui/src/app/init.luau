@@ -1,3 +1,4 @@
+local ContextActionService = game:GetService("ContextActionService")
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
@@ -59,6 +60,8 @@ local function app()
 	local spinner_frame = source(1)
 
 	local selected_suggestion = source(1)
+	-- set once the textbox has mounted
+	local open_keyboard: () -> () = function() end
 	local over_interface = source(false)
 
 	-- touch devices draw a focused textbox with the native text field, which
@@ -68,6 +71,13 @@ local function app()
 	local touch = derive(function()
 		return preferred() == Enum.PreferredInput.Touch
 	end)
+	local gamepad = derive(function()
+		return preferred() == Enum.PreferredInput.Gamepad
+	end)
+	local keyboard_visible = source(UserInputService.OnScreenKeyboardVisible)
+	cleanup(UserInputService:GetPropertyChangedSignal("OnScreenKeyboardVisible"):Connect(function()
+		keyboard_visible(UserInputService.OnScreenKeyboardVisible)
+	end))
 
 	local next_cursor_pos = false
 	local refocus_deadline = 0
@@ -157,7 +167,11 @@ local function app()
 		local space = if needs_space(suggestion) then " " else ""
 
 		if update_cursor_pos then
-			task.defer(cursor_pos, span_start + #with + #space + 1)
+			-- moving the cursor shows it on consoles even with the keyboard
+			-- closed, and suggestions there are always for the end of the input
+			if not gamepad() then
+				task.defer(cursor_pos, span_start + #with + #space + 1)
+			end
 			selected_suggestion(1)
 		end
 
@@ -289,9 +303,11 @@ local function app()
 		task.defer(function()
 			analysing = false
 
+			-- the textbox reports -1 while unfocused, which is the only time
+			-- consoles see the input, since their keyboard covers the screen
 			local pos = cursor_pos()
 			if pos == -1 then
-				return
+				pos = #raw_text() + 1
 			end
 
 			analysis(analyse(raw_text(), pos, state.max_suggestions()))
@@ -310,9 +326,12 @@ local function app()
 			return
 		end
 
-		task.delay(0.1, function()
-			state.focused(true)
-		end)
+		-- on consoles the keyboard would cover the result, so leave it closed
+		if not gamepad() then
+			task.delay(0.1, function()
+				state.focused(true)
+			end)
+		end
 
 		cmd_history_index = 0
 		table.insert(cmd_history, 1, value)
@@ -356,6 +375,57 @@ local function app()
 			})
 		end
 	end
+
+	-- consoles can only browse suggestions while their keyboard is closed, so
+	-- bind the gamepad to them until the textbox is focused again. this is
+	-- also the only way to run a command, since confirming the keyboard doesn't
+	effect(function()
+		-- dismissing the keyboard can leave the textbox focused, so only treat it
+		-- as busy while the keyboard is actually showing
+		if not state.opened() or not gamepad() or (state.focused() and keyboard_visible()) then
+			return
+		end
+
+		ContextActionService:BindActionAtPriority(
+			"centurion_gamepad",
+			function(_, input_state, input)
+				if input_state ~= Enum.UserInputState.Begin then
+					return Enum.ContextActionResult.Sink
+				end
+
+				if input.KeyCode == Enum.KeyCode.DPadUp then
+					handle_navigation(true)
+				elseif input.KeyCode == Enum.KeyCode.DPadDown then
+					handle_navigation(false)
+				elseif input.KeyCode == Enum.KeyCode.ButtonA then
+					local selected = analysis().suggestions[selected_suggestion()]
+					if selected then
+						raw_text(autofill(raw_text(), selected, true))
+					end
+				elseif input.KeyCode == Enum.KeyCode.ButtonX then
+					open_keyboard()
+				elseif input.KeyCode == Enum.KeyCode.ButtonY then
+					submit(raw_text())
+				elseif input.KeyCode == Enum.KeyCode.ButtonB then
+					state.opened(false)
+				end
+
+				return Enum.ContextActionResult.Sink
+			end,
+			false,
+			Enum.ContextActionPriority.High.Value,
+			Enum.KeyCode.DPadUp,
+			Enum.KeyCode.DPadDown,
+			Enum.KeyCode.ButtonA,
+			Enum.KeyCode.ButtonX,
+			Enum.KeyCode.ButtonY,
+			Enum.KeyCode.ButtonB
+		)
+
+		cleanup(function()
+			ContextActionService:UnbindAction("centurion_gamepad")
+		end)
+	end)
 
 	-- 0 when closed, 1 when open. The console fades and slides with it, and
 	-- stays visible until it has finished closing
@@ -491,6 +561,12 @@ local function app()
 				end,
 
 				enter = submit,
+				-- the console keyboard only writes its text back when confirmed, so
+				-- confirming has to show suggestions instead of running the command
+				submit_on_keyboard_return = false,
+				bind_open_keyboard = function(open)
+					open_keyboard = open
+				end,
 
 				{
 					AutomaticSize = Enum.AutomaticSize.None,
@@ -607,7 +683,9 @@ local function app()
 						selected_suggestion = selected_suggestion,
 						on_select = function(suggestion: types.AnalysisSuggestion)
 							raw_text(autofill(raw_text(), suggestion, true))
-							refocus()
+							if not gamepad() then
+								refocus()
+							end
 						end,
 
 						catch_hover(),
