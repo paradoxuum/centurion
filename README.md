@@ -1,6 +1,6 @@
 <div align="center">
   <a href="https://centurion.paradoxum.dev/" target="_blank">
-    <img src="docs/public/logo.svg" width="150" />
+    <img src="https://raw.githubusercontent.com/paradoxuum/centurion/main/docs/public/logo.svg" width="150" />
   </a>
 
   <h1>Centurion</h1>
@@ -16,9 +16,9 @@
   [ci-badge]: https://img.shields.io/github/actions/workflow/status/paradoxuum/centurion/ci.yml?style=for-the-badge&branch=main&logo=github
   [ci-url]: https://github.com/paradoxuum/centurion/actions/workflows/ci.yml
   [license-badge]: https://img.shields.io/github/license/paradoxuum/centurion?style=for-the-badge
-  [license-url]: LICENSE.md
+  [license-url]: https://github.com/paradoxuum/centurion/blob/main/LICENSE.md
 
-  <img src="docs/public/example.webp" alt="Example" style="border-radius: 4px;" />
+  <img src="https://raw.githubusercontent.com/paradoxuum/centurion/main/docs/public/example.webp" alt="Example" style="border-radius: 4px;" />
 
   [📖 **Documentation →**](https://centurion.paradoxum.dev/)
 </div>
@@ -64,11 +64,11 @@ See the [documentation](https://centurion.paradoxum.dev/) to get started.
 ---
 
 <p align="center">
-This project is released under the <a href="LICENSE.md">MIT License</a>.
+This project is released under the <a href="https://github.com/paradoxuum/centurion/blob/main/LICENSE.md">MIT License</a>.
 </p>
 
 <div align="center">
 
-[![MIT License](https://img.shields.io/github/license/paradoxuum/centurion?style=for-the-badge)](LICENSE.md)
+[![MIT License](https://img.shields.io/github/license/paradoxuum/centurion?style=for-the-badge)](https://github.com/paradoxuum/centurion/blob/main/LICENSE.md)
 
 </div>

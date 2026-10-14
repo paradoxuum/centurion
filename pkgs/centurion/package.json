@@ -1,6 +1,6 @@
 {
 	"name": "@rbxts/centurion",
-    "description": "A flexible and extensible command framework for Roblox",
+    "description": "A command framework for Roblox",
 	"version": "2.0.0",
 	"author": "paradoxuum",
 	"license": "MIT",
@@ -25,6 +25,10 @@
     },
     "bugs": {
         "url": "https://github.com/paradoxuum/centurion/issues"
+    },
+    "scripts": {
+        "prepack": "cp ../../README.md ../../LICENSE.md .",
+        "postpack": "rm -f README.md LICENSE.md"
     },
     "publishConfig": {
         "access": "public"
