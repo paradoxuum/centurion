@@ -70,6 +70,7 @@ local function app()
 	end)
 
 	local next_cursor_pos = false
+	local refocus_deadline = 0
 	local cmd_history = {}
 	local cmd_history_index = 0
 
@@ -161,6 +162,14 @@ local function app()
 		end
 
 		return before .. with .. space .. after
+	end
+
+	-- tapping a history entry or suggestion releases the textbox, but on touch
+	-- devices FocusLost can fire after the button activates, which would undo
+	-- an immediate refocus. so also recapture focus if it's lost shortly after
+	local function refocus()
+		refocus_deadline = os.clock() + 0.5
+		state.focused(true)
 	end
 
 	local activation_keys = derive(function()
@@ -470,7 +479,16 @@ local function app()
 				end,
 
 				focused = state.focused,
-				update_focused = state.focused,
+				update_focused = function(focused)
+					if focused then
+						refocus_deadline = 0
+					elseif os.clock() < refocus_deadline then
+						-- the tap that selected an entry released the textbox, so take it back
+						refocus_deadline = 0
+						task.defer(state.focused, true)
+					end
+					state.focused(focused)
+				end,
 
 				enter = submit,
 
@@ -546,7 +564,7 @@ local function app()
 					on_select = function(command)
 						cmd_history_index = 0
 						raw_text(command)
-						state.focused(true)
+						refocus()
 						-- after the textbox has recaptured focus, move the cursor to the end
 						task.defer(cursor_pos, #command + 1)
 					end,
@@ -589,6 +607,7 @@ local function app()
 						selected_suggestion = selected_suggestion,
 						on_select = function(suggestion: types.AnalysisSuggestion)
 							raw_text(autofill(raw_text(), suggestion, true))
+							refocus()
 						end,
 
 						catch_hover(),

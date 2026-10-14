@@ -1,4 +1,5 @@
 local GuiService = game:GetService("GuiService")
+local UserInputService = game:GetService("UserInputService")
 
 local fade = require("../fade")
 local px = require("../px")
@@ -42,6 +43,8 @@ type TextBoxProps = {
 
 return function(props: TextBoxProps)
 	local raw_text = source ""
+	-- set while focus is briefly released to reopen the touch keyboard
+	local reattaching = false
 
 	local function submit()
 		if not props.focused then
@@ -92,6 +95,9 @@ return function(props: TextBoxProps)
 		end,
 
 		FocusLost = function(enter)
+			if reattaching then
+				return
+			end
 			if props.update_focused then
 				props.update_focused(false)
 			end
@@ -108,6 +114,28 @@ return function(props: TextBoxProps)
 		unpack(props),
 	}
 
+	local function capture()
+		if textbox:IsFocused() then
+			-- tapping a button on touch devices can leave the textbox focused
+			-- without the keyboard open, so release it and capture it again
+			if
+				UserInputService.OnScreenKeyboardVisible
+				or UserInputService.PreferredInput ~= Enum.PreferredInput.Touch
+			then
+				return
+			end
+
+			reattaching = true
+			textbox:ReleaseFocus(false)
+			task.wait()
+			reattaching = false
+		end
+
+		if read(props.focused) then
+			textbox:CaptureFocus()
+		end
+	end
+
 	if props.focused ~= nil then
 		effect(function()
 			local value = read(props.focused)
@@ -116,7 +144,7 @@ return function(props: TextBoxProps)
 			end
 			task.defer(function()
 				if value then
-					textbox:CaptureFocus()
+					capture()
 				else
 					textbox:ReleaseFocus(false)
 				end
