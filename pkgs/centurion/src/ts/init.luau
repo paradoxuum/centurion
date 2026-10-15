@@ -157,15 +157,15 @@ local function register_classes(constructor)
 end
 
 local function register_command<T...>(name: string, command_object: types.Command<T...>)
-	local cmd = table.clone(command_object)
+	local cmd = table.clone(command_object) :: any
 
-	local args = cmd.arguments
+	local args = command_object.arguments
 	if args then
 		cmd.arguments = function()
 			return table.unpack(args() :: any)
 		end
 	end
-	centurion.register_command(name, cmd)
+	centurion.register_command(name, cmd :: types.Command<unknown>)
 end
 
 local exports = {

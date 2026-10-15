@@ -1,10 +1,12 @@
+-- props are read-only to work around a new solver bug where a table literal
+-- that omits an optional prop fails to infer a generic pack like `T...`
 export type Command<T...> = {
-	callback: (ctx: ExecutionContext, T...) -> any,
-	description: string?,
-	arguments: () -> T...,
-	guards: { string | Guard }?,
-	roles: { string }?,
-	permissions: { string }?,
+	read callback: (ctx: ExecutionContext, T...) -> (),
+	read description: string?,
+	read arguments: (() -> T...)?,
+	read guards: { string | Guard }?,
+	read roles: { string }?,
+	read permissions: { string }?,
 }
 
 export type Argument = {
