@@ -70,6 +70,38 @@ TEST("execute", function()
 	)
 end)
 
+TEST("command builder", function()
+	CASE("registers the command once a callback is given")
+	local builder = centurion.command({ "greet", "hello" }, {
+		permissions = { "chat" },
+		arguments = function()
+			return centurion.args.string("name"), centurion.optional(centurion.args.integer("times"))
+		end,
+	})
+	CHECK(centurion.registry.commands.greet == nil)
+
+	builder:callback(function(_ctx, name, times)
+		return string.rep(`hi {name} `, times or 1):sub(1, -2)
+	end)
+	CHECK(centurion.registry.commands.greet ~= nil)
+	CHECK(centurion.registry.commands.hello == centurion.registry.commands.greet)
+
+	CASE("passes the definition through")
+	local permissions = centurion.registry.commands.greet.permissions
+	CHECK(permissions and permissions[1] == "chat")
+
+	CASE("executes with transformed arguments")
+	centurion.set_roles(alice, { "member" })
+	CHECK(message(centurion.execute_command(alice, "greet", { "Bob", "2" })) == "hi Bob hi Bob")
+	CHECK(message(centurion.execute_command(alice, "hello", { "Bob" })) == "hi Bob")
+
+	CASE("works without arguments")
+	centurion.command("ping", {}):callback(function()
+		return "pong"
+	end)
+	CHECK(message(centurion.execute_command(alice, "ping", {})) == "pong")
+end)
+
 TEST("roles", function()
 	centurion.set_roles(bob, {})
 

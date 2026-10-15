@@ -16,20 +16,19 @@ Define optional arguments after required ones using `optional`.
   </CodeBlockTabsList>
   <CodeBlockTab value="luau">
 ```lua
-centurion.register_command("kick", {
+centurion.command("kick", {
     description = "Kick a player from the server",
     roles = { "moderator" },
     arguments = function()
         return centurion.args.player("target"),
             centurion.optional(centurion.args.string("reason", "Reason for kick"))
     end,
-    callback = function(ctx, target, reason)
-        target:Kick(reason or "You were kicked.")
-        ctx.reply("Kicked " .. target.Name)
-    end,
-})
+}):callback(function(ctx, target, reason)
+    target:Kick(reason or "You were kicked.")
+    ctx.reply("Kicked " .. target.Name)
+end)
 
-centurion.register_command("ban", {
+centurion.command("ban", {
     description = "Ban a player for a duration",
     roles = { "moderator" },
     arguments = function()
@@ -37,11 +36,10 @@ centurion.register_command("ban", {
             centurion.args.duration("duration", "How long to ban"),
             centurion.optional(centurion.args.string("reason", "Reason for ban"))
     end,
-    callback = function(ctx, target, duration, reason)
-        -- apply ban with expiry = os.time() + duration
-        ctx.reply(string.format("Banned %s for %ds", target.Name, duration))
-    end,
-})
+}):callback(function(ctx, target, duration, reason)
+    -- apply ban with expiry = os.time() + duration
+    ctx.reply(string.format("Banned %s for %ds", target.Name, duration))
+end)
 ```
   </CodeBlockTab>
   <CodeBlockTab value="ts">
@@ -101,18 +99,17 @@ centurion.register_guard("not-self", function(ctx)
     return true
 end)
 
-centurion.register_command("kick", {
+centurion.command("kick", {
     roles = { "moderator" },
     guards = { "not-self" },
     arguments = function()
         return centurion.args.player("target"),
             centurion.optional(centurion.args.string("reason"))
     end,
-    callback = function(ctx, target, reason)
-        target:Kick(reason or "You were kicked.")
-        ctx.reply("Kicked " .. target.Name)
-    end,
-})
+}):callback(function(ctx, target, reason)
+    target:Kick(reason or "You were kicked.")
+    ctx.reply("Kicked " .. target.Name)
+end)
 ```
   </CodeBlockTab>
   <CodeBlockTab value="ts">

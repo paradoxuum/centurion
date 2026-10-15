@@ -20,6 +20,8 @@ export type Argument = types.Argument
 export type ArgumentType<T = unknown> = types.ArgumentType<T>
 export type ArgumentFn<T> = types.ArgumentFn<T>
 export type Command<T...> = types.Command<T...>
+export type CommandDefinition<T...> = types.CommandDefinition<T...>
+export type CommandBuilder<T...> = types.CommandBuilder<T...>
 
 export type Ok<T = unknown> = types.Ok<T>
 export type Err = types.Err
@@ -39,6 +41,7 @@ export type Resolution = resolve.Resolution
 
 return {
 	register_command = command.register,
+	command = command.command,
 	register_guard = guard.register,
 	unregister_guard = guard.unregister,
 	add_global_guard = guard.add_global,

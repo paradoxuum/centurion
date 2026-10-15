@@ -12,7 +12,7 @@ Describes a command. `T...` is the tuple of argument types matching the `argumen
 
 ```lua
 type Command<T...> = {
-    callback:    (ctx: ExecutionContext, T...) -> any,
+    callback:    (ctx: ExecutionContext, T...) -> ...any,
     description: string?,
     arguments:   (() -> T...)?,
     guards:      { string | Guard }?,
@@ -23,7 +23,7 @@ type Command<T...> = {
 
 | Field | Type | Description |
 | --- | --- | --- |
-| `callback` | `(ctx, ...args) -> any` | Runs when the command is executed. Return a string to auto-reply. |
+| `callback` | `(ctx, ...args) -> ...any` | Runs when the command is executed. Return a string to auto-reply. |
 | `description` | `string?` | Shown in the terminal UI and suggestions. |
 | `arguments` | `() -> T...` | Returns argument definitions in order. Omit for commands with no arguments. |
 | `guards` | `{ string \| Guard }?` | Guards to run before the callback. Each entry is a guard name (string) or an inline guard function. |
@@ -200,6 +200,30 @@ Adds a command to the registry. Pass an array of names to register aliases for t
 The command is validated before it's added. `register_command` errors if any name is already registered, an argument's type isn't
 registered, a required argument follows an optional one, a [`rest`](#rest) argument isn't last, or a [`num_args`](#num_args) count isn't a
 whole number of at least 1. It warns if the callback's parameter count (after `ctx`) doesn't match the number of declared arguments.
+
+---
+
+### `command`
+
+```lua
+centurion.command(name: string | { string }, definition: CommandDefinition<T...>): CommandBuilder<T...>
+```
+
+Luau only. Takes the same fields as [`Command`](#commandt), without `callback`, and returns a builder. Calling
+`builder:callback(fn)` registers the command, just like [`register_command`](#register_command). Because `T...` is already known when
+`fn` is checked, the callback's parameters are inferred from `arguments` instead of needing annotations.
+
+```lua
+centurion.command("greet", {
+    arguments = function()
+        return centurion.args.player("target")
+    end,
+}):callback(function(ctx, target)
+    ctx.reply(`Hello, {target.Name}!`)
+end)
+```
+
+The command isn't registered until `:callback()` is called.
 
 ---
 

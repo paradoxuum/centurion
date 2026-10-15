@@ -85,17 +85,16 @@ This means a higher-priority role satisfies any lower-priority role requirement.
   </CodeBlockTabsList>
   <CodeBlockTab value="luau">
 ```lua
-centurion.register_command("kick", {
+centurion.command("kick", {
     description = "Kick a player",
     permissions = { "kick" },
     arguments = function()
         return centurion.args.player("target")
     end,
-    callback = function(ctx, target)
-        target:Kick()
-        ctx.reply("Kicked " .. target.Name)
-    end,
-})
+}):callback(function(ctx, target)
+    target:Kick()
+    ctx.reply("Kicked " .. target.Name)
+end)
 ```
   </CodeBlockTab>
   <CodeBlockTab value="ts">

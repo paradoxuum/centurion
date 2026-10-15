@@ -16,14 +16,13 @@ Each argument is created by calling an argument factory function with a name, op
   </CodeBlockTabsList>
   <CodeBlockTab value="luau">
 ```lua
-centurion.register_command("echo", {
+centurion.command("echo", {
     arguments = function()
         return centurion.args.string("message", "The message to echo")
     end,
-    callback = function(ctx, message)
-        ctx.reply(message)
-    end,
-})
+}):callback(function(ctx, message)
+    ctx.reply(message)
+end)
 ```
   </CodeBlockTab>
   <CodeBlockTab value="ts">
@@ -109,16 +108,15 @@ Input that has more values than the command's arguments accept is rejected (`Exp
   </CodeBlockTabsList>
   <CodeBlockTab value="luau">
 ```lua
-centurion.register_command("kick", {
+centurion.command("kick", {
     arguments = function()
         return centurion.args.player("target"),
             centurion.optional(centurion.args.string("reason", "Reason for the kick"))
     end,
-    callback = function(ctx, target, reason)
-        target:Kick(reason or "No reason provided")
-        ctx.reply("Kicked " .. target.Name)
-    end,
-})
+}):callback(function(ctx, target, reason)
+    target:Kick(reason or "No reason provided")
+    ctx.reply("Kicked " .. target.Name)
+end)
 ```
   </CodeBlockTab>
   <CodeBlockTab value="ts">
@@ -179,16 +177,15 @@ The callback receives the values as an array, including when `num_args` is 1.
   </CodeBlockTabsList>
   <CodeBlockTab value="luau">
 ```lua
-centurion.register_command("roles add", {
+centurion.command("roles add", {
     arguments = function()
         return centurion.args.player("player"),
             centurion.rest(centurion.args.string("role"))
     end,
-    callback = function(ctx, player, roles)
-        centurion.add_roles(player, table.unpack(roles))
-        ctx.reply("Added " .. #roles .. " role(s) to " .. player.Name)
-    end,
-})
+}):callback(function(ctx, player, roles)
+    centurion.add_roles(player, table.unpack(roles))
+    ctx.reply("Added " .. #roles .. " role(s) to " .. player.Name)
+end)
 ```
   </CodeBlockTab>
   <CodeBlockTab value="ts">
@@ -219,15 +216,14 @@ register_command("roles add", {
 ```lua
 local difficulty = centurion.register_type("difficulty", centurion.create_enum({ "easy", "normal", "hard" }))
 
-centurion.register_command("set_difficulty", {
+centurion.command("set_difficulty", {
     arguments = function()
         return difficulty("level", "The difficulty level")
     end,
-    callback = function(ctx, level)
-        -- level is "easy", "normal", or "hard"
-        ctx.reply("Difficulty set to " .. level)
-    end,
-})
+}):callback(function(ctx, level)
+    -- level is "easy", "normal", or "hard"
+    ctx.reply("Difficulty set to " .. level)
+end)
 ```
   </CodeBlockTab>
   <CodeBlockTab value="ts">
@@ -268,18 +264,17 @@ local positive_int = centurion.register_type("positive-integer", {
     end,
 })
 
-centurion.register_command("repeat", {
+centurion.command("repeat", {
     arguments = function()
         return centurion.args.string("message"),
             positive_int("count", "How many times to repeat")
     end,
-    callback = function(ctx, message, count)
-        for _ = 1, count do
-            print(message)
-        end
-        ctx.reply("Done")
-    end,
-})
+}):callback(function(ctx, message, count)
+    for _ = 1, count do
+        print(message)
+    end
+    ctx.reply("Done")
+end)
 ```
   </CodeBlockTab>
   <CodeBlockTab value="ts">

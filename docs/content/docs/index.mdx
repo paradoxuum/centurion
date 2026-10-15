@@ -46,15 +46,14 @@ local args = centurion.args
 centurion.setup_networking()
 centurion.create_role("admin", 100)
 
-centurion.register_command("greet", {
+centurion.command("greet", {
     description = "Greet a player",
     arguments = function()
         return args.player("target", "The player to greet")
     end,
-    callback = function(ctx, target)
-        ctx.reply("Hello, " .. target.Name .. "!")
-    end,
-})
+}):callback(function(ctx, target)
+    ctx.reply("Hello, " .. target.Name .. "!")
+end)
 ```
   </CodeBlockTab>
   <CodeBlockTab value="ts">
@@ -75,6 +74,9 @@ register_command("greet", {
 ```
   </CodeBlockTab>
 </CodeBlockTabs>
+
+In Luau, `command(...):callback(...)` lets the callback's parameter types be inferred from `arguments`. See
+[Inferring Callback Types](/docs/guides/commands#inferring-callback-types-luau).
 
 ### Client
 

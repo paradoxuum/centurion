@@ -229,19 +229,29 @@ local function register<T...>(name: string | { string }, command: types.Command<
 	end
 end
 
+local function command<T...>(name: string | { string }, definition: types.CommandDefinition<T...>): types.CommandBuilder<T...>
+	return {
+		callback = function(_self, callback)
+			local cmd = table.clone(definition) :: any
+			cmd.callback = callback
+			register(name, cmd :: types.Command<T...>)
+		end,
+	}
+end
+
 local function unregister(name: string)
 	assert(commands[name] ~= nil, "Command with name '" .. name .. "' is not registered.")
 
-	local command = commands[name]
+	local cmd_definition = commands[name]
 
 	for k, v in commands do
-		if command == v then
+		if cmd_definition == v then
 			commands[k] = nil
 		end
 	end
 
 	for _, callback in on_unregister_callbacks do
-		callback(name, command :: types.Command<unknown>)
+		callback(name, cmd_definition :: types.Command<unknown>)
 	end
 end
 
@@ -282,6 +292,7 @@ return {
 	set_network_handler = set_network_handler,
 	execute = execute,
 	register = register,
+	command = command,
 	unregister = unregister,
 	on_register = on_register,
 	on_unregister = on_unregister,

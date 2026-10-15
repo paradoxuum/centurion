@@ -63,6 +63,37 @@ register_command("ping", {
   </CodeBlockTab>
 </CodeBlockTabs>
 
+### Inferring Callback Types (Luau)
+
+In TypeScript, the callback's parameters are inferred from `arguments`. Luau can't infer them from a table passed to `register_command`, so in strict mode you need to annotate the parameters yourself:
+
+```lua
+centurion.register_command("tp", {
+    arguments = function()
+        return centurion.args.player("target"), centurion.args.vector3("position")
+    end,
+    callback = function(ctx: centurion.Context, target: Player, position: vector)
+        -- ...
+    end,
+})
+```
+
+To have them inferred instead, use `command` and pass the callback to `:callback()`. It takes the same fields as `register_command`, without `callback`:
+
+```lua
+centurion.command("tp", {
+    arguments = function()
+        return centurion.args.player("target"), centurion.args.vector3("position")
+    end,
+}):callback(function(ctx, target, position)
+    -- ctx: Context, target: Player, position: vector
+end)
+```
+
+<Callout>
+The command is only registered once `:callback()` is called. Calling `command` on its own does nothing.
+</Callout>
+
 ### Aliases
 
 Pass an array of names to register the same command under several names.
@@ -74,14 +105,13 @@ Pass an array of names to register the same command under several names.
   </CodeBlockTabsList>
   <CodeBlockTab value="luau">
 ```lua
-centurion.register_command({ "teleport", "tp" }, {
+centurion.command({ "teleport", "tp" }, {
     arguments = function()
         return centurion.args.player("target")
     end,
-    callback = function(ctx, target)
-        -- ...
-    end,
-})
+}):callback(function(ctx, target)
+    -- ...
+end)
 ```
   </CodeBlockTab>
   <CodeBlockTab value="ts">
@@ -98,7 +128,7 @@ register_command(["teleport", "tp"], {
 
 ### Validation
 
-Commands are checked when they're registered rather than when a player first runs them. `register_command` errors if:
+Commands are checked when they're registered rather than when a player first runs them. `register_command` and `:callback()` error if:
 
 - a name is already registered
 - an argument uses a type that hasn't been registered
@@ -136,28 +166,26 @@ Commands can be namespaced into groups by including spaces in the command name. 
   </CodeBlockTabsList>
   <CodeBlockTab value="luau">
 ```lua
-centurion.register_command("roles get", {
+centurion.command("roles get", {
     description = "Get a player's roles",
     arguments = function()
         return centurion.args.player("player")
     end,
-    callback = function(ctx, player)
-        local roles = centurion.get_roles(player)
-        ctx.reply(player.Name .. ": " .. table.concat(roles, ", "))
-    end,
-})
+}):callback(function(ctx, player)
+    local roles = centurion.get_roles(player)
+    ctx.reply(player.Name .. ": " .. table.concat(roles, ", "))
+end)
 
-centurion.register_command("roles add", {
+centurion.command("roles add", {
     description = "Add a role to a player",
     arguments = function()
         return centurion.args.player("player"),
             centurion.args.string("role")
     end,
-    callback = function(ctx, player, role)
-        centurion.add_roles(player, role)
-        ctx.reply("Added role " .. role .. " to " .. player.Name)
-    end,
-})
+}):callback(function(ctx, player, role)
+    centurion.add_roles(player, role)
+    ctx.reply("Added role " .. role .. " to " .. player.Name)
+end)
 ```
   </CodeBlockTab>
   <CodeBlockTab value="ts">
@@ -286,6 +314,6 @@ disconnect();
 
 | Event | Arguments | Fires when |
 | --- | --- | --- |
-| `on_command_register` | `name, command` | A command is added to the registry. Fires once per `register_command` call, with the first name. |
+| `on_command_register` | `name, command` | A command is added to the registry. Fires once per registration, with the first name. |
 | `on_command_unregister` | `name, command` | A command is removed from the registry |
 | `on_command_execute` | `ctx` | A command's callback runs successfully. Doesn't fire if a permission check, guard, argument or the callback fails. |
