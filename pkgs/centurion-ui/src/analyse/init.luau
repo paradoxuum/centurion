@@ -203,7 +203,6 @@ local function analyse(text: string, cursor_pos: number, max_suggestions: number
 		return {
 			result = transform_result,
 			argument = {
-				text = arg_text,
 				index = arg_index,
 				type = arg.type,
 				kind = arg_type.kind,
