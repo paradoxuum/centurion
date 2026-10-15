@@ -1,25 +1,42 @@
 {
   "name": "docs",
+  "private": true,
   "type": "module",
-  "version": "0.0.1",
+  "sideEffects": false,
   "scripts": {
-    "dev": "astro dev",
-    "start": "astro dev",
-    "build": "astro check && astro build",
-    "preview": "astro preview",
-    "astro": "astro"
+    "dev": "vite dev",
+    "build": "vite build",
+    "start": "serve .output/public --config ../../serve.json",
+    "preview": "vite preview",
+    "types:check": "tsc --noEmit"
   },
   "dependencies": {
-    "@astrojs/check": "^0.9.4",
-    "@astrojs/starlight": "^0.30.3",
-    "@fontsource-variable/jetbrains-mono": "^5.1.1",
-    "@lorenzo_lewis/starlight-utils": "^0.2.0",
-    "astro": "^5.1.1",
-    "sharp": "^0.33.5",
-    "starlight-links-validator": "^0.14.1",
-    "typescript": "^5.7.2"
+    "@paper-design/shaders-react": "^0.0.81",
+    "@tanstack/react-router": "1.170.33",
+    "@tanstack/react-router-devtools": "1.167.1",
+    "@tanstack/react-start": "1.168.50",
+    "@tanstack/start-static-server-functions": "1.167.33",
+    "cn": "^0.2.6",
+    "fumadocs-core": "16.15.11",
+    "fumadocs-mdx": "15.4.1",
+    "fumadocs-ui": "npm:@fumadocs/base-ui@16.15.11",
+    "lucide-react": "^1.43.0",
+    "motion": "^13.4.0",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
   },
   "devDependencies": {
-    "sass": "^1.83.0"
+    "@tailwindcss/vite": "^4.3.3",
+    "@types/mdx": "^2.0.14",
+    "@types/node": "^26.5.0",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.7",
+    "@vitejs/plugin-react": "^6.1.1",
+    "nitro": "3.0.260903-beta",
+    "serve": "^14.2.6",
+    "srvx": "^1.0.4",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^7.0.2",
+    "vite": "^8.2.2"
   }
 }

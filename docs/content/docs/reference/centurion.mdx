@@ -1,0 +1,743 @@
+---
+title: centurion
+description: Complete API reference for the centurion package.
+icon: BookOpen
+---
+
+## Types
+
+### `Command<T...>`
+
+Describes a command. `T...` is the tuple of argument types matching the `arguments` function.
+
+```lua
+type Command<T...> = {
+    callback:    (ctx: ExecutionContext, T...) -> ...any,
+    description: string?,
+    arguments:   (() -> T...)?,
+    guards:      { string | Guard }?,
+    roles:       { string }?,
+    permissions: { string }?,
+}
+```
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `callback` | `(ctx, ...args) -> ...any` | Runs when the command is executed. Return a string to auto-reply. |
+| `description` | `string?` | Shown in the terminal UI and suggestions. |
+| `arguments` | `() -> T...` | Returns argument definitions in order. Omit for commands with no arguments. |
+| `guards` | `{ string \| Guard }?` | Guards to run before the callback. Each entry is a guard name (string) or an inline guard function. |
+| `roles` | `{ string }?` | Roles required to execute the command. |
+| `permissions` | `{ string }?` | Named permissions required to execute the command. |
+
+---
+
+### `Argument`
+
+Describes a single argument. Created by argument type functions (e.g. `args.string`).
+
+```lua
+type Argument = {
+    name:        string,
+    type:        string,
+    optional:    boolean?,
+    description: string?,
+    num_args:    (number | "rest")?,
+    suggestions: { string }?,
+}
+```
+
+---
+
+### `ArgumentType`
+
+The definition passed to `register_type` or `register_list_type`.
+
+```lua
+type SingleArgumentType<T = unknown> = {
+    kind:        "single",
+    transform:   (text: string, executor: Player) -> Result<T>,
+    suggestions: ((text: string, executor: Player) -> { string })?,
+}
+
+type ListArgumentType<T = unknown> = {
+    kind:        "list",
+    transform:   (text: { string }, executor: Player) -> Result<T>,
+    suggestions: ((text: string, executor: Player) -> { string })?,
+}
+
+type ArgumentType<T = unknown> = SingleArgumentType<T> | ListArgumentType<T>
+```
+
+`transform` receives the raw input and must return a `Result<T>`, where `T` is the value the argument produces. For list types, the input is already split by commas.
+
+`register_type` and `register_list_type` infer `T` from `transform`, so the declarator they return is typed as `ArgumentFn<T>` without needing a cast.
+
+---
+
+### `ExecutionContext`
+
+Passed as the first argument to every command callback.
+
+```lua
+type ExecutionContext = {
+    executor:  Player,
+    command:   string,
+    input:     string,
+    arguments: { string },
+    response:  Response?,
+
+    reply: (message: string) -> (),
+    error: (message: string) -> (),
+}
+```
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `executor` | `Player` | The player who ran the command. |
+| `command` | `string` | The registered command name. |
+| `input` | `string` | The raw string the executor submitted, quoting intact. Reconstructed from `command` and `arguments` when a command is executed programmatically without one. |
+| `arguments` | `{ string }` | The raw argument tokens before transformation. |
+| `response` | `Response?` | Set after `reply()` or `error()` is called. |
+| `reply(message)` | method | Sets a success response with the given message. |
+| `error(message)` | method | Sets an error response with the given message. |
+
+---
+
+### `Guard`
+
+A function that runs before a command's callback. Return `true` to continue, or `false` (or throw) to halt execution. A guard that
+returns `false` should call `ctx.error` to explain why; if it sets no response, the response is set to `You cannot execute this command.`
+Any return value other than `true` or `false` halts execution and is logged at the `warn` level. A guard that throws is logged at the
+`error` level with a traceback, and the response is set to `Failed to execute command.`
+
+```lua
+type Guard = (context: ExecutionContext) -> boolean
+```
+
+---
+
+### `Response`
+
+The result of a command execution. Set by `ctx.reply()` or `ctx.error()`.
+
+```lua
+type Response = {
+    success:   boolean,
+    message:   string,
+    timestamp: number,  -- Unix timestamp
+}
+```
+
+---
+
+### `Result`
+
+Used by argument type transforms and returned from `transform_args`.
+
+```lua
+type Result<T = unknown> = { success: true, read value: T }
+                        | { success: false, read error: string }
+```
+
+`T` is the transformed value. `value` is read-only so that a `Result<Player>` can be
+used where a `Result<unknown>` is expected, which is how the registry stores argument
+types with different value types in one map.
+
+---
+
+### `PermissionRole`
+
+A role definition stored in `registry.roles`.
+
+```lua
+type PermissionRole = {
+    name:        string,
+    priority:    number,
+    permissions: { [string]: boolean },
+}
+```
+
+---
+
+### `Token`
+
+A parsed token from `parse_text`.
+
+```lua
+type Token = {
+    span:   vector,   -- x = start index, y = end index (inclusive, 1-based)
+    text:   string,   -- unescaped text, with quotes removed
+    quoted: boolean,  -- whether any part of the token was quoted
+}
+```
+
+---
+
+### `ParseResult`
+
+Returned by `parse_text`.
+
+```lua
+type ParseResult = {
+    tokens:         { Token },
+    unclosed_quote: boolean,
+}
+```
+
+---
+
+## Commands
+
+### `register_command`
+
+```lua
+centurion.register_command(name: string | { string }, command: Command<T...>)
+```
+
+Adds a command to the registry. Pass an array of names to register aliases for the same command.
+
+The command is validated before it's added. `register_command` errors if any name is already registered, an argument's type isn't
+registered, a required argument follows an optional one, a [`rest`](#rest) argument isn't last, or a [`num_args`](#num_args) count isn't a
+whole number of at least 1. It warns if the callback's parameter count (after `ctx`) doesn't match the number of declared arguments.
+
+---
+
+### `command`
+
+```lua
+centurion.command(name: string | { string }, definition: CommandDefinition<T...>): CommandBuilder<T...>
+```
+
+Luau only. Takes the same fields as [`Command`](#commandt), without `callback`, and returns a builder. Calling
+`builder:callback(fn)` registers the command, just like [`register_command`](#register_command). Because `T...` is already known when
+`fn` is checked, the callback's parameters are inferred from `arguments` instead of needing annotations.
+
+```lua
+centurion.command("greet", {
+    arguments = function()
+        return centurion.args.player("target")
+    end,
+}):callback(function(ctx, target)
+    ctx.reply(`Hello, {target.Name}!`)
+end)
+```
+
+The command isn't registered until `:callback()` is called.
+
+---
+
+### `unregister_command`
+
+```lua
+centurion.unregister_command(name: string)
+```
+
+Removes a command from the registry, along with every alias it was registered under. Errors if the command does not exist.
+
+---
+
+### `execute_command`
+
+```lua
+centurion.execute_command(executor: Player, name: string, args: { string }?, input: string?) -> ExecutionContext
+```
+
+Executes a command programmatically. If executed on the client, server-side commands are forwarded to the server via the network handler.
+
+Execution runs the permission check, then global guards, then the command's guards, then transforms the arguments and calls the callback.
+The returned context's `response` holds the outcome. An unknown command, or one the executor can't run while `hide` is enabled, returns a
+context with no response.
+
+`input` is the raw, untokenized string the executor submitted, and is what `ctx.input` reports. Omit it and `ctx.input` is rebuilt by
+joining `name` and `args` with spaces, which loses quoting - `say "hello world"` comes back as `say hello world`. The terminal UI always
+passes the submitted text, so `ctx.input` is exact for commands run from it.
+
+---
+
+### `set_network_handler`
+
+```lua
+centurion.set_network_handler(callback: (command: string, args: { string }?, input: string?) -> ExecutionContext)
+```
+
+Sets the function used to execute commands remotely from the client. Called automatically by `setup_networking()`.
+
+---
+
+### `setup_networking`
+
+```lua
+centurion.setup_networking()
+```
+
+Sets up the built-in client-server synchronization. Must be called on **both** the server and the client.
+
+When using a custom solution for command networking, you can skip this and call `set_network_handler` with your own implementation.
+
+---
+
+### `set_execute_limits`
+
+```lua
+type ExecuteLimits = {
+    rate:             number?,
+    burst:            number?,
+    max_args:         number?,
+    max_arg_length:   number?,
+    max_input_length: number?,
+}
+
+centurion.set_execute_limits(limits: ExecuteLimits)
+```
+
+Limits for commands executed remotely through `setup_networking`. Call it on the server. Each player has a token bucket: they can run
+`burst` commands at once, and get `rate` more per second up to that cap. Requests over a limit get an error response
+and never reach the command. Commands executed directly with `execute_command` on the server aren't limited.
+
+| Option | Default | Description |
+| --- | --- | --- |
+| `rate` | `2` | Commands per second each player regains. |
+| `burst` | `10` | Commands a player can run in quick succession. |
+| `max_args` | `32` | Maximum number of arguments. |
+| `max_arg_length` | `256` | Maximum length of the command name and of each argument, in bytes. |
+| `max_input_length` | `1024` | Maximum length of the raw input string, in bytes. |
+
+---
+
+### `set_logger`
+
+```lua
+type LogLevel = "warn" | "error"
+
+type LogInfo = {
+    executor:  Player?,
+    command:   string?,
+    input:     string?,
+    guard:     string?,
+    traceback: string?,
+}
+
+centurion.set_logger(logger: ((level: LogLevel, message: string, info: LogInfo) -> ())?)
+```
+
+Routes everything Centurion logs to your own function, such as a logging or analytics service. By default, both levels are
+printed with `warn`. Call `set_logger` with no argument to restore that default. The logger runs on whichever machine produced
+the log, so set it on both the server and the client if you want both.
+
+| Level | Logged when |
+| --- | --- |
+| `error` | A guard or command callback throws. `info.traceback` holds the stack trace from where the error was thrown. |
+| `warn` | Something is misconfigured but Centurion can carry on: a guard returns a non-boolean, a named guard was unregistered after a command used it, a callback's arity doesn't match its arguments, or a synced command couldn't be registered on the client. |
+
+Invalid input from players, such as an argument that fails to transform, isn't logged. It's returned to the player as an error response instead.
+
+If the logger itself throws, Centurion falls back to the default logger for that message.
+
+```lua
+centurion.set_logger(function(level, message, info)
+    if level == "error" then
+        Analytics.report(message, info.traceback, info.executor)
+    else
+        warn(message)
+    end
+end)
+```
+
+---
+
+## Guards
+
+### `register_guard`
+
+```lua
+centurion.register_guard(name: string, guard: Guard)
+```
+
+Registers a named guard. Reference it in a command's `guards` field by name. Errors if a guard with that name already exists.
+
+Named guards must be registered before any command that uses them: `register_command` errors on a guard name it doesn't recognise.
+
+---
+
+### `unregister_guard`
+
+```lua
+centurion.unregister_guard(name: string)
+```
+
+Removes a named guard. Errors if no guard with that name is registered. A command that still references the guard fails to execute,
+replying `Failed to execute command.` and warning in the console, rather than running without it.
+
+---
+
+### `add_global_guard`
+
+```lua
+centurion.add_global_guard(guard: Guard) -> () -> ()
+```
+
+Adds a guard that runs before every command, ahead of the command's own guards, in the order they were added. Returns a function that
+removes the guard; calling it more than once does nothing.
+
+---
+
+## Arguments
+
+### `register_type`
+
+```lua
+centurion.register_type(name: string, data: ArgumentType) -> ArgumentFn<T>
+```
+
+Registers a custom argument type and returns an argument factory function. The factory is called with `(name, description?, suggestions?)` when
+building a command's arguments. Errors if a type with that name is already registered, including the built-in types.
+
+```lua
+local positive_int = centurion.register_type("positive-int", {
+    transform = function(text)
+        local n = tonumber(text)
+        if not n or n <= 0 or math.floor(n) ~= n then
+            return { success = false, error = "Expected a positive integer" }
+        end
+        return { success = true, value = n }
+    end,
+})
+```
+
+---
+
+### `register_list_type`
+
+```lua
+centurion.register_list_type(name: string, data: ArgumentType) -> ArgumentFn<T>
+```
+
+Same as `register_type` but the `transform` function receives `{ string }` (comma-split values) instead of a single string.
+
+---
+
+### `create_enum`
+
+```lua
+centurion.create_enum(values: { string }) -> { transform, suggestions }
+```
+
+Creates a type definition that only accepts values from a fixed list, to pass to `register_type`. Suggestions are populated automatically from `values`.
+
+```lua
+local difficulty = centurion.register_type("difficulty", centurion.create_enum({ "easy", "normal", "hard" }))
+```
+
+---
+
+### `optional`
+
+```lua
+centurion.optional(arg: Argument) -> Argument
+```
+
+Marks an argument as optional. Optional arguments must come after all required arguments.
+
+---
+
+### `num_args`
+
+```lua
+centurion.num_args(arg: Argument, count: number) -> Argument
+```
+
+Makes an argument accept exactly `count` values, which must be a whole number of at least 1. The callback receives the values as a `{ T }` array, even when `count` is 1.
+
+---
+
+### `rest`
+
+```lua
+centurion.rest(arg: Argument) -> Argument
+```
+
+Makes an argument consume all remaining tokens. It must be the last argument. The callback receives the values as a `{ T }` array.
+
+---
+
+### `transform_args`
+
+```lua
+centurion.transform_args(executor: Player, input: { string }, args: { Argument }) -> Result<{ unknown }>
+```
+
+Transforms raw input tokens using the given argument definitions. Returns `{ success = true, value = { ... } }` on success, or `{ success = false, error = "..." }` on failure.
+
+It fails if a required argument is missing, a value doesn't transform, a `num_args` argument gets the wrong number of values, or there
+is more input than the arguments accept. Omitted optional arguments leave a `nil` at their index.
+
+---
+
+### `result`
+
+```lua
+centurion.result.ok(value: T) -> Ok<T>
+centurion.result.err(message: string) -> Err
+```
+
+Helpers for building the `Result` returned from a `transform` function.
+
+---
+
+## Permissions
+
+### `create_role`
+
+```lua
+centurion.create_role(name: string, priority: number, permissions: { string }?)
+```
+
+Creates a named role. `priority` controls inheritance - a role with higher priority inherits all permissions from roles with lower priority.
+`permissions` is a list of permission names granted to this role.
+
+---
+
+### `set_roles`
+
+```lua
+centurion.set_roles(player: Player, roles: { string })
+```
+
+Replaces the player's current roles. Errors if any role name does not exist.
+
+---
+
+### `get_roles`
+
+```lua
+centurion.get_roles(player: Player) -> { string }
+```
+
+Returns the player's current roles.
+
+---
+
+### `add_roles`
+
+```lua
+centurion.add_roles(player: Player, ...: string)
+```
+
+Adds one or more roles to a player.
+
+---
+
+### `remove_roles`
+
+```lua
+centurion.remove_roles(player: Player, ...: string)
+```
+
+Removes one or more roles from a player.
+
+---
+
+### `can_execute`
+
+```lua
+centurion.can_execute(player: Player, command: Command<unknown>) -> boolean
+```
+
+Returns whether a player is allowed to execute a command, based on their roles and the command's `roles`/`permissions` fields.
+
+A player with no roles can only execute commands that have no role or permission restrictions. Outside a running game (e.g. in Studio
+edit mode) it always returns `true`.
+
+Role matching uses priority: a player's role satisfies a required role if the player's role priority is **greater than or equal to** the
+required role's priority, so a higher-priority role can run anything a lower-priority one can.
+
+Both `roles` and `permissions` are any-of: the player needs one matching role or one granted permission, not all of them.
+If a command lists both, satisfying either is enough.
+
+---
+
+### `set_permission_options`
+
+```lua
+type PermissionOptions = {
+    hide:          boolean?,
+    default_roles: { string }?,
+}
+
+centurion.set_permission_options(options: PermissionOptions)
+```
+
+| Option | Default | Description |
+| --- | --- | --- |
+| `hide` | `true` | When `true`, commands the player cannot execute are hidden entirely rather than returning an error, and aren't synced to their client. |
+| `default_roles` | `nil` | Roles automatically assigned to every player when they join, and to players already in the game. |
+
+---
+
+## Parsing
+
+### `parse_text`
+
+```lua
+centurion.parse_text(text: string, split_char: string) -> ParseResult
+```
+
+Tokenizes a raw string. Supports quoted strings (`"..."`, `'...'`) and escape sequences (`\n`, `\t`, `\r`, `\\`, `\"`, `\'`).
+Each token includes its source span as a `vector` (`x` = start, `y` = end), and whether it was `quoted`.
+
+---
+
+### `resolve_command`
+
+```lua
+centurion.resolve_command(text: string) -> Resolution
+```
+
+Turns raw input into a registered command name and its arguments, for building a
+frontend such as a chat command handler. Returns:
+
+```lua
+type Resolution = {
+    name: string?,        -- nil if the input doesn't name a command
+    name_end: number,     -- index of the last token in the name, 0 if unresolved
+    args: { string },     -- source text of each argument token, quoting intact
+    tokens: { Token },
+    unclosed_quote: boolean,
+}
+```
+
+Command names may contain spaces, so the **longest** registered name wins: with both
+`roles` and `roles get` registered, `roles get Bob` resolves to `roles get` with `Bob`
+as its argument. A quoted token is literal text and never forms part of a name, so
+`roles "get"` resolves to `roles` with `get` as its argument.
+
+`args` keeps its quoting because argument transformers strip it themselves — pass the
+values straight to [`execute_command`](#execute_command).
+
+---
+
+## Events
+
+Each event function registers a callback and returns a cleanup function that disconnects it.
+
+```lua
+centurion.events.on_command_register(callback: (name: string, command: Command<unknown>) -> ())   -> () -> ()
+centurion.events.on_command_unregister(callback: (name: string, command: Command<unknown>) -> ()) -> () -> ()
+centurion.events.on_command_execute(callback: (ctx: ExecutionContext) -> ())                      -> () -> ()
+centurion.events.on_roles_changed(player: Player, callback: (roles: { string }) -> ())            -> () -> ()
+```
+
+| Event | Fires when |
+| --- | --- |
+| `on_command_register` | A command is added with `register_command`. Fires once per call, with the first name if aliases were given |
+| `on_command_unregister` | A command is removed with `unregister_command` |
+| `on_command_execute` | A command's callback runs successfully. Doesn't fire if a permission check, guard, argument or the callback fails |
+| `on_roles_changed` | A specific player's roles change via `set_roles`, `add_roles`, or `remove_roles` |
+
+---
+
+## Registry
+
+Read-only tables reflecting the current state of the registry. Mutating these directly is not supported.
+
+```lua
+centurion.registry.commands      -- { [string]: Command<unknown> }
+centurion.registry.types         -- { [string]: ArgumentType }
+centurion.registry.guards        -- { [string]: Guard }
+centurion.registry.global_guards -- { Guard }
+centurion.registry.roles         -- { [string]: PermissionRole }
+```
+
+---
+
+## Built-in Argument Types
+
+All factory functions share the same signature:
+
+```lua
+args.TYPE(name: string, description: string?, suggestions: { string }?) -> Argument
+```
+
+| Factory | Returns | Notes |
+| --- | --- | --- |
+| `args.string` | `string` | Any text. |
+| `args.number` | `number` | Any numeric value. |
+| `args.integer` | `number` | Whole numbers only. |
+| `args.boolean` | `boolean` | Accepts `true`/`false`, `yes`/`no`, `y`/`n`, case-insensitive. |
+| `args.player` | `Player` | Accepts `@me` or `.` (self), `@random` or `?` (random player), or a player name (case-insensitive). |
+| `args.players` | `{ Player }` | Comma-separated list of anything `args.player` accepts. Also accepts `@all` and `@others`. |
+| `args.brick_color` | `BrickColor` | Any Roblox BrickColor name, case-insensitive. |
+| `args.hex_color` | `Color3` | Six-digit hex string, with or without `#`, e.g. `#ff0000`. |
+| `args.rgb_color` | `Color3` | Three comma-separated components from 0 to 255, e.g. `255,0,0`. |
+| `args.team` | `Team` | Team name from `game.Teams`. |
+| `args.duration` | `number` | Duration string converted to seconds. See below. |
+| `args.vector2` | `Vector2` | Two comma-separated numbers, e.g. `10,20`. |
+| `args.vector3` | `vector` | Three comma-separated numbers, e.g. `0,10,0`. |
+
+`players`, `rgb_color`, `vector2` and `vector3` are list types, so their components are separated by commas rather than spaces.
+
+### Duration Format
+
+Compound durations are supported: `1h30m`, `2d12h`, `90s`.
+
+| Unit | Aliases |
+| --- | --- |
+| Seconds | `s`, `sec`, `second`, `seconds` |
+| Minutes | `m`, `min`, `minute`, `minutes` |
+| Hours | `h`, `hr`, `hour`, `hours` |
+| Days | `d`, `day`, `days` |
+| Weeks | `w`, `wk`, `week`, `weeks` |
+| Months | `mo`, `month`, `months` |
+| Years | `y`, `yr`, `year`, `years` |
+
+A month is 365.25 / 12 days and a year is 365.25 days. A bare `0` is accepted as zero seconds.
+
+---
+
+## Sync
+
+`centurion.sync` exposes the lower-level sync API for custom networking setups.
+
+### `sync.setup`
+
+Alias for `setup_networking`. Prefer calling `centurion.setup_networking()` directly.
+
+---
+
+### `sync.server`
+
+```lua
+centurion.sync.server() -> {
+    hydrate: (player: Player) -> (),
+    connect: (callback: SyncCallback) -> () -> (),
+}
+```
+
+Creates a server-side syncer. `connect` begins listening for registry and permission changes and fires `callback` whenever a patch should be sent to a player. It returns a disconnect function.
+`hydrate` sends the full initial state to a player immediately, and must be called after `connect`. A player receives no patches until they've been hydrated.
+
+Only a command's `description` and `arguments` are sent. The callback, guards and permissions stay on the server.
+
+```lua
+type SyncCallback = (player: Player, payload: SyncPayload) -> ()
+
+type SyncPayload =
+    { type: "init",  data: NetworkedMap }
+  | { type: "patch", data: NetworkedMap }
+```
+
+---
+
+### `sync.client`
+
+```lua
+centurion.sync.client() -> {
+    sync: (...SyncPayload) -> (),
+}
+```
+
+Creates a client-side syncer. Call `sync(payload)` with each payload received from the server to apply state changes locally.
+An `"init"` payload replaces every command previously synced from the server; a `"patch"` payload adds, replaces or removes individual commands.
+Commands registered on the client are never replaced or removed by a sync. If a synced command has the same name as one, the client's command is kept and a warning is logged.
+

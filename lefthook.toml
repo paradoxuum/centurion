@@ -1,4 +1,0 @@
-[pre-commit.commands.lint]
-run = "pnpm biome check --write --unsafe"
-glob = "*.{ts,tsx,toml,json}"
-stage_fixed = true

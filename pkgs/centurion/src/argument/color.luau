@@ -1,0 +1,273 @@
+--!nonstrict
+local argument = require("./.")
+local result = require("../result")
+local types = require("../types")
+
+local register = argument.register_type
+
+local brick_colors = {
+	"White",
+	"Grey",
+	"Light yellow",
+	"Brick yellow",
+	"Light green (Mint)",
+	"Light reddish violet",
+	"Pastel Blue",
+	"Light orange brown",
+	"Nougat",
+	"Bright red",
+	"Med. reddish violet",
+	"Bright blue",
+	"Bright yellow",
+	"Earth orange",
+	"Black",
+	"Dark grey",
+	"Dark green",
+	"Medium green",
+	"Lig. Yellowich orange",
+	"Bright green",
+	"Dark orange",
+	"Light bluish violet",
+	"Transparent",
+	"Tr. Red",
+	"Tr. Lg blue",
+	"Tr. Blue",
+	"Tr. Yellow",
+	"Light blue",
+	"Tr. Flu. Reddish orange",
+	"Tr. Green",
+	"Tr. Flu. Green",
+	"Phosph. White",
+	"Light red",
+	"Medium red",
+	"Medium blue",
+	"Light grey",
+	"Bright violet",
+	"Br. yellowish orange",
+	"Bright orange",
+	"Bright bluish green",
+	"Earth yellow",
+	"Bright bluish violet",
+	"Tr. Brown",
+	"Medium bluish violet",
+	"Tr. Medi. reddish violet",
+	"Med. yellowish green",
+	"Med. bluish green",
+	"Light bluish green",
+	"Br. yellowish green",
+	"Lig. yellowish green",
+	"Med. yellowish orange",
+	"Br. reddish orange",
+	"Bright reddish violet",
+	"Light orange",
+	"Tr. Bright bluish violet",
+	"Gold",
+	"Dark nougat",
+	"Silver",
+	"Neon orange",
+	"Neon green",
+	"Sand blue",
+	"Sand violet",
+	"Medium orange",
+	"Sand yellow",
+	"Earth blue",
+	"Earth green",
+	"Tr. Flu. Blue",
+	"Sand blue metallic",
+	"Sand violet metallic",
+	"Sand yellow metallic",
+	"Dark grey metallic",
+	"Black metallic",
+	"Light grey metallic",
+	"Sand green",
+	"Sand red",
+	"Dark red",
+	"Tr. Flu. Yellow",
+	"Tr. Flu. Red",
+	"Gun metallic",
+	"Red flip/flop",
+	"Yellow flip/flop",
+	"Silver flip/flop",
+	"Curry",
+	"Fire Yellow",
+	"Flame yellowish orange",
+	"Reddish brown",
+	"Flame reddish orange",
+	"Medium stone grey",
+	"Royal blue",
+	"Dark Royal blue",
+	"Bright reddish lilac",
+	"Dark stone grey",
+	"Lemon metalic",
+	"Light stone grey",
+	"Dark Curry",
+	"Faded green",
+	"Turquoise",
+	"Light Royal blue",
+	"Medium Royal blue",
+	"Rust",
+	"Brown",
+	"Reddish lilac",
+	"Lilac",
+	"Light lilac",
+	"Bright purple",
+	"Light purple",
+	"Light pink",
+	"Light brick yellow",
+	"Warm yellowish orange",
+	"Cool yellow",
+	"Dove blue",
+	"Medium lilac",
+	"Slime green",
+	"Smoky grey",
+	"Dark blue",
+	"Parsley green",
+	"Steel blue",
+	"Storm blue",
+	"Lapis",
+	"Dark indigo",
+	"Sea green",
+	"Shamrock",
+	"Fossil",
+	"Mulberry",
+	"Forest green",
+	"Cadet blue",
+	"Electric blue",
+	"Eggplant",
+	"Moss",
+	"Artichoke",
+	"Sage green",
+	"Ghost grey",
+	"Lilac",
+	"Plum",
+	"Olivine",
+	"Laurel green",
+	"Quill grey",
+	"Crimson",
+	"Mint",
+	"Baby blue",
+	"Carnation pink",
+	"Persimmon",
+	"Maroon",
+	"Gold",
+	"Daisy orange",
+	"Pearl",
+	"Fog",
+	"Salmon",
+	"Terra Cotta",
+	"Cocoa",
+	"Wheat",
+	"Buttermilk",
+	"Mauve",
+	"Sunrise",
+	"Tawny",
+	"Rust",
+	"Cashmere",
+	"Khaki",
+	"Lily white",
+	"Seashell",
+	"Burgundy",
+	"Cork",
+	"Burlap",
+	"Beige",
+	"Oyster",
+	"Pine Cone",
+	"Fawn brown",
+	"Hurricane grey",
+	"Cloudy grey",
+	"Linen",
+	"Copper",
+	"Dirt brown",
+	"Bronze",
+	"Flint",
+	"Dark taupe",
+	"Burnt Sienna",
+	"Institutional white",
+	"Mid gray",
+	"Really black",
+	"Really red",
+	"Deep orange",
+	"Alder",
+	"Dusty Rose",
+	"Olive",
+	"New Yeller",
+	"Really blue",
+	"Navy blue",
+	"Deep blue",
+	"Cyan",
+	"CGA brown",
+	"Magenta",
+	"Pink",
+	"Deep orange",
+	"Teal",
+	"Toothpaste",
+	"Lime green",
+	"Camo",
+	"Grime",
+	"Lavender",
+	"Pastel light blue",
+	"Pastel orange",
+	"Pastel violet",
+	"Pastel blue-green",
+	"Pastel green",
+	"Pastel yellow",
+	"Pastel brown",
+	"Royal purple",
+	"Hot pink",
+}
+
+local brick_color_set = {}
+for _, name in ipairs(brick_colors) do
+	brick_color_set[name:lower()] = name
+end
+
+local brick_color = register("brick_color", {
+	transform = function(value: string): types.Result<BrickColor>
+		local color_name = brick_color_set[value:lower()]
+		if not color_name then
+			return result.error(`BrickColor '{value}' not found.`)
+		end
+		return result.success(BrickColor.new(color_name :: any))
+	end,
+	suggestions = function(_value: string, _executor: Player): { string }
+		return brick_colors
+	end,
+})
+
+local hex_color_pattern = "^#?%x%x%x%x%x%x$"
+local hex_color = register("hex_color", {
+	transform = function(value: string): types.Result<Color3>
+		if not value:match(hex_color_pattern) then
+			return result.error(`Invalid hex code: {value}`)
+		end
+		return result.success(Color3.fromHex(value))
+	end,
+})
+
+local rgb_color = argument.register_list_type("rgb_color", {
+	transform = function(text: { string }, _executor: Player): types.Result<Color3>
+		if #text ~= 3 then
+			return result.error("RGB color must have exactly 3 components.")
+		end
+
+		local r = tonumber(text[1])
+		local g = tonumber(text[2])
+		local b = tonumber(text[3])
+
+		if not r or not g or not b then
+			return result.error("All RGB components must be valid numbers.")
+		end
+
+		if r < 0 or r > 255 or g < 0 or g > 255 or b < 0 or b > 255 then
+			return result.error("RGB components must be between 0 and 255.")
+		end
+
+		return result.success(Color3.fromRGB(r, g, b))
+	end,
+})
+
+return {
+	brick_color = brick_color,
+	hex_color = hex_color,
+	rgb_color = rgb_color,
+}

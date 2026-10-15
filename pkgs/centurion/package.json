@@ -1,0 +1,36 @@
+{
+	"name": "@rbxts/centurion",
+    "description": "A command framework for Roblox",
+	"version": "2.0.0",
+	"author": "paradoxuum",
+	"license": "MIT",
+	"main": "src/ts/init.luau",
+	"types": "src/ts/index.d.ts",
+	"files": [
+		"src",
+        "*.luau",
+        "!wally.toml",
+		"!wally.lock",
+		"!default.project.json",
+		"!**/__tests__"
+	],
+    "keywords": [
+        "roblox",
+        "roblox-ts",
+        "command"
+    ],
+	"repository": {
+        "type": "git",
+        "url": "git+https://github.com/paradoxuum/centurion.git"
+    },
+    "bugs": {
+        "url": "https://github.com/paradoxuum/centurion/issues"
+    },
+    "scripts": {
+        "prepack": "cp ../../README.md ../../LICENSE.md .",
+        "postpack": "rm -f README.md LICENSE.md"
+    },
+    "publishConfig": {
+        "access": "public"
+    }
+}

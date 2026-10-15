@@ -1,0 +1,43 @@
+
+{
+  "name": "@rbxts/centurion-ui",
+  "description": "Terminal UI for the Centurion command framework",
+  "version": "2.0.0",
+  "author": "paradoxuum",
+  "license": "MIT",
+  "main": "src/ts/init.luau",
+  "types": "src/ts/index.d.ts",
+  "files": [
+    "src",
+    "vide/src",
+    "vide/init.luau",
+    "*.luau",
+    "!src/stories",
+    "!wally.toml",
+    "!wally.lock",
+    "!default.project.json",
+    "!**/__tests__"
+  ],
+  "keywords": [
+    "roblox",
+    "roblox-ts",
+    "command"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/paradoxuum/centurion.git"
+  },
+  "bugs": {
+    "url": "https://github.com/paradoxuum/centurion/issues"
+  },
+  "scripts": {
+    "prepack": "cp ../../README.md ../../LICENSE.md .",
+    "postpack": "rm -f README.md LICENSE.md"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@rbxts/centurion": "workspace:^"
+  }
+}

@@ -1,24 +1,16 @@
 {
-	"name": "centurion",
+	"name": "centurion-workspace",
 	"private": true,
-	"packageManager": "pnpm@9.15.1",
-	"workspaces": [
-		"packages/*",
-		"docs",
-		"test"
-	],
+	"packageManager": "pnpm@12.5.1+sha512.e3f305bc784a2bc89f5ad3b6138889470fae8d2af5f36b61216ec91c2c3d64089775f9de38aac331044ea40f245cb0d5666392dfdf65824e1907ef6a2c62de5f",
 	"scripts": {
-		"packages:build": "pnpm --filter \"./packages/**\" build",
-		"core:build": "pnpm --filter @rbxts/centurion build",
-		"core:dev": "pnpm --filter @rbxts/centurion dev",
-		"ui:build": "pnpm --filter @rbxts/centurion-ui build",
-		"ui:dev": "pnpm --filter @rbxts/centurion-ui dev",
-		"test:build": "pnpm --filter test build",
-		"test:dev": "pnpm --filter test dev",
-		"serve": "rojo serve"
+		"format": "prettier --write .",
+		"format:check": "prettier --check ."
 	},
 	"devDependencies": {
-		"@biomejs/biome": "1.9.0",
-		"lefthook": "^1.10.0"
+		"@rbxts/compiler-types": "3.0.0-types.0",
+		"@rbxts/types": "^1.0.891",
+		"prettier": "^3.9.10",
+		"roblox-ts": "^3.0.0",
+		"typescript": "^5.9.3"
 	}
 }

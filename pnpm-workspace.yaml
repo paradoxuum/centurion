@@ -1,4 +1,7 @@
 packages:
- - 'packages/*'
- - test
- - docs
+  - pkgs/*
+  - docs
+
+allowBuilds:
+  esbuild: true
+

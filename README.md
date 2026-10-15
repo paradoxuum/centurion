@@ -1,11 +1,11 @@
 <div align="center">
   <a href="https://centurion.paradoxum.dev/" target="_blank">
-    <img src="docs/src/assets/logo.webp" width="150" />
+    <img src="https://raw.githubusercontent.com/paradoxuum/centurion/main/docs/public/logo.svg" width="150" />
   </a>
 
   <h1>Centurion</h1>
 
-  <p><strong>A flexible and extensible command framework for roblox-ts</strong></p>
+  <p><strong>A flexible and extensible command framework for Roblox</strong></p>
 
   [![CI status][ci-badge]][ci-url]
   [![npm latest version][npm-latest-badge]][npm-latest-url]
@@ -16,37 +16,59 @@
   [ci-badge]: https://img.shields.io/github/actions/workflow/status/paradoxuum/centurion/ci.yml?style=for-the-badge&branch=main&logo=github
   [ci-url]: https://github.com/paradoxuum/centurion/actions/workflows/ci.yml
   [license-badge]: https://img.shields.io/github/license/paradoxuum/centurion?style=for-the-badge
-  [license-url]: LICENSE.md
+  [license-url]: https://github.com/paradoxuum/centurion/blob/main/LICENSE.md
 
-  ![banner](public/banner.png)
+  <img src="https://raw.githubusercontent.com/paradoxuum/centurion/main/docs/public/example.webp" alt="Example" style="border-radius: 4px;" />
 
   [📖 **Documentation →**](https://centurion.paradoxum.dev/)
 </div>
 
 ## ✨ Features
 
-- ✏️ **Easy to use.** Centurion makes use of decorators to allow defining commands to be easy and readable.
+- 🌙 **Luau and roblox-ts.** Written in Luau with full TypeScript typings, and available on both Wally and npm.
 
-- 💻 **User friendly.** Centurion offers a clean UI that provides suggestions, tab completion and more.
+- ✏️ **Simple to define.** Register commands with a plain table, or use decorators and classes in roblox-ts.
 
-- 🚀 **Powerful.** Features like custom argument types and command guards allow for a wide range of flexibility.
+- 🧩 **Typed arguments.** Built-in types for players, teams, numbers, colors, durations, vectors and more, with optional, multi-value and rest arguments. Register your own types with custom suggestions.
 
-- 🛠️ **Extensible.** Centurion's UI is optional and can easily be swapped out for a custom one.
+- 🔐 **Guards and permissions.** Guard commands with reusable checks, and control access with prioritised, inheritable roles.
+
+- 🔄 **Client-server sync.** Players only receive the commands they're allowed to run, and stay up to date as commands or roles change.
+
+- 💻 **Optional terminal UI.** A clean console with suggestions, fuzzy matching, tab completion, syntax highlighting and history. Use it as-is, theme it, or build your own.
+
+## 📦 Installation
+
+```toml
+# wally.toml
+[dependencies]
+centurion = "paradoxuum/centurion@2.0.0"
+centurion-ui = "paradoxuum/centurion-ui@2.0.0"
+```
+
+```bash
+# roblox-ts
+npm install @rbxts/centurion @rbxts/centurion-ui
+```
+
+See the [documentation](https://centurion.paradoxum.dev/) to get started.
 
 ## 💖 Attributions
 
-- [🔥 Flamework](https://github.com/rbxts-flamework/core): Metadata reflection API ([see usage](packages/core/src/shared/core/metadata.ts))
+- [🍀 Charm](https://github.com/littensy/charm): Inspiration for command syncing
 
-- [🐍 Slither](https://github.com/littensy/slither): Basic UI components and hooks
+- [💻 Conch](https://github.com/alicesaidhi/conch): UI utility components and text box state handling
+
+- [🌿 Vide](https://github.com/centau/vide): Reactive UI library powering the terminal UI
 
 ---
 
 <p align="center">
-This project is released under the <a href="LICENSE.md">MIT License</a>.
+This project is released under the <a href="https://github.com/paradoxuum/centurion/blob/main/LICENSE.md">MIT License</a>.
 </p>
 
 <div align="center">
 
-[![MIT License](https://img.shields.io/github/license/paradoxuum/centurion?style=for-the-badge)](LICENSE.md)
+[![MIT License](https://img.shields.io/github/license/paradoxuum/centurion?style=for-the-badge)](https://github.com/paradoxuum/centurion/blob/main/LICENSE.md)
 
 </div>

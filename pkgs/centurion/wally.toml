@@ -1,0 +1,8 @@
+[package]
+name = "paradoxuum/centurion"
+description = "A command framework for Roblox"
+license = "MIT"
+version = "2.0.0"
+registry = "https://github.com/UpliftGames/wally-index"
+realm = "shared"
+exclude = ["TODO.md", "package.json"]
