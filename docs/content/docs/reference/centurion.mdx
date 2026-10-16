@@ -528,6 +528,23 @@ Errors if a role with the same name already exists, or if an inherited role does
 
 ---
 
+### `update_role`
+
+```lua
+centurion.update_role(name: string, options: {
+    permissions: { string }?,
+    inherits: { string }?,
+})
+```
+
+Edits an existing role. Each field that's given replaces the role's current value, and an omitted field is left as it is. Roles that
+inherit from it pick up the change, and players who have it, directly, through inheritance or as a default role, are resynced. It doesn't
+fire `on_roles_changed`, since no player's assigned roles change.
+
+Errors if the role does not exist, if an inherited role does not exist, or if the new inheritance would form a cycle.
+
+---
+
 ### `delete_role`
 
 ```lua

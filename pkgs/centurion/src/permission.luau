@@ -13,6 +13,7 @@ local opts: PermissionOptions = {
 }
 local changed_callbacks: { [number]: { (roles: { string }) -> () } } = {}
 local options_callbacks: { (options: PermissionOptions) -> () } = {}
+local role_callbacks: { (name: string) -> () } = {}
 
 local player_removing_connection: RBXScriptConnection?
 
@@ -38,27 +39,21 @@ type Resolved = { roles: { [string]: true }, permissions: { [string]: true } }
 
 local resolved: { [string]: Resolved } = {}
 
-local function create_role(name: string, options: RoleOptions?)
-	assert(roles[name] == nil, `Role '{name}' is already registered.`)
-
-	local permission_set: { [string]: boolean } = {}
-	local inherits = if options and options.inherits then table.clone(options.inherits) else {}
-	local granted = {
-		roles = { [name] = true :: true },
+-- what a role grants once its inherited roles are included. the roles it
+-- inherits from must already be resolved
+local function resolve(name: string): Resolved
+	local role = roles[name]
+	local granted: Resolved = {
+		roles = { [name] = true },
 		permissions = {},
 	}
 
-	if options and options.permissions then
-		for _, perm in options.permissions do
-			permission_set[perm] = true
-			granted.permissions[perm] = true
-		end
+	for perm in role.permissions do
+		granted.permissions[perm] = true
 	end
 
-	for _, parent_name in inherits do
+	for _, parent_name in role.inherits do
 		local parent = resolved[parent_name]
-		assert(parent, `Role '{name}' inherits from '{parent_name}', which is not registered.`)
-
 		for role_name in parent.roles do
 			granted.roles[role_name] = true
 		end
@@ -67,12 +62,90 @@ local function create_role(name: string, options: RoleOptions?)
 		end
 	end
 
+	return granted
+end
+
+local function validate_inherits(name: string, inherits: { string })
+	for _, parent_name in inherits do
+		local parent = resolved[parent_name]
+		assert(parent, `Role '{name}' inherits from '{parent_name}', which is not registered.`)
+
+		-- a role can only already be inherited by its parent when editing it
+		if parent.roles[name] then
+			error(`Role '{name}' can't inherit from '{parent_name}', which already inherits from it.`)
+		end
+	end
+end
+
+local function permission_set(permissions: { string }?): { [string]: boolean }
+	local set = {}
+	if permissions then
+		for _, perm in permissions do
+			set[perm] = true
+		end
+	end
+	return set
+end
+
+local function create_role(name: string, options: RoleOptions?)
+	assert(roles[name] == nil, `Role '{name}' is already registered.`)
+
+	local inherits = if options and options.inherits then table.clone(options.inherits) else {}
+	validate_inherits(name, inherits)
+
 	roles[name] = {
 		name = name,
-		permissions = permission_set,
+		permissions = permission_set(options and options.permissions),
 		inherits = inherits,
 	}
-	resolved[name] = granted
+	resolved[name] = resolve(name)
+end
+
+local function update_role(name: string, options: RoleOptions)
+	local role = roles[name]
+	assert(role ~= nil, `Role '{name}' is not registered.`)
+
+	local inherits = if options.inherits then table.clone(options.inherits) else role.inherits
+	validate_inherits(name, inherits)
+
+	-- the role and every role inheriting from it, found before the edit. the
+	-- edit only changes this role's parents, so the set stays the same after
+	local affected: { [string]: true } = {}
+	for other_name, granted in resolved do
+		if granted.roles[name] then
+			affected[other_name] = true
+		end
+	end
+
+	roles[name] = {
+		name = name,
+		permissions = if options.permissions then permission_set(options.permissions) else role.permissions,
+		inherits = inherits,
+	}
+
+	-- re-resolve parents before the roles inheriting from them
+	local done: { [string]: true } = {}
+	local function visit(role_name: string)
+		if done[role_name] then
+			return
+		end
+		done[role_name] = true
+
+		for _, parent_name in roles[role_name].inherits do
+			if affected[parent_name] then
+				visit(parent_name)
+			end
+		end
+		resolved[role_name] = resolve(role_name)
+	end
+
+	for role_name in affected do
+		visit(role_name)
+	end
+
+	for _, callback in table.clone(role_callbacks) do
+		callback(name)
+	end
 end
 
 local function assign(user_id: number, role_names: { string })
@@ -280,8 +353,20 @@ local function on_options_changed(callback: (options: PermissionOptions) -> ())
 	end
 end
 
+-- fires when a role is edited, which can change what any player is granted
+local function on_role_updated(callback: (name: string) -> ())
+	table.insert(role_callbacks, callback)
+	return function()
+		local index = table.find(role_callbacks, callback)
+		if index then
+			table.remove(role_callbacks, index)
+		end
+	end
+end
+
 return {
 	create_role = create_role,
+	update_role = update_role,
 	delete_role = delete_role,
 	get_roles = get_roles,
 	set_roles = set_roles,
@@ -292,6 +377,7 @@ return {
 	set_permission_options = set_permission_options,
 	on_roles_changed = on_roles_changed,
 	on_options_changed = on_options_changed,
+	on_role_updated = on_role_updated,
 	roles = roles,
 	options = opts,
 }

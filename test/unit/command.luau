@@ -1,6 +1,7 @@
 local fakes = require("./fakes")
 
 local centurion = require("../../pkgs/centurion/src")
+local permission = require("../../pkgs/centurion/src/permission")
 local testkit = require("./testkit").test()
 
 local TEST, CASE, CHECK = testkit.TEST, testkit.CASE, testkit.CHECK
@@ -480,6 +481,55 @@ TEST("register events", function()
 
 	stop_register()
 	stop_unregister()
+end)
+
+TEST("updating roles", function()
+	centurion.create_role("helper", { permissions = { "warn" } })
+	centurion.create_role("senior_helper", { inherits = { "helper" } })
+	centurion.create_role("head_helper", { inherits = { "senior_helper" } })
+	centurion.set_roles(bob, { "head_helper" })
+
+	CASE("updating an unknown role errors")
+	CHECK(not pcall(centurion.update_role, "nonexistent", {}))
+
+	CASE("new permissions reach roles that inherit transitively")
+	centurion.update_role("helper", { permissions = { "warn", "mute_chat" } })
+	CHECK(centurion.has_permission(bob, "mute_chat"))
+
+	CASE("replaced permissions are taken away")
+	centurion.update_role("helper", { permissions = { "mute_chat" } })
+	CHECK(not centurion.has_permission(bob, "warn"))
+
+	CASE("omitted fields are kept")
+	centurion.update_role("senior_helper", { permissions = { "slow" } })
+	CHECK(centurion.has_permission(bob, "slow") and centurion.has_permission(bob, "mute_chat"))
+
+	CASE("inheritance can be changed")
+	centurion.update_role("senior_helper", { inherits = { "builder" } })
+	CHECK(centurion.has_permission(bob, "build") and not centurion.has_permission(bob, "mute_chat"))
+	CHECK(centurion.has_permission(bob, "slow"))
+
+	CASE("an inheritance cycle is rejected")
+	CHECK(not pcall(centurion.update_role, "senior_helper", { inherits = { "head_helper" } }))
+	CHECK(not pcall(centurion.update_role, "senior_helper", { inherits = { "senior_helper" } }))
+	CHECK(centurion.has_permission(bob, "build"))
+
+	CASE("an unknown inherited role is rejected")
+	CHECK(not pcall(centurion.update_role, "senior_helper", { inherits = { "nonexistent" } }))
+
+	CASE("listeners are notified")
+	local updated: string? = nil
+	local disconnect = permission.on_role_updated(function(name)
+		updated = name
+	end)
+	centurion.update_role("helper", { permissions = {} })
+	disconnect()
+	CHECK(updated == "helper")
+
+	centurion.set_roles(bob, {})
+	centurion.delete_role("head_helper")
+	centurion.delete_role("senior_helper")
+	centurion.delete_role("helper")
 end)
 
 return nil

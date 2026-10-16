@@ -42,12 +42,34 @@ create_role("admin", { inherits: ["moderator", "builder"] });
   </CodeBlockTab>
 </CodeBlockTabs>
 
+### Editing Roles
+
+`update_role` changes a role's permissions or what it inherits. Pass only the fields to replace. Roles that inherit from it, and the
+players who have it, see the change straight away.
+
+<CodeBlockTabs groupId="lang" defaultValue="luau" persist>
+  <CodeBlockTabsList>
+    <CodeBlockTabsTrigger value="luau">Luau</CodeBlockTabsTrigger>
+    <CodeBlockTabsTrigger value="ts">TypeScript</CodeBlockTabsTrigger>
+  </CodeBlockTabsList>
+  <CodeBlockTab value="luau">
+```lua
+centurion.update_role("moderator", { permissions = { "kick", "ban", "mute" } })
+```
+  </CodeBlockTab>
+  <CodeBlockTab value="ts">
+```ts
+import { update_role } from "@rbxts/centurion";
+
+update_role("moderator", { permissions: ["kick", "ban", "mute"] });
+```
+  </CodeBlockTab>
+</CodeBlockTabs>
+
 ### Deleting Roles
 
 `delete_role` removes a role and takes it away from every player who has it. A role that other roles inherit from, or that's a default
 role, can't be deleted until those are removed first. A command that still requires a deleted role can't be run by anyone.
-
-Roles can't be edited after they're created. To change one, delete it and create it again.
 
 ## Restricting Commands
 

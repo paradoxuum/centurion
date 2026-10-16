@@ -254,6 +254,12 @@ local function server()
 			options_dirty = true
 		end)
 
+		-- an edited role can be held directly, inherited or a default role, so
+		-- everyone is rechecked like an options change
+		local disconnect_role = permission.on_role_updated(function()
+			options_dirty = true
+		end)
+
 		local heartbeat = services.RunService.Heartbeat:Connect(function()
 			-- the registry is diffed once, and each player then only rechecks
 			-- the keys that changed. a player whose roles changed, or everyone
@@ -340,6 +346,7 @@ local function server()
 			disconnect_register()
 			disconnect_unregister()
 			disconnect_options()
+			disconnect_role()
 			heartbeat:Disconnect()
 			player_added:Disconnect()
 			player_removing:Disconnect()
