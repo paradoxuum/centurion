@@ -172,6 +172,8 @@ export function set_network_handler(
 
 export function create_role(name: string, options?: RoleOptions): void;
 
+export function delete_role(name: string): void;
+
 export function set_roles(player: Player, roles: string[]): void;
 
 export function add_roles(player: Player, ...roles: string[]): void;

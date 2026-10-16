@@ -75,6 +75,43 @@ local function create_role(name: string, options: RoleOptions?)
 	resolved[name] = granted
 end
 
+local function assign(user_id: number, role_names: { string })
+	players[user_id] = table.clone(role_names)
+
+	local callbacks = changed_callbacks[user_id]
+	if callbacks then
+		for _, callback in table.clone(callbacks) do
+			callback(table.clone(role_names))
+		end
+	end
+end
+
+local function delete_role(name: string)
+	assert(roles[name] ~= nil, `Role '{name}' is not registered.`)
+
+	for other_name, other in roles do
+		if table.find(other.inherits, name) then
+			error(`Role '{name}' is inherited by '{other_name}'. Delete that role first.`)
+		end
+	end
+
+	if opts.default_roles and table.find(opts.default_roles, name) then
+		error(`Role '{name}' is a default role. Remove it from the default roles first.`)
+	end
+
+	roles[name] = nil
+	resolved[name] = nil
+
+	for user_id, assigned in table.clone(players) do
+		local index = table.find(assigned, name)
+		if index then
+			local new_roles = table.clone(assigned)
+			table.remove(new_roles, index)
+			assign(user_id, new_roles)
+		end
+	end
+end
+
 local function get_roles(player: Player): { string }
 	local current = players[player.UserId]
 	return if current then table.clone(current) else {}
@@ -92,14 +129,7 @@ local function set_roles(player: Player, role_names: { string })
 	end
 
 	track_players()
-	players[player.UserId] = table.clone(role_names)
-
-	local callbacks = changed_callbacks[player.UserId]
-	if callbacks then
-		for _, callback in table.clone(callbacks) do
-			callback(table.clone(role_names))
-		end
-	end
+	assign(player.UserId, role_names)
 end
 
 local function add_roles(player: Player, ...: string)
@@ -252,6 +282,7 @@ end
 
 return {
 	create_role = create_role,
+	delete_role = delete_role,
 	get_roles = get_roles,
 	set_roles = set_roles,
 	add_roles = add_roles,

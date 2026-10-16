@@ -42,6 +42,13 @@ create_role("admin", { inherits: ["moderator", "builder"] });
   </CodeBlockTab>
 </CodeBlockTabs>
 
+### Deleting Roles
+
+`delete_role` removes a role and takes it away from every player who has it. A role that other roles inherit from, or that's a default
+role, can't be deleted until those are removed first. A command that still requires a deleted role can't be run by anyone.
+
+Roles can't be edited after they're created. To change one, delete it and create it again.
+
 ## Restricting Commands
 
 Commands can require a specific **role** or a specific **permission**.

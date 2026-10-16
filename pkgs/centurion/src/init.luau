@@ -65,6 +65,7 @@ return {
 	set_logger = log.set_logger,
 
 	create_role = permission.create_role,
+	delete_role = permission.delete_role,
 	set_roles = permission.set_roles,
 	get_roles = permission.get_roles,
 	add_roles = permission.add_roles,

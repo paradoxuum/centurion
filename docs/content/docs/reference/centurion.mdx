@@ -503,6 +503,18 @@ Errors if a role with the same name already exists, or if an inherited role does
 
 ---
 
+### `delete_role`
+
+```lua
+centurion.delete_role(name: string)
+```
+
+Deletes a role and removes it from every player who has it, firing `on_roles_changed` for each of them. Errors if the role does not
+exist, if another role inherits from it, or if it's one of the default roles. A command that still requires it can't be run by anyone,
+and registering a new command that requires it errors.
+
+---
+
 ### `set_roles`
 
 ```lua

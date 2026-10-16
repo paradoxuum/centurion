@@ -267,6 +267,63 @@ TEST("default roles", function()
 	fakes.remove_player(carol)
 end)
 
+TEST("deleting roles", function()
+	centurion.create_role("trial", { permissions = { "fly" } })
+	centurion.create_role("trial_plus", { inherits = { "trial" } })
+	centurion.register_command("fly", {
+		roles = { "trial_plus" },
+		callback = function()
+			return "flying"
+		end,
+	})
+
+	CASE("deleting an unknown role errors")
+	CHECK(not pcall(centurion.delete_role, "nonexistent"))
+
+	CASE("deleting an inherited role errors")
+	CHECK(not pcall(centurion.delete_role, "trial"))
+	CHECK(centurion.registry.roles.trial ~= nil)
+
+	CASE("deleting a default role errors")
+	centurion.set_permission_options({ default_roles = { "trial" } })
+	centurion.delete_role("trial_plus")
+	CHECK(not pcall(centurion.delete_role, "trial"))
+	CHECK(centurion.registry.roles.trial ~= nil)
+	centurion.set_permission_options({ default_roles = {} })
+
+	CASE("players lose the role and listeners are notified")
+	centurion.set_roles(bob, { "member", "trial" })
+	local notified: { string }? = nil
+	local disconnect = centurion.events.on_roles_changed(bob, function(roles)
+		notified = roles
+	end)
+	centurion.delete_role("trial")
+	disconnect()
+	CHECK(#centurion.get_roles(bob) == 1 and centurion.get_roles(bob)[1] == "member")
+	CHECK(notified ~= nil and #notified == 1)
+	CHECK(not centurion.has_permission(bob, "fly"))
+
+	CASE("a command requiring a deleted role can't be run by anyone")
+	centurion.set_roles(bob, { "admin" })
+	CHECK(not centurion.can_execute(bob, centurion.registry.commands.fly))
+
+	CASE("registering a command with a deleted role errors")
+	CHECK(not pcall(centurion.register_command, "glide", {
+		roles = { "trial" },
+		callback = function() end,
+	}))
+
+	CASE("a deleted role can be created again")
+	centurion.create_role("trial_plus")
+	CHECK(centurion.registry.roles.trial_plus ~= nil)
+	centurion.set_roles(bob, { "trial_plus" })
+	CHECK(centurion.can_execute(bob, centurion.registry.commands.fly))
+
+	centurion.set_roles(bob, {})
+	centurion.delete_role("trial_plus")
+	centurion.unregister_command("fly")
+end)
+
 TEST("player lifecycle", function()
 	local dave = fakes.add_player("Dave")
 	centurion.set_roles(dave, { "member" })
