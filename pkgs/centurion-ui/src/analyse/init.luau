@@ -2,6 +2,7 @@
 local Players = game:GetService("Players")
 
 local centurion = require("../centurion")
+local cursor = require("@self/cursor")
 local match = require("@self/match")
 local suggest = require("@self/suggest")
 local types = require("./types")
@@ -31,6 +32,8 @@ local function analyse(text: string, cursor_pos: number, max_suggestions: number
 	if cmd_index and cursor_pos - 1 > tokens[cmd_index].span.y then
 		at_arg = true
 	end
+
+	local slot, inserting = cursor.locate(arg_tokens, cursor_pos)
 
 	local function process_arg(): types.AnalysisResult?
 		if not cmd_name then
@@ -73,40 +76,25 @@ local function analyse(text: string, cursor_pos: number, max_suggestions: number
 			}
 		end
 
-		local arg_index = 1
-		local input_index = 0
-		for i, arg in cmd_args do
-			local num_args = arg.num_args or 1
+		-- assign tokens to arguments the same way execution does, counting the
+		-- token about to be typed if the cursor isn't on an existing one
+		local count = if inserting then #arg_tokens + 1 else #arg_tokens
+		local ranges = centurion.assign_args(cmd_args, count)
 
-			local start_token = arg_tokens[input_index] or tokens[cmd_index]
-
-			local range_end = 0
-			if type(num_args) == "number" then
-				range_end = input_index + num_args
-			else
-				range_end = #arg_tokens
-			end
-
-			for j = input_index + 1, range_end do
-				if not arg_tokens[j] then
-					if j == 1 or cursor_pos - 1 > arg_tokens[j - 1].span.y then
-						input_index += 1
-					end
-
-					break
-				end
-
-				input_index = j
-			end
-
-			local end_token = arg_tokens[input_index]
-			if
-				(not end_token or i == #cmd_args or cursor_pos - 1 <= end_token.span.y)
-				and cursor_pos - 1 >= start_token.span.x
-			then
+		local arg_index: number? = nil
+		for i, range in ranges do
+			if slot >= range.first and slot <= range.last then
 				arg_index = i
 				break
 			end
+		end
+
+		-- past the last argument, which execution rejects
+		if not arg_index then
+			return {
+				result = transform_result,
+				suggestions = {},
+			}
 		end
 
 		local arg = cmd_args[arg_index]
@@ -114,15 +102,15 @@ local function analyse(text: string, cursor_pos: number, max_suggestions: number
 		assert(arg_type, "Unknown argument type: " .. tostring(arg.type))
 
 		local input_token: centurion.Token
-		if arg_tokens[input_index] then
-			input_token = arg_tokens[input_index]
-		else
-			local prev_token = tokens[cmd_index + math.min(input_index, #arg_tokens)]
+		if inserting then
+			-- an empty span at the cursor, so a suggestion is inserted there
 			input_token = {
-				span = vector.create(prev_token.span.y + 2, prev_token.span.y + 2, 0),
+				span = vector.create(cursor_pos, cursor_pos - 1, 0),
 				text = "",
 				quoted = false,
 			}
+		else
+			input_token = arg_tokens[slot]
 		end
 
 		if arg_type.kind == "list" then
@@ -293,8 +281,7 @@ local function analyse(text: string, cursor_pos: number, max_suggestions: number
 
 		-- a subcommand shares the position of its parent's first argument, so
 		-- both sets are offered there instead of the argument replacing them
-		local on_first_arg = arg_result.argument == nil or arg_result.argument.index == 1
-		if cmd_name and on_first_arg then
+		if cmd_name and slot == 1 then
 			local prefix = cmd_name .. " "
 			local merged: { types.AnalysisSuggestion } = {}
 

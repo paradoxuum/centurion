@@ -4,6 +4,7 @@ local FINISH = testkit.FINISH
 
 require("./argument")
 require("./command")
+require("./cursor")
 require("./duration")
 require("./leventine")
 require("./limit")
