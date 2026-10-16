@@ -310,6 +310,6 @@ disconnect();
 
 | Event | Arguments | Fires when |
 | --- | --- | --- |
-| `on_command_register` | `name, command` | A command is added to the registry. Fires once per registration, with the first name. |
-| `on_command_unregister` | `name, command` | A command is removed from the registry |
+| `on_command_register` | `name, command` | A command is added to the registry. Fires once for each of its names, so a command with aliases fires once per alias. |
+| `on_command_unregister` | `name, command` | A command is removed from the registry. Fires once for each name removed, including aliases. |
 | `on_command_execute` | `ctx` | A command's callback runs successfully. Doesn't fire if a permission check, guard, argument or the callback fails. |

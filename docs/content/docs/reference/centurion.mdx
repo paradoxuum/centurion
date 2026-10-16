@@ -685,8 +685,8 @@ centurion.events.on_roles_changed(player: Player, callback: (roles: { string }) 
 
 | Event | Fires when |
 | --- | --- |
-| `on_command_register` | A command is added with `register_command`. Fires once per call, with the first name if aliases were given |
-| `on_command_unregister` | A command is removed with `unregister_command` |
+| `on_command_register` | A command is added with `register_command`. Fires once per name, including each alias |
+| `on_command_unregister` | A command is removed with `unregister_command`. Fires once per name removed, including each alias |
 | `on_command_execute` | A command's callback runs successfully. Doesn't fire if a permission check, guard, argument or the callback fails |
 | `on_roles_changed` | A specific player's roles change via `set_roles`, `add_roles`, or `remove_roles`. Changing default roles doesn't fire it |
 

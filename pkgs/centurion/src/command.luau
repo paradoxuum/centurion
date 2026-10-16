@@ -242,8 +242,11 @@ local function register<T...>(name: string | { string }, command: types.Command<
 		commands[v] = command :: any
 	end
 
-	for _, callback in on_register_callbacks do
-		callback(names[1], command :: types.Command<unknown>)
+	-- once per name, so listeners see every alias
+	for _, v in names do
+		for _, callback in table.clone(on_register_callbacks) do
+			callback(v, command :: types.Command<unknown>)
+		end
 	end
 end
 
@@ -262,14 +265,23 @@ local function unregister(name: string)
 
 	local cmd_definition = commands[name]
 
+	-- unregistering any name removes the command's aliases too
+	local names: { string } = {}
 	for k, v in commands do
 		if cmd_definition == v then
-			commands[k] = nil
+			table.insert(names, k)
 		end
 	end
+	table.sort(names)
 
-	for _, callback in on_unregister_callbacks do
-		callback(name, cmd_definition :: types.Command<unknown>)
+	for _, v in names do
+		commands[v] = nil
+	end
+
+	for _, v in names do
+		for _, callback in table.clone(on_unregister_callbacks) do
+			callback(v, cmd_definition :: types.Command<unknown>)
+		end
 	end
 end
 

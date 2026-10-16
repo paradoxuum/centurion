@@ -452,4 +452,34 @@ TEST("argument types", function()
 	}))
 end)
 
+TEST("register events", function()
+	local registered: { string } = {}
+	local unregistered: { string } = {}
+	local stop_register = centurion.events.on_command_register(function(name)
+		table.insert(registered, name)
+	end)
+	local stop_unregister = centurion.events.on_command_unregister(function(name)
+		table.insert(unregistered, name)
+	end)
+
+	centurion.register_command({ "teleport", "tp" }, {
+		callback = function() end,
+	})
+
+	CASE("register fires once per alias")
+	CHECK(table.concat(registered, ",") == "teleport,tp")
+
+	centurion.unregister_command("tp")
+
+	CASE("unregister fires for every name removed")
+	table.sort(unregistered)
+	CHECK(table.concat(unregistered, ",") == "teleport,tp")
+
+	CASE("all aliases are removed")
+	CHECK(centurion.registry.commands["teleport"] == nil)
+
+	stop_register()
+	stop_unregister()
+end)
+
 return nil
