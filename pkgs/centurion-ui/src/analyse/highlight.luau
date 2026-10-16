@@ -1,3 +1,4 @@
+--!strict
 local Players = game:GetService("Players")
 
 local centurion = require("../../centurion")
@@ -36,7 +37,7 @@ local function classify(text: string): { { span: vector, kind: Kind } }
 	end
 
 	local cmd = cmds[cmd_name]
-	local args: { centurion.Argument } = if cmd.arguments then { cmd.arguments() } else {}
+	local args: { centurion.Argument } = if cmd.arguments then { cmd.arguments() } :: { centurion.Argument } else {}
 
 	local ranges, next_index = centurion.assign_args(args, #tokens - cmd_index)
 	for i, arg in args do

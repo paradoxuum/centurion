@@ -1,3 +1,5 @@
+--!strict
+
 -- finds the characters of `candidate` that match `query`, as inclusive ranges
 local function match(query: string, candidate: string): { vector }
 	if #query == 0 then

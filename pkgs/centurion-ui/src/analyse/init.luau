@@ -1,3 +1,4 @@
+--!strict
 local Players = game:GetService("Players")
 
 local centurion = require("../centurion")
@@ -45,7 +46,9 @@ local function analyse(text: string, cursor_pos: number, max_suggestions: number
 			return nil
 		end
 
-		local cmd_args: { centurion.Argument } = cmd.arguments and { cmd.arguments() } or {}
+		local cmd_args: { centurion.Argument } = if cmd.arguments
+			then { cmd.arguments() } :: { centurion.Argument }
+			else {}
 		local arg_text = resolution.args
 
 		-- commands taking no arguments have nothing to suggest, but still
@@ -110,13 +113,15 @@ local function analyse(text: string, cursor_pos: number, max_suggestions: number
 		local arg_type = centurion.registry.types[arg.type]
 		assert(arg_type, "Unknown argument type: " .. tostring(arg.type))
 
-		local input_token: centurion.Token? = arg_tokens[input_index]
-
-		if not input_token then
+		local input_token: centurion.Token
+		if arg_tokens[input_index] then
+			input_token = arg_tokens[input_index]
+		else
 			local prev_token = tokens[cmd_index + math.min(input_index, #arg_tokens)]
 			input_token = {
 				span = vector.create(prev_token.span.y + 2, prev_token.span.y + 2, 0),
 				text = "",
+				quoted = false,
 			}
 		end
 
@@ -130,6 +135,7 @@ local function analyse(text: string, cursor_pos: number, max_suggestions: number
 					input_token = {
 						span = vector.create(t.span.x + input_token.span.x - 1, t.span.y + input_token.span.x - 1, 0),
 						text = t.text,
+						quoted = t.quoted,
 					}
 					break
 				end
@@ -144,14 +150,14 @@ local function analyse(text: string, cursor_pos: number, max_suggestions: number
 						0
 					),
 					text = "",
+					quoted = false,
 				}
 			end
 		end
 
 		local arg_suggestions: { string } = {}
 		if arg_type.suggestions then
-			arg_suggestions =
-				table.clone(arg_type.suggestions(input_token and input_token.text or "", Players.LocalPlayer))
+			arg_suggestions = table.clone(arg_type.suggestions(input_token.text, Players.LocalPlayer))
 		end
 
 		if arg.suggestions then
@@ -290,7 +296,7 @@ local function analyse(text: string, cursor_pos: number, max_suggestions: number
 		local on_first_arg = arg_result.argument == nil or arg_result.argument.index == 1
 		if cmd_name and on_first_arg then
 			local prefix = cmd_name .. " "
-			local merged = {}
+			local merged: { types.AnalysisSuggestion } = {}
 
 			for _, suggestion in cmd_result.suggestions do
 				if suggestion.name ~= cmd_name and suggestion.name:sub(1, #prefix) == prefix then

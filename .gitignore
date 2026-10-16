@@ -9,3 +9,6 @@ dist/
 
 # macOS-specific files
 .DS_Store
+
+# luau-lsp definitions
+.luau-lsp/
