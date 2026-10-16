@@ -8,6 +8,7 @@ require("./duration")
 require("./leventine")
 require("./limit")
 require("./log")
+require("./parse")
 require("./resolve")
 
 local ok = FINISH()
