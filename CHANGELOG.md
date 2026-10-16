@@ -22,10 +22,10 @@ See the [migration guide](https://centurion.paradoxum.dev/docs/guides/migration)
 
 **New**
 
-- Built-in roles and permissions with priorities and inheritance (`create_role`, `set_roles`, `add_roles`, `remove_roles`, `can_execute`). A higher priority outranks a lower one.
+- Built-in roles and permissions with inheritance (`create_role`, `set_roles`, `add_roles`, `remove_roles`, `can_execute`, `has_permission`). A role that inherits from another gets its permissions and satisfies commands that require it. Default roles apply to every player on top of their assigned roles.
 - Players are only synced the commands they're allowed to run, and stay up to date as commands or roles change.
 - `args.vector2`, `args.vector3` and `args.rgb_color` argument types, plus `create_enum` and `register_list_type` for custom types.
-- Command definitions are validated at registration, so unknown argument types, optional arguments before required ones, misplaced `rest` arguments and unknown guards are load-time errors.
+- Command definitions are validated at registration, so unknown argument types, optional arguments before required ones, misplaced `rest` arguments, unknown guards, unknown roles and role restrictions on client-registered commands are load-time errors. Registering a role twice is also an error.
 - `on_command_register`, `on_command_unregister`, `on_command_execute` and `on_roles_changed` events.
 - Execute requests from clients are rate limited and size capped, configurable with `set_execute_limits`.
 - `set_logger` to route warnings and errors elsewhere. Errors thrown by guards and commands are logged with a traceback.

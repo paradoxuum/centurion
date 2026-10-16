@@ -406,9 +406,10 @@ function GuardsCard() {
 
 function RolesCard() {
 	const roles = [
-		{ name: "admin", priority: 100 },
-		{ name: "moderator", priority: 50 },
-		{ name: "user", priority: 1 },
+		{ name: "admin", inherits: ["moderator", "builder"], own: [], inherited: ["kick", "echo", "build"] },
+		{ name: "moderator", inherits: ["user"], own: ["kick"], inherited: ["echo"] },
+		{ name: "builder", inherits: [], own: ["build"], inherited: [] },
+		{ name: "user", inherits: [], own: ["echo"], inherited: [] },
 	];
 
 	return (
@@ -416,28 +417,43 @@ function RolesCard() {
 			index={2}
 			icon={Crown}
 			title="Roles & permissions"
-			description="Roles have a priority, and a role inherits the permissions of every role below it. Permission checks run on the server."
+			description="Roles inherit permissions from the roles you choose, so they can form a ladder or sit side by side. Permission checks run on the server."
 			className="lg:col-span-2"
 		>
 			<div className="flex flex-col gap-2 font-mono text-xs">
 				{roles.map((role, i) => (
-					<div key={role.name} className="flex items-center gap-3">
-						<span className="w-20 text-fd-muted-foreground">{role.name}</span>
-						<div className="h-2 flex-1 overflow-hidden rounded-full bg-fd-muted">
-							<motion.div
-								initial={{ width: 0 }}
-								whileInView={{ width: `${Math.max(role.priority, 6)}%` }}
-								viewport={{ once: true }}
-								transition={{
-									duration: 0.9,
-									delay: 0.3 + i * 0.12,
-									ease: [0.22, 1, 0.36, 1],
-								}}
-								className="h-full rounded-full bg-gradient-to-r from-amber-500 to-orange-500"
-							/>
+					<motion.div
+						key={role.name}
+						initial={{ opacity: 0, x: -8 }}
+						whileInView={{ opacity: 1, x: 0 }}
+						viewport={{ once: true }}
+						transition={{
+							duration: 0.5,
+							delay: 0.3 + i * 0.1,
+							ease: [0.22, 1, 0.36, 1],
+						}}
+						className="flex flex-wrap items-center gap-x-3 gap-y-1"
+					>
+						<span className="w-20 text-fd-foreground">{role.name}</span>
+						<div className="flex flex-1 flex-wrap gap-1">
+							{role.own.map((perm) => (
+								<span
+									key={perm}
+									className="rounded bg-amber-500/15 px-1.5 py-0.5 text-amber-600 dark:text-amber-400"
+								>
+									{perm}
+								</span>
+							))}
+							{role.inherited.map((perm) => (
+								<span key={perm} className="rounded bg-fd-muted px-1.5 py-0.5 text-fd-muted-foreground">
+									{perm}
+								</span>
+							))}
 						</div>
-						<span className="w-8 text-right tabular-nums text-fd-muted-foreground">{role.priority}</span>
-					</div>
+						{role.inherits.length > 0 && (
+							<span className="text-fd-muted-foreground">← {role.inherits.join(", ")}</span>
+						)}
+					</motion.div>
 				))}
 			</div>
 		</Card>

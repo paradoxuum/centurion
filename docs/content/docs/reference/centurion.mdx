@@ -153,8 +153,8 @@ A role definition stored in `registry.roles`.
 ```lua
 type PermissionRole = {
     name:        string,
-    priority:    number,
-    permissions: { [string]: boolean },
+    permissions: { [string]: boolean }, -- only the permissions granted directly
+    inherits:    { string },            -- the roles inherited from directly
 }
 ```
 
@@ -490,11 +490,16 @@ Helpers for building the `Result` returned from a `transform` function.
 ### `create_role`
 
 ```lua
-centurion.create_role(name: string, priority: number, permissions: { string }?)
+centurion.create_role(name: string, options: {
+    permissions: { string }?,
+    inherits: { string }?,
+}?)
 ```
 
-Creates a named role. `priority` controls inheritance - a role with higher priority inherits all permissions from roles with lower priority.
-`permissions` is a list of permission names granted to this role.
+Creates a named role. `permissions` is a list of permission names granted to this role. `inherits` is a list of roles this role inherits
+from: it gets all of their permissions and satisfies any command that requires them. Inheritance is transitive.
+
+Errors if a role with the same name already exists, or if an inherited role does not exist yet.
 
 ---
 
@@ -504,7 +509,10 @@ Creates a named role. `priority` controls inheritance - a role with higher prior
 centurion.set_roles(player: Player, roles: { string })
 ```
 
-Replaces the player's current roles. Errors if any role name does not exist.
+Replaces the player's assigned roles. Default roles are unaffected. Errors if any role name does not exist.
+
+Does nothing if the player has already left the game, so roles loaded asynchronously can't be stored for a player who's gone. The same
+applies to `add_roles` and `remove_roles`.
 
 ---
 
@@ -514,7 +522,7 @@ Replaces the player's current roles. Errors if any role name does not exist.
 centurion.get_roles(player: Player) -> { string }
 ```
 
-Returns the player's current roles.
+Returns the roles assigned to the player. Default roles apply on top of these but aren't included, so this is the list to save.
 
 ---
 
@@ -538,6 +546,17 @@ Removes one or more roles from a player.
 
 ---
 
+### `has_permission`
+
+```lua
+centurion.has_permission(player: Player, permission: string) -> boolean
+```
+
+Returns whether any of the player's roles grants a permission, directly or through inheritance. Default roles are included. Useful in
+guards and game code. Like `can_execute`, it always returns `true` outside a running game.
+
+---
+
 ### `can_execute`
 
 ```lua
@@ -549,8 +568,7 @@ Returns whether a player is allowed to execute a command, based on their roles a
 A player with no roles can only execute commands that have no role or permission restrictions. Outside a running game (e.g. in Studio
 edit mode) it always returns `true`.
 
-Role matching uses priority: a player's role satisfies a required role if the player's role priority is **greater than or equal to** the
-required role's priority, so a higher-priority role can run anything a lower-priority one can.
+A player's role satisfies a required role if it is that role or inherits from it, directly or indirectly.
 
 Both `roles` and `permissions` are any-of: the player needs one matching role or one granted permission, not all of them.
 If a command lists both, satisfying either is enough.
@@ -571,7 +589,7 @@ centurion.set_permission_options(options: PermissionOptions)
 | Option | Default | Description |
 | --- | --- | --- |
 | `hide` | `true` | When `true`, commands the player cannot execute are hidden entirely rather than returning an error, and aren't synced to their client. |
-| `default_roles` | `nil` | Roles automatically assigned to every player when they join, and to players already in the game. |
+| `default_roles` | `nil` | Roles every player has on top of their assigned roles. They aren't part of a player's roles, so `set_roles` can't remove them and `get_roles` doesn't return them. Errors if any role does not exist. |
 
 ---
 
@@ -633,7 +651,7 @@ centurion.events.on_roles_changed(player: Player, callback: (roles: { string }) 
 | `on_command_register` | A command is added with `register_command`. Fires once per call, with the first name if aliases were given |
 | `on_command_unregister` | A command is removed with `unregister_command` |
 | `on_command_execute` | A command's callback runs successfully. Doesn't fire if a permission check, guard, argument or the callback fails |
-| `on_roles_changed` | A specific player's roles change via `set_roles`, `add_roles`, or `remove_roles` |
+| `on_roles_changed` | A specific player's roles change via `set_roles`, `add_roles`, or `remove_roles`. Changing default roles doesn't fire it |
 
 ---
 

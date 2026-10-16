@@ -56,8 +56,10 @@ function RunService:IsRunning()
 	return true
 end
 
+local is_server = true
+
 function RunService:IsServer()
-	return true
+	return is_server
 end
 
 local team_list = {}
@@ -104,6 +106,11 @@ local function remove_player(player)
 	player.Parent = nil
 end
 
+-- switches the fake RunService between server and client
+local function set_server(server: boolean)
+	is_server = server
+end
+
 local function add_team(name: string)
 	local team = {
 		Name = name,
@@ -117,4 +124,5 @@ return {
 	add_player = add_player,
 	remove_player = remove_player,
 	add_team = add_team,
+	set_server = set_server,
 }

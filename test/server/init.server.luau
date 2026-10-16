@@ -3,9 +3,9 @@ local centurion = require("../pkgs/centurion/src")
 
 centurion.setup_networking()
 
-centurion.create_role("user", 1, { "echo" })
-centurion.create_role("moderator", 50, { "kick" })
-centurion.create_role("admin", 100)
+centurion.create_role("user", { permissions = { "echo" } })
+centurion.create_role("moderator", { permissions = { "kick" }, inherits = { "user" } })
+centurion.create_role("admin", { inherits = { "moderator" } })
 
 centurion
 	.command("to", {

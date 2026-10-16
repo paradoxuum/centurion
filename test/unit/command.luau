@@ -9,9 +9,10 @@ local alice = fakes.add_player("Alice")
 local bob = fakes.add_player("Bob")
 fakes.add_team("Red")
 
-centurion.create_role("member", 1, { "chat" })
-centurion.create_role("moderator", 2, { "kick" })
-centurion.create_role("admin", 3)
+centurion.create_role("member", { permissions = { "chat" } })
+centurion.create_role("moderator", { permissions = { "kick" }, inherits = { "member" } })
+centurion.create_role("builder", { permissions = { "build" } })
+centurion.create_role("admin", { inherits = { "moderator", "builder" } })
 
 centurion.register_command("echo", {
 	arguments = function()
@@ -108,12 +109,20 @@ TEST("roles", function()
 	CASE("a player without the role can't execute")
 	CHECK(not centurion.can_execute(bob, centurion.registry.commands.kick))
 
-	CASE("a higher priority role satisfies a lower one")
+	CASE("having the role satisfies it")
+	centurion.set_roles(bob, { "moderator" })
+	CHECK(centurion.can_execute(bob, centurion.registry.commands.kick))
+
+	CASE("a role that inherits it, even indirectly, satisfies it")
 	centurion.set_roles(bob, { "admin" })
 	CHECK(centurion.can_execute(bob, centurion.registry.commands.kick))
 
-	CASE("a lower priority role doesn't")
+	CASE("a role it inherits from doesn't")
 	centurion.set_roles(bob, { "member" })
+	CHECK(not centurion.can_execute(bob, centurion.registry.commands.kick))
+
+	CASE("an unrelated role doesn't")
+	centurion.set_roles(bob, { "builder" })
 	CHECK(not centurion.can_execute(bob, centurion.registry.commands.kick))
 end)
 
@@ -122,12 +131,82 @@ TEST("permissions", function()
 	centurion.set_roles(bob, { "member" })
 	CHECK(centurion.can_execute(bob, centurion.registry.commands.mute))
 
-	CASE("inherited from a lower priority role")
+	CASE("inherited from a parent role")
 	centurion.set_roles(bob, { "moderator" })
 	CHECK(centurion.can_execute(bob, centurion.registry.commands.mute))
 
+	CASE("inherited through several levels")
+	centurion.set_roles(bob, { "admin" })
+	CHECK(centurion.can_execute(bob, centurion.registry.commands.mute))
+
+	CASE("not granted by an unrelated role")
+	centurion.set_roles(bob, { "builder" })
+	CHECK(not centurion.can_execute(bob, centurion.registry.commands.mute))
+
 	CASE("inheritance doesn't mutate the role")
 	CHECK(centurion.registry.roles.moderator.permissions.chat == nil)
+end)
+
+TEST("role registration", function()
+	CASE("registering a duplicate role errors")
+	CHECK(not pcall(centurion.create_role, "member", { permissions = { "fly" } }))
+	CHECK(centurion.registry.roles.member.permissions.fly == nil)
+
+	CASE("inheriting from an unknown role errors")
+	CHECK(not pcall(centurion.create_role, "helper", { inherits = { "moderater" } }))
+	CHECK(centurion.registry.roles.helper == nil)
+
+	CASE("the options table can't change the role afterwards")
+	local options = { inherits = { "member" } }
+	centurion.create_role("guest", options)
+	table.insert(options.inherits, "admin")
+	CHECK(#centurion.registry.roles.guest.inherits == 1)
+
+	CASE("registering a command with an unknown role errors")
+	CHECK(not pcall(centurion.register_command, "typo", {
+		roles = { "moderater" },
+		callback = function() end,
+	}))
+	CHECK(centurion.registry.commands.typo == nil)
+
+	CASE("registering a restricted command on the client errors")
+	fakes.set_server(false)
+	CHECK(not pcall(centurion.register_command, "client_roles", {
+		roles = { "moderator" },
+		callback = function() end,
+	}))
+	CHECK(not pcall(centurion.register_command, "client_permissions", {
+		permissions = { "chat" },
+		callback = function() end,
+	}))
+
+	CASE("unrestricted commands still register on the client")
+	centurion.register_command("client_only", {
+		callback = function() end,
+	})
+	CHECK(centurion.registry.commands.client_only ~= nil)
+	centurion.unregister_command("client_only")
+	fakes.set_server(true)
+end)
+
+TEST("role lists", function()
+	CASE("mutating the list passed to set_roles doesn't change roles")
+	local list = { "member" }
+	centurion.set_roles(bob, list)
+	table.insert(list, "admin")
+	CHECK(#centurion.get_roles(bob) == 1)
+
+	CASE("mutating the list from get_roles doesn't change roles")
+	table.insert(centurion.get_roles(bob), "admin")
+	CHECK(#centurion.get_roles(bob) == 1)
+
+	CASE("mutating the list given to listeners doesn't change roles")
+	local disconnect = centurion.events.on_roles_changed(bob, function(roles)
+		table.insert(roles, "admin")
+	end)
+	centurion.set_roles(bob, { "member" })
+	disconnect()
+	CHECK(#centurion.get_roles(bob) == 1)
 end)
 
 TEST("denied execution", function()
@@ -144,17 +223,63 @@ TEST("denied execution", function()
 	centurion.set_permission_options({ hide = true })
 end)
 
-TEST("player lifecycle", function()
-	CASE("default roles apply to existing and joining players")
+TEST("has_permission", function()
+	CASE("granted directly")
+	centurion.set_roles(bob, { "builder" })
+	CHECK(centurion.has_permission(bob, "build"))
+
+	CASE("inherited")
+	centurion.set_roles(bob, { "admin" })
+	CHECK(centurion.has_permission(bob, "chat"))
+
+	CASE("not granted")
+	centurion.set_roles(bob, { "member" })
+	CHECK(not centurion.has_permission(bob, "kick"))
+	CHECK(not centurion.has_permission(bob, "nonexistent"))
+end)
+
+TEST("default roles", function()
+	centurion.set_roles(bob, {})
 	centurion.set_permission_options({ default_roles = { "member" } })
 	local carol = fakes.add_player("Carol")
-	CHECK(table.find(centurion.get_roles(alice), "member") ~= nil)
-	CHECK(table.find(centurion.get_roles(carol), "member") ~= nil)
+
+	CASE("apply to existing and joining players")
+	CHECK(centurion.has_permission(bob, "chat"))
+	CHECK(centurion.has_permission(carol, "chat"))
+	CHECK(centurion.can_execute(carol, centurion.registry.commands.mute))
+
+	CASE("aren't included in get_roles")
+	CHECK(#centurion.get_roles(carol) == 0)
+
+	CASE("aren't removed by set_roles")
+	centurion.set_roles(carol, { "builder" })
+	CHECK(centurion.has_permission(carol, "chat"))
+	CHECK(centurion.has_permission(carol, "build"))
+
+	CASE("stop applying when cleared")
 	centurion.set_permission_options({ default_roles = {} })
+	CHECK(not centurion.has_permission(carol, "chat"))
+
+	CASE("an unknown default role errors")
+	CHECK(not pcall(centurion.set_permission_options, { default_roles = { "moderater" } }))
+	CHECK(not centurion.has_permission(carol, "chat"))
+
+	fakes.remove_player(carol)
+end)
+
+TEST("player lifecycle", function()
+	local dave = fakes.add_player("Dave")
+	centurion.set_roles(dave, { "member" })
 
 	CASE("roles are cleared when a player leaves")
-	fakes.remove_player(carol)
-	CHECK(#centurion.get_roles(carol) == 0)
+	fakes.remove_player(dave)
+	CHECK(#centurion.get_roles(dave) == 0)
+
+	CASE("setting roles after a player leaves is ignored")
+	centurion.set_roles(dave, { "admin" })
+	CHECK(#centurion.get_roles(dave) == 0)
+	centurion.add_roles(dave, "admin")
+	CHECK(#centurion.get_roles(dave) == 0)
 end)
 
 TEST("global guards", function()

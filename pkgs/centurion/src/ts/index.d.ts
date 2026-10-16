@@ -49,9 +49,14 @@ export type GuardCallback = (context: ExecutionContext) => boolean;
 
 export type PermissionRole = {
 	name: string;
-	priority: number;
 	permissions: Set<string>;
+	inherits: string[];
 };
+
+export interface RoleOptions {
+	permissions?: string[];
+	inherits?: string[];
+}
 
 export interface SingleArgumentType<T> {
 	kind: "single";
@@ -148,7 +153,7 @@ export function set_network_handler(
 	handler: (command: string, args?: string[], input?: string) => ExecutionContext,
 ): void;
 
-export function create_role(name: string, priority: number, permissions?: string[]): void;
+export function create_role(name: string, options?: RoleOptions): void;
 
 export function set_roles(player: Player, roles: string[]): void;
 
@@ -159,6 +164,8 @@ export function remove_roles(player: Player, ...roles: string[]): void;
 export function get_roles(player: Player): string[];
 
 export function can_execute(player: Player, command: CommandData<unknown[]>): boolean;
+
+export function has_permission(player: Player, permission: string): boolean;
 
 export function set_permission_options(options: { hide?: boolean; default_roles?: string[] }): void;
 

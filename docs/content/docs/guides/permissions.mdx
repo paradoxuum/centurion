@@ -4,13 +4,18 @@ description: Role-based access control for restricting command execution.
 icon: Lock
 ---
 
-Centurion uses a role-based permission system. Roles have a priority level and an optional set of named permissions.
-A player can be assigned multiple roles, and command access is determined by whether the player's highest-priority role satisfies the command's requirements.
-Higher priority numbers outrank lower ones.
+Centurion uses a role-based permission system. Roles have an optional set of named permissions, and can inherit from other roles.
+A player can be assigned multiple roles, and can run a command if any of their roles satisfies the command's requirements.
 
 ## Creating Roles
 
-Define roles with `create_role`. The priority determines precedence; a role with a higher priority inherits all permissions from lower-priority roles.
+Define roles with `create_role`. A role that `inherits` from another gets all of its permissions, and counts as that role wherever it's
+required. Inheritance is transitive: `admin` below inherits from `moderator`, so it also inherits from `user`.
+
+Roles that don't inherit from each other are independent, so a `builder` role can grant building permissions without moderators getting
+them too. A role can inherit from several roles at once.
+
+Each role name can only be registered once, and a role must be created before any role that inherits from it and any command that requires it.
 
 <CodeBlockTabs groupId="lang" defaultValue="luau" persist>
   <CodeBlockTabsList>
@@ -19,26 +24,31 @@ Define roles with `create_role`. The priority determines precedence; a role with
   </CodeBlockTabsList>
   <CodeBlockTab value="luau">
 ```lua
-centurion.create_role("user", 1, { "echo" })
-centurion.create_role("moderator", 50, { "kick", "ban" })
-centurion.create_role("admin", 100)  -- inherits all permissions from lower roles
+centurion.create_role("user", { permissions = { "echo" } })
+centurion.create_role("moderator", { permissions = { "kick", "ban" }, inherits = { "user" } })
+centurion.create_role("builder", { permissions = { "build" } })
+centurion.create_role("admin", { inherits = { "moderator", "builder" } })
 ```
   </CodeBlockTab>
   <CodeBlockTab value="ts">
 ```ts
 import { create_role } from "@rbxts/centurion";
 
-create_role("user", 1, ["echo"]);
-create_role("moderator", 50, ["kick", "ban"]);
-create_role("admin", 100); // inherits all permissions from lower roles
+create_role("user", { permissions: ["echo"] });
+create_role("moderator", { permissions: ["kick", "ban"], inherits: ["user"] });
+create_role("builder", { permissions: ["build"] });
+create_role("admin", { inherits: ["moderator", "builder"] });
 ```
   </CodeBlockTab>
 </CodeBlockTabs>
 
 ## Restricting Commands
 
-Commands can require a specific **role** (by minimum priority) or a specific **permission** (by name).
+Commands can require a specific **role** or a specific **permission**.
 Either restriction can be used independently or together.
+
+Roles are only assigned and checked on the server, so restricted commands must be registered on the server. Registering a command with
+`roles` or `permissions` on the client is an error.
 
 Both lists are **any-of**: the player needs one of the listed roles or one of the listed permissions, not all of them. A command listing both passes if either check succeeds.
 
@@ -73,8 +83,8 @@ register_command("shutdown", {
   </CodeBlockTab>
 </CodeBlockTabs>
 
-A player passes the role check if any of their assigned roles has a priority **greater than or equal to** the required role's priority.
-This means a higher-priority role satisfies any lower-priority role requirement.
+A player passes the role check if any of their roles is the required role or inherits from it. With the roles above, only admins can
+run `shutdown`. A command requiring `moderator` could be run by moderators and admins, but not by builders.
 
 ### By Permission
 
@@ -132,14 +142,19 @@ centurion.add_roles(player, "moderator")
 -- remove one or more roles
 centurion.remove_roles(player, "moderator")
 
--- get current roles
+-- get assigned roles (not including default roles)
 local roles = centurion.get_roles(player)
 print(table.concat(roles, ", "))
+
+-- check a single permission, e.g. from a guard or game code
+if centurion.has_permission(player, "kick") then
+    -- ...
+end
 ```
   </CodeBlockTab>
   <CodeBlockTab value="ts">
 ```ts
-import { set_roles, add_roles, remove_roles, get_roles } from "@rbxts/centurion";
+import { set_roles, add_roles, remove_roles, get_roles, has_permission } from "@rbxts/centurion";
 
 // set roles (replaces existing)
 set_roles(player, ["moderator"]);
@@ -150,17 +165,31 @@ add_roles(player, "moderator");
 // remove one or more roles
 remove_roles(player, "moderator");
 
-// get current roles
+// get assigned roles (not including default roles)
 const roles = get_roles(player);
 print(roles.join(", "));
+
+// check a single permission, e.g. from a guard or game code
+if (has_permission(player, "kick")) {
+    // ...
+}
 ```
   </CodeBlockTab>
 </CodeBlockTabs>
 
+### Loading Saved Roles
+
+Roles are usually loaded from a DataStore when a player joins. Since default roles are kept separately (see below), `set_roles` only
+replaces the roles you saved, and `get_roles` returns exactly what you should save back.
+
+If the player leaves before their roles finish loading, `set_roles`, `add_roles` and `remove_roles` do nothing for them, so a slow load
+can't leave roles behind for a player who's gone.
+
 ## Default Roles
 
-Assign roles automatically when a player joins using `set_permission_options`. Players already in the game when it's called are given
-the roles too.
+Give every player a set of roles with `set_permission_options`. Default roles apply to all players, including ones already in the game,
+on top of whatever roles they've been assigned. They aren't stored as part of a player's roles, so `set_roles` and `remove_roles` don't
+affect them and `get_roles` doesn't include them. Changing the default roles updates every player's synced commands.
 
 <CodeBlockTabs groupId="lang" defaultValue="luau" persist>
   <CodeBlockTabsList>

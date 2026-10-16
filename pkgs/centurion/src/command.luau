@@ -3,6 +3,7 @@ local context = require("./context")
 local guard = require("./guard")
 local log = require("./log")
 local permission = require("./permission")
+local services = require("./services")
 local types = require("./types")
 
 local commands: types.CommandMap = {}
@@ -181,6 +182,23 @@ local function validate_command(name: string, command: types.Command<unknown>)
 			if type(cmd_guard) == "string" then
 				assert(guard.guards[cmd_guard], `Guard '{cmd_guard}' used by command '{name}' is not registered.`)
 			end
+		end
+	end
+
+	local has_roles = command.roles ~= nil and #command.roles > 0
+	local has_permissions = command.permissions ~= nil and #command.permissions > 0
+
+	-- roles only exist on the server, so a restricted command registered on the
+	-- client could never pass can_execute. synced commands have these stripped
+	if (has_roles or has_permissions) and services.RunService:IsRunning() and not services.RunService:IsServer() then
+		error(
+			`Command '{name}' restricts roles or permissions, which are only checked on the server. Register it on the server instead.`
+		)
+	end
+
+	if command.roles then
+		for _, role_name in command.roles do
+			assert(permission.roles[role_name], `Role '{role_name}' used by command '{name}' is not registered.`)
 		end
 	end
 

@@ -31,6 +31,9 @@ export type Response = types.Response
 
 export type ExecuteLimits = limit.ExecuteLimits
 
+export type PermissionRole = types.PermissionRole
+export type RoleOptions = permission.RoleOptions
+
 export type LogLevel = log.LogLevel
 export type LogInfo = log.LogInfo
 export type Logger = log.Logger
@@ -67,6 +70,7 @@ return {
 	add_roles = permission.add_roles,
 	remove_roles = permission.remove_roles,
 	can_execute = permission.can_execute,
+	has_permission = permission.has_permission,
 	set_permission_options = permission.set_permission_options,
 
 	parse_text = parse,

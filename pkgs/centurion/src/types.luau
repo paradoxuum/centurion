@@ -83,8 +83,8 @@ export type CommandMap = { [string]: Command<unknown> }
 
 export type PermissionRole = {
 	name: string,
-	priority: number,
 	permissions: { [string]: boolean },
+	inherits: { string },
 }
 
 return nil

@@ -9,7 +9,7 @@ type Guard = string | types.Guard
 type CommandOptions = {
 	name: (string | { string })?,
 	description: string?,
-	arguments: () -> { types.Argument }?,
+	arguments: (() -> { types.Argument })?,
 	guards: { Guard }?,
 	roles: { string }?,
 	permissions: { string }?,
