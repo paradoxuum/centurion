@@ -1,0 +1,8 @@
+name = "paradoxuum/centurion_root"
+version = "0.0.0"
+private = true
+
+workspace_members = ["pkgs/centurion", "pkgs/centurion-ui"]
+
+[target]
+environment = "luau"

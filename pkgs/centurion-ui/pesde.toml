@@ -1,0 +1,25 @@
+# Publish with scripts/pesde-publish.sh, not directly. It stages the package
+# with shims that point src's sibling requires (../centurion, ../vide) at
+# pesde's roblox_packages folder.
+name = "paradoxuum/centurion_ui"
+version = "2.0.0"
+description = "Terminal UI for the Centurion command framework"
+authors = ["paradoxuum"]
+repository = "https://github.com/paradoxuum/centurion"
+license = "MIT"
+includes = ["pesde.toml", "README.md", "LICENSE.md", "centurion.luau", "vide.luau", "src/**/*.luau"]
+
+[target]
+environment = "roblox"
+lib = "src/init.luau"
+build_files = ["src", "centurion.luau", "vide.luau"]
+
+[indices]
+default = "https://github.com/pesde-pkg/index"
+
+[wally_indices]
+default = "https://github.com/UpliftGames/wally-index"
+
+[dependencies]
+centurion = { workspace = "paradoxuum/centurion", version = "^" }
+vide = { wally = "centau/vide", version = "0.4.1" }

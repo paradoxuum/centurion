@@ -1,0 +1,15 @@
+name = "paradoxuum/centurion"
+version = "2.0.0"
+description = "A command framework for Roblox"
+authors = ["paradoxuum"]
+repository = "https://github.com/paradoxuum/centurion"
+license = "MIT"
+includes = ["pesde.toml", "README.md", "LICENSE.md", "src/**/*.luau"]
+
+[target]
+environment = "roblox"
+lib = "src/init.luau"
+build_files = ["src"]
+
+[indices]
+default = "https://github.com/pesde-pkg/index"
