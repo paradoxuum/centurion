@@ -30,6 +30,7 @@ See the [migration guide](https://centurion.paradoxum.dev/docs/guides/migration)
 - Execute requests from clients are rate limited and size capped, configurable with `set_execute_limits`.
 - `set_logger` to route warnings and errors elsewhere. Errors thrown by guards and commands are logged with a traceback.
 - `unregister_command`, `unregister_guard`, `parse_text`, `resolve_command` and `transform_args` are exported.
+- TypeScript: arguments are typed as `Argument<T>`, where `T` is the value the callback receives, instead of as the value itself. `optional`, `num_args` and `rest` only accept arguments. `@Command` methods are type-checked against their `arguments`.
 
 ### centurion-ui
 

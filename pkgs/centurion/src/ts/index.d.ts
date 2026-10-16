@@ -1,15 +1,28 @@
-export interface Argument {
+declare const argumentValue: unique symbol;
+
+/** An argument definition. `T` is the type of value it's passed to the command callback as. */
+export interface Argument<T = unknown> {
 	name: string;
 	type: string;
 	optional?: boolean;
 	description?: string;
 	num_args?: number | "rest";
 	suggestions?: string[];
+
+	/** Type-only marker for the value this argument produces. Never exists at runtime. */
+	readonly [argumentValue]?: T;
 }
 
-export interface CommandData<T extends unknown[]> {
+/** The value an argument is passed to the command callback as. */
+export type ArgumentValue<A> = A extends Argument<infer T> ? T : never;
+
+/** Maps a tuple of arguments to the values they're passed to the command callback as. */
+export type ArgumentValues<A extends readonly Argument[]> = { [K in keyof A]: ArgumentValue<A[K]> };
+
+/** A command as stored in the registry, where `arguments` returns a tuple rather than an array. */
+export interface CommandData<T extends unknown[] = unknown[]> {
 	description?: string;
-	arguments?: () => LuaTuple<[...T]>;
+	arguments?: () => LuaTuple<Argument[]>;
 	callback: (ctx: ExecutionContext, ...args: T) => any;
 	guards?: (string | GuardCallback)[];
 	roles?: string[];
@@ -72,7 +85,7 @@ export interface ListArgumentType<T> {
 
 export type ArgumentType<T> = SingleArgumentType<T> | ListArgumentType<T>;
 
-export type ArgumentFn<T> = (name: string, description?: string, suggestions?: string[]) => T;
+export type ArgumentFn<T> = (name: string, description?: string, suggestions?: string[]) => Argument<T>;
 
 export interface Token {
 	span: vector;
@@ -93,14 +106,18 @@ export interface Resolution {
 	unclosed_quote: boolean;
 }
 
-export function Command(options: {
+export function Command<const A extends readonly Argument[] = []>(options: {
 	name?: string | string[];
 	description?: string;
-	arguments?: () => unknown[];
+	arguments?: () => A;
 	guards?: Array<string | GuardCallback>;
 	roles?: string[];
 	permissions?: string[];
-}): (target: unknown, key: string) => void;
+}): (
+	target: object,
+	key: string,
+	descriptor: TypedPropertyDescriptor<(ctx: ExecutionContext, ...args: ArgumentValues<A>) => unknown>,
+) => void;
 
 export function Group(...groups: string[]): (target: unknown, key?: string) => void;
 
@@ -112,12 +129,12 @@ export function Permission(...permissions: string[]): (target: unknown, key?: st
 
 export function register_classes(classConstructor?: (ctor: new (...args: never[]) => object) => object): void;
 
-export function register_command<const T extends unknown[]>(
+export function register_command<const A extends readonly Argument[] = []>(
 	name: string | string[],
 	command: {
 		description?: string;
-		arguments?: () => [...T];
-		callback: (ctx: ExecutionContext, ...args: T) => any;
+		arguments?: () => A;
+		callback: (ctx: ExecutionContext, ...args: ArgumentValues<A>) => unknown;
 		guards?: (string | GuardCallback)[];
 		roles?: string[];
 		permissions?: string[];
@@ -139,11 +156,11 @@ export function unregister_command(name: string): void;
 
 export function create_enum(values: string[]): Omit<SingleArgumentType<string>, "kind">;
 
-export function optional<T>(arg: T): T | undefined;
+export function optional<T>(arg: Argument<T>): Argument<T | undefined>;
 
-export function num_args<T>(arg: T, count: number): T[];
+export function num_args<T>(arg: Argument<T>, count: number): Argument<T[]>;
 
-export function rest<T>(arg: T): T[];
+export function rest<T>(arg: Argument<T>): Argument<T[]>;
 
 export function transform_args(executor: Player, input: string[], args: Argument[]): Result<unknown[]>;
 

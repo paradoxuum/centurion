@@ -39,6 +39,10 @@ register_command("echo", {
 
 Multiple arguments are returned as multiple values in Luau, and as an array in TypeScript.
 
+In TypeScript, each argument is an `Argument<T>`, where `T` is the type of value the callback receives. `args.player` returns an
+`Argument<Player>`, and the wrappers below change `T`: `optional` makes it `T | undefined`, and `num_args` and `rest` make it `T[]`.
+The callback's parameters are inferred from this, and arguments can be stored and reused like any other value.
+
 <CodeBlockTabs groupId="lang" defaultValue="luau" persist>
   <CodeBlockTabsList>
     <CodeBlockTabsTrigger value="luau">Luau</CodeBlockTabsTrigger>

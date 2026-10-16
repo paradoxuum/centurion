@@ -215,12 +215,8 @@ register_command("roles add", {
 
 ## Class-Based Registration (TypeScript)
 
-<Callout type="warn">
-Type safety for arguments is lost when using class-based registration. If you want to maintain type safety,
-use the functional API instead.
-</Callout>
-
-For those using TypeScript and classes, commands can be defined using decorated classes.
+For those using TypeScript and classes, commands can be defined using decorated classes. A method's parameters are checked against
+its `arguments`, so `kick` below would be a type error if `target` were declared as a `string`.
 
 A typical pattern would be requiring all command modules in a folder, then calling `register_classes()`.
 

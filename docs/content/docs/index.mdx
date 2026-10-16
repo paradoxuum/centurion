@@ -44,7 +44,7 @@ local centurion = require(path.to.centurion)
 local args = centurion.args
 
 centurion.setup_networking()
-centurion.create_role("admin", 100)
+centurion.create_role("admin")
 
 centurion.command("greet", {
     description = "Greet a player",
@@ -62,7 +62,7 @@ import { register_command, setup_networking, create_role, args } from "@rbxts/ce
 import type { ExecutionContext } from "@rbxts/centurion";
 
 setup_networking();
-create_role("admin", 100);
+create_role("admin");
 
 register_command("greet", {
     description: "Greet a player",
