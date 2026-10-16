@@ -164,6 +164,15 @@ export function rest<T>(arg: Argument<T>): Argument<T[]>;
 
 export function transform_args(executor: Player, input: string[], args: Argument[]): Result<unknown[]>;
 
+export function transform_arg<T>(executor: Player, arg: Argument<T>, raw: string): Result<T>;
+
+export interface ArgumentRange {
+	first: number;
+	last: number;
+}
+
+export function assign_args(args: Argument[], count: number): LuaTuple<[ArgumentRange[], number]>;
+
 export function execute_command(executor: Player, command: string, args?: string[], input?: string): ExecutionContext;
 
 export function set_network_handler(

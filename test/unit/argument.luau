@@ -154,4 +154,62 @@ TEST("no arguments", function()
 	CHECK(not res.success and res.error == "Expected no arguments, got 1")
 end)
 
+local function ranges_of(args: { any }, count: number): string
+	local ranges, next_index = argument.assign(args, count)
+	local parts = {}
+	for _, range in ranges do
+		table.insert(parts, if range.last < range.first then "-" else `{range.first}-{range.last}`)
+	end
+	return `{table.concat(parts, " ")} next={next_index}`
+end
+
+TEST("assign", function()
+	CASE("each argument takes one value by default")
+	CHECK(ranges_of({ string_arg("a"), string_arg("b") }, 2) == "1-1 2-2 next=3")
+
+	CASE("fixed counts take that many values")
+	CHECK(ranges_of({ argument.num_args(number_arg("pos"), 3), string_arg("name") }, 4) == "1-3 4-4 next=5")
+
+	CASE("rest takes everything left")
+	CHECK(ranges_of({ string_arg("a"), argument.rest(string_arg("tags")) }, 4) == "1-1 2-4 next=5")
+
+	CASE("arguments past the input get empty ranges")
+	CHECK(ranges_of({ string_arg("a"), string_arg("b"), argument.rest(string_arg("c")) }, 1) == "1-1 - - next=2")
+
+	CASE("a fixed count is cut short when input runs out")
+	CHECK(ranges_of({ argument.num_args(number_arg("pos"), 3) }, 2) == "1-2 next=3")
+
+	CASE("leftover input is after next")
+	CHECK(ranges_of({ string_arg("a") }, 3) == "1-1 next=2")
+
+	CASE("no arguments take nothing")
+	CHECK(ranges_of({}, 2) == " next=1")
+end)
+
+TEST("transform_value", function()
+	CASE("transforms a single value")
+	local res = argument.transform_value(player, number_arg("n"), "42")
+	CHECK(res.success and res.value == 42)
+
+	CASE("reports the type's error")
+	res = argument.transform_value(player, number_arg("n"), "abc")
+	CHECK(not res.success and res.error == "'abc' is not a number")
+
+	CASE("strips quotes")
+	res = argument.transform_value(player, string_arg("s"), '"hi there"')
+	CHECK(res.success and res.value == "hi there")
+
+	CASE("list types are split by commas")
+	local list_arg = argument.register_list_type("test-list", {
+		transform = function(items)
+			return result.success(#items)
+		end,
+	})
+	res = argument.transform_value(player, list_arg("items"), "a,b,c")
+	CHECK(res.success and res.value == 3)
+
+	CASE("an unregistered type errors")
+	CHECK(not pcall(argument.transform_value, player, { name = "x", type = "nonexistent" } :: any, "a"))
+end)
+
 return nil

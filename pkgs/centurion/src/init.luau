@@ -29,6 +29,7 @@ export type Result<T = unknown> = types.Result<T>
 export type Context = types.ExecutionContext
 export type Response = types.Response
 
+export type ArgumentRange = argument.ArgumentRange
 export type ExecuteLimits = limit.ExecuteLimits
 
 export type PermissionRole = types.PermissionRole
@@ -57,6 +58,8 @@ return {
 	num_args = argument.num_args,
 	rest = argument.rest,
 	transform_args = argument.transform,
+	transform_arg = argument.transform_value,
+	assign_args = argument.assign,
 
 	execute_command = command.execute,
 	set_network_handler = command.set_network_handler,

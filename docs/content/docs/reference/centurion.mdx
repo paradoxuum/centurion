@@ -469,6 +469,31 @@ centurion.transform_args(executor: Player, input: { string }, args: { Argument }
 
 Transforms raw input tokens using the given argument definitions. Returns `{ success = true, value = { ... } }` on success, or `{ success = false, error = "..." }` on failure.
 
+---
+
+### `transform_arg`
+
+```lua
+centurion.transform_arg(executor: Player, arg: Argument, raw: string) -> Result<unknown>
+```
+
+Transforms a single raw input value for one argument. List types split it by commas, and quotes are stripped. Errors if the argument's
+type is not registered. Useful for validating input as it's typed, which is how the terminal UI highlights invalid arguments.
+
+---
+
+### `assign_args`
+
+```lua
+type ArgumentRange = { first: number, last: number }
+
+centurion.assign_args(args: { Argument }, count: number) -> ({ ArgumentRange }, number)
+```
+
+Works out which of `count` input values each argument takes, the same way `transform_args` does. Returns an inclusive range of input
+indices per argument (empty when `last < first`), and the index of the first value no argument took. Anything from that index on is
+extra input that `transform_args` would reject.
+
 It fails if a required argument is missing, a value doesn't transform, a `num_args` argument gets the wrong number of values, or there
 is more input than the arguments accept. Omitted optional arguments leave a `nil` at their index.
 

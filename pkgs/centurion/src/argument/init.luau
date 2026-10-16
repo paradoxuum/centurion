@@ -95,27 +95,52 @@ local function optional<T>(argument: T): T | nil
 	return arg
 end
 
-local function transform(executor: Player, input: { string }, args: { types.Argument }): types.Result<{ unknown }>
-	local transformed_args: { unknown } = {}
+export type ArgumentRange = {
+	first: number,
+	last: number,
+}
 
-	local input_index = 1
+local function assign(args: { types.Argument }, count: number): ({ ArgumentRange }, number)
+	local ranges: { ArgumentRange } = {}
+
+	local index = 1
 	for i, arg in args do
 		local n_args = arg.num_args or 1
+		local last = math.min(if n_args == "rest" then count else index + n_args - 1, count)
 
-		local arg_type = arg_types[arg.type]
-		assert(arg_type, `Argument type '{arg.type}' is not registered`)
+		ranges[i] = { first = index, last = last }
+		index = math.max(index, last + 1)
+	end
 
-		-- only "rest" consumes the remaining input, every other argument takes
-		-- exactly the number of values it asks for
-		local end_num = if n_args == "rest" then #input else input_index + n_args - 1
+	return ranges, index
+end
 
-		local arg_inputs = {}
-		for j = input_index, math.min(end_num, #input) do
-			table.insert(arg_inputs, input[j])
-			input_index += 1
-		end
+local function transform_value(executor: Player, arg: types.Argument, raw: string): types.Result<unknown>
+	local arg_type = arg_types[arg.type]
+	assert(arg_type, `Argument type '{arg.type}' is not registered`)
 
-		if #arg_inputs == 0 then
+	local parsed_text = {}
+	for _, token in parse(raw, arg_type.kind == "single" and " " or ",").tokens do
+		table.insert(parsed_text, token.text)
+	end
+
+	if arg_type.kind == "single" then
+		return arg_type.transform(parsed_text[1], executor)
+	end
+
+	return arg_type.transform(parsed_text, executor)
+end
+
+local function transform(executor: Player, input: { string }, args: { types.Argument }): types.Result<{ unknown }>
+	local transformed_args: { unknown } = {}
+	local ranges, next_index = assign(args, #input)
+
+	for i, arg in args do
+		local n_args = arg.num_args or 1
+		local range = ranges[i]
+		local count = range.last - range.first + 1
+
+		if count <= 0 then
 			if arg.optional then
 				continue
 			end
@@ -124,31 +149,17 @@ local function transform(executor: Player, input: { string }, args: { types.Argu
 		end
 
 		local values: { unknown } = {}
-		for j = 1, #arg_inputs do
-			local parsed_input = parse(arg_inputs[j], arg_type.kind == "single" and " " or ",")
-			local parsed_text = {}
-			for _, token in parsed_input.tokens do
-				table.insert(parsed_text, token.text)
-			end
-
-			local res: types.Result<unknown>
-			if arg_type.kind == "single" then
-				res = arg_type.transform(parsed_text[1], executor)
-			else
-				res = arg_type.transform(parsed_text, executor)
-			end
-
+		for j = range.first, range.last do
+			local res = transform_value(executor, arg, input[j])
 			if not res.success then
-				local at = if #arg_inputs > 1 then ` #{j}` else ""
+				local at = if count > 1 then ` #{j - range.first + 1}` else ""
 				return result.error(`Invalid value{at} for '{arg.name}': {res.error}`)
 			end
-			values[j] = res.value
+			values[j - range.first + 1] = res.value
 		end
 
-		if type(n_args) == "number" and #arg_inputs ~= n_args then
-			return result.error(
-				`Expected {n_args} {n_args == 1 and "value" or "values"} for '{arg.name}', got {#arg_inputs}`
-			)
+		if type(n_args) == "number" and count ~= n_args then
+			return result.error(`Expected {n_args} {n_args == 1 and "value" or "values"} for '{arg.name}', got {count}`)
 		end
 
 		if arg.num_args == nil then
@@ -158,8 +169,8 @@ local function transform(executor: Player, input: { string }, args: { types.Argu
 		end
 	end
 
-	if input_index <= #input then
-		local expected = input_index - 1
+	if next_index <= #input then
+		local expected = next_index - 1
 		if expected == 0 then
 			return result.error(`Expected no arguments, got {#input}`)
 		end
@@ -177,6 +188,8 @@ return {
 	optional = optional,
 	num_args = num_args,
 	rest = rest,
+	assign = assign,
+	transform_value = transform_value,
 	transform = transform,
 	types = arg_types,
 }

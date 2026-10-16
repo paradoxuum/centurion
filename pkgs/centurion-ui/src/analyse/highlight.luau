@@ -7,23 +7,7 @@ local types = require("../types")
 type Kind = "command" | "argument" | "string" | "invalid"
 
 local function is_valid(raw: string, arg: centurion.Argument): boolean
-	local arg_type = centurion.registry.types[arg.type]
-	if not arg_type then
-		return false
-	end
-
-	local parsed_text = {}
-	for _, token in centurion.parse_text(raw, arg_type.kind == "single" and " " or ",").tokens do
-		table.insert(parsed_text, token.text)
-	end
-
-	local ok, result
-	if arg_type.kind == "single" then
-		ok, result = pcall(arg_type.transform, parsed_text[1], Players.LocalPlayer)
-	else
-		ok, result = pcall(arg_type.transform, parsed_text, Players.LocalPlayer)
-	end
-
+	local ok, result = pcall(centurion.transform_arg, Players.LocalPlayer, arg, raw)
 	return ok and result.success
 end
 
@@ -54,14 +38,10 @@ local function classify(text: string): { { span: vector, kind: Kind } }
 	local cmd = cmds[cmd_name]
 	local args: { centurion.Argument } = if cmd.arguments then { cmd.arguments() } else {}
 
-	-- assign tokens to arguments the same way centurion.transform_args does
-	local token_index = cmd_index + 1
-	for _, arg in args do
-		local num_args = arg.num_args or 1
-		local last = if num_args == "rest" then #tokens else token_index + num_args - 1
-
-		for j = token_index, math.min(last, #tokens) do
-			local token = tokens[j]
+	local ranges, next_index = centurion.assign_args(args, #tokens - cmd_index)
+	for i, arg in args do
+		for j = ranges[i].first, ranges[i].last do
+			local token = tokens[cmd_index + j]
 			local raw = text:sub(token.span.x, token.span.y)
 
 			if not is_valid(raw, arg) then
@@ -72,13 +52,11 @@ local function classify(text: string): { { span: vector, kind: Kind } }
 				add(token, "argument")
 			end
 		end
-
-		token_index = last + 1
 	end
 
 	-- input past the last argument is rejected, including by commands that
 	-- take no arguments at all
-	for j = token_index, #tokens do
+	for j = cmd_index + next_index, #tokens do
 		add(tokens[j], "invalid")
 	end
 
