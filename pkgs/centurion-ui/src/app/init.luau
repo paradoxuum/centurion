@@ -545,6 +545,10 @@ local function app()
 						local selected = suggested[selected_suggestion()]
 						value = autofill(raw_text(), selected, true)
 					end
+
+					if value ~= raw_text() then
+						cmd_history_index = 0
+					end
 					raw_text(value)
 				end,
 
