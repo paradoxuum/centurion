@@ -69,11 +69,19 @@ local function group_decorator(...: string)
 	end
 end
 
+local function stack<T>(data: { [string | {}]: { T } }, key: string | {}, values: { T })
+	local existing = data[key]
+	if existing then
+		table.move(existing, 1, #existing, #values + 1, values)
+	end
+	data[key] = values
+end
+
 local function guard_decorator(...: Guard)
 	local guards = { ... }
 
 	return function(target: { [any]: unknown }, key: string?)
-		get_metadata(target).guards[key or CLASS_MARKER] = guards
+		stack(get_metadata(target).guards, key or CLASS_MARKER, table.clone(guards))
 	end
 end
 
@@ -81,7 +89,7 @@ local function role_decorator(...: string)
 	local roles = { ... }
 
 	return function(target: { [any]: unknown }, key: string?)
-		get_metadata(target).roles[key or CLASS_MARKER] = roles
+		stack(get_metadata(target).roles, key or CLASS_MARKER, table.clone(roles))
 	end
 end
 
@@ -89,7 +97,7 @@ local function permission_decorator(...: string)
 	local permissions = { ... }
 
 	return function(target: { [any]: unknown }, key: string?)
-		get_metadata(target).permissions[key or CLASS_MARKER] = permissions
+		stack(get_metadata(target).permissions, key or CLASS_MARKER, table.clone(permissions))
 	end
 end
 
