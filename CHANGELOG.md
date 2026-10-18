@@ -49,6 +49,7 @@ See the [migration guide](https://centurion.paradoxum.dev/docs/guides/migration)
 - Click a history entry to reuse its command.
 - Long output wraps, and history only scrolls to new output when already at the bottom.
 - `open`, `close`, `toggle`, `is_open` and `clear` functions.
+- An optional `Clear` button in the header, enabled with `configure({ clear_button = true })`.
 
 ## v1.0.4 centurion-ui (2024-11-11)
 

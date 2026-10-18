@@ -452,11 +452,11 @@ local function app()
 			end,
 			transparency = state.transparency,
 
-			corner(px(6)),
+			corner(px(4)),
 			padding {
-				y = px(8),
+				y = px(5),
 				left = px(function()
-					return 34 + shake()
+					return 25 + shake()
 				end),
 				right = px(function()
 					return 10 - shake()
@@ -486,7 +486,7 @@ local function app()
 
 				{
 					AnchorPoint = Vector2.new(0, 0.5),
-					Position = px(UDim2.new(0, -22, 0.5, 0)),
+					Position = px(UDim2.new(0, -15, 0.5, 0)),
 				},
 			},
 
@@ -599,16 +599,16 @@ local function app()
 			auto = "Y",
 			anchor = state.anchor,
 			position = function()
-				local offset = px.convert((reveal() - 1) * 12)
+				local offset = px.convert((reveal() - 1) * 8)
 				return px.get(state.position) + UDim2.fromOffset(0, offset)
 			end,
 			size = px(function()
 				local w = state.width()
-				return UDim2.new(w.Scale, w.Offset, 0, 0)
+				return UDim2.new(w.Scale, 1000, 0, 0)
 			end),
 
-			padding(px(12)),
-			flex():row():gap(2),
+			padding(px(8)),
+			flex():row():gap(1),
 
 			{
 				Visible = function()
@@ -626,7 +626,7 @@ local function app()
 				end,
 				transparency = state.transparency,
 
-				corner(px(10)),
+				corner(px(8)),
 				stroke {
 					color = function()
 						return theme.border(state.theme())
@@ -635,7 +635,13 @@ local function app()
 				flex():row():fill("horizontal"),
 				catch_hover(),
 
-				header { order = 1 },
+				header {
+					order = 1,
+					on_clear = function()
+						state.logs({})
+						refocus()
+					end,
+				},
 				divider { order = 2 },
 
 				history {
@@ -655,7 +661,7 @@ local function app()
 					size = UDim2.fromScale(1, 0),
 					order = 4,
 
-					padding(px(8)),
+					padding(px(5)),
 
 					input_field(),
 				},
@@ -670,9 +676,9 @@ local function app()
 					order = 2,
 
 					padding {
-						left = px(8),
+						left = px(5),
 						top = px(function()
-							return 6 * pop()
+							return 4 * pop()
 						end),
 					},
 

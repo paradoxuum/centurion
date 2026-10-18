@@ -1,16 +1,21 @@
 local vide = require("../vide")
 
+local effect = vide.effect
 local source = vide.source
 local read = vide.read
 local cleanup = vide.cleanup
 
 export type Mode = "normal" | "even" | "scale" | "floor" | "ceil"
 
-local BASE_RESOLUTION = Vector2.new(1920, 1080)
-local MIN_SCALE = 0.5
+local BASE_RESOLUTION = Vector2.new(1280, 720)
+const MIN_SCALE = 0.5
 local DOMINANT_AXIS = 0.5
 
 local scale = source(1)
+
+local function modify_scale(scale_value: number): number
+	return math.max(scale_value, MIN_SCALE)
+end
 
 local function convert(value: number, mode: Mode?): number
 	return if mode == "even"
@@ -47,18 +52,21 @@ local function px<T>(value: T | () -> T, mode: Mode? | () -> Mode?): () -> T
 end
 
 local function mount()
-	local camera = workspace.CurrentCamera
+	local viewport_size = source(Vector2.new(0, 0))
 
-	local function update()
-		local width = math.log(camera.ViewportSize.X / BASE_RESOLUTION.X, 2)
-		local height = math.log(camera.ViewportSize.Y / BASE_RESOLUTION.Y, 2)
-		local centered = width + (height - width) * DOMINANT_AXIS
-		scale(math.max(2 ^ centered, MIN_SCALE))
-	end
+	effect(function()
+		local viewport = viewport_size()
+		local scaleX = math.log(viewport.X / BASE_RESOLUTION.X, 2)
+		local scaleY = math.log(viewport.Y / BASE_RESOLUTION.Y, 2)
 
-	update()
+		scale(modify_scale(2 ^ math.lerp(scaleX, scaleY, DOMINANT_AXIS)))
+	end)
 
-	cleanup(camera:GetPropertyChangedSignal("ViewportSize"):Connect(update))
+	cleanup(workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(function()
+		viewport_size(workspace.CurrentCamera.ViewportSize)
+	end))
+
+	viewport_size(workspace.CurrentCamera.ViewportSize)
 end
 
 return setmetatable({ mount = mount, convert = convert, get = px_raw }, {

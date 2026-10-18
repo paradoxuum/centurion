@@ -1,4 +1,5 @@
 local fade = require("../fade")
+local px = require("../px")
 local state = require("../state")
 local theme = require("../theme")
 local vide = require("../../vide")
@@ -16,7 +17,7 @@ type Divider = {
 -- automatically sized parent grow to fill its own parent
 return function(props: Divider?)
 	return create "Frame" {
-		Size = UDim2.fromOffset(0, 1),
+		Size = px(UDim2.fromOffset(0, 1)),
 		BackgroundColor3 = function()
 			return theme.border(state.theme())
 		end,

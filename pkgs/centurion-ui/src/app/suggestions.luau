@@ -55,7 +55,7 @@ local function pill(props: { text: () -> string, color: () -> Color3, order: num
 		color = props.color,
 
 		corner(px(4)),
-		padding { x = px(6), y = px(2) },
+		padding { x = px(4), y = px(2) },
 
 		text {
 			auto = "XY",
@@ -101,7 +101,7 @@ local function suggestion_row(value: () -> types.AnalysisSuggestion, i: number, 
 		end,
 
 		corner(px(4)),
-		padding { x = px(8), y = px(5) },
+		padding { x = px(5), y = px(3) },
 		flex():column():vertical("center"):between("horizontal"),
 
 		container {
@@ -112,7 +112,7 @@ local function suggestion_row(value: () -> types.AnalysisSuggestion, i: number, 
 
 			-- marks the suggestion Tab will complete
 			text {
-				size = px(UDim2.fromOffset(18, 0)),
+				size = px(UDim2.fromOffset(12, 0)),
 				auto = "Y",
 				order = 1,
 				text = ">",
@@ -165,8 +165,7 @@ local function suggestion_row(value: () -> types.AnalysisSuggestion, i: number, 
 				text_style = "subtext",
 				xalignment = Enum.TextXAlignment.Right,
 
-				-- keeps the description away from the name
-				padding { left = px(32) },
+				padding { left = px(28) },
 			}
 		end),
 	}
@@ -220,7 +219,7 @@ local function suggestions(props: Suggestions)
 		end,
 		transparency = state.transparency,
 
-		corner(px(8)),
+		corner(px(6)),
 		stroke {
 			color = function()
 				return theme.border(state.theme())
@@ -228,7 +227,7 @@ local function suggestions(props: Suggestions)
 		},
 		create "UISizeConstraint" {
 			MinSize = function()
-				return Vector2.new(px.convert(320), 0)
+				return Vector2.new(px.convert(213), 0)
 			end,
 		},
 		flex():row():fill("horizontal"),
@@ -239,7 +238,7 @@ local function suggestions(props: Suggestions)
 				auto = "XY",
 				order = 1,
 
-				padding { x = px(12), y = px(8) },
+				padding { x = px(8), y = px(5) },
 				flex():column():vertical("center"):gap(8),
 
 				pill {
@@ -271,8 +270,8 @@ local function suggestions(props: Suggestions)
 				auto = "XY",
 				order = 2,
 
-				padding { x = px(12), y = px(8) },
-				flex():row():gap(6),
+				padding { x = px(8), y = px(5) },
+				flex():row():gap(4),
 
 				text {
 					auto = "XY",
@@ -358,7 +357,7 @@ local function suggestions(props: Suggestions)
 				auto = "XY",
 				order = 4,
 
-				padding(px(4)),
+				padding(px(3)),
 				flex():row():fill("horizontal"),
 
 				indexes(function()
@@ -379,7 +378,7 @@ local function suggestions(props: Suggestions)
 				auto = "XY",
 				order = 6,
 
-				padding { x = px(12), y = px(6) },
+				padding { x = px(8), y = px(4) },
 
 				text {
 					auto = "XY",

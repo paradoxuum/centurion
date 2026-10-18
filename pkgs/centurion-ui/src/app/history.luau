@@ -27,9 +27,10 @@ type History = {
 	read order: number?,
 }
 
-local line_height = 35
+local line_height = 23
+local top_padding = 4
 -- width of the status glyph column, which the message is indented by
-local gutter = 18
+local gutter = 12
 
 local function entry(value: () -> types.Log, i: number, on_select: (command: string) -> ())
 	local hovered = source(false)
@@ -65,15 +66,15 @@ local function entry(value: () -> types.Log, i: number, on_select: (command: str
 			return if success() then 1 else 0.88 + 0.12 * enter()
 		end,
 
-		corner(px(6)),
+		corner(px(4)),
 		padding {
 			left = px(function()
-				return 8 + 16 * enter()
+				return 5 + 12 * enter()
 			end),
-			right = px(8),
-			y = px(6),
+			right = px(5),
+			y = px(4),
 		},
-		flex():row():fill("horizontal"):gap(2),
+		flex():row():fill("horizontal"):gap(1),
 
 		-- clicking the header puts the command back into the input
 		create "TextButton" {
@@ -192,10 +193,14 @@ local function history(props: History)
 		ScrollingDirection = Enum.ScrollingDirection.Y,
 		LayoutOrder = props.order,
 		Size = spring(function()
-			return UDim2.fromOffset(0, math.min(content_height(), max_height()))
+			local height = content_height()
+			if height == 0 then
+				return UDim2.new()
+			end
+			return UDim2.fromOffset(0, math.min(height, max_height()) + px.convert(top_padding))
 		end, 0.1),
 
-		ScrollBarThickness = px(4),
+		ScrollBarThickness = px(3),
 		ScrollBarImageColor3 = function()
 			return state.theme().subtext
 		end,
@@ -211,12 +216,12 @@ local function history(props: History)
 			hovered(false)
 		end,
 
-		padding { x = px(4) },
+		padding { x = px(4), top = px(top_padding) },
 
 		create "UIListLayout" {
 			HorizontalFlex = Enum.UIFlexAlignment.Fill,
 			SortOrder = Enum.SortOrder.LayoutOrder,
-			Padding = px(UDim.new(0, 2)),
+			Padding = px(UDim.new(0, top_padding)),
 
 			changed("AbsoluteContentSize", function(size: Vector2)
 				content_height(size.Y)

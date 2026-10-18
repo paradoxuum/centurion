@@ -9,6 +9,7 @@ return story({}, function()
 	ui.register_commands()
 	state.activation_keys({ Enum.KeyCode.F2 })
 	state.opened(true)
+	state.clear_button(true)
 
 	local cmd = centurion.register_command
 

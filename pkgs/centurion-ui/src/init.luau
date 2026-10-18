@@ -53,6 +53,7 @@ local function configure(options: types.OptionsPartial)
 	set_opt(state.width, options.width)
 
 	set_opt(state.max_suggestions, options.max_suggestions)
+	set_opt(state.clear_button, options.clear_button)
 	set_opt(state.format_date, options.format_date)
 end
 

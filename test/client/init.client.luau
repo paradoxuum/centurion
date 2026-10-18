@@ -21,6 +21,9 @@ centurion.setup_networking()
 
 centurion_ui.mount({ Enum.KeyCode.F2 })
 centurion_ui.register_commands()
+centurion_ui.configure({
+	clear_button = true,
+})
 
 local mobile_gui = Instance.new("ScreenGui")
 mobile_gui.Parent = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")

@@ -23,11 +23,12 @@ return {
 		return `<b>{dateParts[1]}</b> {dateParts[2]}`
 	end),
 	max_suggestions = source(5),
+	clear_button = source(false),
 
-	text_size = source(28),
-	subtext_size = source(24),
+	text_size = source(19),
+	subtext_size = source(16),
 
-	anchor = source(Vector2.zero),
-	position = source(UDim2.new()),
-	width = source(UDim.new(1, 0)),
+	anchor = source(Vector2.new(0.5, 0)),
+	position = source(UDim2.new(0.5, 0, 0, 0)),
+	width = source(UDim.new(0, 1200)),
 }

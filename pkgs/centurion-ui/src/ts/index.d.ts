@@ -9,6 +9,7 @@ export interface Options {
 	transparency: number;
 	format_date: (log: Log) => string;
 	max_suggestions: number;
+	clear_button: boolean;
 
 	text_size: number;
 	subtext_size: number;
