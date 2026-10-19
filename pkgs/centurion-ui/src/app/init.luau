@@ -315,9 +315,11 @@ local function app()
 	end)
 
 	local function submit(value: string)
+		local trimmed = value:gsub("^%s*(.-)%s*$", "%1")
+
 		-- resolve from the submitted text rather than the analysis, which only
 		-- carries arguments when the cursor happens to sit on one
-		local submitted = centurion.resolve_command(value)
+		local submitted = centurion.resolve_command(trimmed)
 		raw_text("")
 		analysis(default_analysis)
 
@@ -334,11 +336,16 @@ local function app()
 		end
 
 		cmd_history_index = 0
-		table.insert(cmd_history, 1, value)
+
+		local history_index = table.find(cmd_history, trimmed)
+		if history_index ~= nil then
+			table.remove(cmd_history, history_index)
+		end
+		table.insert(cmd_history, 1, trimmed)
 
 		local cmd = submitted.name
 		if not cmd then
-			log(value, {
+			log(trimmed, {
 				success = false,
 				message = "Unknown command",
 				timestamp = os.time(),
@@ -350,12 +357,12 @@ local function app()
 		executing(executing() + 1)
 
 		-- pass the submitted text so that ctx.input keeps its original quoting
-		local ok, result = pcall(centurion.execute_command, Players.LocalPlayer, cmd, submitted.args, value)
+		local ok, result = pcall(centurion.execute_command, Players.LocalPlayer, cmd, submitted.args, trimmed)
 		executing(executing() - 1)
 
 		if not ok then
-			warn(`Failed to execute '{value}': {result}`)
-			log(value, {
+			warn(`Failed to execute '{trimmed}': {result}`)
+			log(trimmed, {
 				success = false,
 				message = "Failed to execute command",
 				timestamp = os.time(),
@@ -365,10 +372,10 @@ local function app()
 
 		if result.response then
 			if result.response.message ~= "" then
-				log(value, result.response)
+				log(trimmed, result.response)
 			end
 		else
-			log(value, {
+			log(trimmed, {
 				success = true,
 				message = "Command executed",
 				timestamp = os.time(),
