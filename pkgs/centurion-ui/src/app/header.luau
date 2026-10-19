@@ -172,7 +172,7 @@ local function header(props: Header)
 								if input() == Enum.PreferredInput.Gamepad then
 									return button_name(Enum.KeyCode.ButtonB)
 								end
-								return key_label(state.activation_keys()[1])
+								return #state.activation_keys() > 0 and key_label(state.activation_keys()[1]) or ""
 							end,
 							text_size = px(state.subtext_size),
 							weight = Enum.FontWeight.Bold,
