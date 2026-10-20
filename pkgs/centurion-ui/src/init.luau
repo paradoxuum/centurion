@@ -24,6 +24,7 @@ local function mount(keys: { Enum.KeyCode }?)
 			Name = "Centurion",
 			ResetOnSpawn = false,
 			ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
+			DisplayOrder = state.display_order,
 
 			app(),
 		}
@@ -51,6 +52,7 @@ local function configure(options: types.OptionsPartial)
 	set_opt(state.anchor, options.anchor)
 	set_opt(state.position, options.position)
 	set_opt(state.width, options.width)
+	set_opt(state.display_order, options.display_order)
 
 	set_opt(state.visible_suggestions, options.visible_suggestions)
 	set_opt(state.max_suggestions, options.max_suggestions)

@@ -23,6 +23,7 @@ export type Options = {
 	anchor: Vector2,
 	width: UDim,
 	position: UDim2,
+	display_order: number,
 }
 
 export type OptionsPartial = {
@@ -43,6 +44,7 @@ export type OptionsPartial = {
 	anchor: Vector2?,
 	width: UDim?,
 	position: UDim2?,
+	display_order: number?,
 }
 
 export type Theme = {

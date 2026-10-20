@@ -32,4 +32,5 @@ return {
 	anchor = source(Vector2.new(0.5, 0)),
 	position = source(UDim2.new(0.5, 0, 0, 0)),
 	width = source(UDim.new(0, 1200)),
+	display_order = source(1000),
 }
