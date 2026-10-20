@@ -76,7 +76,7 @@ local function suggestion_row(
 	value: () -> types.AnalysisSuggestion,
 	i: number,
 	props: Suggestions,
-	widths: () -> { [number]: number }
+	widths: vide.Source<{ [number]: number }>
 )
 	local function selected()
 		return props.selected_suggestion() == i
