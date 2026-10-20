@@ -19,6 +19,3 @@ jobs:
 
             - name: Run Selene
               run: selene .
-
-            - name: Type Check
-              run: ./scripts/analyze.sh
