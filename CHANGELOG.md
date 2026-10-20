@@ -50,6 +50,7 @@ See the [migration guide](https://centurion.paradoxum.dev/docs/guides/migration)
 - Long output wraps, and history only scrolls to new output when already at the bottom.
 - `open`, `close`, `toggle`, `is_open` and `clear` functions.
 - An optional `Clear` button in the header, enabled with `configure({ clear_button = true })`.
+- Suggestions scroll, with `visible_suggestions` rows shown at once (5 by default) out of up to `max_suggestions` (50 by default). Matches past the limit are counted as "+N more".
 
 ## v1.0.4 centurion-ui (2024-11-11)
 

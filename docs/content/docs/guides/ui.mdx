@@ -53,7 +53,7 @@ Call `configure` with a partial options table. All fields are optional, omitted 
 ```lua
 centurion_ui.configure({
     hide_on_lost_focus = true,
-    max_suggestions = 8,
+    visible_suggestions = 8,
     text_size = 16,
     subtext_size = 13,
     theme = centurion_ui.themes.mocha,
@@ -64,7 +64,7 @@ centurion_ui.configure({
 ```ts
 CenturionUI.configure({
     hide_on_lost_focus: true,
-    max_suggestions: 8,
+    visible_suggestions: 8,
     text_size: 16,
     subtext_size: 13,
     theme: CenturionUI.themes.mocha,
@@ -85,7 +85,8 @@ CenturionUI.configure({
 | `transparency` | `number` | Background transparency of the terminal (default: 0.2) |
 | `text_size` | `number` | Primary text size |
 | `subtext_size` | `number` | Secondary text size (command/argument descriptions) |
-| `max_suggestions` | `number` | Maximum number of autocomplete entries shown (default: 5) |
+| `visible_suggestions` | `number` | Number of autocomplete entries visible at once; more can be scrolled to (default: 5) |
+| `max_suggestions` | `number` | Maximum number of autocomplete entries that can be scrolled through (default: 50) |
 | `clear_button` | `boolean` | Show a button in the header that clears the command log (default: false) |
 | `anchor` | `Vector2` | Anchor point of the terminal window |
 | `position` | `UDim2` | Position of the terminal window |
@@ -295,7 +296,7 @@ centurion.setup_networking()
 centurion_ui.mount()
 centurion_ui.configure({
     theme = centurion_ui.themes.mocha,
-    max_suggestions = 8,
+    visible_suggestions = 8,
     hide_on_lost_focus = false,
 })
 centurion_ui.register_commands()
@@ -311,7 +312,7 @@ setup_networking();
 CenturionUI.mount();
 CenturionUI.configure({
     theme: CenturionUI.themes.mocha,
-    max_suggestions: 8,
+    visible_suggestions: 8,
     hide_on_lost_focus: false,
 });
 CenturionUI.register_commands();

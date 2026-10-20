@@ -24,20 +24,21 @@ Calling `mount` again after the UI has been mounted does nothing.
 
 ```lua
 centurion_ui.configure(options: {
-    hide_on_lost_focus: boolean?,
-    activation_keys:    { Enum.KeyCode }?,
-    theme:              Theme?,
-    font:               Font?,
-    icon:               string?,
-    transparency:       number?,
-    text_size:          number?,
-    subtext_size:       number?,
-    max_suggestions:    number?,
-    clear_button:       boolean?,
-    anchor:             Vector2?,
-    position:           UDim2?,
-    width:              UDim?,
-    format_date:        ((log: Log) -> string)?,
+    hide_on_lost_focus:  boolean?,
+    activation_keys:     { Enum.KeyCode }?,
+    theme:               Theme?,
+    font:                Font?,
+    icon:                string?,
+    transparency:        number?,
+    text_size:           number?,
+    subtext_size:        number?,
+    visible_suggestions: number?,
+    max_suggestions:     number?,
+    clear_button:        boolean?,
+    anchor:              Vector2?,
+    position:            UDim2?,
+    width:               UDim?,
+    format_date:         ((log: Log) -> string)?,
 })
 ```
 
@@ -53,7 +54,8 @@ Updates UI configuration. All fields are optional, omitted fields keep their cur
 | `transparency` | `0.2` | Background transparency of the terminal. |
 | `text_size` | `19` | Primary text size, in scaled pixels. |
 | `subtext_size` | `16` | Secondary text size for descriptions and hints, in scaled pixels. |
-| `max_suggestions` | `5` | Maximum number of autocomplete entries shown. |
+| `visible_suggestions` | `5` | Number of autocomplete entries visible at once; more can be scrolled to. |
+| `max_suggestions` | `50` | Maximum number of autocomplete entries that can be scrolled through. Matches past this are counted as "+N more". |
 | `clear_button` | `false` | Show a `Clear` button in the header that clears the command log. Hidden while the log is empty. |
 | `anchor` | `Vector2.zero` | Anchor point of the terminal frame. |
 | `position` | `UDim2.new()` | Position of the terminal frame. |
@@ -174,18 +176,19 @@ The full options type used internally by the UI state.
 
 ```lua
 type Options = {
-    hide_on_lost_focus: boolean,
-    activation_keys:    { Enum.KeyCode },
-    theme:              Theme,
-    font:               Font,
-    icon:               string,
-    transparency:       number,
-    format_date:        (log: Log) -> string,
-    max_suggestions:    number,
-    text_size:          number,
-    subtext_size:       number,
-    anchor:             Vector2,
-    width:              UDim,
-    position:           UDim2,
+    hide_on_lost_focus:  boolean,
+    activation_keys:     { Enum.KeyCode },
+    theme:               Theme,
+    font:                Font,
+    icon:                string,
+    transparency:        number,
+    format_date:         (log: Log) -> string,
+    visible_suggestions: number,
+    max_suggestions:     number,
+    text_size:           number,
+    subtext_size:        number,
+    anchor:              Vector2,
+    width:               UDim,
+    position:            UDim2,
 }
 ```

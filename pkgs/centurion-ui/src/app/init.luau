@@ -219,6 +219,14 @@ local function app()
 		display_analysis(analysis())
 	end)
 
+	-- the list can shrink while a later suggestion is selected
+	effect(function()
+		local count = #analysis().suggestions
+		if untrack(selected_suggestion) > count then
+			selected_suggestion(math.max(count, 1))
+		end
+	end)
+
 	cleanup(UserInputService.InputBegan:Connect(function(input)
 		if input.UserInputState ~= Enum.UserInputState.Begin then
 			return
@@ -507,6 +515,10 @@ local function app()
 					end
 
 					local selected = analysis_suggestions[selected_suggestion()]
+					if selected == nil then
+						return ""
+					end
+
 					local suggested = autofill(raw_text(), selected, false)
 					if suggested:sub(1, #raw_text()) ~= raw_text() then
 						return ""
@@ -549,7 +561,7 @@ local function app()
 
 					local suggested = analysis().suggestions
 					if last_char == "\t" and suggested[1] then
-						local selected = suggested[selected_suggestion()]
+						local selected = suggested[selected_suggestion()] or suggested[1]
 						value = autofill(raw_text(), selected, true)
 					end
 

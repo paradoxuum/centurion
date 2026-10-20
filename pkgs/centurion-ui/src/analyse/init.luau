@@ -166,8 +166,10 @@ local function analyse(text: string, cursor_pos: number, max_suggestions: number
 		end
 
 		local suggestions = {}
+		local hidden = 0
 		if #arg_suggestions > 0 then
-			local matches = suggest(input_token.text, arg_suggestions, max_suggestions)
+			local matches, total = suggest(input_token.text, arg_suggestions, max_suggestions)
+			hidden = total - #matches
 
 			for _, suggestion_text in matches do
 				local replacement = ""
@@ -202,6 +204,7 @@ local function analyse(text: string, cursor_pos: number, max_suggestions: number
 				kind = arg_type.kind,
 			},
 			suggestions = suggestions,
+			hidden_suggestions = hidden,
 		} :: types.AnalysisResult
 	end
 
@@ -220,7 +223,8 @@ local function analyse(text: string, cursor_pos: number, max_suggestions: number
 		end
 
 		local query = table.concat(token_text, " ")
-		local matches = suggest(query, to_match, max_suggestions)
+		local matches, total = suggest(query, to_match, max_suggestions)
+		local hidden = total - #matches
 		if cmd_name then
 			table.insert(matches, 1, cmd_name)
 		end
@@ -255,6 +259,7 @@ local function analyse(text: string, cursor_pos: number, max_suggestions: number
 		return {
 			result = result,
 			suggestions = suggestions,
+			hidden_suggestions = hidden,
 		} :: types.AnalysisResult
 	end
 
@@ -276,8 +281,10 @@ local function analyse(text: string, cursor_pos: number, max_suggestions: number
 	end
 
 	local final_suggestions = cmd_result.suggestions
+	local hidden_suggestions = cmd_result.hidden_suggestions
 	if at_arg and arg_result then
 		final_suggestions = arg_result.suggestions
+		hidden_suggestions = arg_result.hidden_suggestions
 
 		-- a subcommand shares the position of its parent's first argument, so
 		-- both sets are offered there instead of the argument replacing them
@@ -299,6 +306,7 @@ local function analyse(text: string, cursor_pos: number, max_suggestions: number
 				if max_suggestions then
 					for i = #merged, max_suggestions + 1, -1 do
 						merged[i] = nil
+						hidden_suggestions = (hidden_suggestions or 0) + 1
 					end
 				end
 
@@ -312,6 +320,7 @@ local function analyse(text: string, cursor_pos: number, max_suggestions: number
 		command = cmd_name,
 		argument = arg_result and arg_result.argument or nil,
 		suggestions = final_suggestions,
+		hidden_suggestions = hidden_suggestions,
 	}
 end
 

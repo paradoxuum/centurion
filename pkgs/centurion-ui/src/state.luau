@@ -22,7 +22,8 @@ return {
 		local dateParts = dateTime:split(" ")
 		return `<b>{dateParts[1]}</b> {dateParts[2]}`
 	end),
-	max_suggestions = source(5),
+	visible_suggestions = source(5),
+	max_suggestions = source(50),
 	clear_button = source(false),
 
 	text_size = source(19),

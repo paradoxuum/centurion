@@ -8,6 +8,7 @@ export interface Options {
 	icon: string;
 	transparency: number;
 	format_date: (log: Log) => string;
+	visible_suggestions: number;
 	max_suggestions: number;
 	clear_button: boolean;
 

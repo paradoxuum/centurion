@@ -13,6 +13,7 @@ export type Options = {
 	icon: string,
 	transparency: number,
 	format_date: (log: Log) -> string,
+	visible_suggestions: number,
 	max_suggestions: number,
 	clear_button: boolean,
 
@@ -32,6 +33,7 @@ export type OptionsPartial = {
 	icon: string?,
 	transparency: number?,
 	format_date: ((log: Log) -> string)?,
+	visible_suggestions: number?,
 	max_suggestions: number?,
 	clear_button: boolean?,
 
@@ -75,6 +77,8 @@ export type AnalysisResult = {
 	command: string?,
 	argument: AnalysisArgument?,
 	suggestions: { AnalysisSuggestion },
+	-- matches left out by the suggestion limit
+	hidden_suggestions: number?,
 }
 
 export type Log = {

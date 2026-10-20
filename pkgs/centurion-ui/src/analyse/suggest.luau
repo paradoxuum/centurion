@@ -2,9 +2,13 @@ local leventine = require("./leventine")
 
 local MIN_SCORE = -math.huge
 
-local function suggest(input: string, candidates: { string }, max_suggestions: number?): { string }
+-- returns the best matches, and how many there were before being limited
+local function suggest(input: string, candidates: { string }, max_suggestions: number?): ({ string }, number)
 	if #input == 0 then
-		return candidates
+		if max_suggestions and #candidates > max_suggestions then
+			return { unpack(candidates, 1, max_suggestions) }, #candidates
+		end
+		return candidates, #candidates
 	end
 
 	local normalized = input:lower()
@@ -35,7 +39,7 @@ local function suggest(input: string, candidates: { string }, max_suggestions: n
 	for i = 1, math.min(max_suggestions or #scored, #scored) do
 		table.insert(mapped, scored[i].text)
 	end
-	return mapped
+	return mapped, #scored
 end
 
 return suggest

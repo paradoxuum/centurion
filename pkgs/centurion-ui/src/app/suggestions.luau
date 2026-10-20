@@ -17,12 +17,17 @@ local theme = require("../theme")
 local types = require("../types")
 local vide = require("../../vide")
 
+local action = vide.action
+local changed = vide.changed
+local cleanup = vide.cleanup
 local create = vide.create
 local derive = vide.derive
+local effect = vide.effect
 local indexes = vide.indexes
 local show = vide.show
 local source = vide.source
 local spring = vide.spring
+local untrack = vide.untrack
 
 export type Suggestions = {
 	read analysis: () -> types.AnalysisResult,
@@ -67,11 +72,34 @@ local function pill(props: { text: () -> string, color: () -> Color3, order: num
 	}
 end
 
-local function suggestion_row(value: () -> types.AnalysisSuggestion, i: number, props: Suggestions)
+local function suggestion_row(
+	value: () -> types.AnalysisSuggestion,
+	i: number,
+	props: Suggestions,
+	widths: () -> { [number]: number }
+)
 	local function selected()
 		return props.selected_suggestion() == i
 	end
 	local hovered = source(false)
+
+	-- the width the row needs without being stretched, so the list can fit the widest
+	local name_width = source(0)
+	local description_width = source(0)
+
+	effect(function()
+		local width = name_width() + description_width() + px.convert(10)
+		if untrack(widths)[i] ~= width then
+			local current = table.clone(untrack(widths))
+			current[i] = width
+			widths(current)
+		end
+	end)
+	cleanup(function()
+		local current = table.clone(untrack(widths))
+		current[i] = nil
+		widths(current)
+	end)
 
 	return create "TextButton" {
 		AutomaticSize = Enum.AutomaticSize.XY,
@@ -109,6 +137,9 @@ local function suggestion_row(value: () -> types.AnalysisSuggestion, i: number, 
 			order = 1,
 
 			flex():column():vertical("center"),
+			changed("AbsoluteSize", function(size: Vector2)
+				name_width(size.X)
+			end),
 
 			-- marks the suggestion Tab will complete
 			text {
@@ -155,6 +186,10 @@ local function suggestion_row(value: () -> types.AnalysisSuggestion, i: number, 
 		show(function()
 			return value().description ~= nil
 		end, function()
+			cleanup(function()
+				description_width(0)
+			end)
+
 			return text {
 				auto = "XY",
 				order = 2,
@@ -166,6 +201,9 @@ local function suggestion_row(value: () -> types.AnalysisSuggestion, i: number, 
 				xalignment = Enum.TextXAlignment.Right,
 
 				padding { left = px(28) },
+				changed("AbsoluteSize", function(size: Vector2)
+					description_width(size.X)
+				end),
 			}
 		end),
 	}
@@ -210,6 +248,9 @@ local function suggestions(props: Suggestions)
 	local has_details = derive(function()
 		return failed() or arg() ~= nil
 	end)
+
+	-- set by the list, which is also at the bottom when it's too short to scroll
+	local scrolled_to_bottom = source(true)
 
 	return background {
 		auto = "XY",
@@ -353,17 +394,115 @@ local function suggestions(props: Suggestions)
 		},
 
 		show(has_suggestions, function()
-			return container {
-				auto = "XY",
-				order = 4,
+			local content_height = source(0)
+			local hovered = source(false)
+			local widths = source({} :: { [number]: number })
+
+			local canvas_y = source(0)
+
+			-- rows are all the same height, so one is the average of them
+			local function row_height()
+				return content_height() / math.max(#props.analysis().suggestions, 1)
+			end
+
+			local function visible_height()
+				return math.min(content_height(), row_height() * state.visible_suggestions())
+			end
+
+			effect(function()
+				scrolled_to_bottom(canvas_y() >= content_height() - visible_height() - 1)
+			end)
+
+			-- only the rows in view decide the width, so a long one further down
+			-- doesn't widen the list until it's scrolled to
+			local content_width = spring(function()
+				local height = row_height()
+				if height == 0 then
+					return 0
+				end
+
+				local current = widths()
+				local first = math.floor(canvas_y() / height) + 1
+				local last = math.ceil((canvas_y() + visible_height() - 0.5) / height)
+
+				local widest = 0
+				for i = first, last do
+					widest = math.max(widest, current[i] or 0)
+				end
+				return math.ceil(widest)
+			end, 0.1, 0.8)
+
+			return create "ScrollingFrame" {
+				AutomaticCanvasSize = Enum.AutomaticSize.Y,
+				BackgroundTransparency = 1,
+				BorderSizePixel = 0,
+				CanvasSize = UDim2.new(),
+				ScrollingDirection = Enum.ScrollingDirection.Y,
+				LayoutOrder = 4,
+				Size = function()
+					return UDim2.fromOffset(content_width() + px.convert(6), visible_height() + px.convert(6))
+				end,
+
+				-- the bar sits in the right padding rather than insetting the rows
+				ScrollBarThickness = px(3),
+				ScrollBarImageColor3 = function()
+					return state.theme().subtext
+				end,
+				ScrollBarImageTransparency = fade.fade(spring(function()
+					return if hovered() then 0 else 0.6
+				end, 0.2)),
+				VerticalScrollBarInset = Enum.ScrollBarInset.None,
+
+				MouseEnter = function()
+					hovered(true)
+				end,
+				MouseLeave = function()
+					hovered(false)
+				end,
+
+				changed("CanvasPosition", function(position: Vector2)
+					canvas_y(position.Y)
+				end),
 
 				padding(px(3)),
-				flex():row():fill("horizontal"),
+
+				create "UIListLayout" {
+					HorizontalFlex = Enum.UIFlexAlignment.Fill,
+					SortOrder = Enum.SortOrder.LayoutOrder,
+
+					changed("AbsoluteContentSize", function(size: Vector2)
+						content_height(size.Y)
+					end),
+				},
+
+				-- keep the selected row in view when moving through the list
+				action(function(instance: ScrollingFrame)
+					effect(function()
+						local height = row_height()
+						if height == 0 then
+							return
+						end
+
+						-- AbsoluteWindowSize lags behind and is 0 when the list first appears,
+						-- which would scroll the first row out of view
+						local top = (props.selected_suggestion() - 1) * height
+						local window = visible_height()
+						local y = instance.CanvasPosition.Y
+
+						if top < y then
+							y = top
+						elseif top + height > y + window then
+							y = top + height - window
+						end
+
+						instance.CanvasPosition = Vector2.new(0, y)
+					end)
+				end),
 
 				indexes(function()
 					return props.analysis().suggestions
 				end, function(value: () -> types.AnalysisSuggestion, i)
-					return suggestion_row(value, i, props)
+					return suggestion_row(value, i, props, widths)
 				end),
 			}
 		end),
@@ -379,9 +518,11 @@ local function suggestions(props: Suggestions)
 				order = 6,
 
 				padding { x = px(8), y = px(4) },
+				flex():column():vertical("center"):between("horizontal"),
 
 				text {
 					auto = "XY",
+					order = 1,
 					text = function()
 						local key = rich.color("%s", state.theme().text)
 						if input() == Enum.PreferredInput.Touch then
@@ -408,6 +549,29 @@ local function suggestions(props: Suggestions)
 					text_style = "subtext",
 					xalignment = Enum.TextXAlignment.Left,
 				},
+
+				-- matches past the limit can't be scrolled to, so typing more is the only way to reach them.
+				-- only shown at the end of the list, where they would have been
+				show(function()
+					return (props.analysis().hidden_suggestions or 0) > 0
+				end, function()
+					return text {
+						auto = "XY",
+						order = 2,
+						text = function()
+							return `+{props.analysis().hidden_suggestions} more`
+						end,
+						text_size = px(state.subtext_size),
+						text_style = "subtext",
+						xalignment = Enum.TextXAlignment.Right,
+						-- faded rather than removed, so the footer doesn't change width while scrolling
+						transparency = spring(function()
+							return if scrolled_to_bottom() then 0 else 1
+						end, 0.1),
+
+						padding { left = px(16) },
+					}
+				end),
 			}
 		end),
 
