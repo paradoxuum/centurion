@@ -431,10 +431,21 @@ local function suggestions(props: Suggestions)
 				end
 				return math.ceil(widest)
 			end)
-			local sprung_width = spring(target_width, 0.1, 1)
+			local sprung_width = spring(target_width, 0.1, 0.8)
 
-			-- grows instantly so rows are never clipped, and only eases when shrinking
+			-- the list grows out from nothing when it first appears
+			local opening = source(true)
+			effect(function()
+				if untrack(opening) and target_width() > 0 and sprung_width() >= target_width() - 0.5 then
+					opening(false)
+				end
+			end)
+
+			-- after opening, grows instantly so rows are never clipped, and only eases when shrinking
 			local function content_width()
+				if opening() then
+					return sprung_width()
+				end
 				return math.max(target_width(), sprung_width())
 			end
 
