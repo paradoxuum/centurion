@@ -415,7 +415,7 @@ local function suggestions(props: Suggestions)
 
 			-- only the rows in view decide the width, so a long one further down
 			-- doesn't widen the list until it's scrolled to
-			local content_width = spring(function()
+			local target_width = derive(function()
 				local height = row_height()
 				if height == 0 then
 					return 0
@@ -430,7 +430,13 @@ local function suggestions(props: Suggestions)
 					widest = math.max(widest, current[i] or 0)
 				end
 				return math.ceil(widest)
-			end, 0.1, 0.8)
+			end)
+			local sprung_width = spring(target_width, 0.1, 1)
+
+			-- grows instantly so rows are never clipped, and only eases when shrinking
+			local function content_width()
+				return math.max(target_width(), sprung_width())
+			end
 
 			return create "ScrollingFrame" {
 				AutomaticCanvasSize = Enum.AutomaticSize.Y,
