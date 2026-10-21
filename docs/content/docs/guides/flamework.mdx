@@ -35,16 +35,34 @@ register_classes((ctor) => Modding.createDependency(ctor));
 Flamework.ignite();
 ```
 
+## Declaring constructor dependencies
+
+Flamework only records a class's constructor parameters when the class has a decorator that opts into it. Centurion's
+decorators don't do this, so you need to define your own decorator with `Modding.createMetaDecorator` and mark it with
+`@metadata flamework:parameters` in its JSDoc:
+
+```ts
+import { Modding } from "@flamework/core";
+
+/** @metadata flamework:parameters */
+export const CommandClass = Modding.createMetaDecorator("Class");
+```
+
+Without this decorator, `Modding.createDependency` won't know which dependencies to inject into the class's constructor.
+
 ## Writing command classes
 
-Constructor parameters are injected by Flamework. Declare your services as constructor arguments and use them in your command methods.
+Constructor parameters are injected by Flamework. Decorate the class with the decorator defined above, then declare your
+services as constructor arguments and use them in your command methods.
 
 ```ts
 import { Command, Group, Role, args, optional } from "@rbxts/centurion";
 import type { ExecutionContext } from "@rbxts/centurion";
+import { CommandClass } from "server/decorators";
 import type { DataService } from "server/services/DataService";
 import type { ModerationService } from "server/services/ModerationService";
 
+@CommandClass()
 @Group("admin")
 @Role("admin")
 class AdminCommands {
