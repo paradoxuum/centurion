@@ -224,6 +224,24 @@ TEST("denied execution", function()
 	centurion.set_permission_options({ hide = true })
 end)
 
+TEST("deny unrestricted", function()
+	centurion.set_roles(bob, { "admin" })
+	centurion.set_permission_options({ deny_unrestricted = true })
+
+	CASE("unrestricted commands can't be executed")
+	CHECK(not centurion.can_execute(bob, centurion.registry.commands.echo))
+	CHECK(centurion.execute_command(bob, "echo", { "hi" }).response == nil)
+
+	CASE("restricted commands are unaffected")
+	CHECK(centurion.can_execute(bob, centurion.registry.commands.kick))
+
+	CASE("unrestricted commands can be executed again when disabled")
+	centurion.set_permission_options({ deny_unrestricted = false })
+	CHECK(centurion.can_execute(bob, centurion.registry.commands.echo))
+
+	centurion.set_roles(bob, {})
+end)
+
 TEST("has_permission", function()
 	CASE("granted directly")
 	centurion.set_roles(bob, { "builder" })

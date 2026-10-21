@@ -197,7 +197,11 @@ export function can_execute(player: Player, command: CommandData<unknown[]>): bo
 
 export function has_permission(player: Player, permission: string): boolean;
 
-export function set_permission_options(options: { hide?: boolean; default_roles?: string[] }): void;
+export function set_permission_options(options: {
+	hide?: boolean;
+	default_roles?: string[];
+	deny_unrestricted?: boolean;
+}): void;
 
 export function setup_networking(): void;
 

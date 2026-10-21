@@ -4,12 +4,14 @@ local types = require("./types")
 type PermissionOptions = {
 	hide: boolean?,
 	default_roles: { string }?,
+	deny_unrestricted: boolean?,
 }
 
 local roles: { [string]: types.PermissionRole } = {}
 local players: { [number]: { string } } = {}
 local opts: PermissionOptions = {
 	hide = true,
+	deny_unrestricted = false,
 }
 local changed_callbacks: { [number]: { (roles: { string }) -> () } } = {}
 local options_callbacks: { (options: PermissionOptions) -> () } = {}
@@ -275,8 +277,10 @@ local function can_execute(player: Player, command: types.Command<unknown>): boo
 
 	local required_roles = command.roles or {}
 	local required_permissions = command.permissions or {}
+	-- only the server denies these, since commands registered on the client
+	-- can't have roles and synced commands have theirs stripped
 	if #required_roles == 0 and #required_permissions == 0 then
-		return true
+		return not (opts.deny_unrestricted and services.RunService:IsServer())
 	end
 
 	return any_granted(player, function(granted)
@@ -299,6 +303,10 @@ end
 local function set_permission_options(options: PermissionOptions)
 	if options.hide ~= nil then
 		opts.hide = options.hide
+	end
+
+	if options.deny_unrestricted ~= nil then
+		opts.deny_unrestricted = options.deny_unrestricted
 	end
 
 	-- default roles aren't copied into each player's roles, they're checked

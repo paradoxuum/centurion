@@ -272,6 +272,33 @@ set_permission_options({
   </CodeBlockTab>
 </CodeBlockTabs>
 
+## Denying Unrestricted Commands
+
+By default, a command without `roles` or `permissions` can be executed by everyone. Set `deny_unrestricted` to make such commands
+unexecutable instead, so a command that's missing its restrictions is locked down rather than open to all players. This only applies
+on the server, so commands registered on the client keep working.
+
+<CodeBlockTabs groupId="lang" defaultValue="luau" persist>
+  <CodeBlockTabsList>
+    <CodeBlockTabsTrigger value="luau">Luau</CodeBlockTabsTrigger>
+    <CodeBlockTabsTrigger value="ts">TypeScript</CodeBlockTabsTrigger>
+  </CodeBlockTabsList>
+  <CodeBlockTab value="luau">
+```lua
+centurion.set_permission_options({
+    deny_unrestricted = true,
+})
+```
+  </CodeBlockTab>
+  <CodeBlockTab value="ts">
+```ts
+set_permission_options({
+    deny_unrestricted: true,
+});
+```
+  </CodeBlockTab>
+</CodeBlockTabs>
+
 ## Listening to Role Changes
 
 <CodeBlockTabs groupId="lang" defaultValue="luau" persist>

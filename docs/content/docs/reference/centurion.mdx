@@ -619,7 +619,8 @@ centurion.can_execute(player: Player, command: Command<unknown>) -> boolean
 
 Returns whether a player is allowed to execute a command, based on their roles and the command's `roles`/`permissions` fields.
 
-A player with no roles can only execute commands that have no role or permission restrictions. Outside a running game (e.g. in Studio
+A player with no roles can only execute commands that have no role or permission restrictions, unless `deny_unrestricted` is set,
+in which case nobody can execute them on the server. Outside a running game (e.g. in Studio
 edit mode) it always returns `true`.
 
 A player's role satisfies a required role if it is that role or inherits from it, directly or indirectly.
@@ -635,6 +636,7 @@ If a command lists both, satisfying either is enough.
 type PermissionOptions = {
     hide:          boolean?,
     default_roles: { string }?,
+    deny_unrestricted: boolean?,
 }
 
 centurion.set_permission_options(options: PermissionOptions)
@@ -644,6 +646,7 @@ centurion.set_permission_options(options: PermissionOptions)
 | --- | --- | --- |
 | `hide` | `true` | When `true`, commands the player cannot execute are hidden entirely rather than returning an error, and aren't synced to their client. |
 | `default_roles` | `nil` | Roles every player has on top of their assigned roles. They aren't part of a player's roles, so `set_roles` can't remove them and `get_roles` doesn't return them. Errors if any role does not exist. |
+| `deny_unrestricted` | `false` | When `true`, commands without any `roles` or `permissions` can't be executed by anyone. Only applies on the server; client commands are unaffected. |
 
 ---
 
