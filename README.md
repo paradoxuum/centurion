@@ -31,7 +31,7 @@
 
 - 🧩 **Typed arguments.** Built-in types for players, teams, numbers, colors, durations, vectors and more, with optional, multi-value and rest arguments. Register your own types with custom suggestions.
 
-- 🔐 **Guards and permissions.** Guard commands with reusable checks, and control access with prioritised, inheritable roles.
+- 🔐 **Guards and permissions.** Guard commands with reusable checks, and control access with inheritable roles and permissions.
 
 - 🔄 **Client-server sync.** Players only receive the commands they're allowed to run, and stay up to date as commands or roles change.
 
