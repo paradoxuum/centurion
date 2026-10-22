@@ -621,10 +621,13 @@ local function app()
 				local offset = px.convert((reveal() - 1) * 8)
 				return px.get(state.position) + UDim2.fromOffset(0, offset)
 			end,
-			size = px(function()
+			size = function()
 				local w = state.width()
-				return UDim2.new(w.Scale, 1000, 0, 0)
-			end),
+				local viewport = px.viewport().X
+				-- never wider than the screen, leaving a margin on either side
+				local max_offset = viewport * (1 - w.Scale) - px.convert(16) * 2
+				return UDim2.new(w.Scale, math.min(px.convert(w.Offset), max_offset), 0, 0)
+			end,
 
 			padding(px(8)),
 			flex():row():gap(1),

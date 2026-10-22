@@ -105,7 +105,7 @@ local function header(props: Header)
 			flex():column():vertical("center"):gap(5),
 
 			image {
-				image = state.icon,
+				image = state.header_icon,
 				size = px(function()
 					return UDim2.fromOffset(state.subtext_size(), state.subtext_size())
 				end),
@@ -113,7 +113,7 @@ local function header(props: Header)
 					return state.theme().highlight
 				end,
 				visible = function()
-					return state.icon() ~= ""
+					return state.header_icon() ~= ""
 				end,
 				order = 1,
 			},
@@ -121,7 +121,7 @@ local function header(props: Header)
 			text {
 				auto = "XY",
 				order = 2,
-				text = state.title,
+				text = state.header_title,
 				text_size = px(state.subtext_size),
 				text_style = "subtext",
 				weight = Enum.FontWeight.Bold,

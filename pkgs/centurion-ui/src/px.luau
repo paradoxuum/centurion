@@ -12,6 +12,7 @@ const MIN_SCALE = 0.5
 local DOMINANT_AXIS = 0.5
 
 local scale = source(1)
+local viewport_size = source(Vector2.new(0, 0))
 
 local function modify_scale(scale_value: number): number
 	return math.max(scale_value, MIN_SCALE)
@@ -52,8 +53,6 @@ local function px<T>(value: T | () -> T, mode: Mode? | () -> Mode?): () -> T
 end
 
 local function mount()
-	local viewport_size = source(Vector2.new(0, 0))
-
 	effect(function()
 		local viewport = viewport_size()
 		local scaleX = math.log(viewport.X / BASE_RESOLUTION.X, 2)
@@ -69,7 +68,7 @@ local function mount()
 	viewport_size(workspace.CurrentCamera.ViewportSize)
 end
 
-return setmetatable({ mount = mount, convert = convert, get = px_raw }, {
+return setmetatable({ mount = mount, convert = convert, get = px_raw, viewport = viewport_size }, {
 	__call = function<T>(_, value: T | () -> T, mode: Mode? | () -> Mode?): () -> T
 		return px(value, mode)
 	end,

@@ -5,11 +5,13 @@ export interface Options {
 	activation_keys: Enum.KeyCode[];
 	theme: Theme;
 	font: Font;
-	icon: string;
 	transparency: number;
 	format_date: (log: Log) => string;
 	visible_suggestions: number;
 	max_suggestions: number;
+
+	header_title: string;
+	header_icon: string;
 	clear_button: boolean;
 
 	text_size: number;

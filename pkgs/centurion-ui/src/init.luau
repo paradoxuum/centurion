@@ -42,7 +42,6 @@ local function configure(options: types.OptionsPartial)
 	set_opt(state.hide_on_lost_focus, options.hide_on_lost_focus)
 	set_opt(state.activation_keys, options.activation_keys)
 	set_opt(state.theme, options.theme)
-	set_opt(state.icon, options.icon)
 	set_opt(state.font, options.font)
 	set_opt(state.transparency, options.transparency)
 
@@ -56,8 +55,11 @@ local function configure(options: types.OptionsPartial)
 
 	set_opt(state.visible_suggestions, options.visible_suggestions)
 	set_opt(state.max_suggestions, options.max_suggestions)
-	set_opt(state.clear_button, options.clear_button)
 	set_opt(state.format_date, options.format_date)
+
+	set_opt(state.header_title, options.header_title)
+	set_opt(state.header_icon, options.header_icon)
+	set_opt(state.clear_button, options.clear_button)
 end
 
 local function clear()

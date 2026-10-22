@@ -14,8 +14,6 @@ return {
 	hide_on_lost_focus = source(true),
 	theme = source(theme.themes.mocha),
 	font = source(Font.fromId(16658246179)),
-	title = source("Centurion"),
-	icon = source("rbxassetid://115292290730914"),
 	transparency = source(0.2),
 	format_date = source(function(log: types.Log): string
 		local dateTime = DateTime.fromUnixTimestamp(log.response.timestamp):FormatLocalTime("LT", "en-us")
@@ -24,6 +22,9 @@ return {
 	end),
 	visible_suggestions = source(5),
 	max_suggestions = source(50),
+
+	header_title = source("Centurion"),
+	header_icon = source("rbxassetid://115292290730914"),
 	clear_button = source(false),
 
 	text_size = source(19),
@@ -31,6 +32,6 @@ return {
 
 	anchor = source(Vector2.new(0.5, 0)),
 	position = source(UDim2.new(0.5, 0, 0, 0)),
-	width = source(UDim.new(0, 1200)),
+	width = source(UDim.new(0, 1000)),
 	display_order = source(1000),
 }
