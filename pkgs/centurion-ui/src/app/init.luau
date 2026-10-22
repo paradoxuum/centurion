@@ -660,6 +660,10 @@ local function app()
 						state.logs({})
 						refocus()
 					end,
+					on_close = function()
+						state.opened(false)
+						state.focused(false)
+					end,
 				},
 				divider { order = 2 },
 

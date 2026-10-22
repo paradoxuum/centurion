@@ -19,6 +19,7 @@ local source = vide.source
 type Header = {
 	read order: number?,
 	read on_clear: () -> (),
+	read on_close: () -> (),
 }
 
 -- KeyCode names that aren't what's printed on the key
@@ -41,7 +42,7 @@ local function key_label(key: Enum.KeyCode): string
 	return key_labels[key.Name] or key.Name
 end
 
-local function clear_button(props: { order: number, on_clear: () -> () })
+local function text_button(props: { order: number, label: string, on_activated: () -> () })
 	local hovered = source(false)
 
 	return create "TextButton" {
@@ -51,7 +52,7 @@ local function clear_button(props: { order: number, on_clear: () -> () })
 		LayoutOrder = props.order,
 		Text = "",
 
-		Activated = props.on_clear,
+		Activated = props.on_activated,
 		MouseEnter = function()
 			hovered(true)
 		end,
@@ -61,7 +62,7 @@ local function clear_button(props: { order: number, on_clear: () -> () })
 
 		text {
 			auto = "XY",
-			text = "Clear",
+			text = props.label,
 			text_size = px(state.subtext_size),
 			text_style = function()
 				return if hovered() then "highlight" else "subtext"
@@ -83,6 +84,11 @@ local function header(props: Header)
 			return true
 		end
 		return input() == Enum.PreferredInput.KeyboardAndMouse and #state.activation_keys() > 0
+	end
+
+	-- touch devices have no key to close with, so give them a button instead
+	local function show_close()
+		return input() == Enum.PreferredInput.Touch
 	end
 
 	return container {
@@ -130,12 +136,12 @@ local function header(props: Header)
 
 			-- only shown while there's something to clear
 			show(show_clear, function()
-				return clear_button { order = 1, on_clear = props.on_clear }
+				return text_button { order = 1, label = "Clear", on_activated = props.on_clear }
 			end),
 
-			-- vertical rule between the clear button and the close hint
+			-- vertical rule between the clear button and the close hint or button
 			show(function()
-				return show_clear() and show_hint()
+				return show_clear() and (show_hint() or show_close())
 			end, function()
 				return background {
 					order = 2,
@@ -187,6 +193,10 @@ local function header(props: Header)
 						text_style = "subtext",
 					},
 				}
+			end),
+
+			show(show_close, function()
+				return text_button { order = 4, label = "Close", on_activated = props.on_close }
 			end),
 		},
 	}
