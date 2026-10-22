@@ -14,7 +14,7 @@ return {
 	hide_on_lost_focus = source(true),
 	theme = source(theme.themes.mocha),
 	font = source(Font.fromId(16658246179)),
-	transparency = source(0.2),
+	transparency = source(0.1),
 	format_date = source(function(log: types.Log): string
 		local dateTime = DateTime.fromUnixTimestamp(log.response.timestamp):FormatLocalTime("LT", "en-us")
 		local dateParts = dateTime:split(" ")
