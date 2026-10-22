@@ -51,7 +51,7 @@ local function myers_32(a: string, b: string, a_len: number, b_len: number): num
 
 	-- Set the bits for characters in string a
 	for j, a_byte in a_bytes do
-		PEQ[a_byte] = OR(PEQ[a_byte], LSHIFT(1, j))
+		PEQ[a_byte] = OR(PEQ[a_byte], LSHIFT(1, j - 1))
 	end
 
 	for _, byte in b_bytes do
