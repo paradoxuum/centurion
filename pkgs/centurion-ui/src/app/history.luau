@@ -23,8 +23,12 @@ local spring = vide.spring
 
 type History = {
 	read max_lines: number | () -> number,
+	-- the most room the history can take up, in pixels, so it fits on screen
+	read max_height: (() -> number)?,
 	read on_select: (command: string) -> (),
 	read order: number?,
+
+	[number]: unknown,
 }
 
 local line_height = 23
@@ -197,7 +201,11 @@ local function history(props: History)
 			if height == 0 then
 				return UDim2.new()
 			end
-			return UDim2.fromOffset(0, math.min(height, max_height()) + px.convert(top_padding))
+			height = math.min(height, max_height()) + px.convert(top_padding)
+			if props.max_height then
+				height = math.min(height, math.max(props.max_height(), 0))
+			end
+			return UDim2.fromOffset(0, height)
 		end, 0.1),
 
 		ScrollBarThickness = px(3),
@@ -257,6 +265,8 @@ local function history(props: History)
 		indexes(state.logs, function(value: () -> types.Log, i: number)
 			return entry(value, i, props.on_select)
 		end),
+
+		unpack(props),
 	}
 end
 

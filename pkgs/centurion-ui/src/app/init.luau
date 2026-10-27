@@ -457,6 +457,69 @@ local function app()
 		return if has_popover() then 1 else 0
 	end, 0.12)
 
+	-- on short screens the history gives up room first, then the suggestions,
+	-- so that neither runs off the bottom of the screen
+	local bounds_bottom = source(math.huge)
+	local console_top = source(0)
+	-- height of the console without its history
+	local console_fixed = source(0)
+	local popover_height = source(0)
+	local frames: { [string]: GuiObject } = {}
+
+	local function measure()
+		local console, history_frame, popover = frames.console, frames.history, frames.popover
+		if console and history_frame then
+			console_top(console.AbsolutePosition.Y)
+			-- read together so both sizes are from the same layout pass
+			console_fixed(console.AbsoluteSize.Y - history_frame.AbsoluteSize.Y)
+		end
+		if popover then
+			popover_height(popover.AbsoluteSize.Y)
+		end
+	end
+
+	local function measured(name: string)
+		return action(function(instance: GuiObject)
+			frames[name] = instance
+			cleanup(instance:GetPropertyChangedSignal("AbsoluteSize"):Connect(measure))
+			cleanup(instance:GetPropertyChangedSignal("AbsolutePosition"):Connect(measure))
+		end)
+	end
+
+	-- room for the history and suggestions, between the input and the bottom of the screen
+	local function free_space()
+		return bounds_bottom() - px.convert(8) - console_top() - console_fixed()
+	end
+
+	-- the bottom of whatever the console is drawn in, usually the ScreenGui
+	local track_bounds = action(function(instance: GuiObject)
+		local connection: RBXScriptConnection? = nil
+
+		local function update_parent()
+			if connection then
+				connection:Disconnect()
+				connection = nil
+			end
+
+			local parent = instance.Parent
+			if parent and parent:IsA("GuiBase2d") then
+				local function update()
+					bounds_bottom(parent.AbsolutePosition.Y + parent.AbsoluteSize.Y)
+				end
+				connection = parent:GetPropertyChangedSignal("AbsoluteSize"):Connect(update)
+				update()
+			end
+		end
+
+		cleanup(instance:GetPropertyChangedSignal("Parent"):Connect(update_parent))
+		cleanup(function()
+			if connection then
+				connection:Disconnect()
+			end
+		end)
+		update_parent()
+	end)
+
 	-- created inside the console so that it fades with it
 	local function input_field()
 		return background {
@@ -631,6 +694,7 @@ local function app()
 
 			padding(px(8)),
 			flex():row():gap(1),
+			track_bounds,
 
 			{
 				Visible = function()
@@ -656,6 +720,7 @@ local function app()
 				},
 				flex():row():fill("horizontal"),
 				catch_hover(),
+				measured("console"),
 
 				header {
 					order = 1,
@@ -673,6 +738,10 @@ local function app()
 				history {
 					order = 3,
 					max_lines = max_history_lines,
+					-- the suggestions take priority, since they're what's being typed into
+					max_height = function()
+						return free_space() - (if has_popover() then popover_height() else 0)
+					end,
 					on_select = function(command)
 						cmd_history_index = 0
 						raw_text(command)
@@ -680,6 +749,8 @@ local function app()
 						-- after the textbox has recaptured focus, move the cursor to the end
 						task.defer(cursor_pos, #command + 1)
 					end,
+
+					measured("history"),
 				},
 
 				container {
@@ -713,10 +784,14 @@ local function app()
 							return pop() > 0.01
 						end,
 					},
+					measured("popover"),
 
 					suggestions {
 						analysis = display_analysis,
 						selected_suggestion = selected_suggestion,
+						max_height = function()
+							return free_space() - px.convert(4)
+						end,
 						on_select = function(suggestion: types.AnalysisSuggestion)
 							raw_text(autofill(raw_text(), suggestion, true))
 							if not gamepad() then

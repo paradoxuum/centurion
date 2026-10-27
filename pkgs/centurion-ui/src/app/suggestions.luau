@@ -33,6 +33,8 @@ export type Suggestions = {
 	read analysis: () -> types.AnalysisResult,
 	read selected_suggestion: () -> number,
 	read on_select: (suggestion: types.AnalysisSuggestion) -> (),
+	-- the most room the popover can take up, in pixels, so it fits on screen
+	read max_height: (() -> number)?,
 	read order: number?,
 
 	[number]: unknown,
@@ -252,6 +254,19 @@ local function suggestions(props: Suggestions)
 	-- set by the list, which is also at the bottom when it's too short to scroll
 	local scrolled_to_bottom = source(true)
 
+	-- height of everything in the popover besides the list, which is what the
+	-- list has to leave room for when it's limited by max_height
+	local root: GuiObject? = nil
+	local list: GuiObject? = nil
+	local chrome_height = source(0)
+
+	local function measure()
+		if root and list then
+			-- read together so both sizes are from the same layout pass
+			chrome_height(root.AbsoluteSize.Y - list.AbsoluteSize.Y)
+		end
+	end
+
 	return background {
 		auto = "XY",
 		order = props.order,
@@ -272,6 +287,10 @@ local function suggestions(props: Suggestions)
 			end,
 		},
 		flex():row():fill("horizontal"),
+		action(function(instance: Frame)
+			root = instance
+			cleanup(instance:GetPropertyChangedSignal("AbsoluteSize"):Connect(measure))
+		end),
 
 		-- why the input can't be run as it is
 		show(failed, function()
@@ -406,7 +425,15 @@ local function suggestions(props: Suggestions)
 			end
 
 			local function visible_height()
-				return math.min(content_height(), row_height() * state.visible_suggestions())
+				local height = math.min(content_height(), row_height() * state.visible_suggestions())
+				local row = row_height()
+				if props.max_height == nil or row == 0 then
+					return height
+				end
+
+				-- only whole rows, around the list's padding, but always at least one
+				local room = props.max_height() - chrome_height() - px.convert(6)
+				return math.min(height, math.max(math.floor(room / row), 1) * row)
 			end
 
 			effect(function()
@@ -479,6 +506,13 @@ local function suggestions(props: Suggestions)
 
 				changed("CanvasPosition", function(position: Vector2)
 					canvas_y(position.Y)
+				end),
+				action(function(instance: ScrollingFrame)
+					list = instance
+					cleanup(instance:GetPropertyChangedSignal("AbsoluteSize"):Connect(measure))
+					cleanup(function()
+						list = nil
+					end)
 				end),
 
 				padding(px(3)),
