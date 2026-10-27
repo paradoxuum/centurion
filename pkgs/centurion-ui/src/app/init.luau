@@ -1,4 +1,5 @@
 local ContextActionService = game:GetService("ContextActionService")
+local GuiService = game:GetService("GuiService")
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
@@ -78,6 +79,22 @@ local function app()
 	cleanup(UserInputService:GetPropertyChangedSignal("OnScreenKeyboardVisible"):Connect(function()
 		keyboard_visible(UserInputService.OnScreenKeyboardVisible)
 	end))
+
+	-- top edge of the on-screen keyboard, in the same space as the console, or
+	-- nil when there isn't one taking up the screen
+	local function read_keyboard_top(): number?
+		if UserInputService.OnScreenKeyboardSize.Y <= 0 then
+			return nil
+		end
+		-- the keyboard is placed on the whole screen, while the console is placed below the topbar
+		return UserInputService.OnScreenKeyboardPosition.Y - GuiService:GetGuiInset().Y
+	end
+	local keyboard_top = source(read_keyboard_top())
+	local function update_keyboard_top()
+		keyboard_top(read_keyboard_top())
+	end
+	cleanup(UserInputService:GetPropertyChangedSignal("OnScreenKeyboardPosition"):Connect(update_keyboard_top))
+	cleanup(UserInputService:GetPropertyChangedSignal("OnScreenKeyboardSize"):Connect(update_keyboard_top))
 
 	local next_cursor_pos = false
 	local refocus_deadline = 0
@@ -488,7 +505,14 @@ local function app()
 
 	-- room for the history and suggestions, between the input and the bottom of the screen
 	local function free_space()
-		return bounds_bottom() - px.convert(8) - console_top() - console_fixed()
+		local bottom = bounds_bottom()
+		-- shrink out of the way of the on-screen keyboard while it's open. consoles
+		-- are left alone, since their keyboard covers the whole screen anyway
+		local top_of_keyboard = keyboard_top()
+		if touch() and keyboard_visible() and top_of_keyboard then
+			bottom = math.min(bottom, top_of_keyboard)
+		end
+		return bottom - px.convert(8) - console_top() - console_fixed()
 	end
 
 	-- the bottom of whatever the console is drawn in, usually the ScreenGui
