@@ -15,7 +15,7 @@ See the [migration guide](https://centurion.paradoxum.dev/docs/guides/migration)
 - Arguments are created with factory functions (`args.player("target", "The player")`) instead of objects with a `CenturionType`, and are returned from an `arguments` function.
 - `optional`, `num_args` and `rest` are wrapper functions instead of argument fields. Any argument wrapped in `num_args` is passed to the callback as an array, even with a count of 1.
 - Only `rest` arguments consume the remaining input. Previously the last argument was implicitly greedy; extra input is now rejected with an error.
-- Custom types are registered with `register_type(name, { transform, suggestions })`, which returns an argument factory. `transform` returns a plain `Result`, and `TransformResult` and the `expensive` option are removed.
+- Custom types are registered with `register_type(name, { transform, suggestions })`, which returns an argument factory. `transform` returns a plain `Result`, and `TransformResult` and the `expensive` option are removed: give slow types a `check` instead.
 - Global guards are added with `add_global_guard`, which returns a function that removes the guard, instead of being passed through config.
 - Guards must return `true` to pass. A guard that returns anything other than a boolean denies execution and logs a warning.
 - The `shortcuts` command option is removed. Use `execute_command` with UserInputService instead.
@@ -27,6 +27,8 @@ See the [migration guide](https://centurion.paradoxum.dev/docs/guides/migration)
 - Players are only synced the commands they're allowed to run, and stay up to date as commands or roles change.
 - `args.vector2`, `args.vector3` and `args.rgb_color` argument types, plus `create_enum` and `register_list_type` for custom types.
 - `args.fuzzy_player` and `args.fuzzy_players` match display names and the start of a name as well as usernames, and reject input that matches more than one player. `args.player` and `args.players` still only match exact usernames, but now name the username to type when a display name or prefix would have matched.
+- `args.user` finds any user by username or `#` and their user ID, including users who aren't in the server, and passes `{ id, name, player? }`. Use it for commands like unban.
+- Argument types can have a `check` function, used instead of `transform` while typing so that types which are slow or yield stay responsive. `check_args` runs it.
 - Argument types can take options, passed as the fourth parameter of the declarator. `transform` and `suggestions` receive the argument to read them from. The player types use this to turn off `@random`, `@all` and `@others`, e.g. `args.players("targets", nil, nil, { random = false, all = false })`.
 - Suggestions can be tables with a `description` shown next to them and `aliases` they can also be found by. Player suggestions show display names, and typing a display name finds them.
 - Unknown commands respond with `Unknown command`, as do commands the player can't run when `hide` is set (the default).
@@ -34,7 +36,7 @@ See the [migration guide](https://centurion.paradoxum.dev/docs/guides/migration)
 - `on_command_register`, `on_command_unregister`, `on_command_execute`, `on_command_fail` and `on_roles_changed` events. `on_command_fail` reports commands stopped by a missing command, a permission check, a guard, an invalid argument or a callback error, with the reason.
 - Execute requests from clients are rate limited and size capped, configurable with `set_execute_limits`.
 - `set_logger` to route warnings and errors elsewhere. Errors thrown by guards and commands are logged with a traceback.
-- `unregister_command`, `unregister_guard`, `parse_text`, `resolve_command`, `transform_args`, `transform_arg` and `assign_args` are exported.
+- `unregister_command`, `unregister_guard`, `parse_text`, `resolve_command`, `transform_args`, `check_args`, `transform_arg`, `check_arg` and `assign_args` are exported.
 - TypeScript: arguments are typed as `Argument<T>`, where `T` is the value the callback receives, instead of as the value itself. `optional`, `num_args` and `rest` only accept arguments. `@Command` methods are type-checked against their `arguments`.
 
 ### centurion-ui
@@ -51,6 +53,7 @@ See the [migration guide](https://centurion.paradoxum.dev/docs/guides/migration)
 - Suggestion navigation, clickable suggestions and matched characters highlighted in suggestions.
 - Subcommands are suggested alongside a command's first argument.
 - Argument suggestions show their description, and can be found by their aliases.
+- Arguments are checked with `check_args` and `check_arg` while typing, so a type with a `check` isn't transformed on every keystroke.
 - A spinner and `Running <command>...` placeholder while a command yields.
 - Click a history entry to reuse its command.
 - Long output wraps, and history only scrolls to new output when already at the bottom.

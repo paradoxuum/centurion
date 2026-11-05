@@ -143,3 +143,14 @@ centurion
 		centurion.remove_roles(player, unpack(roles))
 		ctx.reply("Removed roles " .. table.concat(roles, ",") .. " from " .. player.Name)
 	end)
+
+centurion
+	.command("user", {
+		description = "Get information about a user",
+		arguments = function()
+			return centurion.args.user("user", "The user to get information about")
+		end,
+	})
+	:callback(function(ctx, user)
+		ctx.reply("User ID: " .. user.id .. ", Username: " .. user.name)
+	end)

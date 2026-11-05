@@ -63,12 +63,14 @@ type SingleArgumentType<T = unknown> = {
     kind:        "single",
     transform:   (text: string, executor: Player, arg: Argument) -> Result<T>,
     suggestions: ((text: string, executor: Player, arg: Argument) -> SuggestionList)?,
+    check:       ((text: string, executor: Player, arg: Argument) -> string?)?,
 }
 
 type ListArgumentType<T = unknown> = {
     kind:        "list",
     transform:   (text: { string }, executor: Player, arg: Argument) -> Result<T>,
     suggestions: ((text: string, executor: Player, arg: Argument) -> SuggestionList)?,
+    check:       ((text: { string }, executor: Player, arg: Argument) -> string?)?,
 }
 
 type ArgumentType<T = unknown> = SingleArgumentType<T> | ListArgumentType<T>
@@ -76,6 +78,10 @@ type ArgumentType<T = unknown> = SingleArgumentType<T> | ListArgumentType<T>
 
 `transform` receives the raw input and must return a `Result<T>`, where `T` is the value the argument produces. For list types, the input is already split by commas.
 Both functions also receive the `Argument` being handled, so a type can read its `options`.
+
+`check` is optional, and is used instead of `transform` by `check_args`, which the terminal UI runs while typing. It returns an error
+message, or `nil` if the text could be valid. Give it to types whose `transform` is slow or yields. See
+[Checking While Typing](/docs/guides/arguments#checking-while-typing).
 
 `register_type` and `register_list_type` infer `T` from `transform`, so the declarator they return is typed as `ArgumentFn<T>` without needing a cast.
 If `transform` annotates `arg` as `Argument<O>`, they infer `O` too, and the declarator only accepts options of that type.
@@ -103,6 +109,20 @@ A string is inserted as-is. A `SuggestionData` inserts `text`, shows `descriptio
 
 `SuggestionList` is read-only so that a `{ string }` or `{ SuggestionData }` can be returned without a cast. In TypeScript, a
 `Suggestion[]` is used instead.
+
+---
+
+### `UserInfo`
+
+Produced by `args.user`.
+
+```lua
+type UserInfo = {
+    id:     number,
+    name:   string,  -- their current username
+    player: Player?, -- set if they're in the server
+}
+```
 
 ---
 
@@ -503,6 +523,17 @@ Transforms raw input tokens using the given argument definitions. Returns `{ suc
 
 ---
 
+### `check_args`
+
+```lua
+centurion.check_args(executor: Player, input: { string }, args: { Argument }) -> Result<{ unknown }>
+```
+
+Like `transform_args`, but uses each type's `check` instead of its `transform` where it has one, so it doesn't yield for types that look
+things up. Values from those types are `nil`. The terminal UI uses this to show errors while typing.
+
+---
+
 ### `transform_arg`
 
 ```lua
@@ -510,7 +541,18 @@ centurion.transform_arg(executor: Player, arg: Argument, raw: string) -> Result<
 ```
 
 Transforms a single raw input value for one argument. List types split it by commas, and quotes are stripped. Errors if the argument's
-type is not registered. Useful for validating input as it's typed, which is how the terminal UI highlights invalid arguments.
+type is not registered.
+
+---
+
+### `check_arg`
+
+```lua
+centurion.check_arg(executor: Player, arg: Argument, raw: string) -> Result<unknown>
+```
+
+Like `transform_arg`, but uses the type's `check` instead of its `transform` if it has one, in which case the value is `nil`. The terminal
+UI uses this to highlight each argument while typing.
 
 ---
 
@@ -804,6 +846,7 @@ Values that are turned off are rejected with an error and aren't suggested.
 | `args.players` | `{ Player }` | Comma-separated list of anything `args.player` accepts. Also accepts `@all` and `@others`. |
 | `args.fuzzy_player` | `Player` | Like `args.player`, but also matches display names and the start of a username or display name. |
 | `args.fuzzy_players` | `{ Player }` | Like `args.players`, but each entry is matched like `args.fuzzy_player`. |
+| `args.user` | `UserInfo` | Any user, by exact username, `#` and their user ID, or `@me`. Looks up users who aren't in the server, which yields. See [Users](/docs/guides/arguments#users). |
 | `args.brick_color` | `BrickColor` | Any Roblox BrickColor name, case-insensitive. |
 | `args.hex_color` | `Color3` | Six-digit hex string, with or without `#`, e.g. `#ff0000`. |
 | `args.rgb_color` | `Color3` | Three comma-separated components from 0 to 255, e.g. `255,0,0`. |

@@ -48,6 +48,65 @@ function Players:FindFirstChild(name)
 	return nil
 end
 
+function Players:GetPlayerByUserId(id)
+	for _, player in player_list do
+		if player.UserId == id then
+			return player
+		end
+	end
+	return nil
+end
+
+-- accounts the fake web lookups know about besides players in the game, as
+-- { id, name, previous }
+local accounts = {}
+local lookups = 0
+
+local function find_account(predicate)
+	for _, player in player_list do
+		if predicate({ id = player.UserId, name = player.Name, previous = {} }) then
+			return player.UserId, player.Name
+		end
+	end
+	for _, account in accounts do
+		if predicate(account) then
+			return account.id, account.name
+		end
+	end
+	return nil
+end
+
+function Players:GetUserIdFromNameAsync(name)
+	lookups += 1
+	local lower = name:lower()
+	local id = find_account(function(account)
+		if account.name:lower() == lower then
+			return true
+		end
+		for _, previous in account.previous do
+			if previous:lower() == lower then
+				return true
+			end
+		end
+		return false
+	end)
+	if not id then
+		error("HTTP 400 (Bad Request)")
+	end
+	return id
+end
+
+function Players:GetNameFromUserIdAsync(id)
+	lookups += 1
+	local _, name = find_account(function(account)
+		return account.id == id
+	end)
+	if not name then
+		error("HTTP 400 (Bad Request)")
+	end
+	return name
+end
+
 local RunService = {
 	Heartbeat = signal(),
 }
@@ -101,6 +160,19 @@ local function add_player(name: string, display_name: string?)
 	return player :: any
 end
 
+-- adds an account that isn't in the game, which can still be looked up
+local function add_user(name: string, previous: { string }?): number
+	local id = next_user_id
+	next_user_id += 1
+	table.insert(accounts, { id = id, name = name, previous = previous or {} })
+	return id
+end
+
+-- how many web lookups have been made
+local function lookup_count(): number
+	return lookups
+end
+
 -- removes a player from the game, firing PlayerRemoving first like roblox does
 local function remove_player(player)
 	Players.PlayerRemoving:Fire(player)
@@ -125,6 +197,8 @@ end
 return {
 	add_player = add_player,
 	remove_player = remove_player,
+	add_user = add_user,
+	lookup_count = lookup_count,
 	add_team = add_team,
 	set_server = set_server,
 }

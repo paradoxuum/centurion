@@ -75,6 +75,7 @@ arguments: () => [args.player("target"), args.string("message")],
 | `args.players` | `Player[]` | Comma-separated list of anything `args.player` accepts, plus `@all` and `@others` |
 | `args.fuzzy_player` | `Player` | Like `args.player`, but also matches display names and the start of a name (see below) |
 | `args.fuzzy_players` | `Player[]` | Like `args.players`, but each entry is matched like `args.fuzzy_player` |
+| `args.user` | `UserInfo` | Any user by exact username or `#` and their user ID, including users who aren't in the server (see below) |
 | `args.brick_color` | `BrickColor` | Roblox BrickColor names (case-insensitive) |
 | `args.hex_color` | `Color3` | Six-digit hex color, with or without `#` (e.g. `#ff0000`) |
 | `args.rgb_color` | `Color3` | Three comma-separated components from 0 to 255 (e.g. `255,0,0`) |
@@ -124,6 +125,57 @@ centurion.args.players("targets", "Who to ban", nil, { random = false, all = fal
   <CodeBlockTab value="ts">
 ```ts
 args.players("targets", "Who to ban", undefined, { random: false, all: false });
+```
+  </CodeBlockTab>
+</CodeBlockTabs>
+
+### Users
+
+`args.user` finds any Roblox user, so it works for commands like unban whose target isn't in the server. It accepts a username, `#`
+followed by a user ID (e.g. `#12345`), or `@me` and `.`, and passes the callback a `UserInfo`:
+
+```lua
+type UserInfo = {
+    id: number,
+    name: string, -- their current username
+    player: Player?, -- set if they're in the server
+}
+```
+
+Players in the server are matched by exact username, like `args.player`, without a lookup. Anyone else is looked up with
+`Players:GetUserIdFromNameAsync`, which yields, and also finds users by a previous username. Display names aren't matched, and there's no
+`@random` or `@all`.
+
+While typing, the UI only checks that the text could be a username or ID (see [Checking While Typing](#checking-while-typing)), so a user
+that doesn't exist is reported when the command runs.
+
+<CodeBlockTabs groupId="lang" defaultValue="luau" persist>
+  <CodeBlockTabsList>
+    <CodeBlockTabsTrigger value="luau">Luau</CodeBlockTabsTrigger>
+    <CodeBlockTabsTrigger value="ts">TypeScript</CodeBlockTabsTrigger>
+  </CodeBlockTabsList>
+  <CodeBlockTab value="luau">
+```lua
+centurion.register_command("unban", {
+    arguments = function()
+        return centurion.args.user("target", "Who to unban")
+    end,
+    callback = function(_ctx, target: centurion.UserInfo)
+        Players:UnbanAsync({ UserIds = { target.id } })
+        return `Unbanned {target.name}`
+    end,
+})
+```
+  </CodeBlockTab>
+  <CodeBlockTab value="ts">
+```ts
+register_command("unban", {
+    arguments: () => [args.user("target", "Who to unban")],
+    callback: (_ctx, target) => {
+        Players.UnbanAsync({ UserIds: [target.id] });
+        return `Unbanned ${target.name}`;
+    },
+});
 ```
   </CodeBlockTab>
 </CodeBlockTabs>
@@ -503,3 +555,52 @@ clamped("volume", "The volume", undefined, { min: 0, max: 1 });
 ```
   </CodeBlockTab>
 </CodeBlockTabs>
+
+### Checking While Typing
+
+The terminal UI checks arguments as they're typed to highlight invalid input, which runs each type's `transform`. If a `transform` is slow
+or yields, for example by looking something up on the web or in a DataStore, give the type a `check` function too. While typing, `check`
+is used instead: it receives the same parameters and returns an error message, or `nil` if the text could be valid. `transform` still runs
+when the command is executed. A type whose `transform` yields needs a `check`, because the UI can't wait for it.
+
+<CodeBlockTabs groupId="lang" defaultValue="luau" persist>
+  <CodeBlockTabsList>
+    <CodeBlockTabsTrigger value="luau">Luau</CodeBlockTabsTrigger>
+    <CodeBlockTabsTrigger value="ts">TypeScript</CodeBlockTabsTrigger>
+  </CodeBlockTabsList>
+  <CodeBlockTab value="luau">
+```lua
+local item = centurion.register_type("item", {
+    transform = function(text)
+        local found = fetch_item(text) -- yields
+        if not found then
+            return centurion.result.err(`No item named '{text}'`)
+        end
+        return centurion.result.ok(found)
+    end,
+    check = function(text)
+        if not text:match("^[%w_]+$") then
+            return "Item names only use letters, numbers and underscores"
+        end
+        return nil
+    end,
+})
+```
+  </CodeBlockTab>
+  <CodeBlockTab value="ts">
+```ts
+const item = register_type("item", {
+    transform: (text) => {
+        const found = fetchItem(text); // yields
+        if (found === undefined) {
+            return { success: false, error: `No item named '${text}'` };
+        }
+        return { success: true, value: found };
+    },
+    check: (text) => (text.match("^[%w_]+$")[0] === undefined ? "Item names only use letters, numbers and underscores" : undefined),
+});
+```
+  </CodeBlockTab>
+</CodeBlockTabs>
+
+To check input the same way in your own code, use `check_args` in place of `transform_args`.

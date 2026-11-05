@@ -83,12 +83,12 @@ local function analyse(
 			end
 
 			return {
-				result = centurion.transform_args(executor, arg_text, cmd_args),
+				result = centurion.check_args(executor, arg_text, cmd_args),
 				suggestions = {},
 			}
 		end
 
-		local transform_result = centurion.transform_args(executor, arg_text, cmd_args)
+		local transform_result = centurion.check_args(executor, arg_text, cmd_args)
 
 		if not at_arg then
 			return {

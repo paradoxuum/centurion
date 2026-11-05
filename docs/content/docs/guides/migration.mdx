@@ -155,9 +155,9 @@ optional(args.string("reason"))
 The `ArgumentType` interface has been redesigned. The `transform` function now returns a plain `Result` object
 instead of using `TransformResult`.
 
-The `expensive` property and the functionality behind it (disabling UI type-checking) has been removed. This was a relatively niche feature and doesn't
-fit well with the new API and separation between core and UI packages. The UI should handle types with expensive transform functions better, though it's
-still recommended to avoid this where possible.
+The `expensive` property, which turned off UI type-checking, has been removed. Instead, give a type whose `transform` is slow or yields a
+`check` function, which the UI uses while typing instead of `transform`. See
+[Checking While Typing](/docs/guides/arguments#checking-while-typing).
 
 ```ts
 // Before

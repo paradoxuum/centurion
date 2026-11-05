@@ -15,6 +15,7 @@ require("./player")
 require("./resolve")
 require("./suggest")
 require("./sync")
+require("./user")
 
 local ok = FINISH()
 if not ok then

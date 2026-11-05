@@ -231,4 +231,5 @@ return {
 	players = players_type,
 	fuzzy_player = fuzzy_player,
 	fuzzy_players = fuzzy_players,
+	suggestions = player_suggestions,
 }

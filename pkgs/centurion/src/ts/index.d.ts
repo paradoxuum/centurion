@@ -91,12 +91,18 @@ export interface SingleArgumentType<T, O = unknown> {
 	kind: "single";
 	transform: (text: string, executor: Player, arg: Argument<unknown, O>) => Result<T>;
 	suggestions?: (text: string, executor: Player, arg: Argument<unknown, O>) => Suggestion[] | undefined;
+	/**
+	 * Used instead of `transform` while typing, for types whose transform is slow or yields. Returns an error, or
+	 * `undefined` if the text may be valid.
+	 */
+	check?: (text: string, executor: Player, arg: Argument<unknown, O>) => string | undefined;
 }
 
 export interface ListArgumentType<T, O = unknown> {
 	kind: "list";
 	transform: (text: string[], executor: Player, arg: Argument<unknown, O>) => Result<T>;
 	suggestions?: (text: string, executor: Player, arg: Argument<unknown, O>) => Suggestion[] | undefined;
+	check?: (text: string[], executor: Player, arg: Argument<unknown, O>) => string | undefined;
 }
 
 export type ArgumentType<T> = SingleArgumentType<T> | ListArgumentType<T>;
@@ -116,6 +122,15 @@ export interface PlayerOptions {
 export interface PlayersOptions extends PlayerOptions {
 	/** Whether `@all` and `@others` are accepted. `true` by default. */
 	all?: boolean;
+}
+
+/** A user found by `args.user`, who may not be in the server. */
+export interface UserInfo {
+	id: number;
+	/** Their current username. */
+	name: string;
+	/** Set if they're in the server. */
+	player?: Player;
 }
 
 export interface Token {
@@ -202,7 +217,13 @@ export function rest<T, O>(arg: Argument<T, O>): Argument<T[], O>;
 
 export function transform_args(executor: Player, input: string[], args: Argument[]): Result<unknown[]>;
 
+/** Like `transform_args`, but uses each type's `check` where it has one, so it's cheap enough to run while typing. */
+export function check_args(executor: Player, input: string[], args: Argument[]): Result<unknown[]>;
+
 export function transform_arg<T>(executor: Player, arg: Argument<T>, raw: string): Result<T>;
+
+/** Like `transform_arg`, but uses the type's `check` if it has one, in which case the value is `undefined`. */
+export function check_arg(executor: Player, arg: Argument, raw: string): Result<unknown>;
 
 export interface ArgumentRange {
 	first: number;
@@ -293,6 +314,7 @@ export const args: {
 	players: ArgumentFn<Player[], PlayersOptions>;
 	fuzzy_player: ArgumentFn<Player, PlayerOptions>;
 	fuzzy_players: ArgumentFn<Player[], PlayersOptions>;
+	user: ArgumentFn<UserInfo>;
 	brick_color: ArgumentFn<BrickColor>;
 	hex_color: ArgumentFn<Color3>;
 	rgb_color: ArgumentFn<Color3>;

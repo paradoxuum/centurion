@@ -2,6 +2,7 @@ local fakes = require("./fakes")
 
 local analyse = require("../../pkgs/centurion-ui/src/analyse")
 local centurion = require("../../pkgs/centurion/src")
+local highlight = require("../../pkgs/centurion-ui/src/analyse/highlight")
 local testkit = require("./testkit").test()
 local types = require("../../pkgs/centurion-ui/src/types")
 
@@ -48,6 +49,11 @@ local commands: { [string]: { description: string?, arguments: (() -> ...any)? }
 		end,
 	},
 	["ui_role add"] = {},
+	ui_unban = {
+		arguments = function()
+			return centurion.args.user("target")
+		end,
+	},
 }
 
 for name, data in commands do
@@ -189,6 +195,28 @@ TEST("analyse results", function()
 	res = run("ui_give wre sword")
 	CHECK(error_of(res) == "Invalid value for 'target': Player 'wre' not found. Did you mean Wren?")
 	CHECK(error_of(run("ui_give")) == "Missing required argument: target")
+
+	CASE("types with a check aren't transformed while typing")
+	local lookups = fakes.lookup_count()
+	CHECK(run("ui_unban SomeoneOffline").result.success)
+	CHECK(
+		error_of(run("ui_unban bad!name")) == "Invalid value for 'target': 'bad!name' is not a valid username or #id."
+	)
+	CHECK(fakes.lookup_count() == lookups)
+
+	CASE("highlighting uses the check too, since it runs while vide updates")
+	local function color(hex: string)
+		return {
+			ToHex = function()
+				return hex
+			end,
+		}
+	end
+	local theme = { highlight = color("c"), text = color("t"), success = color("s"), error = color("e") } :: any
+	local out = highlight(wren, "ui_unban SomeoneOffline bad!name", theme)
+	CHECK(fakes.lookup_count() == lookups)
+	CHECK(out:find('<font color="#t">SomeoneOffline</font>', 1, true) ~= nil)
+	CHECK(out:find('<font color="#e">bad!name</font>', 1, true) ~= nil)
 
 	CASE("an unclosed quote is reported")
 	CHECK(error_of(run('ui_give wren "health')) == "Unclosed quote at position 14")

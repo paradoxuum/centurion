@@ -622,7 +622,7 @@ local function app()
 			text {
 				size = UDim2.fromScale(1, 1),
 				text = function()
-					return if touch() then "" else highlight(raw_text(), state.theme())
+					return if touch() then "" else highlight(Players.LocalPlayer, raw_text(), state.theme())
 				end,
 				rich_text = true,
 				xalignment = Enum.TextXAlignment.Left,

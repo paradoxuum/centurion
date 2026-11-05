@@ -32,6 +32,7 @@ local function register_type<T, O>(
 	data: {
 		transform: (text: string, executor: Player, arg: types.Argument<O>) -> types.Result<T>,
 		suggestions: ((text: string, executor: Player, arg: types.Argument<O>) -> types.SuggestionList)?,
+		check: ((text: string, executor: Player, arg: types.Argument<O>) -> string?)?,
 	}
 ): types.ArgumentFn<T, O>
 	assert(arg_types[type_name] == nil, `Argument type '{type_name}' is already registered.`)
@@ -40,6 +41,7 @@ local function register_type<T, O>(
 		kind = "single",
 		transform = data.transform,
 		suggestions = data.suggestions,
+		check = data.check,
 	} :: any
 
 	return declarator(type_name)
@@ -50,6 +52,7 @@ local function register_list_type<T, O>(
 	data: {
 		transform: (text: { string }, executor: Player, arg: types.Argument<O>) -> types.Result<T>,
 		suggestions: ((text: string, executor: Player, arg: types.Argument<O>) -> types.SuggestionList)?,
+		check: ((text: { string }, executor: Player, arg: types.Argument<O>) -> string?)?,
 	}
 ): types.ArgumentFn<T, O>
 	assert(arg_types[type_name] == nil, `Argument type '{type_name}' is already registered.`)
@@ -58,6 +61,7 @@ local function register_list_type<T, O>(
 		kind = "list",
 		transform = data.transform,
 		suggestions = data.suggestions,
+		check = data.check,
 	} :: any
 
 	return declarator(type_name)
@@ -122,7 +126,9 @@ local function assign(args: { types.Argument }, count: number): ({ ArgumentRange
 	return ranges, index
 end
 
-local function transform_value(executor: Player, arg: types.Argument, raw: string): types.Result<unknown>
+-- when `checking`, a type's `check` is used instead of its `transform` if it has
+-- one, and the value is nil
+local function value_of(executor: Player, arg: types.Argument, raw: string, checking: boolean): types.Result<unknown>
 	local arg_type = arg_types[arg.type]
 	assert(arg_type, `Argument type '{arg.type}' is not registered`)
 
@@ -131,14 +137,32 @@ local function transform_value(executor: Player, arg: types.Argument, raw: strin
 		table.insert(parsed_text, token.text)
 	end
 
-	if arg_type.kind == "single" then
-		return arg_type.transform(parsed_text[1] or "", executor, arg)
+	-- the text matches the type's kind, which the union of function types hides
+	local text: any = if arg_type.kind == "single" then parsed_text[1] or "" else parsed_text
+	local type_data: any = arg_type
+	local check: ((any, Player, types.Argument) -> string?)? = if checking then type_data.check else nil
+	if check then
+		local err = check(text, executor, arg)
+		return if err then result.error(err) else result.success(nil)
 	end
 
-	return arg_type.transform(parsed_text, executor, arg)
+	return type_data.transform(text, executor, arg)
 end
 
-local function transform(executor: Player, input: { string }, args: { types.Argument }): types.Result<{ unknown }>
+local function transform_value(executor: Player, arg: types.Argument, raw: string): types.Result<unknown>
+	return value_of(executor, arg, raw, false)
+end
+
+local function check_value(executor: Player, arg: types.Argument, raw: string): types.Result<unknown>
+	return value_of(executor, arg, raw, true)
+end
+
+local function run(
+	executor: Player,
+	input: { string },
+	args: { types.Argument },
+	checking: boolean
+): types.Result<{ unknown }>
 	local transformed_args: { unknown } = {}
 	local ranges, next_index = assign(args, #input)
 
@@ -157,7 +181,7 @@ local function transform(executor: Player, input: { string }, args: { types.Argu
 
 		local values: { unknown } = {}
 		for j = range.first, range.last do
-			local res = transform_value(executor, arg, input[j])
+			local res = value_of(executor, arg, input[j], checking)
 			if not res.success then
 				local at = if count > 1 then ` #{j - range.first + 1}` else ""
 				return result.error(`Invalid value{at} for '{arg.name}': {res.error}`)
@@ -188,6 +212,15 @@ local function transform(executor: Player, input: { string }, args: { types.Argu
 	return result.success(transformed_args)
 end
 
+local function transform(executor: Player, input: { string }, args: { types.Argument }): types.Result<{ unknown }>
+	return run(executor, input, args, false)
+end
+
+-- like `transform`, but cheap enough to run while typing
+local function check(executor: Player, input: { string }, args: { types.Argument }): types.Result<{ unknown }>
+	return run(executor, input, args, true)
+end
+
 return {
 	register_type = register_type,
 	register_list_type = register_list_type,
@@ -197,6 +230,8 @@ return {
 	rest = rest,
 	assign = assign,
 	transform_value = transform_value,
+	check_value = check_value,
 	transform = transform,
+	check = check,
 	types = arg_types,
 }

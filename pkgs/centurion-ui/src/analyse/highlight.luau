@@ -1,18 +1,17 @@
 --!strict
-local Players = game:GetService("Players")
-
 local centurion = require("../../centurion")
 local rich = require("../rich")
 local types = require("../types")
 
 type Kind = "command" | "argument" | "string" | "invalid"
 
-local function is_valid(raw: string, arg: centurion.Argument): boolean
-	local ok, result = pcall(centurion.transform_arg, Players.LocalPlayer, arg, raw)
+local function is_valid(executor: Player, raw: string, arg: centurion.Argument): boolean
+	-- this runs while vide updates, which breaks if a transform yields
+	local ok, result = pcall(centurion.check_arg, executor, arg, raw)
 	return ok and result.success
 end
 
-local function classify(text: string): { { span: vector, kind: Kind } }
+local function classify(executor: Player, text: string): { { span: vector, kind: Kind } }
 	local resolution = centurion.resolve_command(text)
 	local tokens = resolution.tokens
 	local cmds = centurion.registry.commands
@@ -45,7 +44,7 @@ local function classify(text: string): { { span: vector, kind: Kind } }
 			local token = tokens[cmd_index + j]
 			local raw = text:sub(token.span.x, token.span.y)
 
-			if not is_valid(raw, arg) then
+			if not is_valid(executor, raw, arg) then
 				add(token, "invalid")
 			elseif raw:match("^[\"']") then
 				add(token, "string")
@@ -68,7 +67,7 @@ local function classify(text: string): { { span: vector, kind: Kind } }
 	return highlights
 end
 
-local function highlight(text: string, theme: types.Theme): string
+local function highlight(executor: Player, text: string, theme: types.Theme): string
 	local colors: { [Kind]: Color3 } = {
 		command = theme.highlight,
 		argument = theme.text,
@@ -78,7 +77,7 @@ local function highlight(text: string, theme: types.Theme): string
 
 	local out = {}
 	local pos = 1
-	for _, item in classify(text) do
+	for _, item in classify(executor, text) do
 		table.insert(out, rich.escape(text:sub(pos, item.span.x - 1)))
 		table.insert(out, rich.color(rich.escape(text:sub(item.span.x, item.span.y)), colors[item.kind]))
 		pos = item.span.y + 1

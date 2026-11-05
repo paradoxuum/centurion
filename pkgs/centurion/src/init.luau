@@ -14,6 +14,7 @@ local result = require("@self/result")
 local sync = require("@self/sync")
 local team = require("@self/argument/team")
 local types = require("@self/types")
+local user = require("@self/argument/user")
 local vector = require("@self/argument/vector")
 
 export type Argument<O = any> = types.Argument<O>
@@ -34,6 +35,7 @@ export type Response = types.Response
 export type FailReason = types.FailReason
 export type PlayerOptions = player.PlayerOptions
 export type PlayersOptions = player.PlayersOptions
+export type UserInfo = user.UserInfo
 
 export type ArgumentRange = argument.ArgumentRange
 export type ExecuteLimits = limit.ExecuteLimits
@@ -64,7 +66,9 @@ return {
 	num_args = argument.num_args,
 	rest = argument.rest,
 	transform_args = argument.transform,
+	check_args = argument.check,
 	transform_arg = argument.transform_value,
+	check_arg = argument.check_value,
 	assign_args = argument.assign,
 
 	execute_command = command.execute,
@@ -111,6 +115,7 @@ return {
 		players = player.players,
 		fuzzy_player = player.fuzzy_player,
 		fuzzy_players = player.fuzzy_players,
+		user = user,
 		brick_color = color.brick_color,
 		hex_color = color.hex_color,
 		rgb_color = color.rgb_color,
