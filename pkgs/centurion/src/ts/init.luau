@@ -103,7 +103,7 @@ end
 
 local function register_classes(constructor)
 	for class, class_metadata in metadata do
-		if not class_metadata.commands then
+		if next(class_metadata.commands) == nil then
 			continue
 		end
 
