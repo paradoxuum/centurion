@@ -68,11 +68,13 @@ arguments: () => [args.player("target"), args.string("message")],
 | Name | Returns | Notes |
 | --- | --- | --- |
 | `args.string` | `string` | Pass-through |
-| `args.number` | `number` | Accepts any numeric value |
-| `args.integer` | `number` | Must be a whole number |
+| `args.number` | `number` | Accepts any finite number |
+| `args.integer` | `number` | Must be a finite whole number |
 | `args.boolean` | `boolean` | Accepts `true/false`, `yes/no`, `y/n` (case-insensitive) |
-| `args.player` | `Player` | Accepts `@me`, `.`, `@random`, `?`, or a player name (case-insensitive) |
+| `args.player` | `Player` | Accepts `@me`, `.`, `@random`, `?`, or a player's exact username (case-insensitive) |
 | `args.players` | `Player[]` | Comma-separated list of anything `args.player` accepts, plus `@all` and `@others` |
+| `args.fuzzy_player` | `Player` | Like `args.player`, but also matches display names and the start of a name (see below) |
+| `args.fuzzy_players` | `Player[]` | Like `args.players`, but each entry is matched like `args.fuzzy_player` |
 | `args.brick_color` | `BrickColor` | Roblox BrickColor names (case-insensitive) |
 | `args.hex_color` | `Color3` | Six-digit hex color, with or without `#` (e.g. `#ff0000`) |
 | `args.rgb_color` | `Color3` | Three comma-separated components from 0 to 255 (e.g. `255,0,0`) |
@@ -81,7 +83,27 @@ arguments: () => [args.player("target"), args.string("message")],
 | `args.vector2` | `Vector2` | Two comma-separated numbers (e.g. `10,20`) |
 | `args.vector3` | `vector` | Three comma-separated numbers (e.g. `0,10,0`) |
 
-`players`, `rgb_color`, `vector2` and `vector3` are list types: their components are separated by commas, not spaces, so the whole value is a single argument.
+`players`, `fuzzy_players`, `rgb_color`, `vector2` and `vector3` are list types: their components are separated by commas, not spaces, so the whole value is a single argument.
+
+### Matching Players
+
+`args.player` and `args.players` only match a player's exact username, ignoring case. Usernames are unique and can't change mid-game,
+so if the player you meant has left, the argument is rejected rather than matching someone else. Use them for commands like kick or ban.
+
+`args.fuzzy_player` and `args.fuzzy_players` also match display names and the start of a name, which is quicker to type. These are tried
+in order, and the first that matches anyone decides:
+
+1. Exact username
+2. Exact display name
+3. Start of a username
+4. Start of a display name
+
+If more than one player matches at the same step, the argument is rejected with an error naming them, rather than picking one. Because
+usernames are checked first, a player can't take someone's place by setting their display name to that person's username. However, if the
+player you meant leaves, the same input can match someone else, so avoid these for commands that punish the target.
+
+Both are suggested by username, with their display name shown next to it, and typing either finds them in the suggestions. Picking a
+suggestion inserts the username, so it works with either type.
 
 ### Duration Format
 
@@ -336,6 +358,33 @@ const mapType = register_type<string>("map", {
     transform: (text) => ({ success: true, value: text }),
     suggestions: (text, executor) => ["lobby", "arena", "dungeon"],
 });
+```
+  </CodeBlockTab>
+</CodeBlockTabs>
+
+Suggestions can also be tables, which show a description and can be found by other names. Picking one inserts its `text`.
+
+<CodeBlockTabs groupId="lang" defaultValue="luau" persist>
+  <CodeBlockTabsList>
+    <CodeBlockTabsTrigger value="luau">Luau</CodeBlockTabsTrigger>
+    <CodeBlockTabsTrigger value="ts">TypeScript</CodeBlockTabsTrigger>
+  </CodeBlockTabsList>
+  <CodeBlockTab value="luau">
+```lua
+suggestions = function(text, executor)
+    return {
+        "lobby",
+        { text = "arena", description = "PvP map", aliases = { "pvp" } },
+    }
+end,
+```
+  </CodeBlockTab>
+  <CodeBlockTab value="ts">
+```ts
+suggestions: (text, executor) => [
+    "lobby",
+    { text: "arena", description: "PvP map", aliases: ["pvp"] },
+],
 ```
   </CodeBlockTab>
 </CodeBlockTabs>

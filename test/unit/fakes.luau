@@ -85,10 +85,12 @@ services.Teams = Teams
 
 local next_user_id = 1
 
--- adds a player to the game, firing PlayerAdded
-local function add_player(name: string)
+-- adds a player to the game, firing PlayerAdded. the display name defaults to
+-- the username, as it does on roblox
+local function add_player(name: string, display_name: string?)
 	local player = {
 		Name = name,
+		DisplayName = display_name or name,
 		UserId = next_user_id,
 		Parent = Players,
 	}

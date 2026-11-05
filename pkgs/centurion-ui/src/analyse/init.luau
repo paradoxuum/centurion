@@ -7,6 +7,24 @@ local match = require("@self/match")
 local suggest = require("@self/suggest")
 local types = require("./types")
 
+-- a string is shorthand for a suggestion that's only found by its text
+local function normalize(suggestion: centurion.Suggestion): centurion.SuggestionData
+	if type(suggestion) == "string" then
+		return { text = suggestion }
+	end
+	return suggestion
+end
+
+local function suggestion_keys(suggestion: centurion.SuggestionData): { string }
+	local keys = { suggestion.text }
+	if suggestion.aliases then
+		for _, alias in suggestion.aliases do
+			table.insert(keys, alias)
+		end
+	end
+	return keys
+end
+
 local function analyse(text: string, cursor_pos: number, max_suggestions: number?): types.AnalysisResult
 	local resolution = centurion.resolve_command(text)
 	local tokens = resolution.tokens
@@ -143,35 +161,37 @@ local function analyse(text: string, cursor_pos: number, max_suggestions: number
 			end
 		end
 
-		local arg_suggestions: { string } = {}
+		-- the type's suggestions come before the argument's own, and the first
+		-- suggestion with a given text wins
+		local arg_suggestions: { centurion.SuggestionData } = {}
+		local seen: { [string]: true } = {}
+		local function add(list: centurion.SuggestionList?)
+			if not list then
+				return
+			end
+
+			for _, item in list do
+				local suggestion = normalize(item)
+				if not seen[suggestion.text] then
+					seen[suggestion.text] = true
+					table.insert(arg_suggestions, suggestion)
+				end
+			end
+		end
+
 		if arg_type.suggestions then
-			arg_suggestions = table.clone(arg_type.suggestions(input_token.text, Players.LocalPlayer))
+			add(arg_type.suggestions(input_token.text, Players.LocalPlayer))
 		end
-
-		if arg.suggestions then
-			for _, suggestion in arg.suggestions do
-				table.insert(arg_suggestions, suggestion)
-			end
-		end
-
-		-- check for duplicates
-		local seen = {}
-		for i = #arg_suggestions, 1, -1 do
-			local suggestion = arg_suggestions[i]
-			if seen[suggestion] then
-				table.remove(arg_suggestions, i)
-			else
-				seen[suggestion] = true
-			end
-		end
+		add(arg.suggestions)
 
 		local suggestions = {}
 		local hidden = 0
 		if #arg_suggestions > 0 then
-			local matches, total = suggest(input_token.text, arg_suggestions, max_suggestions)
+			local matches, total = suggest(input_token.text, arg_suggestions, max_suggestions, suggestion_keys)
 			hidden = total - #matches
 
-			for _, suggestion_text in matches do
+			for _, item in matches do
+				local suggestion_text = item.text
 				local replacement = ""
 				local replacement_text = {}
 				for _, replacement_token in centurion.parse_text(suggestion_text, " ").tokens do
@@ -187,6 +207,7 @@ local function analyse(text: string, cursor_pos: number, max_suggestions: number
 				local suggestion = {
 					kind = "argument",
 					name = suggestion_text,
+					description = item.description,
 					matches = match(input_token.text, suggestion_text),
 
 					span = input_token.span,
@@ -209,7 +230,7 @@ local function analyse(text: string, cursor_pos: number, max_suggestions: number
 	end
 
 	local function process_command(): types.AnalysisResult
-		local to_match = {}
+		local to_match: { string } = {}
 		for k, _ in cmds do
 			if k == cmd_name then
 				continue

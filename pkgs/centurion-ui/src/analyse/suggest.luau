@@ -40,8 +40,28 @@ local function subsequence_bonus(query: string, candidate: string): number
 	return best
 end
 
--- returns the best matches, and how many there were before being limited
-local function suggest(input: string, candidates: { string }, max_suggestions: number?): ({ string }, number)
+local function score(normalized: string, key: string): number
+	if key:sub(1, #normalized):lower() == normalized then
+		return 1000 - (#key - #normalized)
+	end
+
+	local distance = leventine.score(normalized, key, false)
+	return (1 - distance / math.max(#normalized, #key)) * 100 + subsequence_bonus(normalized, key:lower())
+end
+
+local function identity(candidate: any): { string }
+	return { candidate }
+end
+
+-- returns the best matches, and how many there were before being limited.
+-- `keys` gives the strings a candidate can be found by, and its best scoring
+-- key ranks it. by default a candidate is its own only key
+local function suggest<T>(
+	input: string,
+	candidates: { T },
+	max_suggestions: number?,
+	keys: ((candidate: T) -> { string })?
+): ({ T }, number)
 	if #input == 0 then
 		if max_suggestions and #candidates > max_suggestions then
 			return { unpack(candidates, 1, max_suggestions) }, #candidates
@@ -49,21 +69,17 @@ local function suggest(input: string, candidates: { string }, max_suggestions: n
 		return candidates, #candidates
 	end
 
+	local get_keys = keys or identity
 	local normalized = input:lower()
 	local scored = {}
 	for _, candidate in candidates do
-		local score = 0
-
-		if candidate:sub(1, #normalized):lower() == normalized then
-			score = 1000 - (#candidate - #normalized)
-		else
-			score = leventine.score(normalized, candidate, false)
-			score = (1 - score / math.max(#normalized, #candidate)) * 100
-			score += subsequence_bonus(normalized, candidate:lower())
+		local best = MIN_SCORE
+		for _, key in get_keys(candidate) do
+			best = math.max(best, score(normalized, key))
 		end
 
-		if score > MIN_SCORE then
-			table.insert(scored, { text = candidate, score = score })
+		if best > MIN_SCORE then
+			table.insert(scored, { value = candidate, score = best })
 		end
 	end
 
@@ -73,7 +89,7 @@ local function suggest(input: string, candidates: { string }, max_suggestions: n
 
 	local mapped = {}
 	for i = 1, math.min(max_suggestions or #scored, #scored) do
-		table.insert(mapped, scored[i].text)
+		table.insert(mapped, scored[i].value)
 	end
 	return mapped, #scored
 end

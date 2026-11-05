@@ -43,7 +43,7 @@ type Argument = {
     optional:    boolean?,
     description: string?,
     num_args:    (number | "rest")?,
-    suggestions: { string }?,
+    suggestions: SuggestionList?,
 }
 ```
 
@@ -57,13 +57,13 @@ The definition passed to `register_type` or `register_list_type`.
 type SingleArgumentType<T = unknown> = {
     kind:        "single",
     transform:   (text: string, executor: Player) -> Result<T>,
-    suggestions: ((text: string, executor: Player) -> { string })?,
+    suggestions: ((text: string, executor: Player) -> SuggestionList)?,
 }
 
 type ListArgumentType<T = unknown> = {
     kind:        "list",
     transform:   (text: { string }, executor: Player) -> Result<T>,
-    suggestions: ((text: string, executor: Player) -> { string })?,
+    suggestions: ((text: string, executor: Player) -> SuggestionList)?,
 }
 
 type ArgumentType<T = unknown> = SingleArgumentType<T> | ListArgumentType<T>
@@ -72,6 +72,30 @@ type ArgumentType<T = unknown> = SingleArgumentType<T> | ListArgumentType<T>
 `transform` receives the raw input and must return a `Result<T>`, where `T` is the value the argument produces. For list types, the input is already split by commas.
 
 `register_type` and `register_list_type` infer `T` from `transform`, so the declarator they return is typed as `ArgumentFn<T>` without needing a cast.
+
+---
+
+### `Suggestion`
+
+A suggestion offered while typing an argument, returned by an argument type's `suggestions` function or passed to a declarator.
+
+```lua
+type SuggestionData = {
+    text:        string,
+    description: string?,
+    aliases:     { string }?,
+}
+
+type Suggestion = string | SuggestionData
+
+type SuggestionList = { read [number]: Suggestion }
+```
+
+A string is inserted as-is. A `SuggestionData` inserts `text`, shows `description` next to it, and can also be found by typing any of its
+`aliases`. The built-in player types use this to insert a player's username while matching their display name.
+
+`SuggestionList` is read-only so that a `{ string }` or `{ SuggestionData }` can be returned without a cast. In TypeScript, a
+`Suggestion[]` is used instead.
 
 ---
 
@@ -732,17 +756,19 @@ centurion.registry.roles         -- { [string]: PermissionRole }
 All factory functions share the same signature:
 
 ```lua
-args.TYPE(name: string, description: string?, suggestions: { string }?) -> Argument
+args.TYPE(name: string, description: string?, suggestions: SuggestionList?) -> Argument
 ```
 
 | Factory | Returns | Notes |
 | --- | --- | --- |
 | `args.string` | `string` | Any text. |
-| `args.number` | `number` | Any numeric value. |
-| `args.integer` | `number` | Whole numbers only. |
+| `args.number` | `number` | Any finite number. |
+| `args.integer` | `number` | Finite whole numbers only. |
 | `args.boolean` | `boolean` | Accepts `true`/`false`, `yes`/`no`, `y`/`n`, case-insensitive. |
-| `args.player` | `Player` | Accepts `@me` or `.` (self), `@random` or `?` (random player), or a player name (case-insensitive). |
+| `args.player` | `Player` | Accepts `@me` or `.` (self), `@random` or `?` (random player), or a player's exact username (case-insensitive). See [Matching Players](/docs/guides/arguments#matching-players). |
 | `args.players` | `{ Player }` | Comma-separated list of anything `args.player` accepts. Also accepts `@all` and `@others`. |
+| `args.fuzzy_player` | `Player` | Like `args.player`, but also matches display names and the start of a username or display name. |
+| `args.fuzzy_players` | `{ Player }` | Like `args.players`, but each entry is matched like `args.fuzzy_player`. |
 | `args.brick_color` | `BrickColor` | Any Roblox BrickColor name, case-insensitive. |
 | `args.hex_color` | `Color3` | Six-digit hex string, with or without `#`, e.g. `#ff0000`. |
 | `args.rgb_color` | `Color3` | Three comma-separated components from 0 to 255, e.g. `255,0,0`. |
@@ -751,7 +777,7 @@ args.TYPE(name: string, description: string?, suggestions: { string }?) -> Argum
 | `args.vector2` | `Vector2` | Two comma-separated numbers, e.g. `10,20`. |
 | `args.vector3` | `vector` | Three comma-separated numbers, e.g. `0,10,0`. |
 
-`players`, `rgb_color`, `vector2` and `vector3` are list types, so their components are separated by commas rather than spaces.
+`players`, `fuzzy_players`, `rgb_color`, `vector2` and `vector3` are list types, so their components are separated by commas rather than spaces.
 
 ### Duration Format
 

@@ -7,7 +7,7 @@ local arg_types: { [string]: types.ArgumentType<unknown> } = {}
 -- the declarator returns an `Argument`, but it is typed as the transformed
 -- value so that a command's `arguments()` tuple types its callback parameters
 local function declarator<T>(type_name: string): types.ArgumentFn<T>
-	local function create(name: string, description: string?, suggestions: { string }?): types.Argument
+	local function create(name: string, description: string?, suggestions: types.SuggestionList?): types.Argument
 		return {
 			name = name,
 			description = description,
@@ -24,7 +24,7 @@ local function register_type<T>(
 	type_name: string,
 	data: {
 		transform: (text: string, executor: Player) -> types.Result<T>,
-		suggestions: ((text: string, executor: Player) -> { string })?,
+		suggestions: ((text: string, executor: Player) -> types.SuggestionList)?,
 	}
 ): types.ArgumentFn<T>
 	assert(arg_types[type_name] == nil, `Argument type '{type_name}' is already registered.`)
@@ -42,7 +42,7 @@ local function register_list_type<T>(
 	type_name: string,
 	data: {
 		transform: (text: { string }, executor: Player) -> types.Result<T>,
-		suggestions: ((text: string, executor: Player) -> { string })?,
+		suggestions: ((text: string, executor: Player) -> types.SuggestionList)?,
 	}
 ): types.ArgumentFn<T>
 	assert(arg_types[type_name] == nil, `Argument type '{type_name}' is already registered.`)

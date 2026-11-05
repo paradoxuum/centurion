@@ -19,6 +19,9 @@ local vector = require("@self/argument/vector")
 export type Argument = types.Argument
 export type ArgumentType<T = unknown> = types.ArgumentType<T>
 export type ArgumentFn<T> = types.ArgumentFn<T>
+export type Suggestion = types.Suggestion
+export type SuggestionData = types.SuggestionData
+export type SuggestionList = types.SuggestionList
 export type Command<T...> = types.Command<T...>
 export type CommandDefinition<T...> = types.CommandDefinition<T...>
 export type CommandBuilder<T...> = types.CommandBuilder<T...>
@@ -103,6 +106,8 @@ return {
 		integer = primitives.integer,
 		player = player.player,
 		players = player.players,
+		fuzzy_player = player.fuzzy_player,
+		fuzzy_players = player.fuzzy_players,
 		brick_color = color.brick_color,
 		hex_color = color.hex_color,
 		rgb_color = color.rgb_color,

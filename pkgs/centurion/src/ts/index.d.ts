@@ -1,5 +1,15 @@
 declare const argumentValue: unique symbol;
 
+export interface SuggestionData {
+	text: string;
+	description?: string;
+	/** Other names the input is matched against, e.g. a player's display name. */
+	aliases?: string[];
+}
+
+/** A suggestion offered while typing an argument. A string is inserted as-is. */
+export type Suggestion = string | SuggestionData;
+
 /** An argument definition. `T` is the type of value it's passed to the command callback as. */
 export interface Argument<T = unknown> {
 	name: string;
@@ -7,7 +17,7 @@ export interface Argument<T = unknown> {
 	optional?: boolean;
 	description?: string;
 	num_args?: number | "rest";
-	suggestions?: string[];
+	suggestions?: Suggestion[];
 
 	/** Type-only marker for the value this argument produces. Never exists at runtime. */
 	readonly [argumentValue]?: T;
@@ -74,18 +84,18 @@ export interface RoleOptions {
 export interface SingleArgumentType<T> {
 	kind: "single";
 	transform: (text: string, executor: Player) => Result<T>;
-	suggestions?: (text: string, executor: Player) => string[] | undefined;
+	suggestions?: (text: string, executor: Player) => Suggestion[] | undefined;
 }
 
 export interface ListArgumentType<T> {
 	kind: "list";
 	transform: (text: string[], executor: Player) => Result<T>;
-	suggestions?: (text: string, executor: Player) => string[] | undefined;
+	suggestions?: (text: string, executor: Player) => Suggestion[] | undefined;
 }
 
 export type ArgumentType<T> = SingleArgumentType<T> | ListArgumentType<T>;
 
-export type ArgumentFn<T> = (name: string, description?: string, suggestions?: string[]) => Argument<T>;
+export type ArgumentFn<T> = (name: string, description?: string, suggestions?: Suggestion[]) => Argument<T>;
 
 export interface Token {
 	span: vector;
@@ -253,6 +263,8 @@ export const args: {
 	integer: ArgumentFn<number>;
 	player: ArgumentFn<Player>;
 	players: ArgumentFn<Player[]>;
+	fuzzy_player: ArgumentFn<Player>;
+	fuzzy_players: ArgumentFn<Player[]>;
 	brick_color: ArgumentFn<BrickColor>;
 	hex_color: ArgumentFn<Color3>;
 	rgb_color: ArgumentFn<Color3>;

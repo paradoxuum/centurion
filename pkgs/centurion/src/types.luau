@@ -23,30 +23,41 @@ export type CommandBuilder<T...> = {
 	callback: (self: CommandBuilder<T...>, callback: (ctx: ExecutionContext, T...) -> ...any) -> (),
 }
 
+export type SuggestionData = {
+	text: string,
+	description: string?,
+	-- other names the input is matched against, e.g. a player's display name
+	aliases: { string }?,
+}
+
+export type Suggestion = string | SuggestionData
+
+export type SuggestionList = { read [number]: Suggestion }
+
 export type Argument = {
 	name: string,
 	type: string,
 	optional: boolean?,
 	description: string?,
 	num_args: (number | "rest")?,
-	suggestions: { string }?,
+	suggestions: SuggestionList?,
 }
 
 export type SingleArgumentType<T = unknown> = {
 	kind: "single",
 	transform: (text: string, executor: Player) -> Result<T>,
-	suggestions: ((text: string, executor: Player) -> { string })?,
+	suggestions: ((text: string, executor: Player) -> SuggestionList)?,
 }
 
 export type ListArgumentType<T = unknown> = {
 	kind: "list",
 	transform: (text: { string }, executor: Player) -> Result<T>,
-	suggestions: ((text: string, executor: Player) -> { string })?,
+	suggestions: ((text: string, executor: Player) -> SuggestionList)?,
 }
 
 export type ArgumentType<T = unknown> = SingleArgumentType<T> | ListArgumentType<T>
 
-export type ArgumentFn<T> = (name: string, description: string?, suggestions: { string }?) -> T
+export type ArgumentFn<T> = (name: string, description: string?, suggestions: SuggestionList?) -> T
 
 export type ExecutionContext = {
 	executor: Player,
