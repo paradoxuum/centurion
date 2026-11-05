@@ -89,6 +89,10 @@ export type PlayersOptions = {
 	all: boolean?,
 }
 
+local function options_of<O>(arg: types.Argument<O>?): O?
+	return if arg then arg.options else nil
+end
+
 local function not_allowed(text: string): types.Err
 	return result.error(`'{text}' can't be used here.`)
 end
@@ -159,11 +163,11 @@ end
 local function register_types(single: string, list: string, tiers: { Tier })
 	local single_type = register(single, {
 		transform = function(value: string, executor: Player, arg: types.Argument<PlayerOptions>): types.Result<Player>
-			local options: PlayerOptions = arg.options or {}
+			local options: PlayerOptions = options_of(arg) or {}
 			return find_player(value, executor, tiers, options.random ~= false)
 		end,
 		suggestions = function(_value: string, _executor: Player, arg: types.Argument<PlayerOptions>)
-			local options: PlayerOptions = arg.options or {}
+			local options: PlayerOptions = options_of(arg) or {}
 			return player_suggestions(options.random ~= false, false)
 		end,
 	})
@@ -174,7 +178,7 @@ local function register_types(single: string, list: string, tiers: { Tier })
 			executor: Player,
 			arg: types.Argument<PlayersOptions>
 		): types.Result<{ Player }>
-			local options: PlayersOptions = arg.options or {}
+			local options: PlayersOptions = options_of(arg) or {}
 			local all = options.all ~= false
 
 			local player_map = {}
@@ -211,7 +215,7 @@ local function register_types(single: string, list: string, tiers: { Tier })
 			return result.success(players)
 		end,
 		suggestions = function(_value: string, _executor: Player, arg: types.Argument<PlayersOptions>)
-			local options: PlayersOptions = arg.options or {}
+			local options: PlayersOptions = options_of(arg) or {}
 			return player_suggestions(options.random ~= false, options.all ~= false)
 		end,
 	})

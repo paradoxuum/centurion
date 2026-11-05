@@ -229,6 +229,13 @@ TEST("player options", function()
 	local wrapped: centurion.Argument =
 		centurion.optional(centurion.args.player("target", nil, nil, { random = false })) :: any
 	CHECK(find_error("@random", wrapped) == "'@random' can't be used here.")
+
+	CASE("direct calls without the argument use the defaults")
+	for _, name in { "player", "players", "fuzzy_player", "fuzzy_players" } do
+		local arg_type = centurion.registry.types[name] :: any
+		CHECK(suggestion_for(arg_type.suggestions("", mira), "@random") ~= nil)
+		CHECK(arg_type.transform(if arg_type.kind == "list" then { "@random" } else "@random", mira).success)
+	end
 end)
 
 TEST("transform receives the argument", function()
