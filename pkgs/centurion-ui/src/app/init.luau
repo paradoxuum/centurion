@@ -288,7 +288,7 @@ local function app()
 		untrack(function()
 			local input_text = raw_text()
 			if #input_text > 0 then
-				analysis(analyse(input_text, #input_text + 1, state.max_suggestions()))
+				analysis(analyse(Players.LocalPlayer, input_text, #input_text + 1, state.max_suggestions()))
 			end
 		end)
 	end)
@@ -335,7 +335,7 @@ local function app()
 				pos = #raw_text() + 1
 			end
 
-			analysis(analyse(raw_text(), pos, state.max_suggestions()))
+			analysis(analyse(Players.LocalPlayer, raw_text(), pos, state.max_suggestions()))
 		end)
 	end)
 

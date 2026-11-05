@@ -2,6 +2,7 @@ local testkit = require("./testkit").test()
 
 local FINISH = testkit.FINISH
 
+require("./analyse")
 require("./argument")
 require("./command")
 require("./cursor")

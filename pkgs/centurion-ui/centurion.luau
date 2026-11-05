@@ -1,4 +1,4 @@
-local centurion = require(script.Parent.Parent.centurion.src)
+local centurion = require("../centurion/src")
 
 export type Argument = centurion.Argument
 export type ArgumentRange = centurion.ArgumentRange

@@ -1,6 +1,4 @@
 --!strict
-local Players = game:GetService("Players")
-
 local centurion = require("../centurion")
 local cursor = require("@self/cursor")
 local match = require("@self/match")
@@ -25,7 +23,12 @@ local function suggestion_keys(suggestion: centurion.SuggestionData): { string }
 	return keys
 end
 
-local function analyse(text: string, cursor_pos: number, max_suggestions: number?): types.AnalysisResult
+local function analyse(
+	executor: Player,
+	text: string,
+	cursor_pos: number,
+	max_suggestions: number?
+): types.AnalysisResult
 	local resolution = centurion.resolve_command(text)
 	local tokens = resolution.tokens
 
@@ -80,12 +83,12 @@ local function analyse(text: string, cursor_pos: number, max_suggestions: number
 			end
 
 			return {
-				result = centurion.transform_args(Players.LocalPlayer, arg_text, cmd_args),
+				result = centurion.transform_args(executor, arg_text, cmd_args),
 				suggestions = {},
 			}
 		end
 
-		local transform_result = centurion.transform_args(Players.LocalPlayer, arg_text, cmd_args)
+		local transform_result = centurion.transform_args(executor, arg_text, cmd_args)
 
 		if not at_arg then
 			return {
@@ -180,7 +183,7 @@ local function analyse(text: string, cursor_pos: number, max_suggestions: number
 		end
 
 		if arg_type.suggestions then
-			add(arg_type.suggestions(input_token.text, Players.LocalPlayer, arg))
+			add(arg_type.suggestions(input_token.text, executor, arg))
 		end
 		add(arg.suggestions)
 
