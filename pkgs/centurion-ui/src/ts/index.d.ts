@@ -20,6 +20,7 @@ export interface Options {
 	anchor: Vector2;
 	width: UDim;
 	position: UDim2;
+	display_order: number;
 }
 
 export interface Theme {

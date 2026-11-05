@@ -14,7 +14,7 @@ centurion_ui.mount(keys: { Enum.KeyCode }?)
 
 Creates the terminal UI and mounts it to `PlayerGui`. Must be called on the client.
 
-`keys` sets the keys that open and close the terminal, defaulting to `{ Enum.KeyCode.F2 }`. This can be updated later via `configure`.
+`keys` sets the keys that open and close the terminal, defaulting to `{ Enum.KeyCode.F2 }`.
 
 Calling `mount` again after the UI has been mounted does nothing.
 
@@ -28,16 +28,18 @@ centurion_ui.configure(options: {
     activation_keys:     { Enum.KeyCode }?,
     theme:               Theme?,
     font:                Font?,
-    icon:                string?,
     transparency:        number?,
     text_size:           number?,
     subtext_size:        number?,
     visible_suggestions: number?,
     max_suggestions:     number?,
+    header_title:        string?,
+    header_icon:         string?,
     clear_button:        boolean?,
     anchor:              Vector2?,
     position:            UDim2?,
     width:               UDim?,
+    display_order:       number?,
     format_date:         ((log: Log) -> string)?,
 })
 ```
@@ -50,16 +52,18 @@ Updates UI configuration. All fields are optional, omitted fields keep their cur
 | `activation_keys` | `{ Enum.KeyCode.F2 }` | Keys that toggle the terminal open/closed. |
 | `theme` | `themes.mocha` | Color theme. |
 | `font` | *(built-in)* | Font used for all terminal text. |
-| `icon` | *(Centurion logo)* | Asset ID of the icon shown in the terminal. |
-| `transparency` | `0.2` | Background transparency of the terminal. |
+| `transparency` | `0.1` | Background transparency of the terminal. |
 | `text_size` | `19` | Primary text size, in scaled pixels. |
 | `subtext_size` | `16` | Secondary text size for descriptions and hints, in scaled pixels. |
 | `visible_suggestions` | `5` | Number of autocomplete entries visible at once; more can be scrolled to. |
 | `max_suggestions` | `50` | Maximum number of autocomplete entries that can be scrolled through. Matches past this are counted as "+N more". |
+| `header_title` | `"Centurion"` | Title shown in the terminal header. |
+| `header_icon` | *(Centurion logo)* | Asset ID of the icon shown in the terminal header. Set to `""` to hide it. |
 | `clear_button` | `false` | Show a `Clear` button in the header that clears the command log. Hidden while the log is empty. |
-| `anchor` | `Vector2.zero` | Anchor point of the terminal frame. |
-| `position` | `UDim2.new()` | Position of the terminal frame. |
-| `width` | `UDim.new(1, 0)` | Width of the terminal frame. |
+| `anchor` | `Vector2.new(0.5, 0)` | Anchor point of the terminal frame. |
+| `position` | `UDim2.new(0.5, 0, 0, 0)` | Position of the terminal frame. |
+| `width` | `UDim.new(0, 1000)` | Width of the terminal frame. The offset is in scaled pixels, and the terminal never grows wider than the screen. |
+| `display_order` | `1000` | `DisplayOrder` of the terminal's `ScreenGui`. |
 | `format_date` | *(built-in)* | Custom timestamp formatter for log entries. Receives a `Log` and must return a string. |
 
 ---
@@ -180,15 +184,18 @@ type Options = {
     activation_keys:     { Enum.KeyCode },
     theme:               Theme,
     font:                Font,
-    icon:                string,
     transparency:        number,
     format_date:         (log: Log) -> string,
     visible_suggestions: number,
     max_suggestions:     number,
+    header_title:        string,
+    header_icon:         string,
+    clear_button:        boolean,
     text_size:           number,
     subtext_size:        number,
     anchor:              Vector2,
     width:               UDim,
     position:            UDim2,
+    display_order:       number,
 }
 ```

@@ -321,7 +321,7 @@ local function set_permission_options(options: PermissionOptions)
 		opts.default_roles = table.clone(options.default_roles)
 	end
 
-	for _, callback in options_callbacks do
+	for _, callback in table.clone(options_callbacks) do
 		callback(opts)
 	end
 end

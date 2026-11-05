@@ -16,7 +16,9 @@ local function mount(keys: { Enum.KeyCode }?)
 	end
 	mounted = true
 
-	state.activation_keys(keys or { Enum.KeyCode.F2 })
+	if keys then
+		state.activation_keys(keys)
+	end
 
 	vide.mount(function()
 		px.mount()

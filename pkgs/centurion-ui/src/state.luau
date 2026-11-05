@@ -10,7 +10,7 @@ return {
 	logs = source({} :: { types.Log }),
 
 	-- options
-	activation_keys = source({}),
+	activation_keys = source({ Enum.KeyCode.F2 }),
 	hide_on_lost_focus = source(true),
 	theme = source(theme.themes.mocha),
 	font = source(Font.fromId(16658246179)),

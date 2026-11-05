@@ -246,8 +246,9 @@ centurion.execute_command(executor: Player, name: string, args: { string }?, inp
 Executes a command programmatically. If executed on the client, server-side commands are forwarded to the server via the network handler.
 
 Execution runs the permission check, then global guards, then the command's guards, then transforms the arguments and calls the callback.
-The returned context's `response` holds the outcome. An unknown command, or one the executor can't run while `hide` is enabled, returns a
-context with no response.
+The returned context's `response` holds the outcome. An unknown command, or one the executor can't run while `hide` is enabled, fails
+with `Unknown command`, so a hidden command can't be told apart from one that doesn't exist. A command that runs without replying
+returns a context with no response.
 
 `input` is the raw, untokenized string the executor submitted, and is what `ctx.input` reports. Omit it and `ctx.input` is rebuilt by
 joining `name` and `args` with spaces, which loses quoting - `say "hello world"` comes back as `say hello world`. The terminal UI always
@@ -644,7 +645,7 @@ centurion.set_permission_options(options: PermissionOptions)
 
 | Option | Default | Description |
 | --- | --- | --- |
-| `hide` | `true` | When `true`, commands the player cannot execute are hidden entirely rather than returning an error, and aren't synced to their client. |
+| `hide` | `true` | When `true`, commands the player cannot execute fail with `Unknown command` rather than a permission error, and aren't synced to their client. |
 | `default_roles` | `nil` | Roles every player has on top of their assigned roles. They aren't part of a player's roles, so `set_roles` can't remove them and `get_roles` doesn't return them. Errors if any role does not exist. |
 | `deny_unrestricted` | `false` | When `true`, commands without any `roles` or `permissions` can't be executed by anyone. Only applies on the server; client commands are unaffected. |
 
@@ -815,4 +816,3 @@ centurion.sync.client() -> {
 Creates a client-side syncer. Call `sync(payload)` with each payload received from the server to apply state changes locally.
 An `"init"` payload replaces every command previously synced from the server; a `"patch"` payload adds, replaces or removes individual commands.
 Commands registered on the client are never replaced or removed by a sync. If a synced command has the same name as one, the client's command is kept and a warning is logged.
-

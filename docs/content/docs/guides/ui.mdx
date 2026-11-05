@@ -81,16 +81,18 @@ CenturionUI.configure({
 | `activation_keys` | `KeyCode[]` | Keys used to open or close the terminal |
 | `theme` | `Theme` | The terminal's color theme |
 | `font` | `Font` | Font used for all terminal text |
-| `icon` | `string` | Asset ID of the icon shown in the terminal |
-| `transparency` | `number` | Background transparency of the terminal (default: 0.2) |
+| `transparency` | `number` | Background transparency of the terminal (default: 0.1) |
 | `text_size` | `number` | Primary text size |
 | `subtext_size` | `number` | Secondary text size (command/argument descriptions) |
 | `visible_suggestions` | `number` | Number of autocomplete entries visible at once; more can be scrolled to (default: 5) |
 | `max_suggestions` | `number` | Maximum number of autocomplete entries that can be scrolled through (default: 50) |
+| `header_title` | `string` | Title shown in the terminal header (default: "Centurion") |
+| `header_icon` | `string` | Asset ID of the icon shown in the terminal header; `""` hides it |
 | `clear_button` | `boolean` | Show a button in the header that clears the command log (default: false) |
 | `anchor` | `Vector2` | Anchor point of the terminal window |
 | `position` | `UDim2` | Position of the terminal window |
 | `width` | `UDim` | Width of the terminal window |
+| `display_order` | `number` | `DisplayOrder` of the terminal's `ScreenGui` (default: 1000) |
 | `format_date` | `(log) -> string` | Custom timestamp formatter for log entries |
 
 ## Built-in Commands

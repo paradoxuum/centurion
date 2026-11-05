@@ -245,8 +245,8 @@ set_permission_options({
 
 ## Hiding Unauthorized Commands
 
-By default (`hide = true`), commands that a player cannot execute are hidden silently - no error is shown.
-Set `hide` to false if you want to display an explicit "no permission" error instead.
+By default (`hide = true`), commands that a player cannot execute are hidden: running one fails with `Unknown command`, exactly as if
+it didn't exist. Set `hide` to false if you want to display an explicit "no permission" error instead.
 
 With the built-in networking, `hide` also controls which commands are synced to each client: a hidden command never reaches the client
 at all, and is synced or removed as the player's roles change.
