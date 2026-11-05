@@ -1,4 +1,5 @@
 local argument = require("./.")
+local finite = require("./finite")
 local result = require("../result")
 local types = require("../types")
 
@@ -8,8 +9,8 @@ local vector2 = argument.register_list_type("vector2", {
 			return result.error("Vector must have 2 components.")
 		end
 
-		local x = tonumber(text[1])
-		local y = tonumber(text[2])
+		local x = finite(text[1])
+		local y = finite(text[2])
 
 		if not x or not y then
 			return result.error("All vector components must be valid numbers.")
@@ -24,9 +25,9 @@ local vector3 = argument.register_list_type("vector3", {
 			return result.error("Vector must have 3 components.")
 		end
 
-		local x = tonumber(text[1])
-		local y = tonumber(text[2])
-		local z = tonumber(text[3])
+		local x = finite(text[1])
+		local y = finite(text[2])
+		local z = finite(text[3])
 
 		if not x or not y or not z then
 			return result.error("All vector components must be valid numbers.")

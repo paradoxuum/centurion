@@ -1,4 +1,5 @@
 local argument = require("./.")
+local finite = require("./finite")
 local result = require("../result")
 local types = require("../types")
 
@@ -12,7 +13,7 @@ local str = register("string", {
 
 local number = register("number", {
 	transform = function(value: string): types.Result<number>
-		local num = tonumber(value)
+		local num = finite(value)
 		if num == nil then
 			return result.error(`'{value}' is not a number`)
 		end
@@ -22,7 +23,7 @@ local number = register("number", {
 
 local int = register("integer", {
 	transform = function(value: string): types.Result<number>
-		local num = tonumber(value)
+		local num = finite(value)
 		if num == nil or math.floor(num) ~= num then
 			return result.error(`'{value}' is not an integer`)
 		end

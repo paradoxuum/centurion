@@ -34,6 +34,9 @@ TEST("duration", function()
 	CASE("unknown unit is rejected")
 	CHECK(parse("5mx") == nil)
 
+	CASE("overflowing to infinity is rejected")
+	CHECK(parse(string.rep("9", 400) .. "y") == nil)
+
 	CASE("missing unit is rejected")
 	CHECK(parse("10") == nil)
 	CHECK(parse("") == nil)

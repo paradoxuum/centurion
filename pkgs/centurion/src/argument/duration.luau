@@ -45,6 +45,11 @@ local duration = argument.register_type("duration", {
 			return result.error(`Invalid duration format: {value}`)
 		end
 
+		-- a long enough run of digits overflows to infinity
+		if total_seconds == math.huge then
+			return result.error(`Duration is too long: {value}`)
+		end
+
 		return result.success(total_seconds)
 	end,
 	suggestions = function(_value: string, _executor: Player): { string }

@@ -1,5 +1,6 @@
 --!nonstrict
 local argument = require("./.")
+local finite = require("./finite")
 local result = require("../result")
 local types = require("../types")
 
@@ -250,9 +251,9 @@ local rgb_color = argument.register_list_type("rgb_color", {
 			return result.error("RGB color must have exactly 3 components.")
 		end
 
-		local r = tonumber(text[1])
-		local g = tonumber(text[2])
-		local b = tonumber(text[3])
+		local r = finite(text[1])
+		local g = finite(text[2])
+		local b = finite(text[3])
 
 		if not r or not g or not b then
 			return result.error("All RGB components must be valid numbers.")
