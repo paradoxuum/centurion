@@ -725,6 +725,7 @@ Each event function registers a callback and returns a cleanup function that dis
 centurion.events.on_command_register(callback: (name: string, command: Command<unknown>) -> ())   -> () -> ()
 centurion.events.on_command_unregister(callback: (name: string, command: Command<unknown>) -> ()) -> () -> ()
 centurion.events.on_command_execute(callback: (ctx: ExecutionContext) -> ())                      -> () -> ()
+centurion.events.on_command_fail(callback: (ctx: ExecutionContext, reason: FailReason) -> ())    -> () -> ()
 centurion.events.on_roles_changed(player: Player, callback: (roles: { string }) -> ())            -> () -> ()
 ```
 
@@ -733,7 +734,25 @@ centurion.events.on_roles_changed(player: Player, callback: (roles: { string }) 
 | `on_command_register` | A command is added with `register_command`. Fires once per name, including each alias |
 | `on_command_unregister` | A command is removed with `unregister_command`. Fires once per name removed, including each alias |
 | `on_command_execute` | A command's callback runs successfully. Doesn't fire if a permission check, guard, argument or the callback fails |
+| `on_command_fail` | A command is stopped before or while running. `reason` is the step it stopped at, see below |
 | `on_roles_changed` | A specific player's roles change via `set_roles`, `add_roles`, or `remove_roles`. Changing default roles doesn't fire it |
+
+```lua
+type FailReason = "unknown" | "permission" | "guard" | "arguments" | "callback"
+```
+
+| Reason | The command was stopped because |
+| --- | --- |
+| `unknown` | No command has that name |
+| `permission` | The executor's roles don't allow it, including when `hide` makes it look like an unknown command |
+| `guard` | A guard returned `false`, threw, or isn't registered |
+| `arguments` | An argument was invalid, or a transform threw |
+| `callback` | The callback threw |
+
+`ctx.response` holds the error the executor was sent. Requests rejected by [`set_execute_limits`](#set_execute_limits) never reach a
+command, so they don't fire `on_command_fail`.
+
+Both events fire where the command is executed. A command run from the client that executes on the server fires them on the server.
 
 ---
 

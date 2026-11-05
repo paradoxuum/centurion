@@ -313,3 +313,4 @@ disconnect();
 | `on_command_register` | `name, command` | A command is added to the registry. Fires once for each of its names, so a command with aliases fires once per alias. |
 | `on_command_unregister` | `name, command` | A command is removed from the registry. Fires once for each name removed, including aliases. |
 | `on_command_execute` | `ctx` | A command's callback runs successfully. Doesn't fire if a permission check, guard, argument or the callback fails. |
+| `on_command_fail` | `ctx, reason` | A command is stopped before or while running, e.g. by a permission check. `reason` is `"unknown"`, `"permission"`, `"guard"`, `"arguments"` or `"callback"`, and `ctx.response` holds the error the executor was sent. See [`on_command_fail`](/docs/reference/centurion#events). |

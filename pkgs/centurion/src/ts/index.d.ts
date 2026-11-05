@@ -70,6 +70,8 @@ export interface ExecutionContext {
 
 export type GuardCallback = (context: ExecutionContext) => boolean;
 
+export type FailReason = "unknown" | "permission" | "guard" | "arguments" | "callback";
+
 export type PermissionRole = {
 	name: string;
 	permissions: Set<string>;
@@ -278,5 +280,6 @@ export const events: {
 	on_command_register: (callback: (name: string, command: CommandData<unknown[]>) => void) => () => void;
 	on_command_unregister: (callback: (name: string, command: CommandData<unknown[]>) => void) => () => void;
 	on_command_execute: (callback: (ctx: ExecutionContext) => void) => () => void;
+	on_command_fail: (callback: (ctx: ExecutionContext, reason: FailReason) => void) => () => void;
 	on_roles_changed: (player: Player, callback: (roles: string[]) => void) => () => void;
 };

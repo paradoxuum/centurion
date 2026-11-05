@@ -72,6 +72,8 @@ export type ExecutionContext = {
 
 export type Guard = (context: ExecutionContext) -> boolean
 
+export type FailReason = "unknown" | "permission" | "guard" | "arguments" | "callback"
+
 export type Response = {
 	success: boolean,
 	message: string,

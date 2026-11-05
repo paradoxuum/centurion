@@ -31,6 +31,7 @@ export type Err = types.Err
 export type Result<T = unknown> = types.Result<T>
 export type Context = types.ExecutionContext
 export type Response = types.Response
+export type FailReason = types.FailReason
 
 export type ArgumentRange = argument.ArgumentRange
 export type ExecuteLimits = limit.ExecuteLimits
@@ -120,6 +121,7 @@ return {
 		on_command_register = command.on_register,
 		on_command_unregister = command.on_unregister,
 		on_command_execute = command.on_execute,
+		on_command_fail = command.on_fail,
 		on_roles_changed = permission.on_roles_changed,
 	},
 }

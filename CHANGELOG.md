@@ -19,14 +19,18 @@ See the [migration guide](https://centurion.paradoxum.dev/docs/guides/migration)
 - Global guards are added with `add_global_guard`, which returns a function that removes the guard, instead of being passed through config.
 - Guards must return `true` to pass. A guard that returns anything other than a boolean denies execution and logs a warning.
 - The `shortcuts` command option is removed. Use `execute_command` with UserInputService instead.
+- The `*` and `**` shorthands for `@all` and `@others` are removed.
 
 **New**
 
 - Built-in roles and permissions with inheritance (`create_role`, `update_role`, `delete_role`, `set_roles`, `add_roles`, `remove_roles`, `can_execute`, `has_permission`). A role that inherits from another gets its permissions and satisfies commands that require it. Default roles apply to every player on top of their assigned roles.
 - Players are only synced the commands they're allowed to run, and stay up to date as commands or roles change.
 - `args.vector2`, `args.vector3` and `args.rgb_color` argument types, plus `create_enum` and `register_list_type` for custom types.
+- `args.fuzzy_player` and `args.fuzzy_players` match display names and the start of a name as well as usernames, and reject input that matches more than one player. `args.player` and `args.players` still only match exact usernames, but now name the username to type when a display name or prefix would have matched.
+- Suggestions can be tables with a `description` shown next to them and `aliases` they can also be found by. Player suggestions show display names, and typing a display name finds them.
+- Unknown commands respond with `Unknown command`, as do commands the player can't run when `hide` is set (the default).
 - Command definitions are validated at registration, so unknown argument types, optional arguments before required ones, misplaced `rest` arguments, unknown guards, unknown roles and role restrictions on client-registered commands are load-time errors. Registering a role twice is also an error.
-- `on_command_register`, `on_command_unregister`, `on_command_execute` and `on_roles_changed` events.
+- `on_command_register`, `on_command_unregister`, `on_command_execute`, `on_command_fail` and `on_roles_changed` events. `on_command_fail` reports commands stopped by a missing command, a permission check, a guard, an invalid argument or a callback error, with the reason.
 - Execute requests from clients are rate limited and size capped, configurable with `set_execute_limits`.
 - `set_logger` to route warnings and errors elsewhere. Errors thrown by guards and commands are logged with a traceback.
 - `unregister_command`, `unregister_guard`, `parse_text`, `resolve_command`, `transform_args`, `transform_arg` and `assign_args` are exported.
@@ -45,6 +49,7 @@ See the [migration guide](https://centurion.paradoxum.dev/docs/guides/migration)
 - A full usage line for the current command with the current argument highlighted.
 - Suggestion navigation, clickable suggestions and matched characters highlighted in suggestions.
 - Subcommands are suggested alongside a command's first argument.
+- Argument suggestions show their description, and can be found by their aliases.
 - A spinner and `Running <command>...` placeholder while a command yields.
 - Click a history entry to reuse its command.
 - Long output wraps, and history only scrolls to new output when already at the bottom.

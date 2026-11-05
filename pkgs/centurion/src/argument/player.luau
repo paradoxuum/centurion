@@ -61,6 +61,23 @@ local function random_player(): types.Result<Player>
 	return result.success(players[math.random(1, #players)])
 end
 
+local function match(text: string, tiers: { Tier }): { Player }
+	local players = services.Players:GetPlayers()
+	for _, tier in tiers do
+		local found = {}
+		for _, player in players do
+			if tier(player, text) then
+				table.insert(found, player)
+			end
+		end
+
+		if #found > 0 then
+			return found
+		end
+	end
+	return {}
+end
+
 local function find_player(text: string, executor: Player, tiers: { Tier }): types.Result<Player>
 	local lower = text:lower()
 	if lower == "@me" or lower == "." then
@@ -76,19 +93,18 @@ local function find_player(text: string, executor: Player, tiers: { Tier }): typ
 		return not_found(text)
 	end
 
-	local players = services.Players:GetPlayers()
-	for _, tier in tiers do
-		local found = {}
-		for _, player in players do
-			if tier(player, lower) then
-				table.insert(found, player)
-			end
-		end
+	local found = match(lower, tiers)
+	if #found == 1 then
+		return result.success(found[1])
+	elseif #found > 1 then
+		return ambiguous(text, found)
+	end
 
-		if #found == 1 then
-			return result.success(found[1])
-		elseif #found > 1 then
-			return ambiguous(text, found)
+	-- point strict lookups at the username to type, without matching it
+	if tiers ~= fuzzy_tiers then
+		local close = match(lower, fuzzy_tiers)
+		if #close == 1 then
+			return result.error(`Player '{text}' not found. Did you mean {close[1].Name}?`)
 		end
 	end
 

@@ -89,6 +89,8 @@ arguments: () => [args.player("target"), args.string("message")],
 
 `args.player` and `args.players` only match a player's exact username, ignoring case. Usernames are unique and can't change mid-game,
 so if the player you meant has left, the argument is rejected rather than matching someone else. Use them for commands like kick or ban.
+If a display name or the start of a name would have matched exactly one player, the error names their username, e.g.
+`Player 'kenji' not found. Did you mean Zed?`, but the command doesn't run.
 
 `args.fuzzy_player` and `args.fuzzy_players` also match display names and the start of a name, which is quicker to type. These are tried
 in order, and the first that matches anyone decides:

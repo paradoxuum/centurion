@@ -13,6 +13,7 @@ type RegisterCallback = (name: string, command: types.Command<unknown>) -> ()
 local on_register_callbacks: { RegisterCallback } = {}
 local on_unregister_callbacks: { RegisterCallback } = {}
 local on_execute_callbacks: { (ctx: types.ExecutionContext) -> () } = {}
+local on_fail_callbacks: { (ctx: types.ExecutionContext, reason: types.FailReason) -> () } = {}
 
 type NetworkHandler = (command: string, args: { string }?, input: string?) -> types.ExecutionContext
 
@@ -20,6 +21,26 @@ local network_handler: NetworkHandler?
 
 local function set_network_handler(callback: NetworkHandler)
 	network_handler = callback
+end
+
+local function notify(event: string, listeners: { (...any) -> () }, ctx: types.ExecutionContext, ...: any)
+	for _, callback in table.clone(listeners) do
+		local ok, err = xpcall(callback :: any, log.capture, ctx, ...)
+		if not ok then
+			local caught: log.CaughtError = err
+			log.error(`{event} listener failed for '{ctx.input}': {caught.message}`, {
+				executor = ctx.executor,
+				command = ctx.command,
+				input = ctx.input,
+				traceback = caught.traceback,
+			})
+		end
+	end
+end
+
+local function fail(ctx: types.ExecutionContext, reason: types.FailReason): types.ExecutionContext
+	notify("on_command_fail", on_fail_callbacks :: any, ctx, reason)
+	return ctx
 end
 
 local function call_guard(ctx: types.ExecutionContext, name: string, callback: (ctx: types.ExecutionContext) -> boolean)
@@ -64,7 +85,7 @@ local function execute(executor: Player, name: string, args: { string }?, input:
 	if not command then
 		local ctx = context(executor, name, args or {}, input)
 		ctx.error("Unknown command")
-		return ctx
+		return fail(ctx, "unknown")
 	end
 
 	if not permission.can_execute(executor, command) then
@@ -76,7 +97,7 @@ local function execute(executor: Player, name: string, args: { string }?, input:
 			ctx.error("You do not have permission to execute this command.")
 		end
 
-		return ctx
+		return fail(ctx, "permission")
 	end
 
 	if not command.callback then
@@ -91,7 +112,7 @@ local function execute(executor: Player, name: string, args: { string }?, input:
 	-- guard) mid-loop can't cause the next one to be skipped
 	for i, v in table.clone(guard.global_guards) do
 		if not call_guard(ctx, `global guard #{i}`, v) then
-			return ctx
+			return fail(ctx, "guard")
 		end
 	end
 
@@ -99,7 +120,7 @@ local function execute(executor: Player, name: string, args: { string }?, input:
 		for i, cmd_guard in command.guards do
 			if type(cmd_guard) ~= "string" then
 				if not call_guard(ctx, `guard #{i}`, cmd_guard :: types.Guard) then
-					return ctx
+					return fail(ctx, "guard")
 				end
 				continue
 			end
@@ -115,11 +136,11 @@ local function execute(executor: Player, name: string, args: { string }?, input:
 					guard = cmd_guard,
 				})
 				ctx.error("Failed to execute command.")
-				return ctx
+				return fail(ctx, "guard")
 			end
 
 			if not call_guard(ctx, cmd_guard, guard_callback) then
-				return ctx
+				return fail(ctx, "guard")
 			end
 		end
 	end
@@ -142,12 +163,12 @@ local function execute(executor: Player, name: string, args: { string }?, input:
 			traceback = caught.traceback,
 		})
 		ctx.error("Failed to execute command.")
-		return ctx
+		return fail(ctx, "arguments")
 	end
 
 	if not res.success then
 		ctx.error(res.error)
-		return ctx
+		return fail(ctx, "arguments")
 	end
 
 	-- unpack up to the declared argument count so that omitted optional
@@ -162,29 +183,14 @@ local function execute(executor: Player, name: string, args: { string }?, input:
 			traceback = caught.traceback,
 		})
 		ctx.error("Failed to execute command.")
-		return ctx
+		return fail(ctx, "callback")
 	end
 
 	if type(value) == "string" then
 		ctx.reply(value)
 	end
 
-	-- the command has already run, so a broken listener is logged rather than
-	-- allowed to stop the response being returned. cloned so that a listener
-	-- removing itself can't cause the next one to be skipped
-	for _, callback in table.clone(on_execute_callbacks) do
-		local ok, err = xpcall(callback :: any, log.capture, ctx)
-		if not ok then
-			local caught: log.CaughtError = err
-			log.error(`on_command_execute listener failed for '{ctx.input}': {caught.message}`, {
-				executor = executor,
-				command = name,
-				input = ctx.input,
-				traceback = caught.traceback,
-			})
-		end
-	end
-
+	notify("on_command_execute", on_execute_callbacks :: any, ctx)
 	return ctx
 end
 
@@ -348,6 +354,17 @@ local function on_execute(callback: (ctx: types.ExecutionContext) -> ())
 	end
 end
 
+local function on_fail(callback: (ctx: types.ExecutionContext, reason: types.FailReason) -> ())
+	table.insert(on_fail_callbacks, callback)
+
+	return function()
+		local index = table.find(on_fail_callbacks, callback)
+		if index then
+			table.remove(on_fail_callbacks, index)
+		end
+	end
+end
+
 return {
 	set_network_handler = set_network_handler,
 	execute = execute,
@@ -357,6 +374,7 @@ return {
 	on_register = on_register,
 	on_unregister = on_unregister,
 	on_execute = on_execute,
+	on_fail = on_fail,
 	commands = commands,
 	check_arity = check_arity,
 }

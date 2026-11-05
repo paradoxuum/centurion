@@ -610,6 +610,71 @@ TEST("register events", function()
 	stop_unregister()
 end)
 
+TEST("fail events", function()
+	local failures: { string } = {}
+	local executed: { string } = {}
+	local stop_fail = centurion.events.on_command_fail(function(ctx, reason)
+		table.insert(failures, `{ctx.command}:{reason}`)
+	end)
+	local stop_execute = centurion.events.on_command_execute(function(ctx)
+		table.insert(executed, ctx.command)
+	end)
+
+	local remove_guard = centurion.add_global_guard(function(ctx)
+		return ctx.command ~= "guarded_echo"
+	end)
+	centurion.register_command("guarded_echo", {
+		callback = function() end,
+	})
+	centurion.register_command("broken", {
+		callback = function()
+			error("boom")
+		end,
+	})
+
+	local function run(executor: Player, name: string, args: { string }?): string
+		table.clear(failures)
+		table.clear(executed)
+		centurion.execute_command(executor, name, args)
+		return table.concat(failures, ",")
+	end
+
+	-- keep the callback's error out of the test output
+	centurion.set_logger(function() end)
+	centurion.set_roles(bob, {})
+
+	CASE("each step a command can stop at is reported")
+	CHECK(run(bob, "no_such_command") == "no_such_command:unknown")
+	CHECK(run(bob, "kick", { "Alice" }) == "kick:permission")
+	CHECK(run(alice, "guarded_echo") == "guarded_echo:guard")
+	CHECK(run(alice, "join", { "Blue" }) == "join:arguments")
+	CHECK(run(alice, "broken") == "broken:callback")
+
+	CASE("a failed command doesn't fire on_command_execute")
+	CHECK(#executed == 0)
+
+	CASE("a successful command fires on_command_execute only")
+	CHECK(run(alice, "echo", { "hi" }) == "" and executed[1] == "echo")
+
+	CASE("a broken listener doesn't stop the response")
+	local stop_broken = centurion.events.on_command_fail(function()
+		error("listener")
+	end)
+	local ctx = centurion.execute_command(alice, "no_such_command")
+	CHECK(message(ctx) == "Unknown command")
+	stop_broken()
+
+	CASE("disconnecting stops the events")
+	stop_fail()
+	CHECK(run(alice, "no_such_command") == "")
+
+	centurion.set_logger(nil)
+	stop_execute()
+	remove_guard()
+	centurion.unregister_command("guarded_echo")
+	centurion.unregister_command("broken")
+end)
+
 TEST("updating roles", function()
 	centurion.create_role("helper", { permissions = { "warn" } })
 	centurion.create_role("senior_helper", { inherits = { "helper" } })

@@ -125,10 +125,14 @@ TEST("strict player matching", function()
 	CHECK(find("kESTREL", player_arg) == kestrel)
 	CHECK(find("mira", player_arg) == mira)
 
-	CASE("display names and prefixes don't match")
-	CHECK(find_error("kenji", player_arg) == "Player 'kenji' not found.")
-	CHECK(find("kes", player_arg) == nil)
-	CHECK(find("nova", player_arg) == nil)
+	CASE("display names and prefixes don't match, but suggest the username")
+	CHECK(find_error("kenji", player_arg) == "Player 'kenji' not found. Did you mean Zed?")
+	CHECK(find_error("kes", player_arg) == "Player 'kes' not found. Did you mean Kestrel?")
+
+	CASE("no username is suggested when several players are close")
+	CHECK(find_error("nova", player_arg) == "Player 'nova' not found.")
+	CHECK(find_error("mir", player_arg) == "Player 'mir' not found.")
+	CHECK(find_error("nobody", player_arg) == "Player 'nobody' not found.")
 
 	CASE("a target who left can't be replaced by someone with a similar name")
 	local spammer = fakes.add_player("Spammer")
@@ -138,6 +142,8 @@ TEST("strict player matching", function()
 	fakes.remove_player(spammer)
 	CHECK(find("spammer", player_arg) == nil)
 	CHECK(find("spammer") == copycat)
+	-- the hint names who would match, but the command still doesn't run
+	CHECK(find_error("spammer", player_arg) == "Player 'spammer' not found. Did you mean Copycat?")
 	fakes.remove_player(fan)
 	fakes.remove_player(copycat)
 

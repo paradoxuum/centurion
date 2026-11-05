@@ -130,6 +130,10 @@ arguments: () => [
 
 `args.vector2`, `args.vector3` and `args.rgb_color` are new in 2.x.
 
+`args.player` and `args.players` still match exact usernames only. The `*` and `**` shorthands for `@all` and `@others` are removed, so
+use `@all` and `@others` instead. To also match display names and the start of a name, use `args.fuzzy_player` and `args.fuzzy_players`.
+See [Matching Players](/docs/guides/arguments#matching-players).
+
 ### `numArgs` and `optional` are now wrapper functions
 
 In 1.x, `numArgs` and `optional` were fields on the argument object. In 2.x, they are wrapper functions imported from the package. `numArgs: n` becomes `num_args(arg, n)`, and `numArgs: "rest"` becomes `rest(arg)`.
