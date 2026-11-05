@@ -107,6 +107,27 @@ player you meant leaves, the same input can match someone else, so avoid these f
 Both are suggested by username, with their display name shown next to it, and typing either finds them in the suggestions. Picking a
 suggestion inserts the username, so it works with either type.
 
+All four accept `@random` and `?`, and the list types accept `@all` and `@others`. For a command like ban, turn these off with
+[options](#type-options): `random = false` rejects `@random` and `?`, and `all = false` rejects `@all` and `@others`. Values that are
+turned off aren't suggested either.
+
+<CodeBlockTabs groupId="lang" defaultValue="luau" persist>
+  <CodeBlockTabsList>
+    <CodeBlockTabsTrigger value="luau">Luau</CodeBlockTabsTrigger>
+    <CodeBlockTabsTrigger value="ts">TypeScript</CodeBlockTabsTrigger>
+  </CodeBlockTabsList>
+  <CodeBlockTab value="luau">
+```lua
+centurion.args.players("targets", "Who to ban", nil, { random = false, all = false })
+```
+  </CodeBlockTab>
+  <CodeBlockTab value="ts">
+```ts
+args.players("targets", "Who to ban", undefined, { random: false, all: false });
+```
+  </CodeBlockTab>
+</CodeBlockTabs>
+
 ### Duration Format
 
 The `duration` type accepts compound duration strings:
@@ -272,7 +293,8 @@ register_command("set_difficulty", {
 
 ## Custom Types
 
-Register a custom argument type with `register_type`. The `transform` function receives the raw string and the executing player, and returns a `Result`.
+Register a custom argument type with `register_type`. The `transform` function receives the raw string, the executing player and the
+argument being transformed, and returns a `Result`.
 In Luau, `centurion.result.ok(value)` and `centurion.result.err(message)` build these for you.
 
 <CodeBlockTabs groupId="lang" defaultValue="luau" persist>
@@ -422,6 +444,62 @@ const tagsType = register_list_type<string[]>("tags", {
     transform: (texts) => ({ success: true, value: texts }),
     suggestions: (text) => ["pvp", "pve", "creative"],
 });
+```
+  </CodeBlockTab>
+</CodeBlockTabs>
+
+### Type Options
+
+A type can take options that change how it handles a single argument. They're passed as the fourth parameter of the declarator, and
+`transform` and `suggestions` receive the argument as their third parameter to read them from. Annotate it with the options type, and
+the declarator only accepts options of that type.
+
+Arguments are synced to the client, so options must be plain data: strings, numbers, booleans and tables of them.
+
+<CodeBlockTabs groupId="lang" defaultValue="luau" persist>
+  <CodeBlockTabsList>
+    <CodeBlockTabsTrigger value="luau">Luau</CodeBlockTabsTrigger>
+    <CodeBlockTabsTrigger value="ts">TypeScript</CodeBlockTabsTrigger>
+  </CodeBlockTabsList>
+  <CodeBlockTab value="luau">
+```lua
+type ClampOptions = { min: number?, max: number? }
+
+local clamped = centurion.register_type("clamped", {
+    transform = function(text: string, _executor: Player, arg: centurion.Argument<ClampOptions>): centurion.Result<number>
+        local n = tonumber(text)
+        if n == nil then
+            return { success = false, error = "Expected a number" }
+        end
+        local options: ClampOptions = arg.options or {}
+        return { success = true, value = math.clamp(n, options.min or -math.huge, options.max or math.huge) }
+    end,
+})
+
+clamped("volume", "The volume", nil, { min = 0, max = 1 })
+```
+  </CodeBlockTab>
+  <CodeBlockTab value="ts">
+```ts
+import { register_type, Argument } from "@rbxts/centurion";
+
+interface ClampOptions {
+    min?: number;
+    max?: number;
+}
+
+const clamped = register_type("clamped", {
+    transform: (text, _executor, arg: Argument<unknown, ClampOptions>) => {
+        const n = tonumber(text);
+        if (n === undefined) {
+            return { success: false, error: "Expected a number" };
+        }
+        const { min = -math.huge, max = math.huge } = arg.options ?? {};
+        return { success: true, value: math.clamp(n, min, max) };
+    },
+});
+
+clamped("volume", "The volume", undefined, { min: 0, max: 1 });
 ```
   </CodeBlockTab>
 </CodeBlockTabs>

@@ -10,14 +10,18 @@ export interface SuggestionData {
 /** A suggestion offered while typing an argument. A string is inserted as-is. */
 export type Suggestion = string | SuggestionData;
 
-/** An argument definition. `T` is the type of value it's passed to the command callback as. */
-export interface Argument<T = unknown> {
+/**
+ * An argument definition. `T` is the type of value it's passed to the command callback as, and `O` is the options its
+ * type accepts. Options are synced to the client with the rest of the argument, so they must be plain data.
+ */
+export interface Argument<T = unknown, O = unknown> {
 	name: string;
 	type: string;
 	optional?: boolean;
 	description?: string;
 	num_args?: number | "rest";
 	suggestions?: Suggestion[];
+	options?: O;
 
 	/** Type-only marker for the value this argument produces. Never exists at runtime. */
 	readonly [argumentValue]?: T;
@@ -83,21 +87,36 @@ export interface RoleOptions {
 	inherits?: string[];
 }
 
-export interface SingleArgumentType<T> {
+export interface SingleArgumentType<T, O = unknown> {
 	kind: "single";
-	transform: (text: string, executor: Player) => Result<T>;
-	suggestions?: (text: string, executor: Player) => Suggestion[] | undefined;
+	transform: (text: string, executor: Player, arg: Argument<unknown, O>) => Result<T>;
+	suggestions?: (text: string, executor: Player, arg: Argument<unknown, O>) => Suggestion[] | undefined;
 }
 
-export interface ListArgumentType<T> {
+export interface ListArgumentType<T, O = unknown> {
 	kind: "list";
-	transform: (text: string[], executor: Player) => Result<T>;
-	suggestions?: (text: string, executor: Player) => Suggestion[] | undefined;
+	transform: (text: string[], executor: Player, arg: Argument<unknown, O>) => Result<T>;
+	suggestions?: (text: string, executor: Player, arg: Argument<unknown, O>) => Suggestion[] | undefined;
 }
 
 export type ArgumentType<T> = SingleArgumentType<T> | ListArgumentType<T>;
 
-export type ArgumentFn<T> = (name: string, description?: string, suggestions?: Suggestion[]) => Argument<T>;
+export type ArgumentFn<T, O = unknown> = (
+	name: string,
+	description?: string,
+	suggestions?: Suggestion[],
+	options?: O,
+) => Argument<T, O>;
+
+export interface PlayerOptions {
+	/** Whether `@random` and `?` are accepted. `true` by default. */
+	random?: boolean;
+}
+
+export interface PlayersOptions extends PlayerOptions {
+	/** Whether `@all` and `@others` are accepted. `true` by default. */
+	all?: boolean;
+}
 
 export interface Token {
 	span: vector;
@@ -160,19 +179,26 @@ export function unregister_guard(name: string): void;
 /** Adds a guard that runs before every command. Returns a function that removes it. */
 export function add_global_guard(guard: GuardCallback): () => void;
 
-export function register_type<T>(name: string, argumentFn: Omit<SingleArgumentType<T>, "kind">): ArgumentFn<T>;
+/** `O` is inferred from the type of `arg` in `transform`. */
+export function register_type<T, O = unknown>(
+	name: string,
+	argumentFn: Omit<SingleArgumentType<T, O>, "kind">,
+): ArgumentFn<T, O>;
 
-export function register_list_type<T>(name: string, argumentFn: Omit<ListArgumentType<T>, "kind">): ArgumentFn<T>;
+export function register_list_type<T, O = unknown>(
+	name: string,
+	argumentFn: Omit<ListArgumentType<T, O>, "kind">,
+): ArgumentFn<T, O>;
 
 export function unregister_command(name: string): void;
 
 export function create_enum(values: string[]): Omit<SingleArgumentType<string>, "kind">;
 
-export function optional<T>(arg: Argument<T>): Argument<T | undefined>;
+export function optional<T, O>(arg: Argument<T, O>): Argument<T | undefined, O>;
 
-export function num_args<T>(arg: Argument<T>, count: number): Argument<T[]>;
+export function num_args<T, O>(arg: Argument<T, O>, count: number): Argument<T[], O>;
 
-export function rest<T>(arg: Argument<T>): Argument<T[]>;
+export function rest<T, O>(arg: Argument<T, O>): Argument<T[], O>;
 
 export function transform_args(executor: Player, input: string[], args: Argument[]): Result<unknown[]>;
 
@@ -263,10 +289,10 @@ export const args: {
 	boolean: ArgumentFn<boolean>;
 	number: ArgumentFn<number>;
 	integer: ArgumentFn<number>;
-	player: ArgumentFn<Player>;
-	players: ArgumentFn<Player[]>;
-	fuzzy_player: ArgumentFn<Player>;
-	fuzzy_players: ArgumentFn<Player[]>;
+	player: ArgumentFn<Player, PlayerOptions>;
+	players: ArgumentFn<Player[], PlayersOptions>;
+	fuzzy_player: ArgumentFn<Player, PlayerOptions>;
+	fuzzy_players: ArgumentFn<Player[], PlayersOptions>;
 	brick_color: ArgumentFn<BrickColor>;
 	hex_color: ArgumentFn<Color3>;
 	rgb_color: ArgumentFn<Color3>;

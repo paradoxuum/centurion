@@ -6,52 +6,59 @@ local arg_types: { [string]: types.ArgumentType<unknown> } = {}
 
 -- the declarator returns an `Argument`, but it is typed as the transformed
 -- value so that a command's `arguments()` tuple types its callback parameters
-local function declarator<T>(type_name: string): types.ArgumentFn<T>
-	local function create(name: string, description: string?, suggestions: types.SuggestionList?): types.Argument
+local function declarator<T, O>(type_name: string): types.ArgumentFn<T, O>
+	local function create(
+		name: string,
+		description: string?,
+		suggestions: types.SuggestionList?,
+		options: O?
+	): types.Argument<O>
 		return {
 			name = name,
 			description = description,
 			type = type_name,
 			optional = false,
 			suggestions = suggestions,
+			options = options,
 		}
 	end
 
-	return (create :: any) :: types.ArgumentFn<T>
+	return (create :: any) :: types.ArgumentFn<T, O>
 end
 
-local function register_type<T>(
+-- `O` is inferred from the type of `arg` in `transform`
+local function register_type<T, O>(
 	type_name: string,
 	data: {
-		transform: (text: string, executor: Player) -> types.Result<T>,
-		suggestions: ((text: string, executor: Player) -> types.SuggestionList)?,
+		transform: (text: string, executor: Player, arg: types.Argument<O>) -> types.Result<T>,
+		suggestions: ((text: string, executor: Player, arg: types.Argument<O>) -> types.SuggestionList)?,
 	}
-): types.ArgumentFn<T>
+): types.ArgumentFn<T, O>
 	assert(arg_types[type_name] == nil, `Argument type '{type_name}' is already registered.`)
 
 	arg_types[type_name] = {
 		kind = "single",
 		transform = data.transform,
 		suggestions = data.suggestions,
-	} :: types.SingleArgumentType<T>
+	} :: any
 
 	return declarator(type_name)
 end
 
-local function register_list_type<T>(
+local function register_list_type<T, O>(
 	type_name: string,
 	data: {
-		transform: (text: { string }, executor: Player) -> types.Result<T>,
-		suggestions: ((text: string, executor: Player) -> types.SuggestionList)?,
+		transform: (text: { string }, executor: Player, arg: types.Argument<O>) -> types.Result<T>,
+		suggestions: ((text: string, executor: Player, arg: types.Argument<O>) -> types.SuggestionList)?,
 	}
-): types.ArgumentFn<T>
+): types.ArgumentFn<T, O>
 	assert(arg_types[type_name] == nil, `Argument type '{type_name}' is already registered.`)
 
 	arg_types[type_name] = {
 		kind = "list",
 		transform = data.transform,
 		suggestions = data.suggestions,
-	} :: types.ListArgumentType<T>
+	} :: any
 
 	return declarator(type_name)
 end
@@ -125,10 +132,10 @@ local function transform_value(executor: Player, arg: types.Argument, raw: strin
 	end
 
 	if arg_type.kind == "single" then
-		return arg_type.transform(parsed_text[1] or "", executor)
+		return arg_type.transform(parsed_text[1] or "", executor, arg)
 	end
 
-	return arg_type.transform(parsed_text, executor)
+	return arg_type.transform(parsed_text, executor, arg)
 end
 
 local function transform(executor: Player, input: { string }, args: { types.Argument }): types.Result<{ unknown }>

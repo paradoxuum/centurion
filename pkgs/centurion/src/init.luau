@@ -16,9 +16,9 @@ local team = require("@self/argument/team")
 local types = require("@self/types")
 local vector = require("@self/argument/vector")
 
-export type Argument = types.Argument
+export type Argument<O = any> = types.Argument<O>
 export type ArgumentType<T = unknown> = types.ArgumentType<T>
-export type ArgumentFn<T> = types.ArgumentFn<T>
+export type ArgumentFn<T, O = any> = types.ArgumentFn<T, O>
 export type Suggestion = types.Suggestion
 export type SuggestionData = types.SuggestionData
 export type SuggestionList = types.SuggestionList
@@ -32,6 +32,8 @@ export type Result<T = unknown> = types.Result<T>
 export type Context = types.ExecutionContext
 export type Response = types.Response
 export type FailReason = types.FailReason
+export type PlayerOptions = player.PlayerOptions
+export type PlayersOptions = player.PlayersOptions
 
 export type ArgumentRange = argument.ArgumentRange
 export type ExecuteLimits = limit.ExecuteLimits

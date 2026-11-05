@@ -78,14 +78,29 @@ local function match(text: string, tiers: { Tier }): { Player }
 	return {}
 end
 
-local function find_player(text: string, executor: Player, tiers: { Tier }): types.Result<Player>
+export type PlayerOptions = {
+	-- whether `@random` and `?` are accepted. true by default
+	random: boolean?,
+}
+
+export type PlayersOptions = {
+	random: boolean?,
+	-- whether `@all` and `@others` are accepted. true by default
+	all: boolean?,
+}
+
+local function not_allowed(text: string): types.Err
+	return result.error(`'{text}' can't be used here.`)
+end
+
+local function find_player(text: string, executor: Player, tiers: { Tier }, random: boolean): types.Result<Player>
 	local lower = text:lower()
 	if lower == "@me" or lower == "." then
 		return result.success(executor)
 	end
 
 	if lower == "@random" or lower == "?" then
-		return random_player()
+		return if random then random_player() else not_allowed(text)
 	end
 
 	-- an empty prefix would match everyone
@@ -111,9 +126,22 @@ local function find_player(text: string, executor: Player, tiers: { Tier }): typ
 	return not_found(text)
 end
 
+local ME: types.SuggestionData = { text = "@me", description = "Yourself" }
+local RANDOM: types.SuggestionData = { text = "@random", description = "A random player" }
+local ALL: types.SuggestionData = { text = "@all", description = "Every player" }
+local OTHERS: types.SuggestionData = { text = "@others", description = "Every player except you" }
+
 -- usernames are inserted since they're unique, but can be found by display name
-local function player_suggestions(specials: { types.SuggestionData }): { types.Suggestion }
-	local suggestions: { types.Suggestion } = table.clone(specials) :: any
+local function player_suggestions(random: boolean, all: boolean): { types.Suggestion }
+	local suggestions: { types.Suggestion } = { ME }
+	if random then
+		table.insert(suggestions, RANDOM)
+	end
+	if all then
+		table.insert(suggestions, ALL)
+		table.insert(suggestions, OTHERS)
+	end
+
 	for _, player in services.Players:GetPlayers() do
 		if player.DisplayName == player.Name then
 			table.insert(suggestions, player.Name)
@@ -128,38 +156,39 @@ local function player_suggestions(specials: { types.SuggestionData }): { types.S
 	return suggestions
 end
 
-local player_specials: { types.SuggestionData } = {
-	{ text = "@me", description = "Yourself" },
-	{ text = "@random", description = "A random player" },
-}
-
-local players_specials: { types.SuggestionData } = {
-	{ text = "@me", description = "Yourself" },
-	{ text = "@random", description = "A random player" },
-	{ text = "@all", description = "Every player" },
-	{ text = "@others", description = "Every player except you" },
-}
-
 local function register_types(single: string, list: string, tiers: { Tier })
 	local single_type = register(single, {
-		transform = function(value: string, executor: Player): types.Result<Player>
-			return find_player(value, executor, tiers)
+		transform = function(value: string, executor: Player, arg: types.Argument<PlayerOptions>): types.Result<Player>
+			local options: PlayerOptions = arg.options or {}
+			return find_player(value, executor, tiers, options.random ~= false)
 		end,
-		suggestions = function(_value: string, _executor: Player)
-			return player_suggestions(player_specials)
+		suggestions = function(_value: string, _executor: Player, arg: types.Argument<PlayerOptions>)
+			local options: PlayerOptions = arg.options or {}
+			return player_suggestions(options.random ~= false, false)
 		end,
 	})
 
 	local list_type = argument.register_list_type(list, {
-		transform = function(input: { string }, executor: Player): types.Result<{ Player }>
+		transform = function(
+			input: { string },
+			executor: Player,
+			arg: types.Argument<PlayersOptions>
+		): types.Result<{ Player }>
+			local options: PlayersOptions = arg.options or {}
+			local all = options.all ~= false
+
 			local player_map = {}
 			for _, text in input do
 				local text_lower = text:lower()
-				if text_lower == "@all" then
-					return result.success(services.Players:GetPlayers())
-				end
+				if text_lower == "@all" or text_lower == "@others" then
+					if not all then
+						return not_allowed(text)
+					end
 
-				if text_lower == "@others" then
+					if text_lower == "@all" then
+						return result.success(services.Players:GetPlayers())
+					end
+
 					for _, p in services.Players:GetPlayers() do
 						if p ~= executor then
 							player_map[p] = true
@@ -168,7 +197,7 @@ local function register_types(single: string, list: string, tiers: { Tier })
 					continue
 				end
 
-				local res = find_player(text, executor, tiers)
+				local res = find_player(text, executor, tiers, options.random ~= false)
 				if not res.success then
 					return res
 				end
@@ -181,8 +210,9 @@ local function register_types(single: string, list: string, tiers: { Tier })
 			end
 			return result.success(players)
 		end,
-		suggestions = function(_value: string, _executor: Player)
-			return player_suggestions(players_specials)
+		suggestions = function(_value: string, _executor: Player, arg: types.Argument<PlayersOptions>)
+			local options: PlayersOptions = arg.options or {}
+			return player_suggestions(options.random ~= false, options.all ~= false)
 		end,
 	})
 

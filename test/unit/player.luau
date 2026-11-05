@@ -169,9 +169,12 @@ local function suggestion_for(list: centurion.SuggestionList, text: string): cen
 	return nil
 end
 
+local function suggestions_for(arg: centurion.Argument): centurion.SuggestionList
+	return (centurion.registry.types[arg.type].suggestions :: any)("", mira, arg)
+end
+
 TEST("player suggestions", function()
-	local player_type = centurion.registry.types.player
-	local suggestions = (player_type.suggestions :: any)("", mira)
+	local suggestions = suggestions_for(player_arg)
 
 	CASE("a player without a display name is a plain username")
 	CHECK(suggestion_for(suggestions, "Kestrel") == "Kestrel")
@@ -188,13 +191,66 @@ TEST("player suggestions", function()
 	CHECK(suggestion_for(suggestions, "@all") == nil)
 
 	CASE("fuzzy types suggest the same")
-	local fuzzy_suggestions = (centurion.registry.types.fuzzy_player.suggestions :: any)("", mira)
-	CHECK(#fuzzy_suggestions == #suggestions)
+	CHECK(#suggestions_for(fuzzy_player_arg) == #suggestions)
 
 	CASE("the list type also suggests @all and @others")
-	local list_suggestions = (centurion.registry.types.players.suggestions :: any)("", mira)
+	local list_suggestions = suggestions_for(players_arg)
 	CHECK(suggestion_for(list_suggestions, "@all") ~= nil)
 	CHECK(suggestion_for(list_suggestions, "@others") ~= nil)
+end)
+
+TEST("player options", function()
+	local no_random: centurion.Argument = centurion.args.player("target", nil, nil, { random = false }) :: any
+	local no_all: centurion.Argument = centurion.args.players("targets", nil, nil, { all = false }) :: any
+	local list_no_random: centurion.Argument =
+		centurion.args.fuzzy_players("targets", nil, nil, { random = false }) :: any
+
+	CASE("random can be turned off")
+	CHECK(find_error("@random", no_random) == "'@random' can't be used here.")
+	CHECK(find_error("?", no_random) == "'?' can't be used here.")
+	CHECK(find("@me", no_random) == mira and find("kestrel", no_random) == kestrel)
+	CHECK(find_all("@random", list_no_random) == nil)
+
+	CASE("@all and @others can be turned off")
+	local res = centurion.transform_arg(mira, no_all, "kestrel,@all")
+	CHECK(not res.success and res.error == "'@all' can't be used here.")
+	CHECK(find_all("@others", no_all) == nil)
+	local found = find_all("kestrel,zed", no_all)
+	CHECK(found and #found == 2)
+
+	CASE("turned off values aren't suggested")
+	CHECK(suggestion_for(suggestions_for(no_random), "@random") == nil)
+	CHECK(suggestion_for(suggestions_for(no_random), "@me") ~= nil)
+	local list = suggestions_for(no_all)
+	CHECK(suggestion_for(list, "@all") == nil and suggestion_for(list, "@others") == nil)
+	CHECK(suggestion_for(list, "@random") ~= nil)
+
+	CASE("options are kept by wrappers")
+	local wrapped: centurion.Argument =
+		centurion.optional(centurion.args.player("target", nil, nil, { random = false })) :: any
+	CHECK(find_error("@random", wrapped) == "'@random' can't be used here.")
+end)
+
+TEST("transform receives the argument", function()
+	local seen: centurion.Argument? = nil
+	local declare = centurion.register_type("seen_arg", {
+		transform = function(text: string, _executor: Player, arg: centurion.Argument<{ prefix: string }>)
+			seen = arg
+			local prefix = if arg.options then arg.options.prefix else ""
+			return { success = true, value = prefix .. text } :: centurion.Result<string>
+		end,
+	})
+
+	local arg: centurion.Argument = declare("thing", "A thing", nil, { prefix = ">" }) :: any
+	local res = centurion.transform_arg(mira, arg, "x")
+
+	CASE("with its name and options")
+	CHECK(res.success and res.value == ">x")
+	CHECK(seen and seen.name == "thing" and seen.description == "A thing")
+
+	CASE("options are optional")
+	res = centurion.transform_arg(mira, declare("thing") :: any, "x")
+	CHECK(res.success and res.value == "x")
 end)
 
 return nil

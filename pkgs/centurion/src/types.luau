@@ -34,30 +34,36 @@ export type Suggestion = string | SuggestionData
 
 export type SuggestionList = { read [number]: Suggestion }
 
-export type Argument = {
+export type Argument<O = any> = {
 	name: string,
 	type: string,
 	optional: boolean?,
 	description: string?,
 	num_args: (number | "rest")?,
 	suggestions: SuggestionList?,
+	options: O?,
 }
 
 export type SingleArgumentType<T = unknown> = {
 	kind: "single",
-	transform: (text: string, executor: Player) -> Result<T>,
-	suggestions: ((text: string, executor: Player) -> SuggestionList)?,
+	transform: (text: string, executor: Player, arg: Argument) -> Result<T>,
+	suggestions: ((text: string, executor: Player, arg: Argument) -> SuggestionList)?,
 }
 
 export type ListArgumentType<T = unknown> = {
 	kind: "list",
-	transform: (text: { string }, executor: Player) -> Result<T>,
-	suggestions: ((text: string, executor: Player) -> SuggestionList)?,
+	transform: (text: { string }, executor: Player, arg: Argument) -> Result<T>,
+	suggestions: ((text: string, executor: Player, arg: Argument) -> SuggestionList)?,
 }
 
 export type ArgumentType<T = unknown> = SingleArgumentType<T> | ListArgumentType<T>
 
-export type ArgumentFn<T> = (name: string, description: string?, suggestions: SuggestionList?) -> T
+export type ArgumentFn<T, O = any> = (
+	name: string,
+	description: string?,
+	suggestions: SuggestionList?,
+	options: O?
+) -> T
 
 export type ExecutionContext = {
 	executor: Player,

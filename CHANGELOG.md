@@ -27,6 +27,7 @@ See the [migration guide](https://centurion.paradoxum.dev/docs/guides/migration)
 - Players are only synced the commands they're allowed to run, and stay up to date as commands or roles change.
 - `args.vector2`, `args.vector3` and `args.rgb_color` argument types, plus `create_enum` and `register_list_type` for custom types.
 - `args.fuzzy_player` and `args.fuzzy_players` match display names and the start of a name as well as usernames, and reject input that matches more than one player. `args.player` and `args.players` still only match exact usernames, but now name the username to type when a display name or prefix would have matched.
+- Argument types can take options, passed as the fourth parameter of the declarator. `transform` and `suggestions` receive the argument to read them from. The player types use this to turn off `@random`, `@all` and `@others`, e.g. `args.players("targets", nil, nil, { random = false, all = false })`.
 - Suggestions can be tables with a `description` shown next to them and `aliases` they can also be found by. Player suggestions show display names, and typing a display name finds them.
 - Unknown commands respond with `Unknown command`, as do commands the player can't run when `hide` is set (the default).
 - Command definitions are validated at registration, so unknown argument types, optional arguments before required ones, misplaced `rest` arguments, unknown guards, unknown roles and role restrictions on client-registered commands are load-time errors. Registering a role twice is also an error.

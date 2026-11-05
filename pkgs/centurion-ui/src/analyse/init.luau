@@ -180,7 +180,7 @@ local function analyse(text: string, cursor_pos: number, max_suggestions: number
 		end
 
 		if arg_type.suggestions then
-			add(arg_type.suggestions(input_token.text, Players.LocalPlayer))
+			add(arg_type.suggestions(input_token.text, Players.LocalPlayer, arg))
 		end
 		add(arg.suggestions)
 
