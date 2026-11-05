@@ -62,13 +62,17 @@ end
 local function execute(executor: Player, name: string, args: { string }?, input: string?): types.ExecutionContext
 	local command = commands[name]
 	if not command then
-		return context(executor, name, args or {}, input)
+		local ctx = context(executor, name, args or {}, input)
+		ctx.error("Unknown command")
+		return ctx
 	end
 
 	if not permission.can_execute(executor, command) then
 		local ctx = context(executor, name, args or {}, input)
 
-		if not permission.options.hide then
+		if permission.options.hide then
+			ctx.error("Unknown command")
+		else
 			ctx.error("You do not have permission to execute this command.")
 		end
 
