@@ -8,10 +8,12 @@ local function context(executor: Player, command: string, args: { string }, inpu
 		arguments = args,
 	} :: types.ExecutionContext
 
+	-- the response is serialized after the handler returns, where a non-string
+	-- message would fail and leave the client waiting, so coerce it here
 	ctx.reply = function(message: string)
 		ctx.response = {
 			success = true,
-			message = message,
+			message = tostring(message),
 			timestamp = os.time(),
 		}
 	end
@@ -19,7 +21,7 @@ local function context(executor: Player, command: string, args: { string }, inpu
 	ctx.error = function(message: string)
 		ctx.response = {
 			success = false,
-			message = message,
+			message = tostring(message),
 			timestamp = os.time(),
 		}
 	end

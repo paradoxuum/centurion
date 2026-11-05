@@ -471,6 +471,112 @@ TEST("argument types", function()
 	}))
 end)
 
+TEST("number types", function()
+	centurion.register_command("num", {
+		arguments = function()
+			return centurion.args.number("n")
+		end,
+		callback = function(_ctx, n: number)
+			return tostring(n)
+		end,
+	})
+	centurion.register_command("int", {
+		arguments = function()
+			return centurion.args.integer("n")
+		end,
+		callback = function(_ctx, n: number)
+			return tostring(n)
+		end,
+	})
+	centurion.register_command("vec", {
+		arguments = function()
+			return centurion.args.vector3("v")
+		end,
+		callback = function()
+			return "ok"
+		end,
+	})
+	centurion.register_command("rgb", {
+		arguments = function()
+			return centurion.args.rgb_color("c")
+		end,
+		callback = function()
+			return "ok"
+		end,
+	})
+
+	local function ok(cmd: string, arg: string): boolean
+		local res = centurion.execute_command(alice, cmd, { arg }).response
+		return res ~= nil and res.success
+	end
+
+	CASE("finite numbers are accepted")
+	CHECK(ok("num", "1.5") and ok("num", "-3") and ok("num", "1e5"))
+	CHECK(ok("int", "42") and ok("int", "1e3"))
+
+	CASE("infinity and NaN are rejected")
+	for _, text in { "inf", "-inf", "1e999", "-1e999", "nan" } do
+		CHECK(not ok("num", text))
+		CHECK(not ok("int", text))
+	end
+
+	CASE("vector components must be finite")
+	CHECK(ok("vec", "1,2,3"))
+	CHECK(not ok("vec", "1,inf,3"))
+	CHECK(not ok("vec", "nan,0,0"))
+
+	-- Color3 doesn't exist outside roblox, so only the rejection is checked
+	CASE("NaN doesn't slip past the RGB range check")
+	CHECK(
+		message(centurion.execute_command(alice, "rgb", { "nan,0,0" }))
+			== "Invalid value for 'c': All RGB components must be valid numbers."
+	)
+
+	for _, name in { "num", "int", "vec", "rgb" } do
+		centurion.unregister_command(name)
+	end
+end)
+
+TEST("empty arguments", function()
+	centurion.register_command("flag", {
+		arguments = function()
+			return centurion.args.boolean("b")
+		end,
+		callback = function()
+			return "ran"
+		end,
+	})
+
+	-- only reachable by sending args directly, since parsing never yields
+	-- an empty unquoted token. transforms used to receive nil and throw
+	CASE("empty and blank arguments are passed as an empty string")
+	for _, text in { "", "   " } do
+		local ok, ctx = pcall(centurion.execute_command, alice, "flag", { text })
+		CHECK(ok)
+		CHECK(ok and message(ctx) == "Invalid value for 'b': '' is not a boolean")
+	end
+
+	CASE("a quoted empty string gives the same result")
+	CHECK(message(centurion.execute_command(alice, "flag", { '""' })) == "Invalid value for 'b': '' is not a boolean")
+
+	centurion.register_command("find", {
+		arguments = function()
+			return centurion.args.player("target")
+		end,
+		callback = function()
+			return "ran"
+		end,
+	})
+
+	CASE("blank player arguments are reported as not found")
+	CHECK(
+		message(centurion.execute_command(alice, "find", { "" })) == "Invalid value for 'target': Player '' not found."
+	)
+
+	centurion.unregister_command("flag")
+	centurion.unregister_command("find")
+end)
+
 TEST("register events", function()
 	local registered: { string } = {}
 	local unregistered: { string } = {}

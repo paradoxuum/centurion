@@ -126,7 +126,21 @@ local function execute(executor: Player, name: string, args: { string }?, input:
 		then { command.arguments() } :: { types.Argument }
 		else {}
 
-	local res = argument.transform(executor, args, command_args)
+	-- transforms are user code too, so a throwing one is handled like a
+	-- throwing guard or callback rather than escaping to the network handler
+	local transformed, res = xpcall(argument.transform :: any, log.capture, executor, args, command_args)
+	if not transformed then
+		local caught: log.CaughtError = res
+		log.error(`Failed to transform arguments for '{ctx.input}': {caught.message}`, {
+			executor = executor,
+			command = name,
+			input = ctx.input,
+			traceback = caught.traceback,
+		})
+		ctx.error("Failed to execute command.")
+		return ctx
+	end
+
 	if not res.success then
 		ctx.error(res.error)
 		return ctx
@@ -151,8 +165,20 @@ local function execute(executor: Player, name: string, args: { string }?, input:
 		ctx.reply(value)
 	end
 
-	for _, callback in on_execute_callbacks do
-		callback(ctx)
+	-- the command has already run, so a broken listener is logged rather than
+	-- allowed to stop the response being returned. cloned so that a listener
+	-- removing itself can't cause the next one to be skipped
+	for _, callback in table.clone(on_execute_callbacks) do
+		local ok, err = xpcall(callback :: any, log.capture, ctx)
+		if not ok then
+			local caught: log.CaughtError = err
+			log.error(`on_command_execute listener failed for '{ctx.input}': {caught.message}`, {
+				executor = executor,
+				command = name,
+				input = ctx.input,
+				traceback = caught.traceback,
+			})
+		end
 	end
 
 	return ctx

@@ -368,7 +368,17 @@ local function network_server()
 	local syncer = server()
 
 	local server_remotes = require("./network/server")
+
+	local requested: { [Player]: true } = {}
+	services.Players.PlayerRemoving:Connect(function(player)
+		requested[player] = nil
+	end)
+
 	server_remotes.RequestState.SetCallback(function(player)
+		if requested[player] then
+			return
+		end
+		requested[player] = true
 		syncer.hydrate(player)
 	end)
 
@@ -385,7 +395,22 @@ local function network_server()
 			return ctx
 		end
 
-		return command.execute(player, cmd, args, input)
+		local ok, value = xpcall(command.execute :: any, log.capture, player, cmd, args, input)
+		if ok then
+			return value
+		end
+
+		local caught: log.CaughtError = value
+		log.error(`Failed to execute '{input or cmd}': {caught.message}`, {
+			executor = player,
+			command = cmd,
+			input = input,
+			traceback = caught.traceback,
+		})
+
+		local ctx = context(player, cmd, args or {}, input)
+		ctx.error("Failed to execute command.")
+		return ctx
 	end)
 end
 

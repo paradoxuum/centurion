@@ -77,6 +77,56 @@ TEST("logger", function()
 	centurion.unregister_command("log_guarded")
 	centurion.unregister_guard("log_guard_throw")
 
+	CASE("a throwing transform is logged as an error")
+	table.clear(entries)
+	local throwing_type = centurion.register_type("log_throwing_type", {
+		transform = function(): any
+			throws()
+			return nil
+		end,
+	})
+	centurion.register_command("log_transform", {
+		arguments = function()
+			return throwing_type("value")
+		end,
+		callback = function()
+			return "ran"
+		end,
+	})
+	local ok
+	ok, ctx = pcall(centurion.execute_command, carol, "log_transform", { "x" })
+	CHECK(ok)
+	CHECK(ok and message(ctx) == "Failed to execute command.")
+	CHECK(#entries == 1 and entries[1].level == "error")
+	CHECK(string.find(entries[1].message, "boom", 1, true) ~= nil)
+	CHECK(entries[1].info.command == "log_transform")
+	CHECK(entries[1].info.traceback ~= nil)
+	centurion.unregister_command("log_transform")
+
+	CASE("a throwing execute listener is logged without losing the response")
+	table.clear(entries)
+	local ran_after = false
+	local remove_throwing = centurion.events.on_command_execute(function()
+		throws()
+	end)
+	local remove_after = centurion.events.on_command_execute(function()
+		ran_after = true
+	end)
+	centurion.register_command("log_listened", {
+		callback = function()
+			return "ran"
+		end,
+	})
+	ok, ctx = pcall(centurion.execute_command, carol, "log_listened")
+	CHECK(ok)
+	CHECK(ok and message(ctx) == "ran")
+	CHECK(ran_after)
+	CHECK(#entries == 1 and entries[1].level == "error")
+	CHECK(entries[1].info.traceback ~= nil)
+	remove_throwing()
+	remove_after()
+	centurion.unregister_command("log_listened")
+
 	CASE("a guard returning a non-boolean is logged as a warning")
 	table.clear(entries)
 	local remove = centurion.add_global_guard(function(): any

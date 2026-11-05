@@ -125,7 +125,7 @@ local function transform_value(executor: Player, arg: types.Argument, raw: strin
 	end
 
 	if arg_type.kind == "single" then
-		return arg_type.transform(parsed_text[1], executor)
+		return arg_type.transform(parsed_text[1] or "", executor)
 	end
 
 	return arg_type.transform(parsed_text, executor)
