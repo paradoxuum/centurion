@@ -213,8 +213,11 @@ end)
 TEST("denied execution", function()
 	centurion.set_roles(bob, {})
 
-	CASE("is silent while hidden")
-	CHECK(centurion.execute_command(bob, "kick", { "Alice" }).response == nil)
+	CASE("looks like an unknown command while hidden")
+	local hidden = centurion.execute_command(bob, "kick", { "Alice" })
+	CHECK(hidden.response and not hidden.response.success)
+	CHECK(message(hidden) == message(centurion.execute_command(bob, "no_such_command")))
+	CHECK(message(hidden) == "Unknown command")
 
 	CASE("reports an error when not hidden")
 	centurion.set_permission_options({ hide = false })
@@ -230,7 +233,7 @@ TEST("deny unrestricted", function()
 
 	CASE("unrestricted commands can't be executed")
 	CHECK(not centurion.can_execute(bob, centurion.registry.commands.echo))
-	CHECK(centurion.execute_command(bob, "echo", { "hi" }).response == nil)
+	CHECK(message(centurion.execute_command(bob, "echo", { "hi" })) == "Unknown command")
 
 	CASE("restricted commands are unaffected")
 	CHECK(centurion.can_execute(bob, centurion.registry.commands.kick))

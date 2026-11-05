@@ -11,6 +11,7 @@ require("./limit")
 require("./log")
 require("./parse")
 require("./resolve")
+require("./sync")
 
 local ok = FINISH()
 if not ok then
