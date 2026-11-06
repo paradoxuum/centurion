@@ -2,6 +2,7 @@ local command = require("./command")
 local context = require("./context")
 local limit = require("./limit")
 local log = require("./log")
+local parse = require("./parse")
 local permission = require("./permission")
 local services = require("./services")
 local types = require("./types")
@@ -364,6 +365,47 @@ local function server()
 	}
 end
 
+-- whether `input` is the text that `cmd` and `args` were resolved from: its
+-- leading unquoted tokens spell the command name and the rest are the
+-- arguments, verbatim. the client sends all three, and `input` ends up in
+-- `ctx.input`, which guards, listeners and logs read, so it mustn't be able to
+-- describe a different command than the one that runs
+local function input_matches(cmd: string, args: { string }?, input: string): boolean
+	local tokens = parse(input, " ").tokens
+
+	local name_end = 0
+	local name = {}
+	for i, token in tokens do
+		if token.quoted then
+			break
+		end
+
+		table.insert(name, token.text)
+		if table.concat(name, " ") == cmd then
+			name_end = i
+			break
+		end
+	end
+
+	if name_end == 0 then
+		return false
+	end
+
+	local given = args or {}
+	if #tokens - name_end ~= #given then
+		return false
+	end
+
+	for i, arg in given do
+		local span = tokens[name_end + i].span
+		if input:sub(span.x, span.y) ~= arg then
+			return false
+		end
+	end
+
+	return true
+end
+
 local function network_server()
 	local syncer = server()
 
@@ -393,6 +435,16 @@ local function network_server()
 			local ctx = context(player, if limit.check_name(cmd) then cmd else "", {}, "")
 			ctx.error(err)
 			return ctx
+		end
+
+		-- fall back to the input rebuilt from `cmd` and `args`
+		if input and not input_matches(cmd, args, input) then
+			log.warn(`Discarded input from {player.Name} that doesn't match command '{cmd}'.`, {
+				executor = player,
+				command = cmd,
+				input = input,
+			})
+			input = nil
 		end
 
 		local ok, value = xpcall(command.execute :: any, log.capture, player, cmd, args, input)
@@ -441,4 +493,5 @@ return {
 	client = client,
 	server = server,
 	setup = setup_networking,
+	input_matches = input_matches,
 }

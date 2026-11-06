@@ -724,4 +724,53 @@ TEST("updating roles", function()
 	centurion.delete_role("helper")
 end)
 
+TEST("permissions are rechecked before the callback", function()
+	local ran = false
+	centurion.register_command("recheck_revoke", {
+		roles = { "moderator" },
+		-- stands in for a yielding guard or transform during which roles change
+		guards = {
+			function()
+				centurion.set_roles(bob, {})
+				return true
+			end,
+		},
+		callback = function()
+			ran = true
+			return "ran"
+		end,
+	})
+
+	CASE("a role revoked mid-execution stops the callback")
+	centurion.set_roles(bob, { "moderator" })
+	local ctx = centurion.execute_command(bob, "recheck_revoke", {})
+	CHECK(not ran)
+	CHECK(message(ctx) == "Unknown command")
+	centurion.unregister_command("recheck_revoke")
+
+	CASE("a command replaced mid-execution doesn't run its old callback")
+	centurion.register_command("recheck_replace", {
+		guards = {
+			function()
+				centurion.unregister_command("recheck_replace")
+				centurion.register_command("recheck_replace", {
+					roles = { "admin" },
+					callback = function()
+						return "new"
+					end,
+				})
+				return true
+			end,
+		},
+		callback = function()
+			ran = true
+			return "old"
+		end,
+	})
+	local replaced = centurion.execute_command(bob, "recheck_replace", {})
+	CHECK(not ran)
+	CHECK(message(replaced) == "Unknown command")
+	centurion.unregister_command("recheck_replace")
+end)
+
 return nil

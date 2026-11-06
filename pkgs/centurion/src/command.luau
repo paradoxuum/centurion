@@ -78,35 +78,41 @@ local function call_guard(ctx: types.ExecutionContext, name: string, callback: (
 	return false
 end
 
--- `input` is the raw, untokenized string the executor submitted. Pass it
--- whenever it's available so that `ctx.input` keeps the original quoting.
-local function execute(executor: Player, name: string, args: { string }?, input: string?): types.ExecutionContext
-	local command = commands[name]
-	if not command then
-		local ctx = context(executor, name, args or {}, input)
+local function check_access(ctx: types.ExecutionContext, command: types.Command<unknown>?): types.FailReason?
+	if command == nil or commands[ctx.command] ~= command then
 		ctx.error("Unknown command")
-		return fail(ctx, "unknown")
+		return "unknown"
 	end
 
-	if not permission.can_execute(executor, command) then
-		local ctx = context(executor, name, args or {}, input)
-
+	if not permission.can_execute(ctx.executor, command) then
 		if permission.options.hide then
 			ctx.error("Unknown command")
 		else
 			ctx.error("You do not have permission to execute this command.")
 		end
 
-		return fail(ctx, "permission")
+		return "permission"
+	end
+
+	return nil
+end
+
+-- `input` is the raw, untokenized string the executor submitted. Pass it
+-- whenever it's available so that `ctx.input` keeps the original quoting.
+local function execute(executor: Player, name: string, args: { string }?, input: string?): types.ExecutionContext
+	args = args or {}
+	local ctx = context(executor, name, args, input)
+
+	local command = commands[name]
+	local denied: types.FailReason? = check_access(ctx, command)
+	if denied then
+		return fail(ctx, denied)
 	end
 
 	if not command.callback then
 		assert(network_handler, "Network handler must be set before server command execution on the client.")
 		return network_handler(name, args, input)
 	end
-
-	args = args or {}
-	local ctx = context(executor, name, args, input)
 
 	-- clone so that a guard removing itself (or another global
 	-- guard) mid-loop can't cause the next one to be skipped
@@ -169,6 +175,13 @@ local function execute(executor: Player, name: string, args: { string }?, input:
 	if not res.success then
 		ctx.error(res.error)
 		return fail(ctx, "arguments")
+	end
+
+	-- guards and transforms can yield, so the executor's roles may have been revoked,
+	-- or the command replaced, since the previous check
+	denied = check_access(ctx, command)
+	if denied then
+		return fail(ctx, denied)
 	end
 
 	-- unpack up to the declared argument count so that omitted optional

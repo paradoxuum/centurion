@@ -264,4 +264,25 @@ TEST("sync client", function()
 	centurion.set_logger(nil)
 end)
 
+TEST("execute input validation", function()
+	local matches = sync.input_matches
+
+	CASE("input the command and arguments were resolved from matches")
+	CHECK(matches("kick", { "Alice" }, "kick Alice"))
+	CHECK(matches("kick", { "Alice" }, "  kick   Alice  "))
+	CHECK(matches("kick", nil, "kick"))
+	CHECK(matches("roles get", { "Alice" }, "roles get Alice"))
+	CHECK(matches("roles", { "get", "Alice" }, "roles get Alice"))
+	CHECK(matches("say", { '"hello world"' }, 'say "hello world"'))
+
+	CASE("input describing another command doesn't match")
+	CHECK(not matches("kick", { "Alice" }, "help"))
+	CHECK(not matches("kick", { "Alice" }, "kick Bob"))
+	CHECK(not matches("kick", { "Alice" }, "kick Alice extra"))
+	CHECK(not matches("kick", { "Alice", "x" }, "kick Alice"))
+	CHECK(not matches("kick", nil, '"kick"'))
+	CHECK(not matches("say", { "hello world" }, 'say "hello world"'))
+	CHECK(not matches("kick", {}, ""))
+end)
+
 return nil
