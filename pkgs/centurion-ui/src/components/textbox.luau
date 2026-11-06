@@ -39,7 +39,7 @@ type TextBoxProps = {
 	read bind_open_keyboard: ((open: () -> ()) -> ())?,
 
 	read update_text: ((string) -> ())?,
-	read update_focused: ((boolean) -> ())?,
+	read update_focused: ((focused: boolean, enter: boolean) -> ())?,
 	read enter: (string) -> (),
 
 	[number]: unknown,
@@ -96,7 +96,7 @@ return function(props: TextBoxProps)
 			if not props.update_focused then
 				return
 			end
-			props.update_focused(true)
+			props.update_focused(true, false)
 		end,
 
 		FocusLost = function(enter)
@@ -104,7 +104,7 @@ return function(props: TextBoxProps)
 				return
 			end
 			if props.update_focused then
-				props.update_focused(false)
+				props.update_focused(false, enter)
 			end
 			if not enter then
 				return

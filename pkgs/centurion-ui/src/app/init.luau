@@ -659,8 +659,11 @@ local function app()
 				end,
 
 				focused = state.focused,
-				update_focused = function(focused)
-					if focused then
+				update_focused = function(focused, enter)
+					if focused or enter then
+						-- pressing enter right after selecting an entry shouldn't refocus
+						-- straight away, since capturing focus while enter is still being
+						-- handled leaves whitespace in the textbox
 						refocus_deadline = 0
 					elseif os.clock() < refocus_deadline then
 						-- the tap that selected an entry released the textbox, so take it back
