@@ -778,7 +778,7 @@ TEST("network handler", function()
 	-- a command synced from the server has no callback on the client
 	centurion.register_command("remote", {})
 	local received: { string }? = nil
-	centurion.set_network_handler(function(cmd, args, input)
+	centurion.set_network_handler(function(_, args, input)
 		received = args
 		return centurion.execute_command(alice, "echo", { "sent" }, input)
 	end)
