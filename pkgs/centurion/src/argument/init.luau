@@ -31,7 +31,12 @@ local function register_type<T, O>(
 	type_name: string,
 	data: {
 		transform: (text: string, executor: Player, arg: types.Argument<O>) -> types.Result<T>,
-		suggestions: ((text: string, executor: Player, arg: types.Argument<O>) -> types.SuggestionList)?,
+		suggestions: ((
+			text: string,
+			executor: Player,
+			arg: types.Argument<O>,
+			context: types.SuggestionContext
+		) -> types.SuggestionList)?,
 		check: ((text: string, executor: Player, arg: types.Argument<O>) -> string?)?,
 	}
 ): types.ArgumentFn<T, O>
@@ -51,7 +56,12 @@ local function register_list_type<T, O>(
 	type_name: string,
 	data: {
 		transform: (text: { string }, executor: Player, arg: types.Argument<O>) -> types.Result<T>,
-		suggestions: ((text: string, executor: Player, arg: types.Argument<O>) -> types.SuggestionList)?,
+		suggestions: ((
+			text: string,
+			executor: Player,
+			arg: types.Argument<O>,
+			context: types.SuggestionContext
+		) -> types.SuggestionList)?,
 		check: ((text: { string }, executor: Player, arg: types.Argument<O>) -> string?)?,
 	}
 ): types.ArgumentFn<T, O>

@@ -183,7 +183,7 @@ local function analyse(
 		end
 
 		if arg_type.suggestions then
-			add(arg_type.suggestions(input_token.text, executor, arg))
+			add(arg_type.suggestions(input_token.text, executor, arg, { command = cmd_name, arguments = arg_text }))
 		end
 		add(arg.suggestions)
 

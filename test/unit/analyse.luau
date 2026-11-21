@@ -20,6 +20,21 @@ local colour = centurion.register_type("ui_colour", {
 	end,
 })
 
+-- suggests the command and earlier arguments' text, to show what the type received
+local echo = centurion.register_type("ui_echo", {
+	transform = function(text: string): centurion.Result<string>
+		return { success = true, value = text }
+	end,
+	suggestions = function(
+		_text: string,
+		_executor: Player,
+		_arg: centurion.Argument,
+		context: centurion.SuggestionContext
+	)
+		return { `{context.command}:{table.concat(context.arguments, "_")}` }
+	end,
+})
+
 local commands: { [string]: { description: string?, arguments: (() -> ...any)? } } = {
 	ui_give = {
 		description = "Gives an item",
@@ -41,6 +56,11 @@ local commands: { [string]: { description: string?, arguments: (() -> ...any)? }
 	ui_paint = {
 		arguments = function()
 			return colour("colour", nil, { "green", "red" })
+		end,
+	},
+	ui_echo = {
+		arguments = function()
+			return centurion.args.string("first"), echo("second")
 		end,
 	},
 	ui_role = {
@@ -161,6 +181,10 @@ TEST("analyse arguments", function()
 	CASE("the argument's options reach its type's suggestions")
 	CHECK(find(run("ui_give "), "@random") ~= nil)
 	CHECK(find(run("ui_ban "), "@random") == nil and find(run("ui_ban "), "@me") ~= nil)
+
+	CASE("type suggestions receive the command and the raw text of every argument typed so far")
+	CHECK(names(run("ui_echo wren ")) == "ui_echo:wren")
+	CHECK(names(run('ui_echo "a b" ')) == 'ui_echo:"a b"')
 
 	CASE("the limit hides the rest")
 	res = run("ui_give ", 2)

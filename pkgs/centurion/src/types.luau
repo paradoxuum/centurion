@@ -44,10 +44,18 @@ export type Argument<O = any> = {
 	options: O?,
 }
 
+-- what a type's `suggestions` receives about the command being typed
+export type SuggestionContext = {
+	-- the resolved command's name
+	command: string,
+	-- every argument typed so far, exactly as typed, like `ExecutionContext.arguments`
+	arguments: { string },
+}
+
 export type SingleArgumentType<T = unknown> = {
 	kind: "single",
 	transform: (text: string, executor: Player, arg: Argument) -> Result<T>,
-	suggestions: ((text: string, executor: Player, arg: Argument) -> SuggestionList)?,
+	suggestions: ((text: string, executor: Player, arg: Argument, context: SuggestionContext) -> SuggestionList)?,
 	-- used instead of `transform` while typing. returns an error, or nil if the text may be valid
 	check: ((text: string, executor: Player, arg: Argument) -> string?)?,
 }
@@ -55,7 +63,7 @@ export type SingleArgumentType<T = unknown> = {
 export type ListArgumentType<T = unknown> = {
 	kind: "list",
 	transform: (text: { string }, executor: Player, arg: Argument) -> Result<T>,
-	suggestions: ((text: string, executor: Player, arg: Argument) -> SuggestionList)?,
+	suggestions: ((text: string, executor: Player, arg: Argument, context: SuggestionContext) -> SuggestionList)?,
 	check: ((text: { string }, executor: Player, arg: Argument) -> string?)?,
 }
 

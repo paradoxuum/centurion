@@ -62,14 +62,14 @@ The definition passed to `register_type` or `register_list_type`.
 type SingleArgumentType<T = unknown> = {
     kind:        "single",
     transform:   (text: string, executor: Player, arg: Argument) -> Result<T>,
-    suggestions: ((text: string, executor: Player, arg: Argument) -> SuggestionList)?,
+    suggestions: ((text: string, executor: Player, arg: Argument, context: SuggestionContext) -> SuggestionList)?,
     check:       ((text: string, executor: Player, arg: Argument) -> string?)?,
 }
 
 type ListArgumentType<T = unknown> = {
     kind:        "list",
     transform:   (text: { string }, executor: Player, arg: Argument) -> Result<T>,
-    suggestions: ((text: string, executor: Player, arg: Argument) -> SuggestionList)?,
+    suggestions: ((text: string, executor: Player, arg: Argument, context: SuggestionContext) -> SuggestionList)?,
     check:       ((text: { string }, executor: Player, arg: Argument) -> string?)?,
 }
 
@@ -78,6 +78,21 @@ type ArgumentType<T = unknown> = SingleArgumentType<T> | ListArgumentType<T>
 
 `transform` receives the raw input and must return a `Result<T>`, where `T` is the value the argument produces. For list types, the input is already split by commas.
 Both functions also receive the `Argument` being handled, so a type can read its `options`.
+`suggestions` also receives a `SuggestionContext`, so a type can suggest based on an earlier argument:
+
+```lua
+type SuggestionContext = {
+    command:   string,     -- the resolved command's name
+    arguments: { string }, -- every argument typed so far, exactly as typed, like `ExecutionContext.arguments`
+}
+```
+
+`arguments` is indexed by token, so an argument with `num_args` or `rest` takes up several entries. Look up the command's arguments with
+`registry.commands[context.command]` and pass them to `assign_args` to find which entries belong to which argument.
+
+Each entry is the argument exactly as it was typed, quotes and all. That's the form `transform_arg` takes, so passing an entry to it gets
+the argument's value, which is usually what a type needs. Quotes decide how text is split, so `"a b"` is one value and `"Wren,Orrin"` is a
+single list entry, and removing them would lose that. For the plain text, use `parse_text(entry, " ").tokens[1].text`.
 
 `check` is optional, and is used instead of `transform` by `check_args`, which the terminal UI runs while typing. It returns an error
 message, or `nil` if the text could be valid. Give it to types whose `transform` is slow or yields. See

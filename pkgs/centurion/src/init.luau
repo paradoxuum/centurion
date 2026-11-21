@@ -23,6 +23,7 @@ export type ArgumentFn<T, O = any> = types.ArgumentFn<T, O>
 export type Suggestion = types.Suggestion
 export type SuggestionData = types.SuggestionData
 export type SuggestionList = types.SuggestionList
+export type SuggestionContext = types.SuggestionContext
 export type Command<T...> = types.Command<T...>
 export type CommandDefinition<T...> = types.CommandDefinition<T...>
 export type CommandBuilder<T...> = types.CommandBuilder<T...>

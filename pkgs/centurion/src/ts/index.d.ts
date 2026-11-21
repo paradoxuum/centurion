@@ -87,10 +87,23 @@ export interface RoleOptions {
 	inherits?: string[];
 }
 
+/** What a type's `suggestions` receives about the command being typed. */
+export interface SuggestionContext {
+	/** The resolved command's name. */
+	command: string;
+	/** Every argument typed so far, exactly as typed, like `ExecutionContext.arguments`. */
+	arguments: string[];
+}
+
 export interface SingleArgumentType<T, O = unknown> {
 	kind: "single";
 	transform: (text: string, executor: Player, arg: Argument<unknown, O>) => Result<T>;
-	suggestions?: (text: string, executor: Player, arg: Argument<unknown, O>) => Suggestion[] | undefined;
+	suggestions?: (
+		text: string,
+		executor: Player,
+		arg: Argument<unknown, O>,
+		context: SuggestionContext,
+	) => Suggestion[] | undefined;
 	/**
 	 * Used instead of `transform` while typing, for types whose transform is slow or yields. Returns an error, or
 	 * `undefined` if the text may be valid.
@@ -101,7 +114,12 @@ export interface SingleArgumentType<T, O = unknown> {
 export interface ListArgumentType<T, O = unknown> {
 	kind: "list";
 	transform: (text: string[], executor: Player, arg: Argument<unknown, O>) => Result<T>;
-	suggestions?: (text: string, executor: Player, arg: Argument<unknown, O>) => Suggestion[] | undefined;
+	suggestions?: (
+		text: string,
+		executor: Player,
+		arg: Argument<unknown, O>,
+		context: SuggestionContext,
+	) => Suggestion[] | undefined;
 	check?: (text: string[], executor: Player, arg: Argument<unknown, O>) => string | undefined;
 }
 
