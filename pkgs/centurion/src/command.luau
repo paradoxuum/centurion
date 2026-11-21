@@ -15,7 +15,7 @@ local on_unregister_callbacks: { RegisterCallback } = {}
 local on_execute_callbacks: { (ctx: types.ExecutionContext) -> () } = {}
 local on_fail_callbacks: { (ctx: types.ExecutionContext, reason: types.FailReason) -> () } = {}
 
-type NetworkHandler = (command: string, args: { string }?, input: string?) -> types.ExecutionContext
+type NetworkHandler = (command: string, args: { string }, input: string?) -> types.ExecutionContext
 
 local network_handler: NetworkHandler?
 
@@ -102,11 +102,13 @@ end
 
 -- `input` is the raw, untokenized string the executor submitted. Pass it
 -- whenever it's available so that `ctx.input` keeps the original quoting.
-local function execute(executor: Player, name: string, args: { string }?, input: string?): types.ExecutionContext
+local function execute(executor: Player, name: string, raw_args: { string }?, input: string?): types.ExecutionContext
+	-- normalised up front so the network handler always gets a table too
+	local args = raw_args or {}
 	local command = commands[name]
 	local denied, denied_message = check_access(executor, name, command)
 	if denied then
-		local ctx = context(executor, name, args or {}, input)
+		local ctx = context(executor, name, args, input)
 		ctx.error(denied_message :: string)
 		return fail(ctx, denied)
 	end
@@ -116,7 +118,6 @@ local function execute(executor: Player, name: string, args: { string }?, input:
 		return network_handler(name, args, input)
 	end
 
-	args = args or {}
 	local ctx = context(executor, name, args, input)
 
 	-- clone so that a guard removing itself (or another global

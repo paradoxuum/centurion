@@ -253,7 +253,7 @@ export function assign_args(args: Argument[], count: number): LuaTuple<[Argument
 export function execute_command(executor: Player, command: string, args?: string[], input?: string): ExecutionContext;
 
 export function set_network_handler(
-	handler: (command: string, args?: string[], input?: string) => ExecutionContext,
+	handler: (command: string, args: string[], input?: string) => ExecutionContext,
 ): void;
 
 export function create_role(name: string, options?: RoleOptions): void;

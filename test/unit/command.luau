@@ -774,4 +774,24 @@ TEST("permissions are rechecked before the callback", function()
 	centurion.unregister_command("recheck_replace")
 end)
 
+TEST("network handler", function()
+	-- a command synced from the server has no callback on the client
+	centurion.register_command("remote", {})
+	local received: { string }? = nil
+	centurion.set_network_handler(function(cmd, args, input)
+		received = args
+		return centurion.execute_command(alice, "echo", { "sent" }, input)
+	end)
+
+	CASE("gets an empty table when no args are passed")
+	centurion.execute_command(alice, "remote")
+	CHECK(received ~= nil and #(received :: { string }) == 0)
+
+	CASE("gets the args that are passed")
+	centurion.execute_command(alice, "remote", { "a", "b" })
+	CHECK(received ~= nil and table.concat(received :: { string }, ",") == "a,b")
+
+	centurion.unregister_command("remote")
+end)
+
 return nil
