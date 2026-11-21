@@ -83,12 +83,16 @@ Both functions also receive the `Argument` being handled, so a type can read its
 ```lua
 type SuggestionContext = {
     command:   string,     -- the resolved command's name
-    arguments: { string }, -- every argument typed so far, exactly as typed, like `ExecutionContext.arguments`
+    arguments: { string }, -- the arguments before the one being typed, exactly as typed
 }
 ```
 
+`arguments` holds every token before the cursor's, so text after the cursor is left out, and the argument being typed is always the one
+after the last entry. The token being typed is the `text` parameter.
+
 `arguments` is indexed by token, so an argument with `num_args` or `rest` takes up several entries. Look up the command's arguments with
-`registry.commands[context.command]` and pass them to `assign_args` to find which entries belong to which argument.
+`registry.commands[context.command]` and pass them to `assign_args` with `#context.arguments` to find which entries belong to which
+argument. If the argument being typed takes several tokens, its earlier ones are included, and its range ends at the last entry.
 
 Each entry is the argument exactly as it was typed, quotes and all. That's the form `transform_arg` takes, so passing an entry to it gets
 the argument's value, which is usually what a type needs. Quotes decide how text is split, so `"a b"` is one value and `"Wren,Orrin"` is a

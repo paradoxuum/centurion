@@ -91,7 +91,7 @@ export interface RoleOptions {
 export interface SuggestionContext {
 	/** The resolved command's name. */
 	command: string;
-	/** Every argument typed so far, exactly as typed, like `ExecutionContext.arguments`. */
+	/** The arguments before the one being typed, exactly as typed. */
 	arguments: string[];
 }
 

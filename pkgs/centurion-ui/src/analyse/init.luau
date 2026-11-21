@@ -183,7 +183,10 @@ local function analyse(
 		end
 
 		if arg_type.suggestions then
-			add(arg_type.suggestions(input_token.text, executor, arg, { command = cmd_name, arguments = arg_text }))
+			-- only the tokens before the slot being typed, since ones after the
+			-- cursor shift as the user types and may be about to change
+			local before = table.move(arg_text, 1, slot - 1, 1, {})
+			add(arg_type.suggestions(input_token.text, executor, arg, { command = cmd_name, arguments = before }))
 		end
 		add(arg.suggestions)
 

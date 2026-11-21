@@ -60,7 +60,7 @@ local commands: { [string]: { description: string?, arguments: (() -> ...any)? }
 	},
 	ui_echo = {
 		arguments = function()
-			return centurion.args.string("first"), echo("second")
+			return centurion.args.string("first"), echo("second"), centurion.args.string("third")
 		end,
 	},
 	ui_role = {
@@ -182,9 +182,13 @@ TEST("analyse arguments", function()
 	CHECK(find(run("ui_give "), "@random") ~= nil)
 	CHECK(find(run("ui_ban "), "@random") == nil and find(run("ui_ban "), "@me") ~= nil)
 
-	CASE("type suggestions receive the command and the raw text of every argument typed so far")
+	CASE("type suggestions receive the command and the raw text of the arguments before the one being typed")
 	CHECK(names(run("ui_echo wren ")) == "ui_echo:wren")
 	CHECK(names(run('ui_echo "a b" ')) == 'ui_echo:"a b"')
+
+	CASE("arguments after the cursor and the token being typed are left out")
+	CHECK(names(run("ui_echo x | z")) == "ui_echo:x")
+	CHECK(names(run("ui_echo x y|y z")) == "ui_echo:x")
 
 	CASE("the limit hides the rest")
 	res = run("ui_give ", 2)

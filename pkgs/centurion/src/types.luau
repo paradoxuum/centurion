@@ -48,7 +48,7 @@ export type Argument<O = any> = {
 export type SuggestionContext = {
 	-- the resolved command's name
 	command: string,
-	-- every argument typed so far, exactly as typed, like `ExecutionContext.arguments`
+	-- the arguments before the one being typed, exactly as typed
 	arguments: { string },
 }
 
