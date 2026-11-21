@@ -98,6 +98,10 @@ Each entry is the argument exactly as it was typed, quotes and all. That's the f
 the argument's value, which is usually what a type needs. Quotes decide how text is split, so `"a b"` is one value and `"Wren,Orrin"` is a
 single list entry, and removing them would lose that. For the plain text, use `parse_text(entry, " ").tokens[1].text`.
 
+`suggestions` runs on every keystroke in the terminal UI, and `transform_arg` always calls the full `transform`, never `check`. If the
+earlier argument's `transform` is slow or yields, such as one that looks up a user, calling `transform_arg` will stall suggestions. In that
+case, work from the entry's text instead, or cache the values you look up.
+
 `check` is optional, and is used instead of `transform` by `check_args`, which the terminal UI runs while typing. It returns an error
 message, or `nil` if the text could be valid. Give it to types whose `transform` is slow or yields. See
 [Checking While Typing](/docs/guides/arguments#checking-while-typing).
@@ -329,10 +333,11 @@ passes the submitted text, so `ctx.input` is exact for commands run from it.
 ### `set_network_handler`
 
 ```lua
-centurion.set_network_handler(callback: (command: string, args: { string }?, input: string?) -> ExecutionContext)
+centurion.set_network_handler(callback: (command: string, args: { string }, input: string?) -> ExecutionContext)
 ```
 
 Sets the function used to execute commands remotely from the client. Called automatically by `setup_networking()`.
+`args` is always a table, empty if `execute_command` was called without any.
 
 ---
 
