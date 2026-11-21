@@ -78,34 +78,36 @@ local function call_guard(ctx: types.ExecutionContext, name: string, callback: (
 	return false
 end
 
-local function check_access(ctx: types.ExecutionContext, command: types.Command<unknown>?): types.FailReason?
-	if command == nil or commands[ctx.command] ~= command then
-		ctx.error("Unknown command")
-		return "unknown"
+-- takes the executor and name from `execute`'s own parameters rather than the
+-- context, since guards and transforms receive the context and can modify it
+local function check_access(
+	executor: Player,
+	name: string,
+	command: types.Command<unknown>?
+): (types.FailReason?, string?)
+	if command == nil or commands[name] ~= command then
+		return "unknown", "Unknown command"
 	end
 
-	if not permission.can_execute(ctx.executor, command) then
+	if not permission.can_execute(executor, command) then
 		if permission.options.hide then
-			ctx.error("Unknown command")
-		else
-			ctx.error("You do not have permission to execute this command.")
+			return "permission", "Unknown command"
 		end
 
-		return "permission"
+		return "permission", "You do not have permission to execute this command."
 	end
 
-	return nil
+	return nil, nil
 end
 
 -- `input` is the raw, untokenized string the executor submitted. Pass it
 -- whenever it's available so that `ctx.input` keeps the original quoting.
 local function execute(executor: Player, name: string, args: { string }?, input: string?): types.ExecutionContext
-	args = args or {}
-	local ctx = context(executor, name, args, input)
-
 	local command = commands[name]
-	local denied: types.FailReason? = check_access(ctx, command)
+	local denied, denied_message = check_access(executor, name, command)
 	if denied then
+		local ctx = context(executor, name, args or {}, input)
+		ctx.error(denied_message :: string)
 		return fail(ctx, denied)
 	end
 
@@ -113,6 +115,9 @@ local function execute(executor: Player, name: string, args: { string }?, input:
 		assert(network_handler, "Network handler must be set before server command execution on the client.")
 		return network_handler(name, args, input)
 	end
+
+	args = args or {}
+	local ctx = context(executor, name, args, input)
 
 	-- clone so that a guard removing itself (or another global
 	-- guard) mid-loop can't cause the next one to be skipped
@@ -179,8 +184,9 @@ local function execute(executor: Player, name: string, args: { string }?, input:
 
 	-- guards and transforms can yield, so the executor's roles may have been revoked,
 	-- or the command replaced, since the previous check
-	denied = check_access(ctx, command)
+	denied, denied_message = check_access(executor, name, command)
 	if denied then
+		ctx.error(denied_message :: string)
 		return fail(ctx, denied)
 	end
 

@@ -2,8 +2,8 @@ local command = require("./command")
 local context = require("./context")
 local limit = require("./limit")
 local log = require("./log")
-local parse = require("./parse")
 local permission = require("./permission")
+local resolve = require("./resolve")
 local services = require("./services")
 local types = require("./types")
 
@@ -371,34 +371,19 @@ end
 -- `ctx.input`, which guards, listeners and logs read, so it mustn't be able to
 -- describe a different command than the one that runs
 local function input_matches(cmd: string, args: { string }?, input: string): boolean
-	local tokens = parse(input, " ").tokens
-
-	local name_end = 0
-	local name = {}
-	for i, token in tokens do
-		if token.quoted then
-			break
-		end
-
-		table.insert(name, token.text)
-		if table.concat(name, " ") == cmd then
-			name_end = i
-			break
-		end
-	end
-
-	if name_end == 0 then
+	-- resolving against only `cmd` splits the input exactly as the client did
+	local resolved = resolve({ [cmd] = true } :: any, input)
+	if resolved.name ~= cmd then
 		return false
 	end
 
 	local given = args or {}
-	if #tokens - name_end ~= #given then
+	if #resolved.args ~= #given then
 		return false
 	end
 
 	for i, arg in given do
-		local span = tokens[name_end + i].span
-		if input:sub(span.x, span.y) ~= arg then
+		if resolved.args[i] ~= arg then
 			return false
 		end
 	end

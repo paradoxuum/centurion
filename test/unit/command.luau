@@ -749,6 +749,7 @@ TEST("permissions are rechecked before the callback", function()
 	centurion.unregister_command("recheck_revoke")
 
 	CASE("a command replaced mid-execution doesn't run its old callback")
+	ran = false
 	centurion.register_command("recheck_replace", {
 		guards = {
 			function()
