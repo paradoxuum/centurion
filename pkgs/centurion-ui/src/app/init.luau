@@ -179,8 +179,9 @@ local function app()
 		end
 
 		local arg = analysis().argument
-		if arg ~= nil then
-			local cmd = centurion.registry.commands[analysis().command]
+		-- the command can be unregistered since the analysis, e.g. when roles change
+		local cmd = arg and centurion.registry.commands[analysis().command]
+		if arg ~= nil and cmd and cmd.arguments then
 			local args = { cmd.arguments() }
 			if arg.index == #args or arg.kind == "list" then
 				return false
@@ -337,12 +338,15 @@ local function app()
 	-- yield, so each analysis runs in its own thread. one that finishes after a
 	-- newer one has started is outdated, and is dropped
 	local analysis_id = 0
+	-- the text the current analysis is for
+	local analysed_text = ""
 	local function reanalyse(value: string, pos: number)
 		analysis_id += 1
 		local id = analysis_id
 		task.spawn(function()
 			local result = analyse(Players.LocalPlayer, value, pos, untrack(state.max_suggestions))
 			if id == analysis_id then
+				analysed_text = value
 				analysis(result)
 			end
 		end)
@@ -350,7 +354,19 @@ local function app()
 
 	local function reset_analysis()
 		analysis_id += 1
+		analysed_text = ""
 		analysis(default_analysis)
+	end
+
+	-- the suggestions, only while they're for the current input. the analysis
+	-- runs after a keystroke, and a slow one would otherwise complete a
+	-- suggestion's span in text that has moved on since, e.g. "giv" to "give v"
+	local function current_suggestions(): { types.AnalysisSuggestion }
+		local current = analysis()
+		if analysed_text ~= raw_text() then
+			return {}
+		end
+		return current.suggestions
 	end
 
 	-- refresh suggestions for leftover input whenever the console opens, which
@@ -516,7 +532,7 @@ local function app()
 				elseif input.KeyCode == Enum.KeyCode.DPadDown then
 					handle_navigation(false)
 				elseif input.KeyCode == Enum.KeyCode.ButtonA then
-					local selected = analysis().suggestions[selected_suggestion()]
+					local selected = current_suggestions()[selected_suggestion()]
 					if selected then
 						raw_text(autofill(raw_text(), selected, true))
 					end
@@ -682,7 +698,7 @@ local function app()
 			text {
 				size = UDim2.fromScale(1, 1),
 				text = function()
-					local analysis_suggestions = analysis().suggestions
+					local analysis_suggestions = current_suggestions()
 					if touch() or #analysis_suggestions == 0 then
 						return ""
 					end
@@ -754,7 +770,7 @@ local function app()
 					local pos = next_cursor_pos or cursor_pos()
 					local last_char = string.sub(value, pos - 1, pos - 1)
 
-					local suggested = analysis().suggestions
+					local suggested = current_suggestions()
 					local without_last = string.sub(value, 1, pos - 2) .. string.sub(value, pos)
 					if os.clock() < ignore_typed_until and without_last == raw_text() then
 						-- the character of the activation key that opened or closed the console
@@ -954,6 +970,10 @@ local function app()
 							return free_space() - px.convert(4)
 						end,
 						on_select = function(suggestion: types.AnalysisSuggestion)
+							-- the list can be fading out, or behind the input
+							if table.find(current_suggestions(), suggestion) == nil then
+								return
+							end
 							raw_text(autofill(raw_text(), suggestion, true))
 							if not gamepad() then
 								refocus()
