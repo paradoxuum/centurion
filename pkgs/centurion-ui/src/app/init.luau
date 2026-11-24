@@ -607,14 +607,31 @@ local function app()
 					end
 
 					local value = raw_text()
-					local suggested = autofill(value, selected, false)
-					-- matching ignores case, so "b" still completes to "Bomb"
-					if suggested:sub(1, #value):lower() ~= value:lower() then
-						return ""
+					local function preview(suggestion: types.AnalysisSuggestion): string?
+						local suggested = autofill(value, suggestion, false)
+						-- matching ignores case, so "b" still completes to "Bomb"
+						if suggested:sub(1, #value):lower() ~= value:lower() then
+							return nil
+						end
+						-- keep what was typed so the rest lines up behind the input,
+						-- since "b" and "B" aren't the same width
+						return value .. suggested:sub(#value + 1)
 					end
-					-- keep what was typed so the rest lines up behind the input,
-					-- since "b" and "B" aren't the same width
-					return value .. suggested:sub(#value + 1)
+
+					local shown = preview(selected)
+					if shown == nil then
+						-- a suggestion with spaces is quoted, and the quote would go before
+						-- what was typed, e.g. "Cir" completes to "\"Circular Saw\"". so
+						-- preview it unquoted, and the quotes appear once it's accepted
+						local replace = selected.replace
+						local quote = replace:sub(1, 1)
+						if (quote == '"' or quote == "'") and #replace >= 2 and replace:sub(-1) == quote then
+							local unquoted = table.clone(selected)
+							unquoted.replace = replace:sub(2, -2)
+							shown = preview(unquoted)
+						end
+					end
+					return shown or ""
 				end,
 				text_style = "subtext",
 				transparency = 0.3,
