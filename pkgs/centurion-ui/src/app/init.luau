@@ -606,11 +606,15 @@ local function app()
 						return ""
 					end
 
-					local suggested = autofill(raw_text(), selected, false)
-					if suggested:sub(1, #raw_text()) ~= raw_text() then
+					local value = raw_text()
+					local suggested = autofill(value, selected, false)
+					-- matching ignores case, so "b" still completes to "Bomb"
+					if suggested:sub(1, #value):lower() ~= value:lower() then
 						return ""
 					end
-					return suggested
+					-- keep what was typed so the rest lines up behind the input,
+					-- since "b" and "B" aren't the same width
+					return value .. suggested:sub(#value + 1)
 				end,
 				text_style = "subtext",
 				transparency = 0.3,
