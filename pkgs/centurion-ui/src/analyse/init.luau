@@ -257,9 +257,17 @@ local function analyse(
 			table.insert(to_match, k)
 		end
 
+		-- names can contain spaces, so the name being typed is everything up to the
+		-- token under the cursor. tokens after it are kept, so that completing a
+		-- name doesn't throw away the arguments already typed after it. a resolved
+		-- name is always replaced whole, as its suggestions are for all of it
+		local cursor_slot, between = cursor.locate(tokens, cursor_pos)
+		local name_end = if between then cursor_slot - 1 else cursor_slot
+		name_end = math.clamp(math.max(name_end, cmd_index or 0), 1, #tokens)
+
 		local token_text = {}
-		for _, token in tokens do
-			table.insert(token_text, token.text)
+		for i = 1, name_end do
+			table.insert(token_text, tokens[i].text)
 		end
 
 		local query = table.concat(token_text, " ")
@@ -290,7 +298,7 @@ local function analyse(
 				description = cmds[cmd_match].description,
 				matches = match(query, cmd_match),
 
-				span = vector.create(1, tokens[#tokens].span.y, 0),
+				span = vector.create(1, tokens[name_end].span.y, 0),
 				replace = cmd_match,
 			} :: types.AnalysisSuggestion
 			table.insert(suggestions, suggestion)

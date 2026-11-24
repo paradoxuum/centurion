@@ -126,6 +126,18 @@ TEST("analyse commands", function()
 	CHECK(res.suggestions[1].description == "Gives an item")
 	CHECK(res.suggestions[1].span == vector.create(1, 6, 0) and res.suggestions[1].replace == "ui_give")
 
+	CASE("completing a command keeps the arguments after the cursor")
+	res = run("ui_g|ive wren sword")
+	CHECK(res.suggestions[1].name == "ui_give" and res.suggestions[1].span == vector.create(1, 7, 0))
+	res = run("ui_gi|v wren sword")
+	CHECK(res.suggestions[1].name == "ui_give" and res.suggestions[1].span == vector.create(1, 6, 0))
+	res = run("ui_giv | wren")
+	CHECK(res.suggestions[1].name == "ui_give" and res.suggestions[1].span == vector.create(1, 6, 0))
+
+	CASE("a resolved command with spaces is replaced whole")
+	res = run("ui_ro|le add")
+	CHECK(res.suggestions[1].name == "ui_role add" and res.suggestions[1].span == vector.create(1, 11, 0))
+
 	CASE("a resolved command comes first")
 	res = run("ui_role")
 	CHECK(res.command == "ui_role" and res.suggestions[1].name == "ui_role")

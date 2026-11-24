@@ -181,7 +181,8 @@ local function app()
 		local span_start = token.x - 1
 		local before = string.sub(value, 1, span_start)
 		local after = string.sub(value, token.y + 1, -1)
-		local space = if needs_space(suggestion) then " " else ""
+		-- input already typed after the suggestion can be followed by a space
+		local space = if needs_space(suggestion) and not after:match("^%s") then " " else ""
 
 		if update_cursor_pos then
 			-- moving the cursor shows it on consoles even with the keyboard
@@ -316,6 +317,8 @@ local function app()
 	end)
 
 	local analysing = false
+	-- where the cursor last was in the textbox, and the text it was in
+	local last_cursor: { pos: number, text: string }? = nil
 	effect(function()
 		raw_text()
 		cursor_pos()
@@ -328,14 +331,22 @@ local function app()
 		task.defer(function()
 			analysing = false
 
-			-- the textbox reports -1 while unfocused, which is the only time
-			-- consoles see the input, since their keyboard covers the screen
+			-- the textbox reports -1 while unfocused. clicking a suggestion takes
+			-- focus away, so keep analysing where the cursor was until the text
+			-- changes, otherwise the list would switch to suggestions for the end
+			-- of the input before the click lands. consoles always use the end,
+			-- since their keyboard covers the screen whenever the textbox is focused
+			local value = raw_text()
 			local pos = cursor_pos()
-			if pos == -1 then
-				pos = #raw_text() + 1
+			if pos ~= -1 then
+				last_cursor = { pos = pos, text = value }
+			elseif not gamepad() and last_cursor and last_cursor.text == value then
+				pos = last_cursor.pos
+			else
+				pos = #value + 1
 			end
 
-			analysis(analyse(Players.LocalPlayer, raw_text(), pos, state.max_suggestions()))
+			analysis(analyse(Players.LocalPlayer, value, pos, state.max_suggestions()))
 		end)
 	end)
 
@@ -664,17 +675,33 @@ local function app()
 
 				text = raw_text,
 				update_text = function(value)
+					local typed = value
 					local pos = next_cursor_pos or cursor_pos()
 					local last_char = string.sub(value, pos - 1, pos - 1)
 
 					local suggested = analysis().suggestions
-					if last_char == "\t" and suggested[1] then
-						local selected = suggested[selected_suggestion()] or suggested[1]
-						value = autofill(raw_text(), selected, true)
+					if last_char == "\t" then
+						if suggested[1] then
+							local selected = suggested[selected_suggestion()] or suggested[1]
+							value = autofill(raw_text(), selected, true)
+						else
+							-- nothing to complete, so drop the tab rather than leaving it in the input
+							value = string.sub(value, 1, pos - 2) .. string.sub(value, pos)
+							if not gamepad() then
+								task.defer(cursor_pos, pos - 1)
+							end
+						end
 					end
 
 					if value ~= raw_text() then
 						cmd_history_index = 0
+					end
+					if value ~= typed then
+						-- the textbox still holds the tab. sources ignore being set to the
+						-- value they already have, which removing the tab or completing an
+						-- already complete suggestion can give, so set what the textbox
+						-- holds first to make sure the change reaches it
+						raw_text(typed)
 					end
 					raw_text(value)
 				end,
