@@ -169,6 +169,15 @@ TEST("analyse arguments", function()
 	CHECK(res.suggestions[1].name == "health potion" and res.suggestions[1].replace == '"health potion"')
 	CHECK(res.suggestions[1].description == "Heals")
 
+	CASE("a quote the user opened is kept, even when the suggestion doesn't need one")
+	res = run('ui_give wren "sw')
+	CHECK(res.suggestions[1].name == "sword" and res.suggestions[1].replace == '"sword"')
+	CHECK(res.suggestions[1].span == vector.create(14, 16, 0))
+	res = run("ui_give wren 'health")
+	CHECK(res.suggestions[1].name == "health potion" and res.suggestions[1].replace == "'health potion'")
+	res = run('ui_bring wren,"or')
+	CHECK(res.suggestions[1].name == "Orrin" and res.suggestions[1].replace == '"Orrin"')
+
 	CASE("string suggestions have no description")
 	suggestion = find(run("ui_give wren "), "sword") :: types.AnalysisSuggestion
 	CHECK(suggestion and suggestion.description == nil)

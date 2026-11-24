@@ -196,18 +196,31 @@ local function analyse(
 			local matches, total = suggest(input_token.text, arg_suggestions, max_suggestions, suggestion_keys)
 			hidden = total - #matches
 
+			-- keep the quote the user opened the token with, even when the
+			-- suggestion doesn't need one, so completing extends what was typed
+			local typed_quote: string? = nil
+			if input_token.quoted then
+				local first = text:sub(input_token.span.x, input_token.span.x)
+				if first == '"' or first == "'" then
+					typed_quote = first
+				end
+			end
+
 			for _, item in matches do
 				local suggestion_text = item.text
-				local replacement = ""
 				local replacement_text = {}
 				for _, replacement_token in centurion.parse_text(suggestion_text, " ").tokens do
 					table.insert(replacement_text, replacement_token.text)
 				end
 
-				if #replacement_text == 1 then
-					replacement = replacement_text[1]
+				local joined = table.concat(replacement_text, " ")
+				local replacement
+				if typed_quote and not joined:find(typed_quote, 1, true) then
+					replacement = typed_quote .. joined .. typed_quote
+				elseif #replacement_text == 1 then
+					replacement = joined
 				else
-					replacement = '"' .. table.concat(replacement_text, " ") .. '"'
+					replacement = '"' .. joined .. '"'
 				end
 
 				local suggestion = {
