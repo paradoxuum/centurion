@@ -269,6 +269,11 @@ TEST("analyse results", function()
 
 	CASE("an unclosed quote is reported")
 	CHECK(error_of(run('ui_give wren "health')) == "Unclosed quote at position 14")
+
+	CASE("an unclosed quote partway through a token is reported where it opens")
+	CHECK(error_of(run('ui_give wren ab"cd')) == "Unclosed quote at position 16")
+	CHECK(error_of(run('ui_give wren a"b"c\'d')) == "Unclosed quote at position 19")
+	CHECK(error_of(run('ui_give wren a\\"b"c')) == "Unclosed quote at position 18")
 end)
 
 return nil

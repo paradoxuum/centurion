@@ -2,6 +2,7 @@ local ContextActionService = game:GetService("ContextActionService")
 local GuiService = game:GetService("GuiService")
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
+local TextChatService = game:GetService("TextChatService")
 local UserInputService = game:GetService("UserInputService")
 
 local analyse = require("./analyse")
@@ -258,16 +259,19 @@ local function app()
 		selected_suggestion(math.clamp(selected_suggestion() + (up and -1 or 1), 1, #suggested))
 	end
 
-	-- whether a textbox outside the console has focus, like the chat
 	-- whether a textbox outside the console has focus, like the chat. the chat
 	-- is in CoreGui, which GetFocusedTextBox doesn't return to game scripts, but
-	-- input typed into it is still marked as processed
-	local function typing_elsewhere(processed: boolean): boolean
+	-- its config says when it's focused instead. input being processed isn't
+	-- used, since it's also set for keys bound with ContextActionService, like
+	-- the arrow keys moving the character
+	local function typing_elsewhere(): boolean
 		local focused = UserInputService:GetFocusedTextBox()
 		if focused ~= nil then
 			return not (root ~= nil and focused:IsDescendantOf(root))
 		end
-		return processed
+
+		local chat_bar = TextChatService:FindFirstChildOfClass("ChatInputBarConfiguration")
+		return chat_bar ~= nil and chat_bar.IsFocused
 	end
 
 	effect(function()
@@ -285,7 +289,7 @@ local function app()
 		end
 	end)
 
-	cleanup(UserInputService.InputBegan:Connect(function(input, processed)
+	cleanup(UserInputService.InputBegan:Connect(function(input)
 		if input.UserInputState ~= Enum.UserInputState.Begin then
 			return
 		end
@@ -303,11 +307,13 @@ local function app()
 		end
 
 		-- keys pressed while typing in another textbox are meant for it
-		if typing_elsewhere(processed) then
+		if typing_elsewhere() then
 			return
 		end
 
-		if state.opened() then
+		-- only while typing, since the arrow keys also move the character, which
+		-- the textbox stops. consoles browse unfocused with the gamepad binding
+		if state.opened() and state.focused() then
 			if input.KeyCode == Enum.KeyCode.Up then
 				handle_navigation(true)
 			elseif input.KeyCode == Enum.KeyCode.Down then
@@ -327,6 +333,26 @@ local function app()
 		state.focused(opened)
 	end))
 
+	-- argument types without a check are transformed while analysing, which can
+	-- yield, so each analysis runs in its own thread. one that finishes after a
+	-- newer one has started is outdated, and is dropped
+	local analysis_id = 0
+	local function reanalyse(value: string, pos: number)
+		analysis_id += 1
+		local id = analysis_id
+		task.spawn(function()
+			local result = analyse(Players.LocalPlayer, value, pos, untrack(state.max_suggestions))
+			if id == analysis_id then
+				analysis(result)
+			end
+		end)
+	end
+
+	local function reset_analysis()
+		analysis_id += 1
+		analysis(default_analysis)
+	end
+
 	-- refresh suggestions for leftover input whenever the console opens, which
 	-- can also happen through the public open/toggle functions
 	effect(function()
@@ -334,12 +360,10 @@ local function app()
 			return
 		end
 
-		untrack(function()
-			local input_text = raw_text()
-			if #input_text > 0 then
-				analysis(analyse(Players.LocalPlayer, input_text, #input_text + 1, state.max_suggestions()))
-			end
-		end)
+		local input_text = untrack(raw_text)
+		if #input_text > 0 then
+			reanalyse(input_text, #input_text + 1)
+		end
 	end)
 
 	effect(function()
@@ -394,7 +418,7 @@ local function app()
 				pos = #value + 1
 			end
 
-			analysis(analyse(Players.LocalPlayer, value, pos, state.max_suggestions()))
+			reanalyse(value, pos)
 		end)
 	end)
 
@@ -405,7 +429,7 @@ local function app()
 		-- carries arguments when the cursor happens to sit on one
 		local submitted = centurion.resolve_command(trimmed)
 		raw_text("")
-		analysis(default_analysis)
+		reset_analysis()
 
 		if #value:gsub("%s", "") == 0 then
 			state.opened(false)

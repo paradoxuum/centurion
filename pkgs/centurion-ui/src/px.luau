@@ -61,11 +61,23 @@ local function mount()
 		scale(modify_scale(2 ^ math.lerp(scaleX, scaleY, DOMINANT_AXIS)))
 	end)
 
-	cleanup(workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(function()
-		viewport_size(workspace.CurrentCamera.ViewportSize)
+	-- games can replace the camera, so follow whichever one is current
+	local camera = source(workspace.CurrentCamera)
+	cleanup(workspace:GetPropertyChangedSignal("CurrentCamera"):Connect(function()
+		camera(workspace.CurrentCamera)
 	end))
 
-	viewport_size(workspace.CurrentCamera.ViewportSize)
+	effect(function()
+		local current = camera()
+		if current == nil then
+			return
+		end
+
+		viewport_size(current.ViewportSize)
+		cleanup(current:GetPropertyChangedSignal("ViewportSize"):Connect(function()
+			viewport_size(current.ViewportSize)
+		end))
+	end)
 end
 
 return setmetatable({ mount = mount, convert = convert, get = px_raw, viewport = viewport_size }, {

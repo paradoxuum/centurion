@@ -13,6 +13,30 @@ local function normalize(suggestion: centurion.Suggestion): centurion.Suggestion
 	return suggestion
 end
 
+-- where the quote left open in the last token starts. quotes can open and close
+-- several times within a token, e.g. a"b"c"d, so this follows them like parsing
+local function unclosed_quote_pos(text: string, token: centurion.Token): number
+	local quote_char: string? = nil
+	local opened_at = token.span.x
+	local escaped = false
+
+	for i = token.span.x, #text do
+		local c = text:sub(i, i)
+		if escaped then
+			escaped = false
+		elseif c == "\\" then
+			escaped = true
+		elseif quote_char == nil and (c == '"' or c == "'") then
+			quote_char = c
+			opened_at = i
+		elseif c == quote_char then
+			quote_char = nil
+		end
+	end
+
+	return opened_at
+end
+
 local function suggestion_keys(suggestion: centurion.SuggestionData): { string }
 	local keys = { suggestion.text }
 	if suggestion.aliases then
@@ -318,7 +342,7 @@ local function analyse(
 	if resolution.unclosed_quote then
 		analysis_result = {
 			success = false,
-			error = "Unclosed quote at position " .. tokens[#tokens].span.x,
+			error = "Unclosed quote at position " .. unclosed_quote_pos(text, tokens[#tokens]),
 		}
 	else
 		if arg_result then
