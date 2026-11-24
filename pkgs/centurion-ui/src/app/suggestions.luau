@@ -419,9 +419,25 @@ local function suggestions(props: Suggestions)
 
 			local canvas_y = source(0)
 
+			-- the analysis is redone whenever the textbox loses focus, since its cursor
+			-- position changes, which gives a new list even when the suggestions are
+			-- the same. so these only change when the suggestions actually do, which
+			-- stops the list from scrolling back to the selected row while a row is
+			-- being clicked, as that would move it out from under the mouse
+			local count = derive(function()
+				return #props.analysis().suggestions
+			end)
+			local names = derive(function()
+				local out = {}
+				for i, suggestion in props.analysis().suggestions do
+					out[i] = suggestion.name
+				end
+				return table.concat(out, "\0")
+			end)
+
 			-- rows are all the same height, so one is the average of them
 			local function row_height()
-				return content_height() / math.max(#props.analysis().suggestions, 1)
+				return content_height() / math.max(count(), 1)
 			end
 
 			local function visible_height()
@@ -529,6 +545,9 @@ local function suggestions(props: Suggestions)
 				-- keep the selected row in view when moving through the list
 				action(function(instance: ScrollingFrame)
 					effect(function()
+						-- still scroll to the selected row when the suggestions change
+						names()
+
 						local height = row_height()
 						if height == 0 then
 							return
