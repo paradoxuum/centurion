@@ -40,7 +40,8 @@ type TextBoxProps = {
 
 	read update_text: ((string) -> ())?,
 	read update_focused: ((focused: boolean, enter: boolean) -> ())?,
-	read enter: (string) -> (),
+	-- called when enter is pressed, which does nothing without it
+	read enter: ((string) -> ())?,
 
 	[number]: unknown,
 }
@@ -51,10 +52,9 @@ return function(props: TextBoxProps)
 	local reattaching = false
 
 	local function submit()
-		if not props.focused then
-			return
+		if props.enter then
+			props.enter(raw_text())
 		end
-		props.enter(raw_text())
 	end
 
 	local textbox: TextBox

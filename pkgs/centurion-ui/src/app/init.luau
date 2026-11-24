@@ -44,6 +44,8 @@ local default_analysis = {
 	suggestions = {},
 } :: types.AnalysisResult
 local max_history_lines = 10
+local max_logs = 100
+local max_cmd_history = 100
 local spinner_frames = { "|", "/", "-", "\\" }
 
 local function app()
@@ -99,7 +101,15 @@ local function app()
 	local next_cursor_pos = false
 	local refocus_deadline = 0
 	local cmd_history = {}
+	-- 0 while not browsing the history, otherwise the entry being shown
 	local cmd_history_index = 0
+	-- what was being typed before browsing the history, restored when leaving it
+	local cmd_draft = ""
+	-- an activation key can be a character, which the textbox types if it's
+	-- focused when the key is pressed, so ignore it being typed until then
+	local ignore_typed_until = 0
+	-- the console's outermost frame, to tell its textboxes apart from others
+	local root: GuiObject? = nil
 
 	-- shakes the input and flashes its outline when a command fails
 	local shake, shake_settings = spring(function()
@@ -138,7 +148,9 @@ local function app()
 			command = command,
 			response = response,
 		})
-		table.remove(logs, 100)
+		while #logs > max_logs do
+			table.remove(logs)
+		end
 		state.logs(logs)
 
 		if not response.success then
@@ -212,22 +224,50 @@ local function app()
 		return keys
 	end)
 
+	local function step_history(up: boolean)
+		local index = math.clamp(cmd_history_index + (up and 1 or -1), 0, #cmd_history)
+		if index == cmd_history_index then
+			return
+		end
+
+		if cmd_history_index == 0 then
+			cmd_draft = raw_text()
+		end
+		cmd_history_index = index
+
+		local value = if index == 0 then cmd_draft else cmd_history[index]
+		raw_text(value)
+		cursor_pos(#value + 1)
+	end
+
 	local function handle_navigation(up: boolean)
 		local suggested = analysis().suggestions
 
+		-- once browsing the history, both directions stay in it until the entry is
+		-- edited, rather than moving through the entry's own suggestions
 		if
-			#suggested == 0
+			cmd_history_index > 0
+			or #suggested == 0
 			or UserInputService:IsKeyDown(Enum.KeyCode.LeftShift)
-			or (selected_suggestion() == 1 and up and #cmd_history > 0)
+			or (selected_suggestion() == 1 and up)
 		then
-			cmd_history_index = math.clamp(cmd_history_index + (up and 1 or -1), 0, #cmd_history)
-			raw_text(cmd_history[cmd_history_index] or "")
-			cursor_pos(#raw_text() + 1)
-
+			step_history(up)
 			return
 		end
 
 		selected_suggestion(math.clamp(selected_suggestion() + (up and -1 or 1), 1, #suggested))
+	end
+
+	-- whether a textbox outside the console has focus, like the chat
+	-- whether a textbox outside the console has focus, like the chat. the chat
+	-- is in CoreGui, which GetFocusedTextBox doesn't return to game scripts, but
+	-- input typed into it is still marked as processed
+	local function typing_elsewhere(processed: boolean): boolean
+		local focused = UserInputService:GetFocusedTextBox()
+		if focused ~= nil then
+			return not (root ~= nil and focused:IsDescendantOf(root))
+		end
+		return processed
 	end
 
 	effect(function()
@@ -245,7 +285,7 @@ local function app()
 		end
 	end)
 
-	cleanup(UserInputService.InputBegan:Connect(function(input)
+	cleanup(UserInputService.InputBegan:Connect(function(input, processed)
 		if input.UserInputState ~= Enum.UserInputState.Begin then
 			return
 		end
@@ -262,6 +302,11 @@ local function app()
 			return
 		end
 
+		-- keys pressed while typing in another textbox are meant for it
+		if typing_elsewhere(processed) then
+			return
+		end
+
 		if state.opened() then
 			if input.KeyCode == Enum.KeyCode.Up then
 				handle_navigation(true)
@@ -274,6 +319,9 @@ local function app()
 			return
 		end
 
+		if UserInputService:GetStringForKeyCode(input.KeyCode) ~= "" then
+			ignore_typed_until = os.clock() + 0.1
+		end
 		local opened = not state.opened()
 		state.opened(opened)
 		state.focused(opened)
@@ -378,6 +426,9 @@ local function app()
 			table.remove(cmd_history, history_index)
 		end
 		table.insert(cmd_history, 1, trimmed)
+		while #cmd_history > max_cmd_history do
+			table.remove(cmd_history)
+		end
 
 		local cmd = submitted.name
 		if not cmd then
@@ -680,13 +731,21 @@ local function app()
 					local last_char = string.sub(value, pos - 1, pos - 1)
 
 					local suggested = analysis().suggestions
-					if last_char == "\t" then
+					local without_last = string.sub(value, 1, pos - 2) .. string.sub(value, pos)
+					if os.clock() < ignore_typed_until and without_last == raw_text() then
+						-- the character of the activation key that opened or closed the console
+						ignore_typed_until = 0
+						value = without_last
+						if not gamepad() then
+							task.defer(cursor_pos, pos - 1)
+						end
+					elseif last_char == "\t" then
 						if suggested[1] then
 							local selected = suggested[selected_suggestion()] or suggested[1]
 							value = autofill(raw_text(), selected, true)
 						else
 							-- nothing to complete, so drop the tab rather than leaving it in the input
-							value = string.sub(value, 1, pos - 2) .. string.sub(value, pos)
+							value = without_last
 							if not gamepad() then
 								task.defer(cursor_pos, pos - 1)
 							end
@@ -770,6 +829,9 @@ local function app()
 			padding(px(8)),
 			flex():row():gap(1),
 			track_bounds,
+			action(function(instance: GuiObject)
+				root = instance
+			end),
 
 			{
 				Visible = function()
